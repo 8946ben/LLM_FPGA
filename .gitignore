@@ -4,3 +4,6 @@ __pycache__/
 *.zip
 .DS_Store
 Thumbs.db
+artifacts/
+module16_lm_head_hls/build/
+vitis_hls.log
