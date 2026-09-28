@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ABI V2 路线 · LLM_FPGA 项目图wiki</title>
+<link rel="stylesheet" href="assets/wiki.css">
+</head>
+<body>
+
+<header class="wiki-header">
+  <div class="bar">
+    <a class="brand" href="index.html">LLM_FPGA 项目图wiki<span>以图为核心</span></a>
+    <nav>
+      <a href="index.html">总览</a>
+      <a href="model.html">模型与权重</a>
+      <a href="trace.html">Golden Trace</a>
+      <a href="python-ref.html">Python 参考</a>
+      <a href="hls.html">HLS 内核</a>
+      <a href="protocol.html">网络协议</a>
+      <a href="fpga.html">上板部署</a>
+      <a href="verify.html">验证闭环</a>
+      <a href="tools.html">工具链</a>
+      <a href="roadmap.html" class="active">ABI V2 路线</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>ABI V2 全模块重构路线</h1>
+<p class="lede">
+<code>doc/0924/</code> 两份文档把「只做 LM Head 的模块 16」升级为「整模型的 PS/PL 全模块统一集成」设计稿。
+目标工程是 <code>D:\FPGA_PRO\llme_SDWeight_proj</code>，接口版本 ABI V2。
+</p>
+
+<div class="note warn">
+<strong>状态核查（2026-09-28）：</strong>目标工程 <code>D:\FPGA_PRO\llme_SDWeight_proj</code>
+在本机<strong>尚不存在</strong>，本页描述的是设计稿而非已落地代码；<code>doc/0924/</code> 文档也自述「本次未修改任何工程代码」。
+</div>
+
+<h2>M00–M15 全模块分层</h2>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart TB
+  subgraph CTRL["控制面"]
+    direction LR
+    M00["M00 Host/TCP Protocol"]
+    M01["M01 Scheduler/Runtime"]
+    M02["M02 IP Registry/Driver"]
+  end
+
+  subgraph MEMF["内存面"]
+    direction LR
+    M03["M03 Memory/Buffer Manager<br/>cache 所有权集中在此"]
+    M04["M04 SD Weight Store/Manifest"]
+  end
+
+  subgraph DATA["数据面 · 计算 IP"]
+    direction LR
+    M05["M05 Token Embedding"]
+    M06["M06 Dynamic RMSNorm"]
+    M07["M07 QKV Projection"]
+    M08["M08 Block RoPE"]
+    M09["M09 KV Cache Update"]
+    M10["M10 GQA Online-Softmax Attention"]
+    M11["M11 Attention Out Projection"]
+    M12["M12 Residual Add"]
+    M13["M13 Dynamic Tiled SwiGLU"]
+    M14["M14 LM Head / Penalty / Argmax"]
+  end
+
+  subgraph VER["验证面"]
+    direction LR
+    M15["M15 Debug/Performance"]
+  end
+
+  M00 --> M01 --> M02
+  M02 --> M03
+  M04 --> M03
+  M03 --> M05 --> M06 --> M07 --> M08 --> M09 --> M10 --> M11 --> M12 --> M13 --> M14
+  M15 -. "计数与 snapshot" .-> DATA
+</div>
+<figcaption>
+图 1　ABI V2 模块清单。旧 GQA Repeat、Attention Value、独立 SiLU、通用 Linear/MLP
+与格式转换模块的生产职责已合并或取消，集成时不会出现「是否还要连接」的歧义。
+</figcaption>
+</figure>
+
+<h2>两条贯穿全模块的 ABI 约定</h2>
+
+<figure class="diagram wide">
+<svg viewBox="0 0 980 150" width="100%" role="img" aria-label="ABI V2 权重 32-lane 物理分组布局">
+  <g font-size="13" fill="#1f2328">
+    <text x="10" y="20" font-weight="600">一个权重分组 = 32 × BF16 = 64 byte = 1 个 cache line</text>
+    <g stroke="#8ab4f8">
+      <rect x="10"  y="34" width="232" height="52" fill="#eaf3ff"/>
+      <rect x="252" y="34" width="232" height="52" fill="#eaf3ff"/>
+      <rect x="494" y="34" width="232" height="52" fill="#eaf3ff"/>
+      <rect x="736" y="34" width="232" height="52" fill="#eaf3ff"/>
+    </g>
+    <g text-anchor="middle">
+      <text x="126" y="56" font-weight="600">128-bit 子块 0</text>
+      <text x="126" y="74" font-size="11.5" fill="#59636e">lane 0 – 7</text>
+      <text x="368" y="56" font-weight="600">128-bit 子块 1</text>
+      <text x="368" y="74" font-size="11.5" fill="#59636e">lane 8 – 15</text>
+      <text x="610" y="56" font-weight="600">128-bit 子块 2</text>
+      <text x="610" y="74" font-size="11.5" fill="#59636e">lane 16 – 23</text>
+      <text x="852" y="56" font-weight="600">128-bit 子块 3</text>
+      <text x="852" y="74" font-size="11.5" fill="#59636e">lane 24 – 31</text>
+    </g>
+    <text x="10" y="112" font-size="12" fill="#59636e">W_PACKED[output_group32][input_index][lane32]　·　output_channel = output_group32 × 32 + lane32</text>
+    <text x="10" y="134" font-size="12" fill="#59636e">PAR=8 读 1 个子块　·　PAR=16 组合 2 个子块　·　PAR=32 组合 4 个子块 —— 物理文件始终是同一份 32-lane 布局</text>
+  </g>
+</svg>
+<figcaption>
+图 2　约定一：权重固定 32 元素物理分组。调整并行度只需改模块内部读法，
+不改 AXI 连接、不改 PS buffer 地址、不需要为 8/16/32 维护三套语义不同的权重文件。
+</figcaption>
+</figure>
+
+<figure class="diagram">
+<div class="mermaid">
+flowchart LR
+  CALL["PS 下发一次 job<br/>run_mode + valid_rows"]
+  DEC{"run_mode"}
+  PRE["Prefill 路径<br/>valid_rows = 1..64<br/>循环终止条件就是 valid_rows"]
+  DECP["Decode 路径<br/>valid_rows = 1<br/>只算 1 行，不补零"]
+  DDR["DDR 访问范围按有效值裁剪"]
+  WR["写回范围按有效值裁剪"]
+  PERF["perf_cycles / read_beats / write_beats / processed_rows"]
+
+  CALL --> DEC
+  DEC -->|Prefill| PRE
+  DEC -->|Decode| DECP
+  PRE --> DDR
+  DECP --> DDR
+  DDR --> WR --> PERF
+</div>
+<figcaption>
+图 3　约定二：所有长度使用有效值。Decode 每次只有 1 个新 token，
+当前实现却固定按 36 行执行 SwiGLU，PS 补零后 PL 仍完成无效计算 —— 新设计要求循环、DDR 访问、写回全部由
+<code>valid_rows</code> 控制。
+</figcaption>
+</figure>
+
+<h2>设计前的六条核查结论</h2>
+
+<div class="table-scroll">
+<table>
+  <tr><th>#</th><th>结论</th><th>对设计的影响</th></tr>
+  <tr><td>一</td><td>当前最大浪费不只是接口窄，还有无效计算</td><td>token 维模块统一引入 <code>valid_rows</code>（1～64）</td></tr>
+  <tr><td>二</td><td>重复 cache clean 可能是板级耗时异常的重要来源</td><td>权重只 clean 一次；cache 所有权集中到 M03，wrapper 不再自行清理整块 buffer</td></tr>
+  <tr><td>三</td><td>不能先简单增加大量并行单元</td><td>约 97.4% CLB、83.5% BRAM、22.7% DSP；瓶颈是布局空间、BRAM 与布线，Attention/SwiGLU 必须先改 tile 结构</td></tr>
+  <tr><td>四</td><td>实际不是所有 IP 都挤在 HP3</td><td>HP0～HP3 已分组使用，第一版保持；只有 AXI 计数器证明拥堵后才重新分配</td></tr>
+  <tr><td>五</td><td>PS HP 的 128 bit 是 PS IP 配置决定的</td><td>扩大 HLS 端口可改善 burst 与内部并行，但不能把 PS DDR 物理出口变成 512 bit</td></tr>
+  <tr><td>六</td><td>必须先冻结可追溯版本</td><td>任何优化前记录源码 commit/dirty patch 与 bit、XSA、ELF、component.xml、权重的 SHA-256</td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>关于结论三的数据口径：</strong>97.4% CLB / 83.5% BRAM / 22.7% DSP 是<strong>整个
+<code>rmsnorm_axu9egkv_gqa_lmhead</code> 工程</strong>的占用，不是 <code>lm_head_argmax</code> 单个 IP 的占用 ——
+模块 16 单独综合只用了 14 个 BRAM18K、5 个 DSP、5,816 LUT。
+</div>
+
+<h2>板级 profile 核对结果</h2>
+
+<div class="table-scroll">
+<table>
+  <tr><th>项目</th><th>值</th><th>来源</th></tr>
+  <tr><td>FPGA 器件</td><td><code>XCZU9EG-2FFVB1156I</code></td><td>开发板手册 + 约束</td></tr>
+  <tr><td>PS DDR4</td><td>4 GB · 64 bit（<code>DDR_LOW</code> 0x0–0x7FFFFFFF，<code>DDR_HIGH</code> 0x800000000–0x87FFFFFFF）</td><td>手册 + BD</td></tr>
+  <tr><td>PL DDR4</td><td>2 GB · 物理 32 bit；MIG AXI 128 bit；UI 时钟 266.5 MHz</td><td>手册 + XCI</td></tr>
+  <tr><td>PS <code>S_AXI_HP0_FPD</code>～<code>HP3_FPD</code></td><td>128 bit（地址宽度 40 bit）</td><td>当前 PS IP 配置，非板卡固定属性</td></tr>
+  <tr><td>PS 参考时钟</td><td>单端 33.333333 MHz</td><td>手册（不等于计算频率）</td></tr>
+  <tr><td>PL/DDR 参考时钟</td><td>差分 200 MHz</td><td>手册（不等于用户逻辑工作时钟）</td></tr>
+  <tr><td>当前 HLS/AXI 目标</td><td>100 MHz 优先</td><td>实现/时序目标，以报告为准</td></tr>
+  <tr><td>权重规模（V2 形状）</td><td>Embedding / LM Head 共享约 942 MiB；K/V Cache 满容量约 24 MiB</td><td>按 manifest 实际大小与 SHA256 为准</td></tr>
+</table>
+</div>
+
+<h2>交付与集成排期</h2>
+
+<figure class="diagram wide">
+<div class="mermaid">
+gantt
+  title ABI V2 全模块交付与集成排期
+  dateFormat YYYY-MM-DD
+  axisFormat %m-%d
+
+  section 架构冻结
+  整体架构与统一接口 :done, t1, 2026-09-24, 1d
+  板级 profile 核对并冻结 :done, t2, 2026-09-24, 1d
+
+  section PS 与框架
+  PS Runtime 调度与驱动框架 :active, t3, 2026-09-25, 6d
+  M04 M06 M09 与权重加载验证 :t4, 2026-09-28, 13d
+
+  section 数据面模块
+  M05 Embedding :t5, 2026-09-26, 15d
+  M07 M11 M12 :t6, 2026-09-26, 15d
+  M08 M10 Attention :t7, 2026-09-26, 15d
+  M13 SwiGLU :t8, 2026-09-26, 15d
+  M14 LM Head :t9, 2026-09-26, 15d
+
+  section 汇总
+  全部模块统一交付 :milestone, m1, 2026-10-10, 0d
+  一次性集成全部模块 :t10, 2026-10-10, 13d
+  第一版完整工程 :milestone, m2, 2026-10-23, 0d
+  系统功能与性能调试 :t11, 2026-10-24, 21d
+  最终版本完成 :milestone, m3, 2026-11-20, 0d
+</div>
+<figcaption>
+图 4　排期。10 月 10 日前各负责人完成模块与单模块测试，10 月 11 日起由汇总人一次性集成，
+10 月 23 日出可运行的 bitstream/XSA/ELF 与对应权重。
+</figcaption>
+</figure>
+
+<div class="table-scroll">
+<table>
+  <tr><th>人员</th><th>工作内容</th><th>计划完成</th></tr>
+  <tr><td>林家豪</td><td>整体架构、统一接口、数据布局和 Prefill/Decode 规则</td><td>2026-09-25</td></tr>
+  <tr><td>林家豪、喻燕萍</td><td>AXU9EGB 板级 profile（DDR、HP/MIG 位宽、时钟、复位）核对并冻结</td><td>2026-09-25</td></tr>
+  <tr><td>喻燕萍</td><td>PS Runtime、调度、驱动、内存管理和整体框架</td><td>2026-09-30</td></tr>
+  <tr><td>喻燕萍</td><td>M04、M06、M09、权重加载和验证</td><td>2026-10-10</td></tr>
+  <tr><td>姜小平</td><td>M08、M10，Prefill/Decode 两种模式测试</td><td>2026-10-10</td></tr>
+  <tr><td>卖鑫盛</td><td>M05</td><td>2026-10-10</td></tr>
+  <tr><td>朱凌</td><td>M13</td><td>2026-10-10</td></tr>
+  <tr><td>张本</td><td>M14（现有模块 16 对应此模块）</td><td>2026-10-10</td></tr>
+  <tr><td>胡明阳</td><td>M12、M07、M11</td><td>2026-10-10</td></tr>
+  <tr><td>喻燕萍（汇总）</td><td>一次性集成全部模块，完成第一版完整工程</td><td>2026-10-23</td></tr>
+  <tr><td>全体</td><td>完整系统功能调试与性能优化</td><td>2026-10-24 ～ 11-13</td></tr>
+  <tr><td>林家豪、喻燕萍</td><td>最终检查、整理版本和发布资料</td><td>2026-11-20</td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>交付标准：</strong>没有接口说明、测试结果或资源报告的 IP 不算完成交付。
+每个模块必须能回答：输入输出 dtype 与布局、Prefill/Decode 如何设置 <code>run_mode</code> 与 <code>valid_rows</code>、
+是否同一个物理 IP、单模块结果是否与 reference 一致、T=1 与最大 Prefill 行数是否通过、
+LUT/BRAM/DSP 与目标频率、剩余问题。
+</div>
+
+<h2>与当前模块 16 的关系</h2>
+
+<figure class="diagram">
+<div class="mermaid">
+flowchart LR
+  NOW["当前：独立模块 16 交付包<br/>realFpga/deliverables/20260725_module16_v1/<br/>HLS + IP + Vivado + Vitis + Orin 后端 + 报告"]
+  NEXT1["对齐 ABI V2<br/>BF16 外部类型 · 128-bit 外部拍宽<br/>32 元素权重分组 · valid_rows"]
+  NEXT2["优化<br/>多 PE 点积 · 分 bank 累加<br/>DDR burst 与并行度"]
+  NEXT3["纳入 M14<br/>由汇总人一次性集成进完整工程"]
+
+  NOW --> NEXT1 --> NEXT2 --> NEXT3
+</div>
+<figcaption>
+图 5　模块 16 的迁移路径。现有实现是 <code>tied embedding</code> + FP16 权重 + 串行点积；
+ABI V2 要求 BF16 外部类型与 32 元素权重分组，因此 M14 不是简单复制，需要按新 ABI 重构接口与权重布局。
+</figcaption>
+</figure>
+
+<div class="note warn">
+<strong>需要你确认的分叉点：</strong>继续打磨现有模块 16 的性能，还是先按 ABI V2 重构接口（会影响权重导出格式、
+fixture 生成方式与上板验证脚本）。两者对 <code>tools/export_lm_head_weight.py</code> 与 fixture 的影响不兼容，
+建议先定 ABI 再动优化。
+</div>
+
+</main>
+
+<footer>
+  <span class="updated">最后更新：2026-09-28</span> ·
+  数据来源：<code>doc/0924/PS_PL 全模块架构、详细设计与统一集成实施计划.md</code>、<code>PS_PL 全模块参数与接口字段说明书.md</code>
+</footer>
+
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/wiki-init.js"></script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>验证闭环 · LLM_FPGA 项目图wiki</title>
+<link rel="stylesheet" href="assets/wiki.css">
+</head>
+<body>
+
+<header class="wiki-header">
+  <div class="bar">
+    <a class="brand" href="index.html">LLM_FPGA 项目图wiki<span>以图为核心</span></a>
+    <nav>
+      <a href="index.html">总览</a>
+      <a href="model.html">模型与权重</a>
+      <a href="trace.html">Golden Trace</a>
+      <a href="python-ref.html">Python 参考</a>
+      <a href="hls.html">HLS 内核</a>
+      <a href="protocol.html">网络协议</a>
+      <a href="fpga.html">上板部署</a>
+      <a href="verify.html" class="active">验证闭环</a>
+      <a href="tools.html">工具链</a>
+      <a href="roadmap.html">ABI V2 路线</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>模块 16 验证闭环</h1>
+<p class="lede">
+从数学公式到真实板卡的六级验证全部通过。芯片级仿真通过不叫上板完成，
+只有当数据真的经过以太网、写入 PS DDR、由 PL 实际计算并回传时，才算真实验证完成。
+</p>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart TB
+  S1["第 1 级 · 主机侧单元测试<br/>python -m unittest discover -s tests<br/>协议 / CRC / FP16 / penalty / argmax 平局"]
+  S2["第 2 级 · CPU 真实权重 LM Head<br/>lm_head_cpu_reference.py<br/>分块矩阵乘 + FP32 累加 + FP16 argmax"]
+  S3["第 3 级 · 全尺寸 HLS C 仿真<br/>run_csim.tcl<br/>真实 Qwen 权重与 8 step fixture"]
+  S4["第 4 级 · RTL co-simulation<br/>run_cosim.tcl · LMH_COSIM_SMALL<br/>4×4 同构核，验证 AXI/控制 RTL"]
+  S5["第 5 级 · TCP 端到端回环<br/>run_module16_tcp_loopback.py<br/>fpga_server_emulator.py（NumPy 后端）"]
+  S6["第 6 级 · 真实 AXU9EGB 板卡<br/>run_module16_board_trace.py<br/>网口 → PS DDR → PL IP → 回传"]
+
+  S1 --> S2 --> S3 --> S4 --> S5 --> S6
+  S6 -. "只有这一级能称为真实板卡验证" .-> DONE{"功能验收"}
+</div>
+<figcaption>
+图 1　验证阶梯。前五级都只是必要条件；<code>DEBUG_LOG.md</code> 明确列出「HLS C 仿真 PASS」「RTL co-sim PASS」
+「软件 TCP 回环 PASS」「只 ping 通板卡」<strong>都不能</strong>单独作为真实板卡验证完成的依据。
+</figcaption>
+</figure>
+
+<h2>单步必须同时通过的三条断言</h2>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart LR
+  RAW["FPGA 回传 raw_logits<br/>151936 × FP16"]
+  G1["golden：<br/>lm_head_vocab_logits.npy<br/>FP16 raw logits"]
+  A1{"断言 1<br/>最大绝对误差 / cosine / Top-5"}
+  HIS["上位机 history bitmap<br/>4748 × u32"]
+  PEN["FPGA 内 repetition penalty 1.1"]
+  PROC["processed scores"]
+  G2["golden：<br/>generation_token_vocab_logits/*.npy<br/>FP32 processed scores"]
+  A2{"断言 2<br/>完整 scores 逐项比对"}
+  TOK["selected_token"]
+  G3["golden：<br/>metadata.json · generated_ids"]
+  A3{"断言 3<br/>8/8 完全匹配"}
+
+  RAW --> A1
+  G1 --> A1
+  HIS --> PEN
+  RAW --> PEN --> PROC --> A2
+  G2 --> A2
+  PROC --> TOK --> A3
+  G3 --> A3
+</div>
+<figcaption>
+图 2　三条断言必须同时成立。只比 generated_ids 是不够的：本 trace 中
+<code>raw_top1 == processed_top1 == generated_ids</code> 恒成立，即使错误地关闭 penalty，8 个 token 仍会全对。
+</figcaption>
+</figure>
+
+<h2>真实板卡上的逐级放大</h2>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart LR
+  H4["阶段 H-4<br/>4×4 合成用例<br/>无 penalty / 有 penalty<br/>平分取小 ID / WANT_LOGITS 开关"]
+  H5a["vocab = 128"]
+  H5b["vocab = 1024"]
+  H5c["vocab = 8192"]
+  H5d["vocab = 65536"]
+  H6["阶段 H-6<br/>完整 vocab = 151936<br/>step 0"]
+  H7["阶段 H-7<br/>step 1 ~ 7<br/>权重复用不重传"]
+  H8["阶段 H-8<br/>默认关闭 penalty<br/>完整 8 step 回归"]
+
+  H4 --> H5a --> H5b --> H5c --> H5d --> H6 --> H7 --> H8
+</div>
+<figcaption>
+图 3　真实板卡放大路径。先用 4×4 小矩阵锁死接口与复位问题，再逐步放大 vocab，
+最后才上完整 260 MiB 权重；权重只上传一次，后续 7 步复用。
+</figcaption>
+</figure>
+
+<h2>各阶段实测结论</h2>
+
+<div class="table-scroll">
+<table>
+  <tr><th>级别</th><th>对象</th><th>关键指标</th><th>结论</th></tr>
+  <tr><td>1</td><td><code>tests/</code> 单元测试</td><td><code>Ran 10 tests / OK</code></td><td>10/10 PASS</td></tr>
+  <tr><td>1</td><td><code>test_lm_head_cpu_reference.py</code></td><td>公式 / prefill 末位 / penalty / argmax tie-break / BF16 权重读取</td><td>6/6 PASS</td></tr>
+  <tr><td>2</td><td>CPU 真实权重矩阵乘</td><td>cosine 1.000000000，最大绝对误差 ≤ 0.0078125，Top-5 5/5</td><td>8/8 PASS</td></tr>
+  <tr><td>2</td><td>生成策略 scores</td><td>最大绝对误差 1.90735e-06</td><td>8/8 PASS</td></tr>
+  <tr><td>3</td><td>全尺寸 HLS C 仿真</td><td>最大绝对误差 ≤ 0.015625，cosine 1.0，Top-5 5/5</td><td><code>HLS_CSIM_OVERALL=PASS</code></td></tr>
+  <tr><td>3</td><td>ZU9EG 综合</td><td>估计 3.650 ns（约 273.97 MHz），5.489 s/token</td><td>PASS（功能基线）</td></tr>
+  <tr><td>4</td><td>RTL co-simulation</td><td>XSim Pass，1/1 事务，542 cycles</td><td>PASS</td></tr>
+  <tr><td>5</td><td>TCP 回环（8 step）</td><td>最大绝对误差 ≤ 0.0078125，Top-5 5/5</td><td>8/8 PASS</td></tr>
+  <tr><td>6</td><td>板卡协议 smoke</td><td>分片帧头 / 未 READY 拒绝 / 同连接多帧 / CRC 错误恢复 / 未知 opcode</td><td><code>STAGE_F_BOARD_SMOKE_PASS</code></td></tr>
+  <tr><td>6</td><td>板卡 8-step（含 penalty）</td><td>raw logits 8/8、processed scores 8/8、Top-5 8/8、generated_ids 8/8</td><td>PASS</td></tr>
+  <tr><td>6</td><td>板卡 8-step（默认关 penalty）</td><td>最坏最大绝对误差 0.015625</td><td>PASS</td></tr>
+</table>
+</div>
+
+<h2>两个反复出现的陷阱</h2>
+
+<div class="note warn">
+<strong>陷阱一：argmax 必须在 FP16 上做。</strong>
+step 7 中 token 100013 与 100048 的 FP32 累加值不同，转 FP16 后同为 <code>20.203125</code>。
+必须按 <code>torch.argmax</code> 规则选位置靠前的 100013；在 FP32 累加器上做 argmax 会选错。
+</div>
+
+<div class="note warn">
+<strong>陷阱二：平分判定与 processed score。</strong>
+argmax 必须使用 penalty 之后的分数，且 <code>token_id == 0</code> 时无条件初始化，
+保证「分数相同保留较小 token ID」。板卡实测也验证了开关确实到达硬件：
+关闭时 <code>selected_score = 30.046875</code>，开启 penalty = 1.1 时为 <code>27.315340042114258</code>（≈ 30.046875 / 1.1）。
+</div>
+
+<div class="note ok">
+<strong>黄金文件完整性：</strong>原始 <code>model.safetensors</code> SHA-256
+<code>fdf756fa7fcbe7404d5c60e26bff1a0c8b8aa1f72ced49e7dd0210fe288fb7fe</code>，与 Hugging Face Qwen 官方文件一致；
+权重与 fixture 另存 SHA-256 供上板故障时排查文件替换或损坏。
+</div>
+
+</main>
+
+<footer>
+  <span class="updated">最后更新：2026-09-28</span> ·
+  数据来源：<code>MODULE16_LM_HEAD_VALIDATION_REPORT.md</code>、<code>SIMULATION_REPORT.md</code>、<code>realFpga/DEBUG_LOG.md</code>
+</footer>
+
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/wiki-init.js"></script>
+</body>
+</html>

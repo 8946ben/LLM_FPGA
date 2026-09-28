@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HLS 内核 · LLM_FPGA 项目图wiki</title>
+<link rel="stylesheet" href="assets/wiki.css">
+</head>
+<body>
+
+<header class="wiki-header">
+  <div class="bar">
+    <a class="brand" href="index.html">LLM_FPGA 项目图wiki<span>以图为核心</span></a>
+    <nav>
+      <a href="index.html">总览</a>
+      <a href="model.html">模型与权重</a>
+      <a href="trace.html">Golden Trace</a>
+      <a href="python-ref.html">Python 参考</a>
+      <a href="hls.html" class="active">HLS 内核</a>
+      <a href="protocol.html">网络协议</a>
+      <a href="fpga.html">上板部署</a>
+      <a href="verify.html">验证闭环</a>
+      <a href="tools.html">工具链</a>
+      <a href="roadmap.html">ABI V2 路线</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>模块 16 HLS 内核 <code>lm_head_argmax</code></h1>
+<p class="lede">
+<code>module16_lm_head_hls/src/lm_head_kernel.cpp</code> 实现的单个 IP 完成整条收尾链路：
+<code>FP16 hidden × FP16 weight → FP32 累加 → FP16 raw logits → repetition penalty → greedy argmax → token</code>。
+当前版本是<strong>功能基线</strong>，点积内层为单累加器串行实现（II = 8），尚未做多 PE 优化。
+</p>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart TB
+  subgraph IF["接口 · include/lm_head_kernel.hpp"]
+    direction LR
+    ARG["lm_head_argmax()<br/>extern &quot;C&quot;"]
+    P1["hidden : half*<br/>m_axi gmem_hidden<br/>depth 896"]
+    P2["weight : half*<br/>m_axi gmem_weight<br/>depth 136134656<br/>max_read_burst_length=256<br/>num_read_outstanding=16"]
+    P3["history_bitmap : ap_uint&lt;32&gt;*<br/>m_axi gmem_history<br/>depth 4748"]
+    P4["raw_logits : half*<br/>m_axi gmem_logits<br/>depth 151936"]
+    P5["控制参数（s_axilite control）<br/>hidden_size · vocab_size · write_logits<br/>enable_repetition_penalty · repetition_penalty<br/>selected_token · selected_score · return"]
+  end
+
+  subgraph CORE["内核内部"]
+    direction TB
+    L1["load_hidden 循环<br/>PIPELINE II=1<br/>hidden_cache[] BIND_STORAGE ram_1p BRAM"]
+    L2["vocab_loop<br/>token_id = 0 .. vocab_size-1<br/>TRIPCOUNT max 151936"]
+    L3["dot_product<br/>FP16 → FP32 乘加累加<br/>II = 8（FP32 累加依赖）"]
+    L4["raw_logit = (half)accumulator<br/>架构输出必须是 FP16"]
+    L5["token_seen()<br/>word = history_bitmap[token_id/32]<br/>bit = token_id%32"]
+    L6["apply_repetition_penalty()<br/>score &lt; 0 ? score*penalty : score/penalty"]
+    L7["argmax<br/>token_id == 0 或 score &gt; best_score<br/>平分保留较小 token id"]
+  end
+
+  P1 --> L1
+  L1 --> L3
+  P2 --> L3
+  L2 --> L3
+  L3 --> L4
+  L4 -- "write_logits != 0" --> P4
+  L4 --> L5
+  P3 --> L5
+  L5 --> L6
+  L6 --> L7
+  L7 --> P5
+
+  click ARG "protocol.html" "LMH1 协议"
+</div>
+<figcaption>
+图 1　内核真实循环结构与接口。四个 <code>m_axi</code> 端口分别独立成 bundle，
+<code>selected_score</code> 由 AXI-Lite 以 <code>uint32_t</code> 返回，驱动侧必须用 <code>memcpy</code> 按位转 float。
+</figcaption>
+</figure>
+
+<h2>数据通路与 AXI 拓扑</h2>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart LR
+  HID["PS DDR hidden<br/>1792 B"]
+  WGT["PS DDR weight<br/>272269312 B"]
+  HIS["PS DDR history bitmap<br/>18992 B"]
+  LOG["PS DDR raw_logits<br/>303872 B"]
+
+  subgraph PLZ["PL · lm_head_argmax"]
+    direction TB
+    M1["m_axi_gmem_hidden"]
+    M2["m_axi_gmem_weight"]
+    M3["m_axi_gmem_history"]
+    M4["m_axi_gmem_logits"]
+    SMC["axi_smc_mem<br/>4 Slave → 1 Master"]
+    CTL["axi_smc_ctrl<br/>PS M_AXI_HPM0_FPD"]
+    REG["s_axi_control"]
+  end
+
+  HP["PS S_AXI_HP0_FPD<br/>128 bit"]
+
+  HID --> M1
+  WGT --> M2
+  HIS --> M3
+  M4 --> LOG
+  M1 --> SMC
+  M2 --> SMC
+  M3 --> SMC
+  M4 --> SMC
+  SMC --> HP
+  CTL --> REG
+</div>
+<figcaption>
+图 2　数据通道与控制通道分离。HLS 侧 m_axi 位宽与 PS 侧 128 bit 之间由 SmartConnect 转换；
+PS DDR 的物理出口宽度由 PS IP 固定，单纯加宽 HLS 端口不会改变它。
+</figcaption>
+</figure>
+
+<h2>三层仿真与资源结果</h2>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart LR
+  CSIM["run_csim.tcl<br/>全尺寸 C 仿真<br/>真实 Qwen 8 step"]
+  CSYN["run_csynth.tcl<br/>ZU9EG 全尺寸综合<br/>5 ns 目标"]
+  COSIM["run_cosim.tcl<br/>LMH_COSIM_SMALL<br/>4×4 同构核 RTL 仿真"]
+  EXP["run_export_ip.tcl<br/>run_export_ip_2021_compat.ps1<br/>export_design -format ip_catalog"]
+  IP["xilinx.com:hls:lm_head_argmax:1.0<br/>component.xml + hdl/ + drivers/"]
+
+  CSIM -->|"8/8 token · Top-5 5/5<br/>HLS_CSIM_OVERALL=PASS"| R1{"PASS"}
+  CSYN -->|"3.650 ns ≈ 273.97 MHz<br/>5.489 s/token"| R2{"PASS"}
+  COSIM -->|"1/1 事务 · 542 cycles"| R3{"PASS"}
+  CSIM --> EXP
+  CSYN --> EXP
+  COSIM --> EXP
+  EXP --> IP
+</div>
+<figcaption>
+图 3　仿真与导出流程。C 仿真用真实权重验证数值，综合用精确器件验证时序，RTL co-simulation 只验证接口级
+RTL 正确性（全尺寸会把 260 MiB 权重序列化成约 1.2 GiB 文本向量，因此改用 4×4 小核）。
+</figcaption>
+</figure>
+
+<div class="table-scroll">
+<table>
+  <tr><th>指标</th><th>结果</th><th>备注</th></tr>
+  <tr><td>目标时钟</td><td>5.000 ns（200 MHz）</td><td>ZU9EG</td></tr>
+  <tr><td>综合估计时钟</td><td>3.650 ns（约 273.97 MHz）</td><td>有余量</td></tr>
+  <tr><td>最大延迟</td><td>1,097,890,446 cycles / 5.489 s</td><td>单 token，串行基线</td></tr>
+  <tr><td>BRAM18K</td><td>14 / 1,824</td><td rowspan="5">资源占用低正是串行实现的结果，不能解读为性能良好</td></tr>
+  <tr><td>DSP</td><td>5</td></tr>
+  <tr><td>FF</td><td>4,880 / 548,160</td></tr>
+  <tr><td>LUT</td><td>5,816 / 274,080</td></tr>
+  <tr><td>URAM</td><td>0</td></tr>
+  <tr><td>点积 II</td><td>8</td><td>FP32 累加依赖导致，多 PE 分 bank 累加是主要优化方向</td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>数值口径：</strong>FP16 权重 × FP16 hidden、FP32 累加，但 <strong>token 选择发生在转成 FP16 之后</strong>。
+step 7 中 token 100013 与 100048 的 FP32 累加值不同，转 FP16 后同为 20.203125，必须按 <code>torch.argmax</code>
+规则选择位置靠前的 100013。把 argmax 放在 FP32 累加器上会直接选错。
+</div>
+
+<div class="note warn">
+<strong>历史坑：</strong>2026 年运行 Vitis HLS 2021.1 时，自动生成的 <code>core_revision</code> 会超出 Vivado 接受的
+signed 32-bit 范围，导致 IP Catalog 导入失败，必须走 <code>run_export_ip_2021_compat.ps1</code>。
+</div>
+
+</main>
+
+<footer>
+  <span class="updated">最后更新：2026-09-28</span> ·
+  数据来源：<code>module16_lm_head_hls/SIMULATION_REPORT.md</code>、<code>src/lm_head_kernel.cpp</code>
+</footer>
+
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/wiki-init.js"></script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+/* ===== LLM_FPGA 技术文档样式（菜鸟教程风格） ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 15px;
+  color: #333;
+  background: #fff;
+  line-height: 1.8;
+}
+a { color: #3d8e41; text-decoration: none; }
+a:hover { color: #2c6e30; text-decoration: underline; }
+
+/* ---- 顶部导航 ---- */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: 56px;
+  background: #333;
+  z-index: 1000;
+  display: flex; align-items: center;
+  padding: 0 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,.2);
+}
+.topbar .logo {
+  font-size: 20px; font-weight: bold; color: #96b97d;
+  white-space: nowrap;
+}
+.topbar .logo small { color: #ccc; font-size: 13px; font-weight: normal; margin-left: 10px; }
+.topbar .search-box {
+  margin-left: auto;
+  color: #999; font-size: 13px;
+}
+
+/* ---- 左侧菜单 ---- */
+.sidebar {
+  position: fixed; top: 56px; left: 0; bottom: 0; width: 220px;
+  background: #f7f7f7;
+  border-right: 1px solid #e7e7e7;
+  overflow-y: auto;
+  padding: 10px 0 40px 0;
+  z-index: 900;
+}
+.sidebar h4 {
+  padding: 10px 18px 4px 18px;
+  font-size: 13px; color: #999; font-weight: normal;
+  letter-spacing: 1px;
+}
+.sidebar ul { list-style: none; }
+.sidebar ul li a {
+  display: block;
+  padding: 8px 18px;
+  color: #555;
+  font-size: 14px;
+  border-left: 3px solid transparent;
+}
+.sidebar ul li a:hover {
+  background: #ececec;
+  color: #3d8e41;
+  text-decoration: none;
+}
+.sidebar ul li a.active {
+  background: #fff;
+  color: #3d8e41;
+  font-weight: bold;
+  border-left: 3px solid #96b97d;
+}
+
+/* ---- 主内容区 ---- */
+.main {
+  margin-left: 220px;
+  padding: 76px 40px 60px 40px;
+  max-width: 1080px;
+}
+.main h1 {
+  font-size: 26px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #96b97d;
+  margin-bottom: 18px;
+  color: #333;
+}
+.main h2 {
+  font-size: 20px;
+  margin: 34px 0 12px 0;
+  padding: 6px 0 6px 12px;
+  border-left: 5px solid #96b97d;
+  background: #f7f7f7;
+  color: #333;
+}
+.main h3 {
+  font-size: 17px;
+  margin: 24px 0 10px 0;
+  color: #3d8e41;
+}
+.main p { margin: 10px 0; }
+.main ul, .main ol { margin: 10px 0 10px 28px; }
+.main li { margin: 4px 0; }
+
+/* ---- 代码块 ---- */
+pre {
+  background: #f4f4f4;
+  border: 1px solid #e2e2e2;
+  border-left: 4px solid #96b97d;
+  padding: 12px 16px;
+  margin: 12px 0;
+  overflow-x: auto;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  border-radius: 3px;
+  color: #444;
+}
+code {
+  font-family: Consolas, "Courier New", monospace;
+  background: #f4f4f4;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 13px;
+  color: #c7254e;
+}
+pre code { background: none; padding: 0; color: #444; }
+
+/* ---- 表格 ---- */
+table.tb {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 14px 0;
+  font-size: 14px;
+}
+table.tb th {
+  background: #96b97d;
+  color: #fff;
+  padding: 8px 12px;
+  text-align: left;
+  border: 1px solid #86a76f;
+  white-space: nowrap;
+}
+table.tb td {
+  padding: 7px 12px;
+  border: 1px solid #ddd;
+  vertical-align: top;
+}
+table.tb tr:nth-child(even) { background: #f7f7f7; }
+table.tb tr:hover { background: #eef5e8; }
+
+/* ---- 提示框 ---- */
+.note {
+  background: #f4f8f0;
+  border: 1px solid #d6e9c6;
+  border-left: 5px solid #96b97d;
+  padding: 12px 16px;
+  margin: 14px 0;
+  border-radius: 3px;
+}
+.warn {
+  background: #fcf8e3;
+  border: 1px solid #faebcc;
+  border-left: 5px solid #f0ad4e;
+  padding: 12px 16px;
+  margin: 14px 0;
+  border-radius: 3px;
+}
+.danger {
+  background: #f2dede;
+  border: 1px solid #ebccd1;
+  border-left: 5px solid #d9534f;
+  padding: 12px 16px;
+  margin: 14px 0;
+  border-radius: 3px;
+}
+.note::before { content: "💡 提示："; font-weight: bold; color: #3d8e41; }
+.warn::before { content: "⚠️ 注意："; font-weight: bold; color: #8a6d3b; }
+.danger::before { content: "⛔ 警告："; font-weight: bold; color: #a94442; }
+
+/* ---- 上一篇/下一篇导航 ---- */
+.prenext {
+  margin-top: 50px;
+  padding-top: 16px;
+  border-top: 1px solid #e7e7e7;
+  overflow: hidden;
+}
+.prenext .prev { float: left; }
+.prenext .next { float: right; }
+
+/* ---- 页脚 ---- */
+.footer {
+  margin-left: 220px;
+  padding: 18px 40px;
+  border-top: 1px solid #e7e7e7;
+  color: #999;
+  font-size: 13px;
+  background: #f7f7f7;
+}
+
+/* ---- 首页卡片 ---- */
+.card-row { display: flex; flex-wrap: wrap; gap: 14px; margin: 16px 0; }
+.card {
+  flex: 1 1 300px;
+  border: 1px solid #e2e2e2;
+  border-top: 4px solid #96b97d;
+  border-radius: 4px;
+  padding: 14px 18px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+.card h3 { margin-top: 0; }
+
+/* ---- 响应式 ---- */
+@media (max-width: 860px) {
+  .sidebar { position: static; width: 100%; border-right: none; }
+  .main, .footer { margin-left: 0; padding-left: 16px; padding-right: 16px; }
+  .topbar { position: static; }
+  .main { padding-top: 20px; }
+}

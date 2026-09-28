@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LMH1 网络协议 - LLM_FPGA 技术文档</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">LLM_FPGA 教程<small>Qwen2.5-0.5B-Instruct FPGA 推理验证工程</small></div>
+  <div class="search-box">correctness-first · 逐模块对齐 · AXU9EGB</div>
+</div>
+
+<div class="sidebar">
+  <h4>LLM_FPGA 教程</h4>
+  <ul>
+    <li><a href="index.html">1. 项目总览</a></li>
+    <li><a href="model.html">2. 模型结构与权重</a></li>
+    <li><a href="trace.html">3. Golden Trace 数据集</a></li>
+    <li><a href="python_ref.html">4. Python 参考实现</a></li>
+  </ul>
+  <h4>FPGA 实现</h4>
+  <ul>
+    <li><a href="hls.html">5. HLS 模块设计（模块 16）</a></li>
+    <li><a href="protocol.html" class="active">6. LMH1 网络协议</a></li>
+    <li><a href="fpga.html">7. 上板部署（realFpga）</a></li>
+  </ul>
+  <h4>附录</h4>
+  <ul>
+    <li><a href="tools.html">8. 工具链与测试</a></li>
+    <li><a href="resources.html">9. 教程与参考资源</a></li>
+  </ul>
+</div>
+
+<div class="main">
+
+<h1>6. LMH1 网络协议</h1>
+
+<p><strong>LMH1</strong> 是上位机（CPU / Orin）与 FPGA 板之间的一个 TCP 应用层协议，用来把 LM Head（模块 16）的计算卸载到 FPGA 上执行。上位机先把 151936×896 的 FP16 权重上传到板端 DDR，之后每生成一步，把当前 hidden 向量和历史 token bitmap 发给板端，板端完成矩阵乘、repetition penalty 和 argmax 后，把选中的 token id 回传。</p>
+
+<ul>
+  <li>默认板端地址：<code>192.168.8.190</code>，端口 <code>19016</code>。</li>
+  <li>协议文档：<code>module16_lm_head_hls/NETWORK_PROTOCOL.md</code>。</li>
+  <li>板端（PS 侧）实现位于 <code>realFpga/</code> 工程。</li>
+</ul>
+
+<h2>Python 参考实现</h2>
+<p>在真板之前，协议的全部行为都先在 <code>module16_lm_head_hls/net/</code> 目录下用纯 Python 实现并测试：</p>
+<table class="tb">
+  <tr><th>文件</th><th>行数</th><th>职责</th></tr>
+  <tr><td><code>net/lmh_protocol.py</code></td><td>111</td><td>帧头打包/解包、CRC32、opcode 与 flags 常量定义</td></tr>
+  <tr><td><code>net/cpu_client.py</code></td><td>145</td><td>上位机客户端 <code>LmHeadClient</code>，负责分块上传权重、发送 RUN_TOKEN</td></tr>
+  <tr><td><code>net/fpga_server_emulator.py</code></td><td>231</td><td>板端 NumPy 模拟器，行为与真板服务端一致，可本机回环测试</td></tr>
+</table>
+
+<h2>会话生命周期</h2>
+<pre><code>上位机 (CPU/Orin)                          FPGA 板 (192.168.8.190:19016)
+      │                                          │
+      │──── TCP 连接 ────────────────────────────│
+      │                                          │
+      │──── LOAD_WEIGHT (分块, 约 260 MiB) ─────►│  仅一次, 写入 DDR 预留区
+      │◄─── ACK (每块响应) ──────────────────────│
+      │                                          │  LAST_CHUNK 校验完成 → READY
+      │                                          │
+      │──── RUN_TOKEN (hidden + history) ───────►│  可多次
+      │◄─── status + token (+ logits) ───────────│  WANT_LOGITS 时附带 151936 个 logits
+      │         …… 重复多步 ……                   │
+      │                                          │
+      │──── 可选 READ_LOGITS ───────────────────►│
+      │                                          │
+      │──── 关闭连接 ────────────────────────────│  权重跨连接保留</code></pre>
+
+<p>要点：</p>
+<ul>
+  <li><code>LOAD_WEIGHT</code> 只执行一次，约 260 MiB 的 FP16 权重分块上传。</li>
+  <li>之后可以多次 <code>RUN_TOKEN</code>，每步对应一次 decode。</li>
+  <li>是否随 <code>RUN_TOKEN</code> 响应返回全部 logits，由请求里的 <code>WANT_LOGITS</code> flag 控制。</li>
+</ul>
+
+<h2>帧头格式（24 字节，小端）</h2>
+<p>每一帧（请求和响应都一样）以 24 字节帧头开头，struct 格式为 <code>&lt;4sHHIIII</code>：</p>
+<table class="tb">
+  <tr><th>字段</th><th>类型</th><th>含义</th></tr>
+  <tr><td>magic</td><td>4 字节</td><td>固定为 <code>'LMH1'</code>，用于快速识别协议帧</td></tr>
+  <tr><td>version</td><td>u16</td><td>协议版本，当前 = 1</td></tr>
+  <tr><td>opcode</td><td>u16</td><td>操作码（见下表）</td></tr>
+  <tr><td>request_id</td><td>u32</td><td>请求编号，响应原样带回，便于对账</td></tr>
+  <tr><td>flags</td><td>u32</td><td>标志位（见下表）</td></tr>
+  <tr><td>payload_bytes</td><td>u32</td><td>payload 长度（字节）</td></tr>
+  <tr><td>payload CRC32</td><td>u32</td><td>payload 的 CRC32（IEEE），校验失败直接拒绝</td></tr>
+</table>
+
+<p>响应帧的 opcode 规则：</p>
+<ul>
+  <li>正常响应：<code>opcode = 请求 opcode | 0x8000</code>。</li>
+  <li>错误响应：<code>opcode = 0xFFFF</code>。</li>
+</ul>
+
+<h2>opcode 一览</h2>
+<table class="tb">
+  <tr><th>opcode</th><th>值</th><th>方向</th><th>含义</th></tr>
+  <tr><td><code>LOAD_WEIGHT</code></td><td>1</td><td>请求</td><td>上传一块权重数据</td></tr>
+  <tr><td><code>RUN_TOKEN</code></td><td>2</td><td>请求</td><td>执行一步 LM Head 计算</td></tr>
+  <tr><td><code>PING</code></td><td>3</td><td>请求</td><td>探活 / 查询权重加载状态</td></tr>
+  <tr><td>正常响应</td><td>请求值 | 0x8000</td><td>响应</td><td>如 LOAD_WEIGHT 的响应为 0x8001</td></tr>
+  <tr><td>错误</td><td>0xFFFF</td><td>响应</td><td>帧非法、CRC 错误等</td></tr>
+</table>
+
+<h2>flags 位定义</h2>
+<table class="tb">
+  <tr><th>位</th><th>名称</th><th>含义</th></tr>
+  <tr><td>bit0</td><td><code>ENABLE_REPETITION_PENALTY</code></td><td>启用 repetition penalty（配合 RUN_TOKEN payload 中的系数和 history bitmap）</td></tr>
+  <tr><td>bit1</td><td><code>WANT_LOGITS</code></td><td>要求 RUN_TOKEN 响应附带全部 151936 个 FP16 logits</td></tr>
+  <tr><td>bit2</td><td><code>FIRST_CHUNK</code></td><td>LOAD_WEIGHT 的第一块</td></tr>
+  <tr><td>bit3</td><td><code>LAST_CHUNK</code></td><td>LOAD_WEIGHT 的最后一块，触发完整性校验并进入 READY</td></tr>
+</table>
+
+<h2>LOAD_WEIGHT：上传权重</h2>
+<p>payload 以 24 字节前缀开头（struct <code>&lt;QIIQ</code>），随后紧跟本块的 FP16 权重数据：</p>
+<table class="tb">
+  <tr><th>字段</th><th>类型</th><th>含义</th></tr>
+  <tr><td>total_bytes</td><td>u64</td><td>权重总字节数</td></tr>
+  <tr><td>hidden_size</td><td>u32</td><td>隐藏维（896）</td></tr>
+  <tr><td>vocab_size</td><td>u32</td><td>词表大小（151936）</td></tr>
+  <tr><td>offset</td><td>u64</td><td>本块数据在整体权重中的字节偏移</td></tr>
+</table>
+<p>上传规则：</p>
+<ul>
+  <li>必须从 <code>offset = 0</code> 开始，连续、按序上传，不允许跳块。</li>
+  <li>收到带 <code>LAST_CHUNK</code> 的块后，服务端校验末尾偏移 == <code>total_bytes</code>，通过后进入 READY 状态。</li>
+  <li>Python 客户端默认按 <strong>4 MiB</strong> 分块；真板服务端单块最大支持 <strong>16 MiB</strong>（流式直写 DDR 预留区）。</li>
+</ul>
+
+<h2>RUN_TOKEN：执行一步计算</h2>
+<h3>请求 payload</h3>
+<p>前缀 struct <code>&lt;IIfI</code>（16 字节），随后是 hidden 向量和 history bitmap：</p>
+<table class="tb">
+  <tr><th>字段</th><th>类型</th><th>含义</th></tr>
+  <tr><td>hidden_size</td><td>u32</td><td>隐藏维（896）</td></tr>
+  <tr><td>vocab_size</td><td>u32</td><td>词表大小（151936）</td></tr>
+  <tr><td>repetition_penalty</td><td>FP32</td><td>重复惩罚系数</td></tr>
+  <tr><td>history_words</td><td>u32</td><td>history bitmap 的 u32 字数</td></tr>
+  <tr><td>hidden</td><td>FP16 × 896</td><td>当前步的 hidden 向量，896×2 = <strong>1792 字节</strong></td></tr>
+  <tr><td>history bitmap</td><td>u32 × 4748</td><td>已生成 token 的位图，4748×4 = <strong>18992 字节</strong></td></tr>
+</table>
+
+<h3>响应 payload</h3>
+<p>前缀 struct <code>&lt;IIfI</code>（16 字节）：</p>
+<table class="tb">
+  <tr><th>字段</th><th>类型</th><th>含义</th></tr>
+  <tr><td>status</td><td>u32</td><td>0=OK；1=NOT_READY（未加载权重）；2=BAD_REQUEST</td></tr>
+  <tr><td>selected_token</td><td>u32</td><td>argmax 选中的 token id</td></tr>
+  <tr><td>selected_score</td><td>FP32</td><td>选中 token 的分数</td></tr>
+  <tr><td>logits_bytes</td><td>u32</td><td>追加的 logits 字节数（未开 WANT_LOGITS 时为 0）</td></tr>
+  <tr><td>logits（可选）</td><td>FP16 × 151936</td><td>WANT_LOGITS 时追加，151936×2 = <strong>303872 字节</strong> raw logits</td></tr>
+</table>
+
+<h2>PING：探活与状态查询</h2>
+<p><code>PING</code> 无 payload，响应为 struct <code>&lt;IIQ</code>：</p>
+<table class="tb">
+  <tr><th>字段</th><th>类型</th><th>含义</th></tr>
+  <tr><td>hidden_size</td><td>u32</td><td>隐藏维</td></tr>
+  <tr><td>vocab_size</td><td>u32</td><td>词表大小</td></tr>
+  <tr><td>weight_bytes</td><td>u64</td><td>已加载的权重字节数，可据此确认权重是否已就绪</td></tr>
+</table>
+
+<div class="note">校验与鲁棒性：每一帧的 payload 都带 CRC32，校验错误直接拒绝该帧。真板服务端是「单连接多帧」状态机，可以跨 TCP pbuf 拼接帧头和 payload（TCP 是流式协议，一帧可能被拆成多个包到达）；权重加载完成后跨连接保留，断线重连无需重新上传。</div>
+
+<h2>测试与工具</h2>
+<table class="tb">
+  <tr><th>层级</th><th>位置</th><th>覆盖内容</th></tr>
+  <tr><td>单元测试</td><td><code>tests/test_module16_tcp_protocol.py</code></td><td>帧收发 round-trip、CRC32 错误拒绝、socketpair 上完成权重上传 + ping + penalty argmax、并列分数时保留最小 token id</td></tr>
+  <tr><td>本机回环冒烟</td><td><code>tools/run_module16_tcp_loopback.py</code></td><td>NumPy 仿真器 + 真实 fixture 跑一步，校验 ping(896/151936)、token 一致、max_abs ≤ 0.02、top5 命中 ≥ 4</td></tr>
+  <tr><td>真板测试</td><td><code>tools/run_module16_board_trace.py</code></td><td><code>--load-weight</code> 1 MiB 分块上传、<code>--vocab-limit</code> 渐进式验证、<code>--return-logits</code> 回读比对</td></tr>
+</table>
+
+<h2>客户端调用示例</h2>
+<p>用真板测试脚本连上开发板，上传权重并逐 fixture 验证、回读 logits 比对：</p>
+<pre><code>python tools/run_module16_board_trace.py \
+    --host 192.168.8.190 --port 19016 \
+    --load-weight artifacts/model.embed_tokens.weight.fp16.npy \
+    --fixture-root artifacts/module16_hls_fixtures \
+    --return-logits</code></pre>
+
+<div class="prenext">
+  <span class="prev"><a href="hls.html">← 上一篇：5. HLS 模块设计</a></span>
+  <span class="next"><a href="fpga.html">下一篇：7. 上板部署 →</a></span>
+</div>
+
+</div>
+
+<div class="footer">LLM_FPGA 技术文档 · Qwen2.5-0.5B-Instruct FPGA 推理验证工程 · correctness-first</div>
+
+</body>
+</html>

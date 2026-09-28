@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>项目总览 - LLM_FPGA 技术文档</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">LLM_FPGA 教程<small>Qwen2.5-0.5B-Instruct FPGA 推理验证工程</small></div>
+  <div class="search-box">correctness-first · 逐模块对齐 · AXU9EGB</div>
+</div>
+
+<div class="sidebar">
+  <h4>LLM_FPGA 教程</h4>
+  <ul>
+    <li><a href="index.html" class="active">1. 项目总览</a></li>
+    <li><a href="model.html">2. 模型结构与权重</a></li>
+    <li><a href="trace.html">3. Golden Trace 数据集</a></li>
+    <li><a href="python_ref.html">4. Python 参考实现</a></li>
+  </ul>
+  <h4>FPGA 实现</h4>
+  <ul>
+    <li><a href="hls.html">5. HLS 模块设计（模块 16）</a></li>
+    <li><a href="protocol.html">6. LMH1 网络协议</a></li>
+    <li><a href="fpga.html">7. 上板部署（realFpga）</a></li>
+  </ul>
+  <h4>附录</h4>
+  <ul>
+    <li><a href="tools.html">8. 工具链与测试</a></li>
+    <li><a href="resources.html">9. 教程与参考资源</a></li>
+  </ul>
+</div>
+
+<div class="main">
+
+<h1>1. 项目总览</h1>
+
+<p><strong>LLM_FPGA</strong> 是一个面向 FPGA 大模型推理验证的 <code>Qwen2.5-0.5B-Instruct</code> 参考工程。它的目标不是搭建生产级推理服务，而是建立一个 <strong>correctness-first（正确性优先）</strong> 的开发闭环：</p>
+
+<div class="note">先用插桩版 PyTorch 导出模型每个模块的中间量（golden trace），再用 FPGA / C++ / HLS 实现相同模块，把每个模块的输出和 golden <code>.npy</code> 文件逐项比较，全部对齐后再谈性能优化。</div>
+
+<h2>仓库收集的三类内容</h2>
+<ol>
+  <li><strong>Qwen2.5-0.5B-Instruct 完整 PyTorch golden trace</strong> —— 从 prompt 到 8 个生成 token 的全部中间张量（7386 个 .npy 文件）。</li>
+  <li><strong>Python 推理参考代码</strong> —— 从 prompt 到输出 token 的完整推理流程，以及模块级数学参考实现（RMSNorm、RoPE、GQA、Attention、SwiGLU、lm_head）。</li>
+  <li><strong>FPGA 实现与部署</strong> —— 模块 16（LM Head）的 Vitis HLS 内核、LMH1 TCP 协议、以及 AXU9EGB 真实板卡的完整 bring-up 工程；另附 FlightLLM demo 工程作为工程组织参考。</li>
+</ol>
+
+<h2>整体开发闭环</h2>
+<pre><code>插桩版 Transformers（FP16 eager 推理）
+        │  导出 7386 个 golden .npy
+        ▼
+qwen25_0p5b_instruct_full_generation_trace/   ← golden trace 数据集
+        │  tools/prepare_lm_head_hls_fixture.py 压缩成紧凑 fixture
+        ▼
+artifacts/module16_hls_fixtures/              ← 每步 4 个文件（hidden/logits/history/token）
+        │
+        ├──► HLS C 仿真（csim）逐 bit 比对 ──► RTL 协同仿真（cosim）
+        │
+        └──► LMH1 TCP 协议 ──► AXU9EGB 真实板卡（100 MHz 验收 8/8 PASS）</code></pre>
+
+<h2>仓库结构</h2>
+<pre><code>LLM_FPGA/
+├── README.md                                  # 项目说明（中英双语）
+├── Qwen2.5-0.5B-Instruct_FPGA推理实现路线.md   # 工程路线规划
+├── Qwen2.5-0.5B_FPGA模块拆分与验证指南.md       # 逐模块验证指南
+├── Qwen2.5-0.5B-Instruct模型结构.md            # 模型 config 与 290 个权重清单
+├── MODULE16_LM_HEAD_STAGE1.md                  # 模块 16 阶段 1 说明
+├── MODULE16_LM_HEAD_VALIDATION_REPORT.md       # 模块 16 阶段 1 验证报告
+├── qwen25_0p5b_instruct_full_generation_trace/ # golden trace 数据集（7386 文件）
+├── qwen25_0p5b_python_reference/               # Python 推理参考实现
+├── module16_lm_head_hls/                       # 模块 16 LM Head 的 HLS 实现
+├── realFpga/                                   # AXU9EGB 真实板卡部署工程
+├── tools/                                      # 权重导出 / fixture 生成 / 板端测试脚本
+├── tests/                                      # Python 单元测试
+├── artifacts/                                  # 模型权重副本与导出产物
+├── module16_fpga_tutorial/                     # 零基础中文教程网页（index.html）
+├── ref/                                        # RMSNorm 前作参考资料（只读）
+└── tmp/                                        # 外部模板与文档截图（只读）</code></pre>
+
+<h2>当前进展一览</h2>
+<div class="card-row">
+  <div class="card">
+    <h3>Golden Trace</h3>
+    <p>8 步生成（1 prefill + 7 decode）× 24 层全量中间量已导出，prompt「你好，请用一句话介绍你自己。」，输出「我是Qwen，由阿里云开发」。</p>
+  </div>
+  <div class="card">
+    <h3>模块 16 HLS</h3>
+    <p>LM Head（151936×896 FP16 矩阵乘 + repetition penalty + argmax）C 仿真 8/8 PASS，cosim PASS，已导出 HLS IP。</p>
+  </div>
+  <div class="card">
+    <h3>真实板卡验收</h3>
+    <p>AXU9EGB（XCZU9EG）100 MHz 下 8 步 token 与 golden 完全一致，151936 维 logits 最大误差 0.015625（&lt; 0.02 门限）。</p>
+  </div>
+</div>
+
+<h2>文档导航</h2>
+<table class="tb">
+  <tr><th>章节</th><th>内容</th><th>对应目录</th></tr>
+  <tr><td><a href="model.html">2. 模型结构与权重</a></td><td>Qwen2.5-0.5B 的 config、模块结构、tied lm_head、290 个权重 tensor</td><td>根目录文档 / artifacts</td></tr>
+  <tr><td><a href="trace.html">3. Golden Trace 数据集</a></td><td>trace 目录组织、golden tensor 示例、FPGA 模块实现顺序</td><td>qwen25_0p5b_instruct_full_generation_trace/</td></tr>
+  <tr><td><a href="python_ref.html">4. Python 参考实现</a></td><td>插桩 trace 导出、手写 prefill/decode、模块级数学参考、CPU golden 验证器</td><td>qwen25_0p5b_python_reference/</td></tr>
+  <tr><td><a href="hls.html">5. HLS 模块设计</a></td><td>lm_head_argmax 内核接口、数据类型、仿真流程、性能与资源</td><td>module16_lm_head_hls/</td></tr>
+  <tr><td><a href="protocol.html">6. LMH1 网络协议</a></td><td>24 字节帧头、opcode、flags、LOAD_WEIGHT / RUN_TOKEN 流程</td><td>module16_lm_head_hls/net/</td></tr>
+  <tr><td><a href="fpga.html">7. 上板部署</a></td><td>Vivado BD、Vitis PS 软件、逐级点亮、板级验收结果、调试经验</td><td>realFpga/</td></tr>
+  <tr><td><a href="tools.html">8. 工具链与测试</a></td><td>tools/ 脚本、tests/ 单测、artifacts 产物</td><td>tools/ tests/ artifacts/</td></tr>
+  <tr><td><a href="resources.html">9. 教程与参考资源</a></td><td>零基础教程网页、RMSNorm 前作参考、外部部署模板</td><td>module16_fpga_tutorial/ ref/ tmp/</td></tr>
+</table>
+
+<div class="warn">golden tensor 用于正确性验证，性能优化应放在结果对齐之后。当前 HLS 内核为串行基线实现（约 5.5 s/token @200MHz 综合估计），尚未做多 PE 并行优化。</div>
+
+<div class="prenext">
+  <span class="prev"></span>
+  <span class="next"><a href="model.html">下一篇：2. 模型结构与权重 →</a></span>
+</div>
+
+</div>
+
+<div class="footer">LLM_FPGA 技术文档 · Qwen2.5-0.5B-Instruct FPGA 推理验证工程 · correctness-first</div>
+
+</body>
+</html>

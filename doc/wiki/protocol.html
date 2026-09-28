@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LMH1 网络协议 · LLM_FPGA 项目图wiki</title>
+<link rel="stylesheet" href="assets/wiki.css">
+</head>
+<body>
+
+<header class="wiki-header">
+  <div class="bar">
+    <a class="brand" href="index.html">LLM_FPGA 项目图wiki<span>以图为核心</span></a>
+    <nav>
+      <a href="index.html">总览</a>
+      <a href="model.html">模型与权重</a>
+      <a href="trace.html">Golden Trace</a>
+      <a href="python-ref.html">Python 参考</a>
+      <a href="hls.html">HLS 内核</a>
+      <a href="protocol.html" class="active">网络协议</a>
+      <a href="fpga.html">上板部署</a>
+      <a href="verify.html">验证闭环</a>
+      <a href="tools.html">工具链</a>
+      <a href="roadmap.html">ABI V2 路线</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>LMH1 网络协议</h1>
+<p class="lede">
+主机与板端之间只有一个协议：24 字节固定帧头 + 变长 payload，全部 little-endian。
+板端实现位于 <code>realFpga/vitis/workspace/lm_head_net_diag/src/lwip_lm_head_raw_server.c</code>，
+监听 TCP <code>19016</code>。权重只在启动时上传一次，之后每个 token 只发一次 <code>RUN_TOKEN</code>。
+</p>
+
+<figure class="diagram wide">
+<svg viewBox="0 0 1010 128" width="100%" role="img" aria-label="LMH1 协议 24 字节帧头字节布局">
+  <g font-size="13" fill="#1f2328">
+    <g font-size="11.5" fill="#59636e">
+      <text x="20"  y="24" text-anchor="start">0</text>
+      <text x="180" y="24" text-anchor="middle">4</text>
+      <text x="260" y="24" text-anchor="middle">6</text>
+      <text x="340" y="24" text-anchor="middle">8</text>
+      <text x="500" y="24" text-anchor="middle">12</text>
+      <text x="660" y="24" text-anchor="middle">16</text>
+      <text x="820" y="24" text-anchor="middle">20</text>
+      <text x="980" y="24" text-anchor="end">24</text>
+    </g>
+    <g stroke="#8ab4f8">
+      <rect x="20"  y="36" width="160" height="48" fill="#eaf3ff"/>
+      <rect x="180" y="36" width="80"  height="48" fill="#eaf3ff"/>
+      <rect x="260" y="36" width="80"  height="48" fill="#eaf3ff"/>
+      <rect x="340" y="36" width="160" height="48" fill="#eaf3ff"/>
+      <rect x="500" y="36" width="160" height="48" fill="#ddf4ff"/>
+      <rect x="660" y="36" width="160" height="48" fill="#eaf3ff"/>
+      <rect x="820" y="36" width="160" height="48" fill="#f2f4f7"/>
+    </g>
+    <g text-anchor="middle" font-weight="600">
+      <text x="100" y="56">magic</text>
+      <text x="220" y="56">version</text>
+      <text x="300" y="56">opcode</text>
+      <text x="420" y="56">request_id</text>
+      <text x="580" y="56">flags</text>
+      <text x="740" y="56">payload_bytes</text>
+      <text x="900" y="56">crc32</text>
+    </g>
+    <g text-anchor="middle" font-size="11" fill="#59636e">
+      <text x="100" y="74">4 B “LMH1”</text>
+      <text x="220" y="74">u16</text>
+      <text x="300" y="74">u16</text>
+      <text x="420" y="74">u32</text>
+      <text x="580" y="74">u32</text>
+      <text x="740" y="74">u32</text>
+      <text x="900" y="74">u32 IEEE</text>
+    </g>
+    <text x="20" y="106" font-size="12" fill="#59636e">
+      全部整数 little-endian；crc32 覆盖 payload；错误响应 opcode = 0xFFFF，payload 为 UTF-8 错误信息。
+    </text>
+  </g>
+</svg>
+<figcaption>
+图 1　帧头固定 24 字节（<code>LMH_HEADER_BYTES</code>）。<code>flags</code> 是唯一的多路开关字段，
+成功响应的 opcode 为 <code>请求 opcode | 0x8000</code>，<code>request_id</code> 必须原样返回。
+</figcaption>
+</figure>
+
+<div class="table-scroll">
+<table>
+  <tr><th>flags 位</th><th>宏</th><th>含义</th></tr>
+  <tr><td>bit 0</td><td><code>LMH_FLAG_ENABLE_PENALTY</code></td><td>启用 repetition penalty</td></tr>
+  <tr><td>bit 1</td><td><code>LMH_FLAG_WANT_LOGITS</code></td><td>响应附带 151936 个 FP16 raw logits</td></tr>
+  <tr><td>bit 2</td><td><code>LMH_FLAG_FIRST_CHUNK</code></td><td>权重传输首块，要求 offset = 0</td></tr>
+  <tr><td>bit 3</td><td><code>LMH_FLAG_LAST_CHUNK</code></td><td>权重传输末块，末块结束位置必须等于 total_bytes</td></tr>
+</table>
+</div>
+
+<h2>一次完整会话的时序</h2>
+
+<figure class="diagram wide">
+<div class="mermaid">
+sequenceDiagram
+  autonumber
+  participant H as 上位机<br/>cpu_client.py / run_module16_board_trace.py
+  participant S as PS 板端<br/>lwip_lm_head_raw_server.c
+  participant IP as PL<br/>lm_head_argmax
+
+  Note over H,S: 启动阶段：权重只上传一次
+  H->>S: LOAD_WEIGHT + FIRST_CHUNK<br/>total_bytes · hidden_size · vocab_size · offset=0 · chunk
+  S->>S: validate_load_prefix()<br/>维度/总字节/offset 校验
+  H->>S: LOAD_WEIGHT 中间分块 × N<br/>默认 1 MiB/块，offset 连续递增
+  S->>S: 写入 PS DDR weight 区<br/>Xil_DCacheFlushRange() 逐块
+  H->>S: LOAD_WEIGHT + LAST_CHUNK
+  S-->>H: finish_load() → weight_ready = true
+
+  Note over H,S: 运行阶段：每 token 一帧
+  H->>S: PING
+  S-->>H: hidden_size · vocab_size · weight_bytes（READY 状态）
+
+  H->>S: RUN_TOKEN + ENABLE_PENALTY<br/>hidden 1792 B · history 18992 B
+  S->>S: Xil_DCacheFlushRange(hidden)<br/>Xil_DCacheFlushRange(history)
+  S->>IP: run_lm_head_ip()<br/>写地址/尺寸/开关 → ap_start
+  IP->>IP: 151936 × 896 MAC + penalty + argmax
+  IP-->>S: selected_token · selected_score
+  S->>S: Xil_DCacheInvalidateRange(logits)
+  S-->>H: status · token · score · logits_bytes
+
+  Note over H,S: 同一 TCP 连接内重复 RUN_TOKEN，权重不重传
+  H->>S: RUN_TOKEN （step 1）
+  S-->>H: token / score
+</div>
+<figcaption>
+图 2　真实会话时序。权重上传与逐 token 推理共用同一条 TCP 长连接，
+<code>weight_ready</code>、<code>weight_offset</code> 等全局状态跨请求保留，而每帧的
+<code>rx_len</code> / <code>expected_len</code> 必须在响应发送完毕后清零。
+</figcaption>
+</figure>
+
+<h2>PS 端接收状态机</h2>
+
+<figure class="diagram wide">
+<div class="mermaid">
+stateDiagram-v2
+  [*] --> WAIT_HEADER
+  WAIT_HEADER --> PARSE_HEADER : recv_callback() 收到 ≥ 24 B
+  PARSE_HEADER --> CONSUME_PAYLOAD : parse_header() 校验 magic/version/crc 字段
+  PARSE_HEADER --> SEND_ERROR : magic 或 version 非法
+  CONSUME_PAYLOAD --> DISPATCH : payload 收满
+  CONSUME_PAYLOAD --> WAIT_HEADER : finish_frame() + reset_frame() 后继续拼接下一帧
+  DISPATCH --> LOAD_CHUNK : opcode = LOAD_WEIGHT
+  DISPATCH --> RUN : opcode = RUN_TOKEN
+  DISPATCH --> PING : opcode = PING
+  LOAD_CHUNK --> SEND_RESPONSE : 写入 DDR + cache flush
+  RUN --> SEND_RESPONSE : run_lm_head_ip() 完成
+  PING --> SEND_RESPONSE : make_result()
+  SEND_RESPONSE --> WAIT_HEADER : sent_callback() 确认 tx_acked · reset_session() 保留 weight_ready
+  SEND_ERROR --> [*] : send_error() 等 header+payload 全 ACK 后再断开
+  WAIT_HEADER --> [*] : error_callback() / 对端关闭
+</div>
+<figcaption>
+图 3　接收状态机。必须处理四种 TCP 分片形态：半个帧头、帧头 + 部分 payload、
+多个 pbuf 拼成 1 MiB 权重块、一次 callback 里出现一帧结尾加下一帧开头。
+</figcaption>
+</figure>
+
+<h2>命令与载荷</h2>
+
+<div class="table-scroll">
+<table>
+  <tr><th>opcode</th><th>名称</th><th>payload</th><th>响应</th></tr>
+  <tr>
+    <td>1</td><td><code>LMH_OPCODE_LOAD_WEIGHT</code></td>
+    <td><code>total_bytes u64 · hidden_size u32 · vocab_size u32 · offset u64 · chunk_data</code>（前缀 24 B）</td>
+    <td>status</td>
+  </tr>
+  <tr>
+    <td>2</td><td><code>LMH_OPCODE_RUN_TOKEN</code></td>
+    <td><code>hidden_size u32 · vocab_size u32 · repetition_penalty f32 · history_words u32</code> + <code>hidden[896]</code> FP16 + <code>history_bitmap[4748]</code> u32（前缀 16 B）</td>
+    <td><code>status u32 · selected_token u32 · selected_score f32 · logits_bytes u32</code>，WANT_LOGITS 时追加 303872 B</td>
+  </tr>
+  <tr>
+    <td>3</td><td><code>LMH_OPCODE_PING</code></td>
+    <td>无</td>
+    <td>hidden_size · vocab_size · weight_bytes</td>
+  </tr>
+  <tr>
+    <td>0xFFFF</td><td><code>LMH_OPCODE_ERROR</code></td>
+    <td>UTF-8 错误信息</td>
+    <td>—</td>
+  </tr>
+</table>
+</div>
+
+<div class="note warn">
+<strong>历史坑（log 044）：</strong>错误响应曾因 header 与 payload 未全部被对端 ACK 就关闭连接而被截断。
+修复方式是新增 <code>tx_acked</code>，由 <code>sent_callback()</code> 累计已确认字节数，确认发送干净后再关闭。
+</div>
+
+<div class="note">
+<strong>软件模拟器：</strong>上板前可先用 <code>net/fpga_server_emulator.py</code> + <code>tools/run_module16_tcp_loopback.py</code>
+在 <code>127.0.0.1</code> 上跑通同一套帧格式（计算后端为 NumPy），协议与客户端代码零改动即可切换到真实板卡。
+</div>
+
+</main>
+
+<footer>
+  <span class="updated">最后更新：2026-09-28</span> ·
+  数据来源：<code>module16_lm_head_hls/NETWORK_PROTOCOL.md</code>、<code>lwip_lm_head_raw_server.c</code>
+</footer>
+
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/wiki-init.js"></script>
+</body>
+</html>

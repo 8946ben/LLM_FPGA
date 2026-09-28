@@ -7,7 +7,12 @@ CPU/网口 -> hidden + history bitmap -> LM Head -> FP16 logits
          -> repetition penalty -> argmax -> token ID -> CPU/网口
 ```
 
-当前环境使用 Vitis HLS 2021.1，默认综合 part 为仓库参考平台 Alveo U280 的 `xcu280-fsvh2892-2L-e`。真实开发板型号确定后只需修改 Tcl 的 `set_part` 和外部存储器连接。
+<!-- 补充时间：2026-07-21；补充人：zb；内容：AXU9EGB 精确器件适配、综合与 RTL 联合仿真结果。 -->
+当前环境使用 Vitis HLS 2021.1，综合目标已切换为 AXU9EGB 搭载的
+`XCZU9EG-2FFVB1156I`（Vivado part：`xczu9eg-ffvb1156-2-i`），目标时钟为
+200 MHz（5 ns）。当前 Vivado 已安装该芯片 part，但没有安装 ALINX 的
+AXU9EGB board preset；因此当前结果属于“精确芯片级 HLS/RTL 验证”，尚不包含
+PS、DDR4、RGMII 网口引脚和板级时钟复位设计。
 
 ## 生成真实 trace fixture
 
@@ -48,6 +53,29 @@ repetition_penalty = 1.1
 ```
 
 关闭 `enable_repetition_penalty`，或使用 penalty `1.0`，内核就退化为 raw LM Head logits 直接 argmax。
+
+<!-- 补充时间：2026-07-25；补充人：zb；内容：真实板卡 trace 客户端默认关闭 repetition penalty。 -->
+### 当前上位机默认策略
+
+`tools/run_module16_board_trace.py` 默认不设置 LMH1 的
+`ENABLE_REPETITION_PENALTY` 标志，即默认执行 raw LM Head logits 直接
+argmax：
+
+```text
+enable_repetition_penalty = 0
+```
+
+如需复现本节所述 `model.generate()` trace 的 processed scores，必须显式使用：
+
+```powershell
+python tools\run_module16_board_trace.py `
+  --enable-repetition-penalty `
+  ...
+```
+
+板端没有跨请求的 penalty 全局状态；是否启用以及 penalty 数值都由每个
+`RUN_TOKEN` 请求携带。为兼容旧命令，`--disable-repetition-penalty` 仍可接受，
+但在当前默认关闭策略下无需再写。
 
 ### 当前 trace 不是由 manual_prefill_decode.py 生成的
 
@@ -184,6 +212,27 @@ D:\install\Xilinx\Vitis_HLS\2021.1\bin\vitis_hls.bat `
   -f module16_lm_head_hls\run_csynth.tcl
 ```
 
+## 导出 Vivado IP
+
+2026 年运行 Vitis HLS 2021.1 时，自动生成的 `core_revision` 会超过
+Vivado 接受的 signed 32-bit 范围。请使用兼容入口：
+
+```powershell
+module16_lm_head_hls\run_export_ip_2021_compat.ps1
+```
+
+导出目录：
+
+```text
+module16_lm_head_hls/build/lm_head_export/solution1/impl/ip
+```
+
+Vivado Catalog 中的 VLNV 为：
+
+```text
+xilinx.com:hls:lm_head_argmax:1.0
+```
+
 ## RTL co-simulation
 
 RTL co-simulation 使用小矩阵验证综合后的 AXI/控制 RTL。全尺寸数值验证由默认的 8 步 C 仿真负责：
@@ -208,9 +257,9 @@ python tools\run_module16_tcp_loopback.py --step 0
 ## 当前验证结论
 
 - 全尺寸 HLS C 仿真：8/8 真实 Qwen trace 通过，token 8/8 完全匹配。
-- 全尺寸 C 综合：通过；目标周期 4 ns，估计周期 2.920 ns。
-- 缩小同构核 RTL co-simulation：Verilog/XSim 通过，1/1 事务，491 cycles。
+- AXU9EGB/ZU9EG 全尺寸 C 综合：通过；目标周期 5 ns（200 MHz），估计周期 3.650 ns（约 273.97 MHz）。
+- AXU9EGB/ZU9EG 缩小同构核 RTL co-simulation：Verilog/XSim 通过，1/1 事务，542 cycles。
 - TCP 回环：8/8 真实 trace 通过，token 8/8 完全匹配，Top-5 均为 5/5。
-- 全尺寸串行基线综合估计：824,709,518 cycles，约 3.299 s/token；它是功能基线，不是最终性能方案。
+- 全尺寸串行基线综合估计：1,097,890,446 cycles，在 5 ns 目标周期下约 5.489 s/token；点积 II=8。它是功能基线，不是最终性能方案。
 
 详细数据见 `SIMULATION_REPORT.md`。

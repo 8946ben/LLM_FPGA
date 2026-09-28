@@ -13,8 +13,8 @@ set compact_flags "-DLMH_COSIM_SMALL -I[file join $module_dir include]"
 add_files [file join $module_dir "src" "lm_head_kernel.cpp"] -cflags $compact_flags
 add_files -tb [file join $module_dir "tb" "lm_head_tb.cpp"] -cflags $compact_flags
 open_solution -reset solution1
-set_part {xcu280-fsvh2892-2L-e}
-create_clock -period 4 -name default
+set_part {xczu9eg-ffvb1156-2-i}
+create_clock -period 5 -name default
 csynth_design
 cosim_design -rtl verilog -trace_level port
 exit

@@ -1,0 +1,41 @@
+#-----------------------------------------------------------
+# Vivado v2021.1 (64-bit)
+# SW Build 3247384 on Thu Jun 10 19:36:33 MDT 2021
+# IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
+# Start of session at: Fri Jul 24 18:21:26 2026
+# Process ID: 19148
+# Current directory: D:/program/LLM_FPGA
+# Command line: vivado.exe -mode batch -nojournal -log D:\program\LLM_FPGA\realFpga\results\20260724_stage_c\build_bitstream_attempt1.log -source realFpga\vivado\build_lm_head_axu9eg.tcl
+# Log file: D:/program/LLM_FPGA/realFpga/results/20260724_stage_c/build_bitstream_attempt1.log
+# Journal file: 
+#-----------------------------------------------------------
+CRITICAL WARNING: [Common 17-741] No write access right to the local Tcl store at 'C'. XilinxTclStore is reverted to the installation area. If you want to use local Tcl Store, please change the access right and relaunch Vivado.
+source {realFpga\vivado\build_lm_head_axu9eg.tcl}
+# set script_dir [file normalize [file dirname [info script]]]
+# set project_dir [file normalize [file join $script_dir "build" "lm_head_axu9eg"]]
+# set project_file [file join $project_dir "lm_head_axu9eg.xpr"]
+# set result_dir [file normalize [file join $script_dir ".." "results" \
+#     "20260724_stage_c"]]
+# file mkdir $result_dir
+# if {![file exists $project_file]} {
+#     error "Vivado project is missing; run create_lm_head_axu9eg_bd.tcl first: $project_file"
+# }
+# open_project $project_file
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1700] Loaded user IP repository 'd:/program/LLM_FPGA/module16_lm_head_hls/build/lm_head_export/solution1/impl/ip'.
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'D:/install/Xilinx/Vivado/2021.1/data/ip'.
+open_project: Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 1288.820 ; gain = 6.129
+# launch_runs synth_1 -jobs 4
+[Fri Jul 24 18:21:38 2026] Launched lm_head_system_lm_head_argmax_0_0_synth_1, lm_head_system_axi_smc_ctrl_0_synth_1, lm_head_system_axi_smc_mem_0_synth_1, lm_head_system_rst_ps8_0_100M_0_synth_1, lm_head_system_zynq_ultra_ps_e_0_0_synth_1...
+Run output will be captured here:
+lm_head_system_lm_head_argmax_0_0_synth_1: D:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.runs/lm_head_system_lm_head_argmax_0_0_synth_1/runme.log
+lm_head_system_axi_smc_ctrl_0_synth_1: D:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.runs/lm_head_system_axi_smc_ctrl_0_synth_1/runme.log
+lm_head_system_axi_smc_mem_0_synth_1: D:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.runs/lm_head_system_axi_smc_mem_0_synth_1/runme.log
+lm_head_system_rst_ps8_0_100M_0_synth_1: D:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.runs/lm_head_system_rst_ps8_0_100M_0_synth_1/runme.log
+lm_head_system_zynq_ultra_ps_e_0_0_synth_1: D:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.runs/lm_head_system_zynq_ultra_ps_e_0_0_synth_1/runme.log
+[Fri Jul 24 18:21:38 2026] Launched synth_1...
+Run output will be captured here: D:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.runs/synth_1/runme.log
+# wait_on_run synth_1
+[Fri Jul 24 18:21:38 2026] Waiting for synth_1 to finish...

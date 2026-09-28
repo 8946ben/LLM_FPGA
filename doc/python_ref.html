@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python 参考实现 - LLM_FPGA 技术文档</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">LLM_FPGA 教程<small>Qwen2.5-0.5B-Instruct FPGA 推理验证工程</small></div>
+  <div class="search-box">correctness-first · 逐模块对齐 · AXU9EGB</div>
+</div>
+
+<div class="sidebar">
+  <h4>LLM_FPGA 教程</h4>
+  <ul>
+    <li><a href="index.html">1. 项目总览</a></li>
+    <li><a href="model.html">2. 模型结构与权重</a></li>
+    <li><a href="trace.html">3. Golden Trace 数据集</a></li>
+    <li><a href="python_ref.html" class="active">4. Python 参考实现</a></li>
+  </ul>
+  <h4>FPGA 实现</h4>
+  <ul>
+    <li><a href="hls.html">5. HLS 模块设计（模块 16）</a></li>
+    <li><a href="protocol.html">6. LMH1 网络协议</a></li>
+    <li><a href="fpga.html">7. 上板部署（realFpga）</a></li>
+  </ul>
+  <h4>附录</h4>
+  <ul>
+    <li><a href="tools.html">8. 工具链与测试</a></li>
+    <li><a href="resources.html">9. 教程与参考资源</a></li>
+  </ul>
+</div>
+
+<div class="main">
+
+<h1>4. Python 参考实现</h1>
+
+<p>对应目录：<code>qwen25_0p5b_python_reference/</code></p>
+
+<p>Golden trace（第 3 篇）只是一堆静态的 <code>.npy</code> 数据，而本目录的任务是：<strong>把 trace 背后的推理流程固定为可读的 Python 代码</strong>。有了这些参考实现，FPGA 侧每实现一个模块，就能找到一份语义完全等价的 Python 代码来逐模块对齐，做到「先比数值，再谈性能」。</p>
+
+<div class="note">这里的每个脚本都扮演不同角色：有的负责「生产」trace，有的负责「复现」推理流程，有的负责「定义」模块数学语义，还有的负责「裁决」FPGA 结果是否正确。写 HLS 之前建议先把它们都跑通一遍。</div>
+
+<h2>文件一览</h2>
+
+<table class="tb">
+  <tr><th>文件</th><th>作用</th></tr>
+  <tr>
+    <td><code>run_full_generate_trace.py</code></td>
+    <td>完整推理入口，基于 HuggingFace <code>model.generate()</code>（greedy、<code>do_sample=False</code>、<code>output_scores=True</code>）。依赖插桩版 Transformers，通过环境变量 <code>QWEN2_FPGA_RECORD=1</code> / <code>QWEN2_FPGA_RECORD_DIR</code> 开启记录，写出 <code>metadata.json</code> + 每步 vocab logits 到 <code>generation_token_vocab_logits/</code>。</td>
+  </tr>
+  <tr>
+    <td><code>manual_prefill_decode.py</code></td>
+    <td>不调 <code>generate()</code>，手写 prefill→decode 循环（eager attention、KV cache 逐 token、argmax），是最接近 FPGA runtime 需要复现的显式流程。<code>--save-scores</code> 可导出每步 FP32 logits。</td>
+  </tr>
+  <tr>
+    <td><code>qwen2_module_reference.py</code></td>
+    <td>模块级 PyTorch 参考实现：RMSNorm（FP32 内部计算后 cast 回原 dtype）、Linear、RoPE、GQA repeat_kv、eager attention（softmax 用 FP32）、SwiGLU MLP、lm_head；<code>layer_flow_order()</code> 给出 FPGA 模块的实现顺序。</td>
+  </tr>
+  <tr>
+    <td><code>qwen2_generate.py</code></td>
+    <td>纯手写推理：不实例化 <code>AutoModelForCausalLM</code>，直接读 <code>model.safetensors</code> + <code>config.json</code>，用模块函数拼出完整 forward/decode，用于验证模块参考实现的正确性（含 tokens/s 统计）。</td>
+  </tr>
+  <tr>
+    <td><code>lm_head_cpu_reference.py</code></td>
+    <td>模块 16（lm_head + token 选择）的 CPU golden 验证器：<code>lm_head_chunked</code> 按 vocab 4096 行分块、FP32 累加算 W@h；<code>apply_repetition_penalty</code>（HF 语义：负乘正除）+ <code>greedy_argmax</code>（tie 取最小 id）。</td>
+  </tr>
+  <tr>
+    <td><code>snapshots/modeling_qwen2_fpga_instrumented.py</code></td>
+    <td>插桩后的 Qwen2 模型源码快照：在每层各算子点调用 recorder 导出中间张量。</td>
+  </tr>
+  <tr>
+    <td><code>snapshots/fpga_recorder.py</code></td>
+    <td>线程安全的 recorder：每次 forward 生成一个 <code>step_NNNN</code> 目录，按 <code>layer_NN</code> 子目录存 <code>.npy</code>，附 <code>metadata.jsonl</code> 记录每个张量的 shape/dtype。</td>
+  </tr>
+</table>
+
+<h2>两条推理路径</h2>
+
+<p>目录里有两条互相印证的推理路径，这是 correctness-first 方法的核心：</p>
+
+<pre><code>路径 A（generate()）:  run_full_generate_trace.py
+    └── 调 HuggingFace generate() + 插桩 recorder → 产出 golden trace
+
+路径 B（手写循环）:    manual_prefill_decode.py / qwen2_generate.py
+    └── 手写 prefill→decode，显式维护 KV cache → 复现 FPGA runtime 行为
+
+验证：两条路径的 8 步 token ids 完全一致</code></pre>
+
+<p>路径 A 用来「生产」数据，路径 B 用来「复现」FPGA 上将要执行的显式流程。FPGA 侧的开发对标的是路径 B 的行为，用路径 A 的 golden 数据做对齐。</p>
+
+<h2>lm_head_cpu_reference：模块 16 的裁决者</h2>
+
+<p><code>lm_head_cpu_reference.py</code> 是模块 16（LM Head）验证链条的核心。它逐 step 比对 golden trace 中的 <code>lm_head_input</code> / <code>vocab_logits</code> 与 <code>generation_token_vocab_logits/</code> 中导出的每步 logits，判定标准如下：</p>
+
+<table class="tb">
+  <tr><th>比对项</th><th>通过阈值</th></tr>
+  <tr><td>processed scores（生成策略处理后的 scores）</td><td>max_abs ≤ 2e-6</td></tr>
+  <tr><td>matmul（FP32 累加 W@h 与 trace logits）</td><td>cosine ≥ 0.999</td></tr>
+  <tr><td>top5 重叠</td><td>≥ 4</td></tr>
+</table>
+
+<p>加上 <code>--output-dir</code> 参数可以把 FP32 计算的 logits 导出成文件，产物在 <code>artifacts/module16_cpu_logits/</code> 下（<code>00..07_computed_logits_fp32.npy</code>），供后续 HLS / 板端验证直接复用。</p>
+
+<div class="danger"><strong>argmax 在 FP16 LM Head 输出上执行，而不是在 FP32 accumulator 上。</strong>这一点是模块 16 最容易踩的坑：FPGA / CPU 参考实现都必须先算 FP32 累加，然后把结果 cast 回 FP16，再对 FP16 logits 做 argmax。step 7 时 token 100013 与 100048 转成 FP16 后同为 20.203125，此时必须按 <code>torch.argmax</code> 的规则选择位置较前的 100013，否则会选出错误的 token。</div>
+
+<h2>阶段 1 验证结果</h2>
+
+<p>以下结果来自 <code>MODULE16_LM_HEAD_VALIDATION_REPORT.md</code>：8 步（step 0 prefill + step 1~7 decode）全部 PASS：</p>
+
+<table class="tb">
+  <tr><th>step</th><th>阶段</th><th>期望 token</th><th>实测 token</th><th>最大绝对误差</th><th>cosine</th><th>Top-5 overlap</th></tr>
+  <tr><td>0</td><td>prefill</td><td>104198</td><td>104198</td><td>0.00390625</td><td>1.000000000</td><td>5/5</td></tr>
+  <tr><td>1</td><td>decode</td><td>48</td><td>48</td><td>—</td><td>1.000000000</td><td>5/5</td></tr>
+  <tr><td>2</td><td>decode</td><td>16948</td><td>16948</td><td>—</td><td>1.000000000</td><td>5/5</td></tr>
+  <tr><td>3</td><td>decode</td><td>3837</td><td>3837</td><td>0.0078125</td><td>1.000000000</td><td>5/5</td></tr>
+  <tr><td>4</td><td>decode</td><td>67071</td><td>67071</td><td>—</td><td>1.000000000</td><td>5/5</td></tr>
+  <tr><td>5</td><td>decode</td><td>102661</td><td>102661</td><td>—</td><td>1.000000000</td><td>5/5</td></tr>
+  <tr><td>6</td><td>decode</td><td>99718</td><td>99718</td><td>—</td><td>1.000000000</td><td>5/5</td></tr>
+  <tr><td>7</td><td>decode</td><td>100013</td><td>100013</td><td>—</td><td>1.000000000</td><td>5/5</td></tr>
+</table>
+
+<p>生成策略 processed scores 的最大绝对误差为 <code>1.90735e-06</code>。总结论：</p>
+
+<table class="tb">
+  <tr><th>验证项</th><th>结果</th></tr>
+  <tr><td>单元测试</td><td>6/6 PASS</td></tr>
+  <tr><td>真实矩阵乘</td><td>8/8 PASS</td></tr>
+  <tr><td>生成策略 scores</td><td>8/8 PASS</td></tr>
+  <tr><td>Token 选择</td><td>8/8 PASS</td></tr>
+  <tr><td><strong>overall</strong></td><td><strong>PASS</strong></td></tr>
+</table>
+
+<h2>H200 服务器复现</h2>
+
+<p>在 H200 服务器上可以用如下命令完整复现手写 prefill/decode 路径（对应 <code>manual_prefill_decode.py</code>）：</p>
+
+<pre><code class="language-bash"># conda 环境
+source /data3/output/conda_envs/qwen25_fpga_transformers/bin/activate  # 或 conda activate
+
+# 必要的环境设置（避免用户站点包与编码问题）
+export PYTHONNOUSERSITE=1
+unset PYTHONUSERBASE
+export PYTHONIOENCODING=utf-8
+
+# 模型路径：/data3/models/Qwen2.5-0.5B-Instruct
+python manual_prefill_decode.py \
+    --model-path /data3/models/Qwen2.5-0.5B-Instruct \
+    --record-dir &lt;输出目录&gt; \
+    --max-new-tokens 8 \
+    --save-scores</code></pre>
+
+<p>预期输出：</p>
+
+<pre><code>response = 我是Qwen，由阿里云开发
+generated_ids = [104198, 48, 16948, 3837, 67071, 102661, 99718, 100013]</code></pre>
+
+<div class="note">generate() 路径（<code>run_full_generate_trace.py</code>）在同一环境下也已验证，两条路径产出的 token ids 完全一致——这正是后续所有模块级验证能放心进行的前提。</div>
+
+<div class="prenext">
+  <span class="prev"><a href="trace.html">← 上一篇：3. Golden Trace 数据集</a></span>
+  <span class="next"><a href="hls.html">下一篇：5. HLS 模块设计（模块 16） →</a></span>
+</div>
+
+</div>
+
+<div class="footer">LLM_FPGA 技术文档 · Qwen2.5-0.5B-Instruct FPGA 推理验证工程 · correctness-first</div>
+
+</body>
+</html>

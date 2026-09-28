@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>上板部署 · LLM_FPGA 项目图wiki</title>
+<link rel="stylesheet" href="assets/wiki.css">
+</head>
+<body>
+
+<header class="wiki-header">
+  <div class="bar">
+    <a class="brand" href="index.html">LLM_FPGA 项目图wiki<span>以图为核心</span></a>
+    <nav>
+      <a href="index.html">总览</a>
+      <a href="model.html">模型与权重</a>
+      <a href="trace.html">Golden Trace</a>
+      <a href="python-ref.html">Python 参考</a>
+      <a href="hls.html">HLS 内核</a>
+      <a href="protocol.html">网络协议</a>
+      <a href="fpga.html" class="active">上板部署</a>
+      <a href="verify.html">验证闭环</a>
+      <a href="tools.html">工具链</a>
+      <a href="roadmap.html">ABI V2 路线</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>上板部署 <code>realFpga/</code></h1>
+<p class="lede">
+目标板卡 ALINX AXU9EGB（<code>XCZU9EG-2FFVB1156I</code>），工具链 Vivado / Vitis HLS / Vitis 2021.1。
+第一版采用同事 RMSNorm 工程已验证过的路线：<strong>A53 standalone + lwIP raw TCP</strong>，
+PL 侧只放一个 <code>lm_head_argmax</code> IP，PL 时钟先跑 100 MHz。
+</p>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart LR
+  PC["上位机<br/>192.168.8.12/24<br/>tools/run_module16_board_trace.py"]
+  JTAG["JTAG 下载器<br/>XSCT 脚本"]
+
+  subgraph BOARD["ALINX AXU9EGB · XCZU9EG-2FFVB1156I"]
+    direction TB
+    subgraph PSZ["PS · Cortex-A53"]
+      direction TB
+      APP["lm_head_net_diag.elf<br/>main.c → lwip_lm_head_raw_server.c"]
+      LWIP["lwIP 211 1.5<br/>静态 IP 192.168.8.190<br/>TCP :19016"]
+      GEM["GEM3 + RGMII 千兆"]
+    end
+    subgraph PLZ["PL · 100 MHz 首版"]
+      direction TB
+      RESET["Processor System Reset<br/>ext_reset_in = pl_resetn0"]
+      CTRL["axi_smc_ctrl<br/>M_AXI_HPM0_FPD → s_axi_control"]
+      MEM["axi_smc_mem<br/>4 Slave → S_AXI_HP0_FPD 128 bit"]
+      IPH["lm_head_argmax_0"]
+    end
+    DDR["PS DDR4 4 GB / 64 bit<br/>.lmh_buffers NOLOAD 区"]
+    PLDDR["PL DDR4 2 GB / 32 bit<br/>当前未接入，ABI V2 规划的 KV Cache"]
+  end
+
+  PC <-->|"TCP 19016"| GEM
+  GEM --> LWIP --> APP
+  JTAG -->|"program FPGA + FSBL + ELF"| BOARD
+  APP --> CTRL --> IPH
+  IPH --> MEM --> DDR
+  APP --> DDR
+  PLDDR -. "规划" .-> IPH
+</div>
+<figcaption>
+图 1　板级部署拓扑。控制通道是 <code>M_AXI_HPM0_FPD → axi_smc_ctrl → AXI-Lite</code>，
+数据通道是 <code>IP m_axi → axi_smc_mem → S_AXI_HP0_FPD → PS DDR</code>，两条通路必须分开理解。
+</figcaption>
+</figure>
+
+<h2>PS DDR 内存布局</h2>
+
+<figure class="diagram wide">
+<svg viewBox="0 0 1000 120" width="100%" role="img" aria-label="PS DDR 地址空间与 lmh_buffers NOLOAD 区布局">
+  <g font-size="12" fill="#1f2328">
+    <text x="12" y="20" font-size="11.5" fill="#59636e">0x0</text>
+    <text x="150" y="20" font-size="11.5" fill="#59636e" text-anchor="middle">0x008250C0</text>
+    <text x="240" y="20" font-size="11.5" fill="#59636e" text-anchor="middle">0x40000000</text>
+    <text x="700" y="20" font-size="11.5" fill="#59636e" text-anchor="middle">0x503A8000</text>
+    <text x="940" y="20" font-size="11.5" fill="#59636e" text-anchor="end">0x504F7440</text>
+
+    <rect x="12"  y="30" width="116" height="40" fill="#f2f4f7" stroke="#c6d0da"/>
+    <rect x="128" y="30" width="90"  height="40" fill="#ffffff" stroke="#c6d0da" stroke-dasharray="4 3"/>
+    <rect x="218" y="30" width="470" height="40" fill="#eaf3ff" stroke="#8ab4f8"/>
+    <rect x="688" y="30" width="26"  height="40" fill="#eefbf2" stroke="#4ac26b"/>
+    <rect x="714" y="30" width="34"  height="40" fill="#fff8e5" stroke="#e6c34a"/>
+    <rect x="748" y="30" width="4"   height="40" fill="#f2f4f7" stroke="#c6d0da"/>
+    <rect x="752" y="30" width="62"  height="40" fill="#fdf1f5" stroke="#d4779a"/>
+    <rect x="814" y="30" width="74"  height="40" fill="#f0f0ff" stroke="#8a8ad8"/>
+    <rect x="888" y="30" width="52"  height="40" fill="#ffffff" stroke="#c6d0da" stroke-dasharray="4 3"/>
+
+    <g text-anchor="middle" font-weight="600" font-size="12.5">
+      <text x="70"  y="55">程序/堆/栈</text>
+      <text x="370" y="55">__lmh_weight</text>
+      <text x="850" y="55" font-size="11">空闲</text>
+    </g>
+    <g text-anchor="middle" font-size="11" fill="#59636e">
+      <text x="70"  y="88">_end = 0x008250C0</text>
+      <text x="370" y="88">259.66 MiB · 启动时一次上传</text>
+      <text x="701" y="88">①</text>
+      <text x="731" y="88">②</text>
+      <text x="750" y="88">③</text>
+      <text x="783" y="88">④</text>
+      <text x="851" y="88">⑤</text>
+    </g>
+    <text x="12" y="110" font-size="11.5" fill="#59636e">
+      .lmh_buffers (NOLOAD)：0x40000000 ~ 0x504F7440，不进入 ELF、启动不清零；由 lscript.ld 的 ASSERT 保证不与程序/堆/栈重叠且不超出 psu_ddr_0_MEM_0。
+    </text>
+  </g>
+</svg>
+<figcaption>
+图 2　PS DDR 真实链接结果（取自 <code>lm_head_net_diag.map</code>）。
+①～⑤ 为四个小缓冲加对齐填充，横向宽度按语义示意，非等比。
+</figcaption>
+</figure>
+
+<div class="table-scroll">
+<table>
+  <tr><th>#</th><th>符号</th><th>起始地址</th><th>结束地址</th><th>大小</th><th>用途</th></tr>
+  <tr><td>—</td><td><code>__lmh_weight_start</code></td><td>0x40000000</td><td>0x503A8000</td><td>0x103A8000<br/>272,269,312 B</td><td>FP16 LM Head 权重，启动后常驻</td></tr>
+  <tr><td>①</td><td><code>__lmh_hidden_start</code></td><td>0x503A8000</td><td>0x503A8700</td><td>0x700<br/>1792 B</td><td>hidden[896] FP16</td></tr>
+  <tr><td>②</td><td><code>__lmh_history_start</code></td><td>0x503A8700</td><td>0x503AD130</td><td>0x4A30<br/>18992 B</td><td>history_bitmap[4748] u32</td></tr>
+  <tr><td>③</td><td>对齐填充</td><td>0x503AD130</td><td>0x503AD140</td><td>0x10</td><td>64 字节对齐插入</td></tr>
+  <tr><td>④</td><td><code>__lmh_logits_start</code></td><td>0x503AD140</td><td>0x503F7440</td><td>0x4A300<br/>303,872 B</td><td>raw_logits[151936] FP16（debug）</td></tr>
+  <tr><td>⑤</td><td><code>__lmh_network_rx_start</code></td><td>0x503F7440</td><td>0x504F7440</td><td>0x100000<br/>1 MiB</td><td>TCP 接收分块缓冲</td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>Cache 规则：</strong>CPU 写入后必须 <code>Xil_DCacheFlushRange()</code>（否则 PL 读到旧值），
+PL 写完 logits 后必须 <code>Xil_DCacheInvalidateRange()</code>（否则 CPU 读到旧值）。
+权重按 1 MiB 分块，<strong>每块写完立即 flush</strong>，避免最后一次 flush 260 MiB 造成长阻塞。
+</div>
+
+<h2>Vivado Block Design 结构与复位拓扑</h2>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart TB
+  PS["zynq_ultra_ps_e_0<br/>DDR4-1600 · 4 GB · 64 bit<br/>DPLL 100 MHz · GEM3/MDIO · UART · TTC0"]
+  RST["Processor System Reset<br/>slowest_sync_clk = pl_clk0<br/>ext_reset_in = pl_resetn0<br/>aux_reset_in 需按参考工程核对"]
+  CLK["pl_clk0<br/>首版 100 MHz"]
+
+  PS -- "M_AXI_HPM0_FPD" --> CTL["axi_smc_ctrl"]
+  CTL --> IP["lm_head_argmax_0<br/>s_axi_control"]
+  IP -- "m_axi_gmem_hidden" --> MEM["axi_smc_mem<br/>4 Slave / 1 Master"]
+  IP -- "m_axi_gmem_weight" --> MEM
+  IP -- "m_axi_gmem_history" --> MEM
+  IP -- "m_axi_gmem_logits" --> MEM
+  MEM -- "S_AXI_HP0_FPD 128 bit" --> PS
+
+  CLK --> IP
+  CLK --> CTL
+  CLK --> MEM
+  CLK --> RST
+  RST -- "peripheral_aresetn" --> IP
+  RST -- "peripheral_aresetn" --> CTL
+  RST -- "peripheral_aresetn" --> MEM
+
+  click RST "verify.html" "验证闭环"
+</div>
+<figcaption>
+图 3　Block Design 连接。矩阵地址映射、时序报告与 XSA 见 <code>realFpga/results/20260724_stage_c/</code>；
+PS 配置已对齐同事 <code>ref/rmsnorm_axu9eg</code> 的 AXU9EGB 基线，两份 XSA 的 DDR 初始化函数逐字节一致。
+</figcaption>
+</figure>
+
+<div class="note warn">
+<strong>踩过的坑（log 049 / 051 / 052 / 053）：</strong>首次 4×4 上板在 PL 控制访问处锁死，
+根因是 AXI 复位拓扑错误导致 IP 处于<strong>永久复位</strong>。逐级修复后，
+<code>realFpga/vitis/probe_jtag.tcl</code>、<code>inspect_ps_pl_state.tcl</code>、<code>recover_ps_tap.tcl</code>
+成为上板预检的固定动作。任何 BD 改动后都应先确认复位释放，再谈功能。
+</div>
+
+<h2>上板逐级点亮顺序</h2>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart LR
+  A["阶段 A<br/>冻结基线<br/>单测 + HLS C 仿真 + 黄金文件 SHA-256"]
+  B["阶段 B<br/>导出 HLS IP<br/>component.xml + 驱动"]
+  C["阶段 C<br/>Vivado BD<br/>综合/实现/bitstream/XSA"]
+  D["阶段 D<br/>Vitis platform<br/>A53 standalone + lwIP"]
+  E["阶段 E<br/>PS DDR NOLOAD 布局<br/>map 与对齐验收"]
+  F["阶段 F<br/>lwIP LMH1 服务端<br/>多帧会话状态机"]
+  G["阶段 G<br/>上位机测试脚本<br/>直读 fixture"]
+  H["阶段 H · 逐级点亮<br/>H1 JTAG/UART → H2 lwIP ping + TCP<br/>→ H3 AXI-Lite → H4 4×4 合成用例<br/>→ H5 分块上传异常路径 → H6 完整权重<br/>→ H7 step 00 完整 logits<br/>→ H8 全部 8 step → H9 关 logits 测性能"]
+  I["阶段 I<br/>切 200 MHz<br/>重新实现并完整回归"]
+
+  A --> B --> C --> D --> E --> F --> G --> H --> I
+</div>
+<figcaption>
+图 4　阶段划分。严禁跳过中间步骤直接上完整 260 MiB 权重：先 4×4 合成用例，
+再分块上传异常路径，最后才是完整权重与 8 步 trace。
+</figcaption>
+</figure>
+
+<div class="table-scroll">
+<table>
+  <tr><th>项</th><th>值</th></tr>
+  <tr><td>板卡 IP / 上位机 IP</td><td><code>192.168.8.190</code> / <code>192.168.8.12/24</code></td></tr>
+  <tr><td>TCP 端口</td><td><code>19016</code>（<code>LMH_TCP_PORT</code>）</td></tr>
+  <tr><td>PL 时钟</td><td>首版 100 MHz；200 MHz 版本需重新实现与时序检查</td></tr>
+  <tr><td>XSA</td><td><code>realFpga/results/20260724_stage_c/lm_head_axu9eg.xsa</code></td></tr>
+  <tr><td>串口</td><td>115200 8N1</td></tr>
+  <tr><td>lwIP 参数</td><td><code>mem_size 262144</code> · <code>tcp_snd_buf 32768</code> · <code>tcp_wnd 32768</code> · <code>memp_num_tcp_seg 512</code></td></tr>
+  <tr><td>PHY 补丁</td><td>SHA-256 <code>4AD6F653…BEDF5</code>，从同事工程精确套用到本项目 BSP</td></tr>
+</table>
+</div>
+
+</main>
+
+<footer>
+  <span class="updated">最后更新：2026-09-28</span> ·
+  数据来源：<code>realFpga/DEBUG_LOG.md</code>、<code>realFpga/vitis/workspace/lm_head_net_diag/Debug/lm_head_net_diag.map</code>
+</footer>
+
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/wiki-init.js"></script>
+</body>
+</html>

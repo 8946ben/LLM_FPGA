@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模型结构与权重 - LLM_FPGA 技术文档</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">LLM_FPGA 教程<small>Qwen2.5-0.5B-Instruct FPGA 推理验证工程</small></div>
+  <div class="search-box">correctness-first · 逐模块对齐 · AXU9EGB</div>
+</div>
+
+<div class="sidebar">
+  <h4>LLM_FPGA 教程</h4>
+  <ul>
+    <li><a href="index.html">1. 项目总览</a></li>
+    <li><a href="model.html" class="active">2. 模型结构与权重</a></li>
+    <li><a href="trace.html">3. Golden Trace 数据集</a></li>
+    <li><a href="python_ref.html">4. Python 参考实现</a></li>
+  </ul>
+  <h4>FPGA 实现</h4>
+  <ul>
+    <li><a href="hls.html">5. HLS 模块设计（模块 16）</a></li>
+    <li><a href="protocol.html">6. LMH1 网络协议</a></li>
+    <li><a href="fpga.html">7. 上板部署（realFpga）</a></li>
+  </ul>
+  <h4>附录</h4>
+  <ul>
+    <li><a href="tools.html">8. 工具链与测试</a></li>
+    <li><a href="resources.html">9. 教程与参考资源</a></li>
+  </ul>
+</div>
+
+<div class="main">
+
+<h1>2. 模型结构与权重</h1>
+
+<p>在动手写任何 FPGA / HLS 代码之前，必须先搞清楚一件事：<strong>我们要实现的模型到底长什么样</strong>。本章介绍 <code>Qwen/Qwen2.5-0.5B-Instruct</code> 的架构、config 关键参数、权重文件组织方式，以及 FPGA 开发必须理解的几个算子概念（GQA、RMSNorm、RoPE、SwiGLU）。</p>
+
+<table class="tb">
+  <tr><th>项目</th><th>值</th></tr>
+  <tr><td>模型名称</td><td>Qwen/Qwen2.5-0.5B-Instruct</td></tr>
+  <tr><td>架构（architectures）</td><td>Qwen2ForCausalLM</td></tr>
+  <tr><td>model_type</td><td>qwen2</td></tr>
+  <tr><td>torch_dtype</td><td>bfloat16（BF16）</td></tr>
+</table>
+
+<h2>2.1 Config 关键参数</h2>
+
+<p>config 里的每一个数字，最终都会变成 FPGA 上的循环边界、RAM 深度或位宽决策。下表列出了对硬件实现最重要的参数：</p>
+
+<table class="tb">
+  <tr><th>参数</th><th>值</th><th>硬件含义</th></tr>
+  <tr><td>vocab_size</td><td>151936</td><td>词表大小，决定 lm_head 的行数和 logits 维度</td></tr>
+  <tr><td>hidden_size</td><td>896</td><td>隐藏层维度，所有残差流的宽度</td></tr>
+  <tr><td>intermediate_size</td><td>4864</td><td>MLP 中间维度（SwiGLU 的 gate/up 输出宽度）</td></tr>
+  <tr><td>num_hidden_layers</td><td>24</td><td>Transformer 层数</td></tr>
+  <tr><td>num_attention_heads</td><td>14</td><td>Q 注意力头数</td></tr>
+  <tr><td>num_key_value_heads</td><td>2</td><td>KV 头数（GQA 分组）</td></tr>
+  <tr><td>head_dim</td><td>64</td><td>每个注意力头的维度（896 = 14 × 64）</td></tr>
+  <tr><td>gqa_repeat</td><td>7</td><td>每组 KV 头被 7 个 Q 头共享（14 ÷ 2 = 7）</td></tr>
+  <tr><td>rms_norm_eps</td><td>1e-06</td><td>RMSNorm 的数值稳定项</td></tr>
+  <tr><td>rope_theta</td><td>1000000.0</td><td>RoPE 旋转位置编码的基频</td></tr>
+  <tr><td>max_position_embeddings</td><td>32768</td><td>最大上下文长度</td></tr>
+  <tr><td>attention_bias</td><td>None</td><td>注意力无 bias；但注意 q/k/v 投影层是带 bias 的（见下文）</td></tr>
+  <tr><td>tie_word_embeddings</td><td>True</td><td>lm_head 与 embed_tokens 共享同一份权重（重点，见 2.3 节）</td></tr>
+</table>
+
+<h2>2.2 逻辑模块结构</h2>
+
+<p>整个模型就是一个 <code>Qwen2ForCausalLM</code>：一份 embedding 表、24 个结构完全相同的 decoder layer、一个最终 RMSNorm，再加一个 lm_head 输出投影。每个 decoder layer 内部包含 self-attention（GQA）和 SwiGLU MLP 两块，前后各有一个 RMSNorm。所有权重的名称和形状如下：</p>
+
+<pre><code>Qwen2ForCausalLM
+├── model.embed_tokens.weight            [151936, 896]   # 词表 embedding
+├── model.layers[0..23]                                      # 共 24 层，每层结构相同
+│   ├── input_layernorm.weight             [896]           # 注意力前的 RMSNorm
+│   ├── self_attn.q_proj.weight            [896, 896]      # Q 投影（14 头 × 64 维）
+│   ├── self_attn.k_proj.weight            [128, 896]      # K 投影（2 头 × 64 维）
+│   ├── self_attn.v_proj.weight            [128, 896]      # V 投影（2 头 × 64 维）
+│   ├── self_attn.o_proj.weight            [896, 896]      # 注意力输出投影
+│   ├── post_attention_layernorm.weight    [896]           # MLP 前的 RMSNorm
+│   ├── mlp.gate_proj.weight               [4864, 896]     # SwiGLU gate
+│   ├── mlp.up_proj.weight                 [4864, 896]     # SwiGLU up
+│   └── mlp.down_proj.weight               [896, 4864]     # SwiGLU down
+├── model.norm.weight                      [896]           # 最终 RMSNorm
+└── lm_head.weight                         [151936, 896]   # 输出词表投影（逻辑名）</code></pre>
+
+<h2>2.3 重点：tied lm_head（共享词表权重）</h2>
+
+<div class="note">config 中 <code>tie_word_embeddings=True</code>，因此 <code>model.safetensors</code> 里<strong>没有单独的 <code>lm_head.weight</code> tensor</strong> —— lm_head 直接复用 <code>model.embed_tokens.weight</code> 作为输出词表投影权重。这对 FPGA 意味着：<strong>只需导出一份 151936×896 权重</strong>，embedding 查表和最后的 logits 投影共用同一份数据，板端存储和加载都可以省掉一半。</div>
+
+<h2>2.4 权重文件概况</h2>
+
+<table class="tb">
+  <tr><th>项目</th><th>值</th></tr>
+  <tr><td>权重文件</td><td>1 个 <code>model.safetensors</code></td></tr>
+  <tr><td>文件大小</td><td>988097824 字节</td></tr>
+  <tr><td>SHA-256</td><td><code>fdf756fa7fcbe7404d5c60e26bff1a0c8b8aa1f72ced49e7dd0210fe288fb7fe</code>（与 HuggingFace 官方一致）</td></tr>
+  <tr><td>tensor 数量</td><td>290 个，全部为 BF16</td></tr>
+</table>
+
+<h2>2.5 关键算子概念科普</h2>
+
+<p>FPGA 实现本质上是把下面这几个算子逐个搬到硬件上。先建立概念，后面的 trace 比对和 HLS 设计才有意义。</p>
+
+<h3>GQA（Grouped-Query Attention，分组查询注意力）</h3>
+<p>标准多头注意力里每个 Q 头都有自己的 K、V 头；GQA 则让多个 Q 头<strong>共享</strong>同一组 K、V 头。本模型有 14 个 Q 头，却只有 2 组 KV 头，每组 KV 被 7 个 Q 头复用（repeat 7 倍）。这就是为什么 <code>q_proj</code> 输出是 896 维（14×64），而 <code>k_proj</code>/<code>v_proj</code> 输出只有 128 维（2×64）。GQA 大幅减小了 KV cache 的体积，对存储带宽受限的 FPGA 尤其友好。</p>
+
+<h3>RMSNorm（均方根归一化）</h3>
+<p>LayerNorm 的简化版：<strong>不做均值平移</strong>，只用均方根对向量做缩放，再乘以一个可学习的逐元素权重。公式为 <code>x / sqrt(mean(x²) + eps) * weight</code>，本模型 <code>eps = 1e-6</code>。每一层有两个 RMSNorm（attention 前、MLP 前），外加最后一层一个最终 norm，权重都只有 896 维，非常适合在 FPGA 上用一个小向量乘法实现。</p>
+
+<h3>RoPE（Rotary Position Embedding，旋转位置编码）</h3>
+<p>不加位置向量，而是把 Q、K 向量的相邻两维看作一个二维平面，按位置序号做<strong>旋转</strong>，从而让注意力天然感知相对距离。旋转频率由基频 <code>theta = 1000000.0</code> 决定。硬件上通常预计算 sin/cos 表，再做逐对旋转。</p>
+
+<h3>SwiGLU MLP</h3>
+<p>本模型的前馈网络不是普通的「升维 → 激活 → 降维」，而是<strong>三投影</strong>结构：<code>gate_proj</code> 和 <code>up_proj</code> 各自把 896 维升到 4864 维，然后计算 <code>silu(gate) * up</code>，最后由 <code>down_proj</code> 降回 896 维。三个矩阵是模型内计算量的主力，也是逐层验证时最需要关注的模块。</p>
+
+<h2>2.6 FPGA 第 0 层 bring-up 常用权重清单</h2>
+
+<p>做第一层（layers.0）逐级点亮时，通常只需要下面这些权重。一共 13 项，先备齐再开始比对：</p>
+
+<pre><code>model.layers.0.input_layernorm.weight            # RMSNorm γ
+model.layers.0.self_attn.q_proj.weight           # Q 投影权重
+model.layers.0.self_attn.q_proj.bias             # Q 投影 bias（本模型 q/k/v 带 bias）
+model.layers.0.self_attn.k_proj.weight           # K 投影权重
+model.layers.0.self_attn.k_proj.bias             # K 投影 bias
+model.layers.0.self_attn.v_proj.weight           # V 投影权重
+model.layers.0.self_attn.v_proj.bias             # V 投影 bias
+model.layers.0.self_attn.o_proj.weight           # 输出投影权重
+model.layers.0.post_attention_layernorm.weight   # MLP 前 RMSNorm γ
+model.layers.0.mlp.gate_proj.weight              # SwiGLU gate
+model.layers.0.mlp.up_proj.weight                # SwiGLU up
+model.layers.0.mlp.down_proj.weight              # SwiGLU down
+model.norm.weight                                # 最终 RMSNorm γ
+lm_head.weight                                   # 实际读取的是 model.embed_tokens.weight（tied）</code></pre>
+
+<div class="warn">注意最后一项：清单里写 <code>lm_head.weight</code> 只是为了表达逻辑用途，实际导出时必须从 <code>model.embed_tokens.weight</code> 读取（见 2.3 节），不要在 safetensors 里找不存在的 tensor。</div>
+
+<h2>2.7 参数量举例</h2>
+
+<p>几个代表性 tensor 的形状和参数个数如下（全部为 BF16，每参数 2 字节）：</p>
+
+<table class="tb">
+  <tr><th>权重</th><th>形状</th><th>参数量</th><th>数据类型</th></tr>
+  <tr><td>embed_tokens</td><td>(151936, 896)</td><td>136134656</td><td>BF16</td></tr>
+  <tr><td>q_proj（每层）</td><td>(896, 896)</td><td>802816</td><td>BF16</td></tr>
+  <tr><td>k_proj / v_proj（每层）</td><td>(128, 896)</td><td>114688</td><td>BF16</td></tr>
+  <tr><td>gate_proj / up_proj（每层）</td><td>(4864, 896)</td><td>4358144</td><td>BF16</td></tr>
+  <tr><td>down_proj（每层）</td><td>(896, 4864)</td><td>4358144</td><td>BF16</td></tr>
+</table>
+
+<h2>2.8 目标迁移模型</h2>
+
+<div class="note">本仓库只是用 0.5B 模型跑通「导出 → 对齐 → 上板」的完整 demo trace。后续的目标迁移模型是 <strong>Qwen2.5-7B-Instruct</strong>，ModelScope 地址：<a href="https://www.modelscope.cn/models/Qwen/Qwen2.5-7B-Instruct">https://www.modelscope.cn/models/Qwen/Qwen2.5-7B-Instruct</a>。0.5B 上建立的验证方法论（golden trace + 逐模块比对）可以直接复用到更大的模型。</div>
+
+<div class="prenext">
+  <span class="prev"><a href="index.html">← 上一篇：1. 项目总览</a></span>
+  <span class="next"><a href="trace.html">下一篇：3. Golden Trace 数据集 →</a></span>
+</div>
+
+</div>
+
+<div class="footer">LLM_FPGA 技术文档 · Qwen2.5-0.5B-Instruct FPGA 推理验证工程 · correctness-first</div>
+
+</body>
+</html>

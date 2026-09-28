@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>教程与参考资源 - LLM_FPGA 技术文档</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">LLM_FPGA 教程<small>Qwen2.5-0.5B-Instruct FPGA 推理验证工程</small></div>
+  <div class="search-box">correctness-first · 逐模块对齐 · AXU9EGB</div>
+</div>
+
+<div class="sidebar">
+  <h4>LLM_FPGA 教程</h4>
+  <ul>
+    <li><a href="index.html">1. 项目总览</a></li>
+    <li><a href="model.html">2. 模型结构与权重</a></li>
+    <li><a href="trace.html">3. Golden Trace 数据集</a></li>
+    <li><a href="python_ref.html">4. Python 参考实现</a></li>
+  </ul>
+  <h4>FPGA 实现</h4>
+  <ul>
+    <li><a href="hls.html">5. HLS 模块设计（模块 16）</a></li>
+    <li><a href="protocol.html">6. LMH1 网络协议</a></li>
+    <li><a href="fpga.html">7. 上板部署（realFpga）</a></li>
+  </ul>
+  <h4>附录</h4>
+  <ul>
+    <li><a href="tools.html">8. 工具链与测试</a></li>
+    <li><a href="resources.html" class="active">9. 教程与参考资源</a></li>
+  </ul>
+</div>
+
+<div class="main">
+
+<h1>9. 教程与参考资源</h1>
+
+<p>除了主线工程（golden trace → Python 参考 → HLS → 上板），仓库里还收集了一批<strong>教程、前作参考、外部模板和关键文档</strong>。本章按用途把它们整理出来，方便查阅。这些资料大多是「只读」的参考区，不参与主线构建。</p>
+
+<h2>9.1 零基础教程：module16_fpga_tutorial/</h2>
+
+<p><code>module16_fpga_tutorial/</code> 目录下藏着一份完整的零基础导览教程——真正的内容是其中的 <code>index.html</code>（约 33KB 的单文件网页）：</p>
+
+<div class="card-row">
+  <div class="card">
+    <h3>《从 CPU 到 FPGA：模块 16 零基础导览》</h3>
+    <p>完全离线、零依赖的单文件 HTML，双击即可在浏览器中阅读，不需要任何服务器或构建步骤。</p>
+  </div>
+</div>
+
+<h3>教程包含的 8 个 section</h3>
+<ol>
+  <li><strong>全景</strong> —— 模块 16（LM Head）在整个推理流程中的位置。</li>
+  <li><strong>计算公式</strong> —— lm_head 矩阵乘、repetition penalty、argmax 的数学定义。</li>
+  <li><strong>HLS / RTL / AXI 基础概念</strong> —— 面向零基础读者的概念入门。</li>
+  <li><strong>任务</strong> —— 本章工程要完成的目标拆解。</li>
+  <li><strong>分层验证</strong> —— csim → cosim → 板级回环的逐级验证方法。</li>
+  <li><strong>TCP 网口协议</strong> —— LMH1 帧协议的通俗讲解。</li>
+  <li><strong>上板流程</strong> —— 从 Vivado 工程到 AXU9EGB 点亮的完整步骤。</li>
+  <li><strong>FAQ</strong> —— 常见问题汇总。</li>
+</ol>
+
+<p>教程引用了仓库内的<strong>实测结果</strong>，数据与本文档站其他章节一致：</p>
+
+<table class="tb">
+  <tr><th>验证层级</th><th>实测结果</th></tr>
+  <tr><td>HLS C 仿真（csim）</td><td>8/8 PASS</td></tr>
+  <tr><td>4×4 RTL 协同仿真（cosim）</td><td>1/1 PASS</td></tr>
+  <tr><td>TCP trace 回环</td><td>8/8 PASS</td></tr>
+  <tr><td>串行核性能</td><td>约 3.299 s/token</td></tr>
+</table>
+
+<div class="warn"><code>module16_fpga_tutorial/</code> 目录里的 <code>app/</code>、<code>worker/</code>、<code>db/</code>、<code>drizzle/</code> 等子目录是建站工具留下的 <strong>vinext 模板脚手架</strong>（Next.js 16 + React 19 + Cloudflare Workers），只渲染骨架占位页，与 FPGA 教程<strong>没有代码耦合</strong>、尚未被定制，阅读教程时直接忽略即可。</div>
+
+<h2>9.2 RMSNorm 前作参考：ref/（只读资料区）</h2>
+
+<p><code>ref/</code> 是本工程的「前作」——RMSNorm 算子 FPGA 化的完整资料。模块 16 的 TCP 服务器设计、PS 配置都参考或对齐了它。</p>
+
+<h3>ref/RMS/ —— RMSNorm 软件与测试向量</h3>
+<table class="tb">
+  <tr><th>文件</th><th>说明</th></tr>
+  <tr><td><code>Vitis_IDE/lwip_rmsnorm_raw_server.c</code></td><td>PS 端裸机 lwIP TCP 服务器：协议 <code>OFRMSRQ1</code>/<code>OFRMSRP1</code>，端口 <code>50052</code>，36 行 × 896 维 BF16 输入，调用 <code>XRmsnorm_layer0_prefill</code> HLS IP——<strong>是模块 16 TCP 服务器设计的前作参考</strong>。</td></tr>
+  <tr><td><code>rmsnorm_fpga_backend.py</code></td><td>Python 后端，支持三种模式：本地 BF16 仿真、ZIP Ethernet RPC、AXU9EGB raw Ethernet。</td></tr>
+  <tr><td>测试向量生成脚本 + <code>rmsnorm_test_vectors.h</code></td><td>RMSNorm 测试向量的生成与 C 头文件形式。</td></tr>
+</table>
+
+<h3>ref/rmsnorm_axu9eg/ —— 完整 Vivado 工程</h3>
+<p>包含 <code>.xpr</code> 工程文件与 <code>system_wrapper_wrapper.xsa</code>，是 <strong>AXU9EGB 板上 RMSNorm IP 集成的硬件工程参考</strong>。realFpga 的 PS 配置即以此对齐——1111 项 PSU 参数中 1110 项一致。</p>
+
+<h3>ref/xemacpsif_physpeed.c —— lwIP PHY 速度协商源码</h3>
+<p>Xilinx lwIP 移植层的官方源码（PHY 速度协商部分），调试板载网口时的参考。其中的<strong>通用 PHY 识别补丁</strong>已被打入 realFpga 的 BSP。</p>
+
+<div class="note"><code>ref/</code> 下的两个 <code>.zip</code>（<code>RMS.zip</code>、<code>rmsnorm_axu9eg.zip</code>）只是上述内容的压缩备份。</div>
+
+<h2>9.3 外部参考：tmp/（只读）</h2>
+
+<table class="tb">
+  <tr><th>路径</th><th>内容</th></tr>
+  <tr><td><code>tmp/Fpga_deploy_qwen25_template/</code></td><td>外部部署框架模板《Fpga_deploy_qwen25》：Orin（Jetson, CUDA）经 <code>OFQWNRQ1</code>/<code>OFQWNRP1</code> TCP 协议（端口 <code>50052</code>）把 Qwen2.5 的 <code>rmsnorm</code>、<code>kv_gqa</code> 算子卸载到 Zynq UltraScale+ MPSoC 的完整参考架构，分为 <code>orin_runtime/</code>（Python 客户端）、<code>ps_runtime/</code>（C TCP 服务器）、<code>pl_ips/</code> 三部分。</td></tr>
+  <tr><td><code>tmp/lmh_package_ip_verify_20260725/</code></td><td>LM Head IP 封装验证的 Vivado 日志。</td></tr>
+  <tr><td><code>tmp/pdfs/</code></td><td>PDF 资料转出的 PNG 截图：<code>rms_ref/</code>（18 页 RMSNorm 参考 PDF）、<code>lmh_stage_c_review/</code>（开发板手册 p37-39）等。</td></tr>
+</table>
+
+<h2>9.4 FlightLLM 参考</h2>
+
+<p><code>qwen25_0p5b_instruct_full_generation_trace/flightllm_test_demo/</code> 收录了 FlightLLM FPGA LLM demo 的 README、<code>fpga_implementation</code> 和 profile 数据，作为 <strong>FPGA 工程组织和部署流程的参考</strong>（仓库内含约 80MB 的 bitstream 文件）。</p>
+
+<h2>9.5 根目录关键文档清单</h2>
+
+<table class="tb">
+  <tr><th>文档</th><th>内容</th></tr>
+  <tr><td><code>README.md</code></td><td>中英双语项目说明</td></tr>
+  <tr><td><code>Qwen2.5-0.5B-Instruct_FPGA推理实现路线.md</code></td><td>工程路线规划</td></tr>
+  <tr><td><code>Qwen2.5-0.5B_FPGA模块拆分与验证指南.md</code></td><td>逐模块验证指南</td></tr>
+  <tr><td><code>Qwen2.5-0.5B-Instruct模型结构.md</code></td><td>模型 config 与 290 个权重清单</td></tr>
+  <tr><td><code>MODULE16_LM_HEAD_STAGE1.md</code></td><td>模块 16 阶段 1 说明</td></tr>
+  <tr><td><code>MODULE16_LM_HEAD_VALIDATION_REPORT.md</code></td><td>模块 16 阶段 1 验证报告</td></tr>
+  <tr><td><code>realFpga/AXU9EGB_MODULE16_BOARD_BRINGUP_PLAN.md</code></td><td>AXU9EGB 上板计划</td></tr>
+  <tr><td><code>realFpga/DEBUG_LOG.md</code></td><td>67 篇调试日志</td></tr>
+  <tr><td><code>module16_lm_head_hls/NETWORK_PROTOCOL.md</code></td><td>LMH1 协议规范</td></tr>
+  <tr><td><code>module16_lm_head_hls/SIMULATION_REPORT.md</code></td><td>仿真报告</td></tr>
+  <tr><td><code>AXU9EGB开发板用户手册.pdf</code></td><td>开发板官方手册</td></tr>
+</table>
+
+<h2>9.6 相关链接</h2>
+
+<ul>
+  <li><a href="https://www.modelscope.cn/models/Qwen/Qwen2.5-7B-Instruct" target="_blank">Qwen2.5-7B-Instruct · ModelScope</a> —— 本工程的下一步目标迁移模型。</li>
+</ul>
+
+<div class="note">本文档站覆盖了从 <strong>golden trace → Python 参考 → HLS 实现 → TCP 协议 → 真实板卡</strong> 的完整链路。建议的阅读顺序即侧边栏第 1~9 章，按顺序读完即可对整条 correctness-first 验证闭环形成完整认识。</div>
+
+<div class="prenext">
+  <span class="prev"><a href="tools.html">← 上一篇：8. 工具链与测试</a></span>
+  <span class="next"></span>
+</div>
+
+</div>
+
+<div class="footer">LLM_FPGA 技术文档 · Qwen2.5-0.5B-Instruct FPGA 推理验证工程 · correctness-first</div>
+
+</body>
+</html>

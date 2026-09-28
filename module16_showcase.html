@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模块 16 LM Head：从 HLS 到 AXU9EGB 上板验证 · 成果展示</title>
+<style>
+  :root{
+    --bg:#f5f9fd; --bg2:#eef4fb; --card:#ffffff; --line:#dbe6f2;
+    --fg:#22303f; --dim:#5d7086; --acc:#2b7de9; --acc2:#0ea5a4;
+    --warn:#e8890c; --bad:#e15555; --mono:"Cascadia Code",Consolas,"Courier New",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--fg);font-family:"Segoe UI","Microsoft YaHei",sans-serif;line-height:1.75}
+  a{color:var(--acc);text-decoration:none}
+  code{font-family:var(--mono);background:#eef4fb;border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:.9em;color:#b3541e}
+  pre{font-family:var(--mono);background:#fbfdff;border:1px solid var(--line);border-radius:10px;padding:18px 22px;overflow-x:auto;font-size:13.5px;line-height:1.7;color:#33475c}
+
+  /* ===== Hero ===== */
+  .hero{padding:84px 24px 64px;text-align:center;background:linear-gradient(160deg,#dceafe 0%,#e6fbf5 55%,var(--bg) 100%)}
+  .hero .kicker{color:var(--acc2);letter-spacing:.35em;font-size:13px;text-transform:uppercase;font-weight:600}
+  .hero h1{font-size:44px;margin:14px 0 8px;background:linear-gradient(90deg,#2b7de9,#0ea5a4);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p.sub{color:var(--dim);font-size:17px;max-width:860px;margin:0 auto}
+  .hero .badges{margin-top:26px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .badge{border:1px solid var(--line);background:#ffffff;border-radius:999px;padding:6px 16px;font-size:13px;color:var(--dim);box-shadow:0 1px 3px rgba(43,125,233,.08)}
+  .badge b{color:var(--acc2)}
+
+  /* ===== Nav ===== */
+  nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);display:flex;justify-content:center;gap:6px;padding:10px;flex-wrap:wrap}
+  nav a{color:var(--dim);font-size:14px;padding:6px 14px;border-radius:8px}
+  nav a:hover{color:var(--acc);background:var(--bg2)}
+
+  section{max-width:1080px;margin:0 auto;padding:72px 24px 24px}
+  .secno{color:var(--acc);font-family:var(--mono);font-size:14px;letter-spacing:.2em;font-weight:600}
+  h2{font-size:32px;margin:6px 0 6px}
+  .secdesc{color:var(--dim);margin-bottom:34px;max-width:840px}
+  h3{font-size:20px;margin:34px 0 12px;color:#1d4e89}
+  p{margin-bottom:12px}
+
+  /* ===== Cards & stats ===== */
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  .g4{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;box-shadow:0 2px 8px rgba(43,125,233,.06)}
+  .stat{text-align:center}
+  .stat .v{font-size:30px;font-weight:700;color:var(--acc);font-family:var(--mono)}
+  .stat .v.green{color:var(--acc2)} .stat .v.orange{color:var(--warn)}
+  .stat .k{color:var(--dim);font-size:13px;margin-top:4px}
+
+  table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:14.5px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(43,125,233,.06)}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:var(--bg2);color:#1d4e89;white-space:nowrap}
+  td.num{font-family:var(--mono);white-space:nowrap}
+  tr:nth-child(even) td{background:#f7fafd}
+
+  /* ===== Timeline ===== */
+  .tl{position:relative;margin:26px 0 8px;padding-left:34px}
+  .tl::before{content:"";position:absolute;left:10px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--acc),var(--acc2))}
+  .tl .step{position:relative;margin-bottom:22px}
+  .tl .step::before{content:"";position:absolute;left:-30px;top:8px;width:12px;height:12px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 4px rgba(43,125,233,.15)}
+  .tl .step h4{font-size:16.5px;color:#17304a}
+  .tl .step .tag{font-family:var(--mono);font-size:12px;color:var(--acc2);margin-left:8px}
+  .tl .step p{color:var(--dim);font-size:14.5px;margin:4px 0 0}
+
+  /* ===== Problem cards ===== */
+  .prob{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--bad);border-radius:12px;padding:20px 22px;margin-bottom:18px;box-shadow:0 2px 8px rgba(43,125,233,.06)}
+  .prob.fix{border-left-color:var(--acc2)}
+  .prob h4{font-size:17px;margin-bottom:8px}
+  .prob .row{margin:6px 0;font-size:14.5px}
+  .prob .lbl{display:inline-block;min-width:64px;color:var(--warn);font-weight:600}
+  .prob.fix .lbl{color:var(--acc2)}
+  .prob p{color:var(--dim)}
+
+  .note{background:rgba(43,125,233,.07);border:1px solid rgba(43,125,233,.3);border-radius:10px;padding:14px 18px;margin:18px 0;font-size:14.5px}
+  .note.green{background:rgba(14,165,164,.07);border-color:rgba(14,165,164,.3)}
+  .src{font-size:12.5px;color:#8fa1b5;margin-top:6px}
+  footer{border-top:1px solid var(--line);margin-top:60px;padding:26px;text-align:center;color:var(--dim);font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="kicker">Qwen2.5-0.5B-Instruct FPGA 推理验证工程</div>
+  <h1>模块 16 · LM Head 上板验证全过程</h1>
+  <p class="sub">最后一个推理模块，第一个走通「HLS → Vivado → 裸机 TCP 服务 → 真实板卡 8/8 trace 验收」全链路的模块。<br>
+  平台：ALINX AXU9EGB（Zynq UltraScale+ ZU9EG） · 工具链：Xilinx 2021.1 · 验收日期：2026-07-25</p>
+  <div class="badges">
+    <span class="badge">真实板卡 <b>8/8</b> token 全对</span>
+    <span class="badge"><b>1.36 亿</b> MAC / token</span>
+    <span class="badge"><b>260 MiB</b> FP16 权重经网口上传</span>
+    <span class="badge">时序收敛 WNS <b>+4.26 ns</b></span>
+    <span class="badge">资源占用 LUT 仅 <b>3.8%</b></span>
+  </div>
+</div>
+
+<nav>
+  <a href="#s1">① 运算与运算量</a>
+  <a href="#s2">② 从 C 代码到上板</a>
+  <a href="#s3">③ 难题与解决</a>
+  <a href="#s4">④ 后续优化方向</a>
+  <a href="#s5">⑤ 术语速查</a>
+</nav>
+
+<!-- ================= 第一部分 ================= -->
+<section id="s1">
+  <div class="secno">PART 01</div>
+  <h2>模块 16 有哪些运算，每一步运算量如何</h2>
+  <p class="secdesc">模块 16 是 Qwen2.5-0.5B-Instruct 的最后一个模块：把 24 层 Transformer 输出的最终 hidden state 映射到
+  151,936 维词表 logits，并完成 greedy argmax 选出下一个 token。权重与 Embedding 共享（tie_word_embeddings），
+  即 <code>model.embed_tokens.weight</code>，shape <code>[151936, 896]</code>，FP16。</p>
+
+  <h3>完整数据流（含参数加载，HLS 内核 <code>lm_head_argmax</code>）</h3>
+  <pre>══════════ 阶段 A · 参数与输入加载（上位机 ─ 千兆网口 TCP/LMH1 → A53 → PS DDR）══════════
+
+A1 权重加载（一次性，LOAD_WEIGHT）：FP16 权重 [151936, 896] 共 272,269,312 B（≈260 MiB）
+     分 260 个 LMH1 分块上传，逐块 CRC32 校验 + offset 连续性检查，写入 PS DDR 0x4000_0000
+     实测 7.69 s @ 33.76 MiB/s；之后跨连接、跨 token 常驻 DDR，无需重传
+A2 每 token 输入（RUN_TOKEN）：hidden[896] FP16 = 1,792 B
+     （可选）history_bitmap[4748] u32 = 18,992 B（启用 repetition penalty 时）
+
+══════════ 阶段 B · PL 侧每 token 运算 ══════════
+
+① 读 hidden：PS DDR → 片上 BRAM 缓存        搬运 1,792 B（PIPELINE II=1）
+   ▼
+② 矩阵乘（主体）：对 151,936 个 token 逐行点积  logit[t] = Σ_k W[t][k] × hidden[k]
+     每行：896 次 FP16 乘法 + 896 次 FP32 加法
+     全表：136,134,656 次 FP16 乘法 + 136,134,656 次 FP32 加法 ≈ 2.72 亿 FLOP
+     数据：经 32-bit m_axi 从 PS DDR 读权重 272,269,312 B（≈260 MiB，每个 token 完整读一遍）
+   │  ③ FP32 累加器 → FP16：151,936 次类型转换
+   │     （可选 WANT_LOGITS）写回 raw_logits[151936] FP16 = 303,872 B
+   ▼
+④ （可选）Repetition Penalty 1.1：
+     151,936 次位图位查询 + 每个历史 token 1 次 FP32 乘（负分 ×1.1）或除（正分 ÷1.1）
+   ▼
+⑤ Greedy Argmax：151,936 次 FP32 比较，同分取较小 token ID（对齐 torch.argmax）
+   ▼
+输出 selected_token(u32) + selected_score(FP32) = 8 B  ──TCP──> 上位机</pre>
+
+  <h3>运行时系统结构（上位机 / PS / PL 数据关系）</h3>
+  <svg viewBox="0 0 1080 640" style="width:100%;height:auto;background:#fbfdff;border:1px solid var(--line);border-radius:12px" font-family="Segoe UI,Microsoft YaHei,sans-serif">
+    <defs>
+      <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+        <path d="M0,0 L7,3 L0,6 z" fill="#5d7086"/>
+      </marker>
+      <marker id="arR" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto-start-reverse">
+        <path d="M0,0 L7,3 L0,6 z" fill="#5d7086"/>
+      </marker>
+    </defs>
+
+    <!-- 上位机 -->
+    <rect x="290" y="8" width="500" height="64" rx="10" fill="#ffffff" stroke="#2b7de9" stroke-width="1.5"/>
+    <text x="540" y="34" text-anchor="middle" font-size="14" font-weight="700" fill="#17304a">上位机 PC · Python 客户端</text>
+    <text x="540" y="56" text-anchor="middle" font-size="11.5" fill="#5d7086">tools/run_module16_board_trace.py（8 步真实 trace 验收）</text>
+
+    <!-- 板卡边界 -->
+    <rect x="16" y="120" width="1048" height="508" rx="14" fill="none" stroke="#9db8d2" stroke-width="1.5" stroke-dasharray="7 5"/>
+    <text x="36" y="146" font-size="14" font-weight="700" fill="#41586f">AXU9EGB 开发板 · Zynq UltraScale+ ZU9EG（xczu9eg-ffvb1156-2）</text>
+
+    <!-- PS 区域 -->
+    <rect x="36" y="158" width="500" height="452" rx="12" fill="#eef5ff" stroke="#7aa7e8" stroke-width="1.2"/>
+    <text x="56" y="184" font-size="13" font-weight="700" fill="#1d4e89">PS 处理系统 · Cortex-A53 裸机（standalone + lwIP）</text>
+
+    <rect x="66" y="196" width="200" height="52" rx="8" fill="#ffffff" stroke="#2b7de9" stroke-width="1.5"/>
+    <text x="166" y="219" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1d4e89">Cortex-A53（核 0）</text>
+    <text x="166" y="237" text-anchor="middle" font-size="10" fill="#5d7086">PS 应用处理器 · 运行 lwIP 服务端</text>
+    <line x1="166" y1="248" x2="166" y2="264" stroke="#5d7086" stroke-width="1.4" marker-end="url(#ar)"/>
+
+    <rect x="300" y="204" width="220" height="44" rx="8" fill="#ffffff" stroke="#7aa7e8"/>
+    <text x="410" y="231" text-anchor="middle" font-size="12.5" fill="#17304a">GEM3 千兆以太网 MAC</text>
+
+    <rect x="66" y="272" width="440" height="84" rx="8" fill="#ffffff" stroke="#7aa7e8"/>
+    <text x="286" y="296" text-anchor="middle" font-size="12.5" font-weight="700" fill="#17304a">lwIP TCP 服务端 · 端口 19016</text>
+    <text x="286" y="316" text-anchor="middle" font-size="11" fill="#5d7086">lwip_lm_head_raw_server.c：LMH1 分块状态机 / offset+CRC 校验</text>
+    <text x="286" y="336" text-anchor="middle" font-size="11" fill="#5d7086">DCache Flush·Invalidate / 调用 HLS 驱动并轮询 IsDone</text>
+
+    <rect x="326" y="380" width="180" height="44" rx="8" fill="#ffffff" stroke="#7aa7e8"/>
+    <text x="416" y="399" text-anchor="middle" font-size="11.5" fill="#17304a">M_AXI_HPM0_FPD</text>
+    <text x="416" y="416" text-anchor="middle" font-size="10.5" fill="#5d7086">（AXI-Lite 控制口）</text>
+
+    <rect x="66" y="470" width="394" height="120" rx="8" fill="#ffffff" stroke="#7aa7e8"/>
+    <text x="263" y="494" text-anchor="middle" font-size="12" font-weight="700" fill="#17304a">PS DDR4（DRAM 颗粒）4 GB · .lmh_buffers @ 0x4000_0000</text>
+    <text x="263" y="516" text-anchor="middle" font-size="11" fill="#5d7086">weight 260 MiB ｜ hidden 1,792 B</text>
+    <text x="263" y="536" text-anchor="middle" font-size="11" fill="#5d7086">history 18,992 B ｜ logits 303,872 B</text>
+    <text x="263" y="558" text-anchor="middle" font-size="11" fill="#5d7086">64 B 对齐 · 权重跨连接常驻</text>
+
+    <!-- PL 区域 -->
+    <rect x="556" y="158" width="492" height="452" rx="12" fill="#ecfbf5" stroke="#5cc0ae" stroke-width="1.2"/>
+    <text x="576" y="184" font-size="13" font-weight="700" fill="#0b7c72">PL 可编程逻辑 · 100 MHz</text>
+
+    <rect x="596" y="196" width="412" height="28" rx="8" fill="#ffffff" stroke="#5cc0ae" stroke-dasharray="4 3"/>
+    <text x="802" y="215" text-anchor="middle" font-size="10.5" fill="#0b7c72">片上 BRAM（SRAM，共 32.1 Mb）：hidden 缓存 1,792 B，本版仅用 6/912 块</text>
+    <line x1="802" y1="224" x2="802" y2="230" stroke="#5d7086" stroke-width="1.2" marker-end="url(#ar)"/>
+
+    <rect x="596" y="232" width="412" height="140" rx="8" fill="#ffffff" stroke="#5cc0ae"/>
+    <text x="802" y="258" text-anchor="middle" font-size="12.5" font-weight="700" fill="#17304a">lm_head_argmax（Vitis HLS IP）</text>
+    <text x="802" y="280" text-anchor="middle" font-size="11" fill="#5d7086">矩阵乘 136,134,656 MAC → penalty → argmax</text>
+    <text x="802" y="300" text-anchor="middle" font-size="11" fill="#5d7086">FP16 × FP16，FP32 累加</text>
+    <text x="802" y="324" text-anchor="middle" font-size="11" fill="#0b7c72">s_axi_control @ 0xA000_0000</text>
+    <text x="802" y="344" text-anchor="middle" font-size="11" fill="#0b7c72">寄存器：参数 / ap_start / ap_done / token / score</text>
+
+    <rect x="596" y="432" width="412" height="48" rx="8" fill="#ffffff" stroke="#5cc0ae"/>
+    <text x="802" y="452" text-anchor="middle" font-size="12" font-weight="700" fill="#17304a">AXI SmartConnect（4 从 1 主）</text>
+    <text x="802" y="471" text-anchor="middle" font-size="10" fill="#5d7086">4 从 ← 内核 4 条 m_axi（hidden/weight/history/logits）｜1 主 → HP0 → DDR</text>
+
+    <!-- HP0 接口（跨 PS/PL 边界） -->
+    <rect x="478" y="486" width="126" height="56" rx="8" fill="#ffffff" stroke="#8fa9c9" stroke-width="1.4"/>
+    <text x="541" y="509" text-anchor="middle" font-size="11.5" font-weight="700" fill="#17304a">S_AXI_HP0_FPD</text>
+    <text x="541" y="527" text-anchor="middle" font-size="10.5" fill="#5d7086">（PL→DDR 高带宽口）</text>
+
+    <!-- 连线 -->
+    <line x1="400" y1="74" x2="400" y2="196" stroke="#5d7086" stroke-width="1.6" marker-end="url(#ar)"/>
+    <text x="412" y="104" font-size="11" fill="#41586f">① LOAD_WEIGHT：260 MiB 分 260 块（实测 33.76 MiB/s）</text>
+    <text x="412" y="122" font-size="11" fill="#41586f">② RUN_TOKEN：hidden 1,792 B（+bitmap 18,992 B）</text>
+
+    <line x1="460" y1="196" x2="460" y2="76" stroke="#0ea5a4" stroke-width="1.6" marker-end="url(#ar)"/>
+    <text x="472" y="136" font-size="11" fill="#0b7c72">③ 响应：token + score 8 B</text>
+    <text x="472" y="153" font-size="11" fill="#0b7c72">（可选 logits 303,872 B）</text>
+
+    <line x1="410" y1="248" x2="410" y2="264" stroke="#5d7086" stroke-width="1.4" marker-end="url(#ar)"/>
+
+    <line x1="136" y1="356" x2="136" y2="462" stroke="#5d7086" stroke-width="1.4" marker-end="url(#ar)"/>
+    <line x1="168" y1="462" x2="168" y2="356" stroke="#5d7086" stroke-width="1.4" marker-end="url(#ar)"/>
+    <text x="178" y="404" font-size="11" fill="#41586f">↓ 写 weight/hidden/bitmap</text>
+    <text x="178" y="422" font-size="11" fill="#41586f">↑ 读 logits（回传 PC）</text>
+
+    <line x1="420" y1="356" x2="420" y2="372" stroke="#5d7086" stroke-width="1.4" marker-end="url(#ar)"/>
+
+    <line x1="506" y1="392" x2="588" y2="326" stroke="#5d7086" stroke-width="1.4" marker-end="url(#ar)"/>
+    <line x1="588" y1="346" x2="506" y2="412" stroke="#5d7086" stroke-width="1.4" marker-end="url(#ar)"/>
+    <text x="470" y="352" font-size="10.5" fill="#41586f">→ 写参数 + ap_start</text>
+    <text x="470" y="368" font-size="10.5" fill="#41586f">← 读 ap_done·token·score</text>
+
+    <line x1="802" y1="372" x2="802" y2="424" stroke="#5d7086" stroke-width="1.4" marker-end="url(#ar)"/>
+    <text x="812" y="402" font-size="11" fill="#41586f">4× m_axi 32-bit</text>
+
+    <polyline points="760,480 760,506 610,506" fill="none" stroke="#5d7086" stroke-width="1.4" marker-end="url(#ar)"/>
+    <text x="684" y="498" text-anchor="middle" font-size="10" fill="#41586f">PL→DDR：写 logits</text>
+    <polyline points="610,524 736,524 736,480" fill="none" stroke="#5d7086" stroke-width="1.4" marker-end="url(#ar)"/>
+    <text x="640" y="560" text-anchor="middle" font-size="10" fill="#41586f">DDR→PL：读 weight/hidden/history</text>
+
+    <!-- PL DDR（本版未使用） -->
+    <rect x="748" y="510" width="280" height="84" rx="8" fill="#f4f6f8" stroke="#a8b6c4" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <text x="888" y="536" text-anchor="middle" font-size="12" font-weight="700" fill="#8fa1b5">PL DDR4（DRAM）2 GB / 32-bit</text>
+    <text x="888" y="557" text-anchor="middle" font-size="10.5" fill="#8fa1b5">本版未使用（权重全部驻留 PS DDR）</text>
+    <text x="888" y="576" text-anchor="middle" font-size="10.5" fill="#8fa1b5">优化方向④备选：权重迁此 / 双 DDR 分工</text>
+
+    <line x1="478" y1="506" x2="464" y2="506" stroke="#5d7086" stroke-width="1.4" marker-end="url(#ar)"/>
+    <line x1="464" y1="524" x2="478" y2="524" stroke="#5d7086" stroke-width="1.4" marker-end="url(#ar)"/>
+  </svg>
+  <div class="note">数据通路要点：<b>PL 不直接连网口</b>——上位机只与 A53 上的 lwIP 服务通信；所有数据（权重 / hidden / 位图 / logits）
+  都先落到 PS DDR，PL 内核经 <code>S_AXI_HP0_FPD</code> 高带宽口访问 DDR；控制走 <code>M_AXI_HPM0_FPD</code> → AXI-Lite。
+  每个 token 的计算结果只有 8 B 回传，260 MiB 权重只加载一次、常驻 DDR 复用。</div>
+
+  <h3>每一步的运算量 / 数据量</h3>
+  <table>
+    <tr><th>步骤</th><th>内容</th><th>运算量</th><th>数据访问量</th></tr>
+    <tr><td>A1 权重加载（一次性）</td><td>上位机经千兆网口分 260 块上传 FP16 权重至 PS DDR，常驻复用</td><td class="num">—（纯数据搬运）</td><td class="num">272,269,312 B ≈ <b>260 MiB</b>，7.69 s @ 33.76 MiB/s</td></tr>
+    <tr><td>A2 输入加载（每 token）</td><td>hidden 向量 + （可选）history 位图写入 DDR</td><td class="num">—（纯数据搬运）</td><td class="num">1,792 B（+18,992 B）</td></tr>
+    <tr><td>① hidden 缓存</td><td>896 维向量从 DDR 载入片上 BRAM</td><td class="num">—（纯数据搬运）</td><td class="num">1,792 B</td></tr>
+    <tr><td>② 矩阵乘（主体）</td><td>[151936×896] × [896]，FP16 乘、FP32 累加</td><td class="num"><b>136,134,656 次 FP16 乘法<br>+ 136,134,656 次 FP32 加法</b>（≈2.72 亿 FLOP）</td><td class="num">读权重 272,269,312 B ≈ <b>260 MiB</b>（每 token 一遍）</td></tr>
+    <tr><td>③ logits 写回（可选）</td><td>FP32 累加器转 FP16 写回 DDR</td><td class="num">151,936 次 FP32→FP16 类型转换</td><td class="num">写 303,872 B</td></tr>
+    <tr><td>④ Repetition penalty（可选）</td><td>位图查询 + 历史 token 一次 FP32 乘/除（penalty=1.1）</td><td class="num">151,936 次位查询；≤ 历史长度次 FP32 乘/除</td><td class="num">读位图 18,992 B</td></tr>
+    <tr><td>⑤ Argmax</td><td>FP32 逐元素比较，平局取小 ID</td><td class="num">151,936 次 FP32 比较</td><td class="num">—（流水内完成）</td></tr>
+  </table>
+
+  <div class="note">数值口径：全链路 <b>FP16 输入/权重/输出 + FP32 累加</b>，无量化。argmax 刻意在 <b>FP16 raw logits</b> 上做——
+  因为 PyTorch trace 里存在转 FP16 后同分的 token（step 7 的 100013/100048 同为 20.203125），必须复现
+  <code>torch.argmax</code>「同分取前」的规则才能逐 token 对齐。</div>
+  <p class="src">出处：module16_lm_head_hls/src/lm_head_kernel.cpp、include/lm_head_kernel.hpp、NETWORK_PROTOCOL.md、MODULE16_LM_HEAD_VALIDATION_REPORT.md</p>
+</section>
+
+<!-- ================= 第二部分 ================= -->
+<section id="s2">
+  <div class="secno">PART 02</div>
+  <h2>从 C 代码到上板可运行，做了哪些工作</h2>
+  <p class="secdesc">一条「correctness-first」的完整闭环：先有 golden trace 和 CPU 参考，再逐级仿真、综合、集成、
+  裸机网络服务，最后在真实板卡上用 8 步真实生成 trace 验收。全程工具链 Xilinx 2021.1。</p>
+
+  <div class="tl">
+    <div class="step"><h4>Python 参考与 golden trace<span class="tag">PyTorch</span></h4>
+      <p>插桩版 <code>model.generate(do_sample=False)</code> 导出完整 trace（prefill + 7 decode 步）；CPU 参考实现 matmul + penalty + argmax，8/8 与 trace 对齐（max abs ≤ 0.0078，cosine = 1.0）。反算确认 trace 的 generation scores 含 repetition penalty 1.1（1.1 时 8/8 PASS，1.0 全 FAIL）。</p></div>
+    <div class="step"><h4>权重导出与 fixture 准备<span class="tag">tools/*.py</span></h4>
+      <p>纯 NumPy 读 safetensors，BF16 → FP16 导出 260 MiB 权重（SHA-256 存档）；每步 trace 压缩为 4 个紧凑 fixture 文件（hidden / golden logits / history 位图 / expected token）。</p></div>
+    <div class="step"><h4>HLS C 仿真<span class="tag">Vitis HLS · csim</span></h4>
+      <p>全尺寸（151936×896）一次加载权重连跑 8 步：token 8/8 匹配，max abs ≤ 0.015625，cosine 全 1.0，Top-5 全 5/5。</p></div>
+    <div class="step"><h4>C 综合<span class="tag">csynth</span></h4>
+      <p>目标 200 MHz，估计 Fmax 273.97 MHz；BRAM 14/1824、DSP 5、LUT 5816/274080。定位为功能基线（串行点积 II=8），明确把性能优化放到正确性验收之后。</p></div>
+    <div class="step"><h4>RTL 协同仿真<span class="tag">cosim · XSim</span></h4>
+      <p>用 <code>-DLMH_COSIM_SMALL</code> 4×4 同构核规避 260 MiB 权重生成超大测试向量，Verilog 级 cosim PASS（1/1 事务）。</p></div>
+    <div class="step"><h4>IP 导出<span class="tag">ip_catalog</span></h4>
+      <p>导出 VLNV <code>xilinx.com:hls:lm_head_argmax:1.0</code>（4×m_axi 32-bit + s_axilite 控制）。此处踩中 2021.1 在 2026 年的 core_revision 32 位溢出坑，固化兼容脚本解决（见第三部分）。</p></div>
+    <div class="step"><h4>Vivado Block Design 与比特流<span class="tag">Vivado 2021.1</span></h4>
+      <p>控制通路 M_AXI_HPM0_FPD → s_axi_control @ 0xA0000000；4 条数据 m_axi → AXI SmartConnect → S_AXI_HP0_FPD → PS DDR。PS/DDR/GEM3 配置与同事已验证的 RMSNorm 工程逐项对齐（1111 项 PSU 参数仅 1 项无害差异，psu_ddr_init_data() 523,694 字符逐字节一致）。结果：<b>WNS +4.262 ns / TNS 0 / WHS +0.010 ns</b>，DRC 0 error。</p></div>
+    <div class="step"><h4>Vitis 裸机平台与 lwIP TCP 服务<span class="tag">A53 standalone</span></h4>
+      <p>从 XSA 建 standalone 平台，BSP 调大 lwIP 内存参数以承载 260 MiB 分块上传；A53 裸机实现 LMH1 协议服务端（TCP 19016 端口）：24 字节帧头 + CRC32，opcode = LOAD_WEIGHT / RUN_TOKEN / PING，含分块状态机、offset 连续性检查、DCache Flush/Invalidate、HLS 驱动轮询。DDR 专用 <code>.lmh_buffers</code> 段 64B 对齐、互不重叠。</p></div>
+    <div class="step"><h4>网口逐级点亮（H-1 → H-8）<span class="tag">真实板卡</span></h4>
+      <p>JTAG Hello World → ping/TCP → AXI-Lite 寄存器读写 → 4×4 合成用例（含 penalty 改变 Top-1、同分取小 ID 两个专项）→ 分块上传与错误帧负例 → vocab 128→1024→8192→65536 分档扩大 → 完整 260 MiB 权重 → 8 步真实 trace。</p></div>
+    <div class="step"><h4>真实板卡验收<span class="tag">2026-07-25 · PASS</span></h4>
+      <p>272,269,312 B 权重按 260 个 LMH1 分块上传，7.69 s @ 33.76 MiB/s；penalty 开/关两种模式各 8 步全部 PASS，生成 token 与 <code>generated_ids</code> 完全一致（“我是Qwen，由阿里云开发…”），raw logits 最坏误差 0.015625（阈值 0.02）；多次重连后 ping 10/10 无丢包。</p></div>
+  </div>
+
+  <h3>验收时的关键数据</h3>
+  <div class="grid g4">
+    <div class="card stat"><div class="v green">8/8</div><div class="k">token 与 PyTorch trace 一致<br>（penalty 开/关各一轮）</div></div>
+    <div class="card stat"><div class="v">11.09 s</div><div class="k">FPGA 纯计算耗时 / token<br>@ PL 100 MHz（串行基线）</div></div>
+    <div class="card stat"><div class="v">0.015625</div><div class="k">raw logits 最坏误差<br>阈值 0.02，Top-5 全 5/5</div></div>
+    <div class="card stat"><div class="v">33.76 MiB/s</div><div class="k">千兆网口权重上传吞吐<br>260 MiB / 7.69 s</div></div>
+  </div>
+
+  <table>
+    <tr><th>Vivado 布线后资源</th><th>用量</th><th>占比</th><th>时序</th></tr>
+    <tr><td>CLB LUT</td><td class="num">10,438 / 274,080</td><td class="num">3.81%</td><td rowspan="4" class="num">WNS +4.262 ns<br>TNS 0<br>WHS +0.010 ns<br>布线 21455/21455</td></tr>
+    <tr><td>CLB Register</td><td class="num">15,607 / 548,160</td><td class="num">2.85%</td></tr>
+    <tr><td>Block RAM Tile</td><td class="num">6 / 912</td><td class="num">0.66%</td></tr>
+    <tr><td>DSP</td><td class="num">5 / 2,520</td><td class="num">0.20%</td></tr>
+  </table>
+  <div class="note">资源占用极低是<b>刻意为之的串行基线</b>的结果——单累加器、32-bit AXI、仅 5 个 DSP。
+  它证明的是「功能与数值在全链路正确」，而不是性能。性能优化被明确排在正确性验收之后（见第四部分）。</div>
+  <p class="src">出处：module16_lm_head_hls/SIMULATION_REPORT.md、realFpga/results/20260724_stage_c/README.md、realFpga/deliverables/20260725_module16_v1/.../reports/BOARD_ACCEPTANCE.md</p>
+</section>
+
+<!-- ================= 第三部分 ================= -->
+<section id="s3">
+  <div class="secno">PART 03</div>
+  <h2>遇到的难题，以及如何解决的</h2>
+  <p class="secdesc">上板过程共记录 67 条调试日志（realFpga/DEBUG_LOG.md）。时序、资源、数值精度都不是障碍——
+  真正的硬骨头是一个复位电平接反导致的整机锁死，和一系列工具链「假成功」陷阱。</p>
+
+  <h3>难题一（最大）：启动 HLS IP 后整机锁死，只能物理断电</h3>
+  <div class="prob">
+    <h4>现象：第一次 RUN_TOKEN 后板卡从网络上消失</h4>
+    <div class="row"><span class="lbl">现象</span><p>TCP 连接被 reset，随后 ping 不通、A53 无法 halt，JTAG 经 DAP 读 HLS 寄存器报 AXI AP transaction error；任何软件复位/重新配置 PL 均无效，只能物理断电重启。</p></div>
+    <div class="row"><span class="lbl">排障</span><p>先怀疑复位拓扑（peripheral_aresetn 同时接 SmartConnect 和 IP），按同事工程修正后<b>复测仍锁死</b>。改用「不启动内核的 AXI-Lite 预检」：只读 AP_CTRL、写读 hidden_size，绝不写 ap_start，并绕过 A53 直接走 DAP。结果连第一次读 AP_CTRL 就超时——证明控制总线在内核启动前就不响应，排除计算/DDR/Cache 因素。</p></div>
+    <div class="row"><span class="lbl">根因</span><p><code>proc_sys_reset</code> 的 <code>C_AUX_RESET_HIGH=0</code>（aux_reset_in <b>低有效</b>），而 BD 脚本把常 0 接到了 aux_reset_in —— 等于<b>永久请求复位</b>，SmartConnect 与 HLS IP 的复位永远无法释放。同事的参考工程里该端口未显式连线，由 Vivado 自动补成常 1，纯看 BD 图根本发现不了。</p></div>
+  </div>
+  <div class="prob fix">
+    <h4>解决与验证</h4>
+    <div class="row"><span class="lbl">修复</span><p>BD 脚本改为 <code>const_one → aux_reset_in</code>、<code>const_one → dcm_locked</code>、<code>const_zero → mb_debug_sys_rst</code>，并加注释防止再次把有效电平理解反。</p></div>
+    <div class="row"><span class="lbl">验证</span><p>重上电后预检通过（AP_CTRL 读出 ap_idle=1，hidden_size 写读一致），4×4 四个计算用例全 PASS，锁死不再复现，直至 8/8 验收通过。</p></div>
+  </div>
+
+  <h3>难题二：Xilinx 2021.1 工具链的「假成功」陷阱（2026 年使用老工具链）</h3>
+  <table>
+    <tr><th>陷阱</th><th>现象</th><th>对策</th></tr>
+    <tr><td>core_revision 32 位溢出</td><td>HLS 把 2026-07-24 编成 <code>2607241639</code> 写入 IP 版本号，超过 signed 32-bit，IP 生成失败</td><td>改自动生成的打包脚本 Revision 为 "1"，固化 <code>run_export_ip_2021_compat.ps1</code></td></tr>
+    <tr><td>退出码不传播</td><td>日志明确报 Failed to generate IP，但 Windows 下 vitis_hls.bat 的 $LASTEXITCODE 仍为 0</td><td>验收条件 = 退出码 + 产物文件（component.xml）实际存在</td></tr>
+    <tr><td>XSCT 构建静默失败</td><td>输出 BUILD_PASS、退出码 0，但 Debug/ 下没有 ELF——后台构建通道已断开，根本没跑</td><td>改为直接 make；验收条件加「ELF 存在且非零 + map 文件存在」</td></tr>
+    <tr><td>BSP regenerate 覆盖补丁</td><td>每次 regenerate 把修复过的 PHY 驱动（xemacpsif_physpeed.c）还原为 Xilinx 原版</td><td>Tcl 脚本固化「regenerate 后自动重打补丁 + 校验标记/SHA-256」</td></tr>
+    <tr><td>lwIP 内存参数约束</td><td>调大缓冲区后 platform generate 失败：MEMP_NUM_TCP_SEG 必须 ≥ TCP_SND_QUEUELEN</td><td>按约束公式反推，定为 MEM_SIZE 256 KiB / SND_BUF 32 KiB / TCP_SEG 512</td></tr>
+  </table>
+  <div class="note"><b>方法论沉淀：不看退出码，看产物哈希与独立验证标记。</b>每一阶段的 PASS 都由独立脚本复核产物
+  （文件存在性、SHA-256、报告中的关键字段），工具自己打印的 PASS 一律不作为验收依据。</div>
+
+  <h3>难题三：协议层 —— 错误帧还没发完连接就被 reset</h3>
+  <div class="prob">
+    <div class="row"><span class="lbl">现象</span><p>上位机发非法 opcode，服务端把错误帧交给 lwIP 排队后立即关闭连接，客户端先收到 RST 而非错误帧（ConnectionResetError）。</p></div>
+    <div class="row"><span class="lbl">根因</span><p>tcp_write 只是排队，数据尚未真正发出并被对端 ACK。</p></div>
+    <div class="row"><span class="lbl">修复</span><p>新增发送确认计数：由 tcp_sent 回调累计 ACK 字节，错误响应 header+payload 全部被确认后才关闭连接。修复后 5 项协议冒烟（半帧头/粘包、未加载权重先运行、同连接多帧、CRC 错误恢复、非法 opcode）全部 PASS。</p></div>
+  </div>
+
+  <h3>难题四：数值与验证口径的三个暗坑</h3>
+  <table>
+    <tr><th>暗坑</th><th>说明</th><th>处理</th></tr>
+    <tr><td>FP16 归约顺序差异</td><td>FPGA 逐项顺序累加与 GPU GEMM 归约顺序不同，产生约一个 FP16 量化步长的误差</td><td>实测最坏 0.015625，稳定小于 0.02 门限；以 Top-5 / top-1 token 一致性作为判据，而非强求 allclose</td></tr>
+    <tr><td>argmax 必须在 FP16 域做</td><td>step 7 两个 token 转 FP16 后同为 20.203125，在 FP32 累加器上 argmax 会选错</td><td>硬件复现 torch.argmax「同分取较小 ID」规则，与 trace 逐 token 对齐</td></tr>
+    <tr><td>验证陷阱：只比 token 无法证明 penalty 生效</td><td>该 trace 8 步恰好 raw Top-1 == processed Top-1，penalty 开关结果一样</td><td>用 step 2 的 score 值证明：关 = 30.046875，开 = 30.046875/1.1 ≈ 27.315，确认开关真实传到硬件</td></tr>
+  </table>
+  <p class="src">出处：realFpga/DEBUG_LOG.md（67 条）、module16_lm_head_hls/README.md、MODULE16_LM_HEAD_VALIDATION_REPORT.md</p>
+</section>
+
+<!-- ================= 第四部分 ================= -->
+<section id="s4">
+  <div class="secno">PART 04</div>
+  <h2>后续优化方向</h2>
+  <p class="secdesc">当前 11.09 s/token 是正确性基线，不是性能目标。瓶颈非常明确：单累加器串行点积（II=8）+
+  32-bit AXI 权重读带宽。资源余量巨大（DSP 用了 5/2520），优化空间完全打开。</p>
+
+  <h3>模块 16 自身的性能路线（按优先级）</h3>
+  <div class="grid g2">
+    <div class="card"><h4>① 多 PE 并行点积 + 分 bank 累加</h4>
+      <p>当前单累加器 FP32 依赖链导致 II=8，是最大瓶颈。权重按 token 行分片，多 PE 并行、分 bank 累加消除 II=8。ZU9EG 有 2,520 个 DSP，目前只用了 5 个。</p></div>
+    <div class="card"><h4>② AXI 数据通路扩宽</h4>
+      <p>4 条 m_axi 目前均为 32-bit，是为首次上板保功能的选择。扩宽到 128/256-bit 直接成比例提升权重读带宽（该算子是带宽受限型）。</p></div>
+    <div class="card"><h4>③ 时钟 100 MHz → 200 MHz</h4>
+      <p>HLS 估计 Fmax 273.97 MHz，当前 bitstream 保守跑 100 MHz。功能稳定后切 200 MHz 并完整回归（bring-up 计划阶段 I）。</p></div>
+    <div class="card"><h4>④ 权重驻留与多通道</h4>
+      <p>260 MiB 权重现驻留 PS DDR4（4 GB/64-bit）；板载另有 PL DDR4（2 GB/32-bit）。驻留位置与多 DDR 通道拆分待评估。</p></div>
+  </div>
+
+  <h3>模型级路线</h3>
+  <table>
+    <tr><th>方向</th><th>内容</th><th>验收口径</th></tr>
+    <tr><td>量化</td><td>先 FP16/BF16 对齐 → W8A8/INT8；W4A8 明确不作为第一阶段目标</td><td>cosine ≥ 0.99，Top-5 overlap ≥ 80%</td></tr>
+    <tr><td>其余模块上板</td><td>模块 0~15 中 RMSNorm（同事已有同板验证工程）、QKV、RoPE、KV Cache、Softmax、SwiGLU MLP、残差等尚未接入统一 trace</td><td>逐模块与 golden trace 对齐，同模块 16 的三阶段流程</td></tr>
+    <tr><td>层融合 / 流水</td><td>先用 PS 调度 + DDR buffer 串联各 IP，热点稳定后再做 attention/MLP 层融合（99_fused_layer 预留）；不一开始硬连 AXI-Stream</td><td>单层 block → 24 层串联 → 完整 prefill/decode + KV cache</td></tr>
+    <tr><td>更大模型迁移</td><td>0.5B 闭环后迁移更大 Qwen2.5，需替换权重、结构参数、golden trace 与 kernel tile 参数</td><td>同一套 LMH1 协议与验证方法论复用</td></tr>
+  </table>
+
+  <div class="note green"><b>模块 16 的意义：</b>它是整条推理链的最后一个模块，却不依赖任何上游 FPGA 模块
+  （上位机直接喂保存好的 hidden），因此被选为<b>第一个</b>打通「HLS → Vivado → 裸机网络服务 → 真实板卡验收」
+  全链路的模块。这套流程、协议、调试方法论和避坑清单（DEBUG_LOG 67 条）将直接复用到后续全部模块。</div>
+  <p class="src">出处：SIMULATION_REPORT.md、AXU9EGB_MODULE16_BOARD_BRINGUP_PLAN.md、Qwen2.5-0.5B-Instruct_FPGA推理实现路线.md、Qwen2.5-0.5B_FPGA模块拆分与验证指南.md</p>
+</section>
+
+<!-- ================= 附录：术语速查 ================= -->
+<section id="s5">
+  <div class="secno">APPENDIX</div>
+  <h2>术语速查（结合本工程）</h2>
+  <p class="secdesc">阅读本页时涉及的 FPGA / HLS 名词，统一在这里结合模块 16 的实际情况解释。</p>
+
+  <h3>基础概念</h3>
+  <div class="grid g2">
+    <div class="card"><h4>HLS（High-Level Synthesis，高层次综合）</h4>
+      <p>用 C/C++ 写算法、由工具自动转成 RTL 硬件的流程：C++ 源码 →（HLS 综合）→ Verilog →（Vivado）→ bitstream。本项目用 <b>Vitis HLS 2021.1</b>，把 <code>lm_head_kernel.cpp</code>（C++ 的 for 循环 + 浮点运算）综合成 <code>lm_head_argmax</code> IP 核。同一份 C++ 可先在 PC 上做 C 仿真对齐 golden trace，再综合成电路，不用维护两套实现。硬件意图通过 pragma 表达，如 <code>PIPELINE II=1</code>、<code>ARRAY_PARTITION</code>。</p></div>
+    <div class="card"><h4>PE（Processing Element，处理单元）</h4>
+      <p>一个独立完成乘加运算的计算单元（乘法器 + 累加器）。<b>PE 不是芯片固定资源，是用 DSP/LUT 搭出来的</b>。当前内核只有 <b>1 个 PE</b>（单累加器串行点积，耗 5 个 DSP）；优化方向就是铺几十个 PE 并行。ZU9EG 有 2,520 个 DSP，理论可容纳上千个 FP16 PE。</p></div>
+    <div class="card"><h4>II（Initiation Interval，启动间隔）</h4>
+      <p>流水线每隔多少个时钟周期能接受一个新输入，II=1 为满分。当前点积 II=8：因为 <code>acc = acc + W[k]*h[k]</code> 下一次累加依赖上一次结果，而 FP32 加法有 8 拍延迟，乘法器 7/8 时间在空等。消除方法：拆成多个部分和累加器轮转（每个累加器两次使用间隔 8 拍，正好盖住延迟），最后再归约求和。</p></div>
+    <div class="card"><h4>bank（存储体 / 存储分区）</h4>
+      <p>FPGA 一块 BRAM 每拍只能提供 1~2 个访存端口。多 PE 同时读同一块 BRAM 会端口冲突，因此把数据按规律拆到多块独立 BRAM（<code>ARRAY_PARTITION</code>），每块有独立端口，N 个 PE 同拍各读各的——存储带宽才能与并行度匹配。</p></div>
+    <div class="card"><h4>DSP（DSP48E2 切片）</h4>
+      <p>FPGA 里的专用乘加硬件单元，是矩阵乘的主力资源（LUT/FF 是通用逻辑，BRAM 是片上存储）。ZU9EG 有 <b>2,520 个</b>，当前只用了 <b>5 个（0.2%）</b>——资源占用低是串行单 PE 架构的结果，不是"性能好的证据"，恰恰相反：材料闲置 99.8%。</p></div>
+    <div class="card"><h4>PS / PL / A53</h4>
+      <p>Zynq MPSoC 芯片 = <b>PS</b>（处理系统，固化在芯片里的 ARM 处理器 + DDR 控制器 + 外设）+ <b>PL</b>（可编程逻辑，即 FPGA 部分）。<b>Cortex-A53</b> 是 PS 里的 ARM CPU（ZU9EG 有 4 核，本工程用核 0 跑 standalone 裸机 + lwIP 服务端）。上位机数据先进 A53，再由 A53 调度 PL 侧的内核。</p></div>
+  </div>
+
+  <h3>本工程的总线接口</h3>
+  <div class="grid g2">
+    <div class="card"><h4>m_axi 与 s_axilite（内核的两种口）</h4>
+      <p>HLS 给内核生成两类接口：<b>m_axi</b>（AXI 主口，内核主动读写 DDR 的高速数据口，本内核有 4 条：hidden / weight / history / logits）和 <b>s_axilite</b>（AXI-Lite 从口，低速控制口，PS 通过它写参数、写 ap_start、读 ap_done/token/score，基地址 <code>0xA000_0000</code>）。</p></div>
+    <div class="card"><h4>AXI 主（master）/ 从（slave）</h4>
+      <p>主发起读写请求，从响应请求。本链路：内核 m_axi = 主；PS 的 HP0 口 = 从；SmartConnect 居中，面朝内核的一侧是从口、面朝 PS 的一侧是主口。</p></div>
+    <div class="card"><h4>AXI SmartConnect「4 从 1 主」</h4>
+      <p>汇聚互联 IP：4 个从口分别接内核 4 条 m_axi，1 个主口接 PS 的 <code>S_AXI_HP0_FPD</code>。内部做<b>地址译码</b>（4 路请求落到同一 DDR 空间的不同基地址：weight@0x4000_0000 等）和<b>仲裁</b>（多口同时请求时排队，weight 口流量占绝对主体）。相当于"4 进 1 出的漏斗 + 交警"。</p></div>
+    <div class="card"><h4>HPM0 与 HP0（PS 上的两种 PL 接口）</h4>
+      <p><code>M_AXI_HPM0_FPD</code>：PS 做主、PL 做从的<b>控制口</b>（A53 → 内核 s_axilite，低速）。<code>S_AXI_HP0_FPD</code>：PL 做主、PS 做从的<b>高带宽数据口</b>（内核 → PS DDR，承载 260 MiB/token 的权重读取）。命名里 M/S 表示该口在 PS 侧扮演的角色。</p></div>
+  </div>
+
+  <h3>数据流里的两个细节</h3>
+  <div class="grid g2">
+    <div class="card"><h4>history bitmap（"+bitmap"）</h4>
+      <p>repetition penalty 需要知道哪些 token 出现过：用一个 bit 表示一个 token id 是否在历史中，151,936 bit ÷ 32 = 4,748 个 uint32 = <b>18,992 B</b>。上位机构建后随 RUN_TOKEN 上传；内核对每个 logit 查对应 bit，历史 token 正分 ÷1.1、负分 ×1.1。仅在开启 penalty 时传输（所以图上标"+"、"可选"）。</p></div>
+    <div class="card"><h4>PS → PC 的两条回传路径</h4>
+      <p><b>token + score（8 B）</b>：不经过 DDR——内核写进自己的 AXI-Lite 寄存器（0x68/0x78），A53 轮询到 ap_done 后经 HPM0 直读。<b>raw logits（303,872 B，可选）</b>：经过 DDR——内核经 m_axi/HP0 写入 DDR，A53 做 DCache Invalidate 后读出，再经网口发给 PC。</p></div>
+  </div>
+</section>
+
+<footer>
+  Qwen2.5-0.5B-Instruct FPGA 推理验证工程 · 模块 16 LM Head · AXU9EGB（ZU9EG）· 验收通过 2026-07-25<br>
+  数据来源：module16_lm_head_hls/ · realFpga/（DEBUG_LOG.md、BOARD_ACCEPTANCE.md）· MODULE16_LM_HEAD_VALIDATION_REPORT.md
+</footer>
+
+</body>
+</html>

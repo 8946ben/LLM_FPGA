@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>工具链与测试 - LLM_FPGA 技术文档</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">LLM_FPGA 教程<small>Qwen2.5-0.5B-Instruct FPGA 推理验证工程</small></div>
+  <div class="search-box">correctness-first · 逐模块对齐 · AXU9EGB</div>
+</div>
+
+<div class="sidebar">
+  <h4>LLM_FPGA 教程</h4>
+  <ul>
+    <li><a href="index.html">1. 项目总览</a></li>
+    <li><a href="model.html">2. 模型结构与权重</a></li>
+    <li><a href="trace.html">3. Golden Trace 数据集</a></li>
+    <li><a href="python_ref.html">4. Python 参考实现</a></li>
+  </ul>
+  <h4>FPGA 实现</h4>
+  <ul>
+    <li><a href="hls.html">5. HLS 模块设计（模块 16）</a></li>
+    <li><a href="protocol.html">6. LMH1 网络协议</a></li>
+    <li><a href="fpga.html">7. 上板部署（realFpga）</a></li>
+  </ul>
+  <h4>附录</h4>
+  <ul>
+    <li><a href="tools.html" class="active">8. 工具链与测试</a></li>
+    <li><a href="resources.html">9. 教程与参考资源</a></li>
+  </ul>
+</div>
+
+<div class="main">
+
+<h1>8. 工具链与测试</h1>
+
+<p>前面几章分别讲了模型、golden trace、Python 参考实现、HLS 内核和板卡部署。本章介绍把这些环节串起来的<strong>工具链</strong>：<code>tools/</code> 目录下的 8 个脚本、<code>tests/</code> 目录下的单元测试，以及 <code>artifacts/</code> 目录下的各类产物。理解这些工具，就理解了整个工程「数据是怎么流动的、正确性是怎么被验证的」。</p>
+
+<div class="note">所有脚本都假设在仓库根目录 <code>D:/program/LLM_FPGA</code> 下运行，路径均使用相对路径。</div>
+
+<h2>tools/ 脚本一览</h2>
+
+<p><code>tools/</code> 目录共 8 个 Python 脚本，按用途可以分为四组：权重与模型查看、fixture 生成、板端测试、辅助工具。</p>
+
+<table class="tb">
+  <tr><th>脚本</th><th>作用</th></tr>
+  <tr>
+    <td><code>export_lm_head_weight.py</code></td>
+    <td>纯 Python + NumPy（<strong>不依赖 torch</strong>）从 safetensors 抽取 <code>model.embed_tokens.weight</code> [151936, 896]（即 tied lm_head 权重），支持 BF16 移位转 FP32，默认导出 FP16 <code>.npy</code>。产物为 <code>artifacts/model.embed_tokens.weight.fp16.npy</code>，约 260MB。</td>
+  </tr>
+  <tr>
+    <td><code>inspect_qwen_model.py</code></td>
+    <td>只读 <code>config.json</code> 和 safetensors header，打印架构参数、逻辑模块结构、各权重 tensor 的名称 / shape / dtype 及第 0 层权重清单（FPGA bring-up 指南）。支持 <code>--filter "model.layers.0"</code> 过滤、<code>--max-weights</code> 限制输出数量。</td>
+  </tr>
+  <tr>
+    <td><code>orin_qwen25_smoke.py</code></td>
+    <td>Jetson Orin 上的冒烟测试：FP16 eager 加载模型跑 greedy 生成，打印加载时间、tokens/s 和回复文本。</td>
+  </tr>
+  <tr>
+    <td><code>prepare_lm_head_hls_fixture.py</code></td>
+    <td>从 trace 目录生成紧凑的 HLS testbench fixture（<code>artifacts/module16_hls_fixtures/step_NN/</code>）：<code>hidden.fp16.bin</code>（896 维最后位置 hidden）、<code>golden_logits.fp16.bin</code>（151936 个 raw logits）、<code>history_bitmap.u32.bin</code>（4748 字已出现 token 位图）、<code>expected_token.txt</code>，外加顶层 <code>manifest.json</code>。</td>
+  </tr>
+  <tr>
+    <td><code>read_npy.py</code></td>
+    <td>通用 <code>.npy</code> 查看器：支持单文件或目录扫描，打印 shape / dtype / min / max / mean / std 及前 N 个采样值。</td>
+  </tr>
+  <tr>
+    <td><code>run_module16_board_trace.py</code></td>
+    <td><strong>核心 host 程序</strong>：通过 LMH1 TCP 把一步 fixture 送到真实 AXU9EGB 板（默认 <code>192.168.8.190:19016</code>）或本地 NumPy 仿真器。支持 <code>--load-weight</code>（1MiB 分块上传）、<code>--vocab-limit</code> 渐进式验证、<code>--return-logits</code> 回读比对（raw atol 0.02）、可选 repetition penalty 复现 <code>model.generate</code> 的 processed scores；输出 <code>MODULE16_TRACE ... status=PASS/FAIL</code>。</td>
+  </tr>
+  <tr>
+    <td><code>run_module16_tcp_loopback.py</code></td>
+    <td>本机 TCP loopback 冒烟：NumPy 仿真器 + 真实 fixture 跑一步，校验 ping(896/151936)、token、max_abs ≤ 0.02、top5 重叠 ≥ 4。</td>
+  </tr>
+  <tr>
+    <td><code>stage_h4_board_small_test.py</code></td>
+    <td>真板上手算可验的 4×4 小测试：上传 4×4 FP16 权重，验证 ping、repetition penalty 改变 top1、argmax tie 保留小 id、token-only 响应、维度不匹配报错后同连接恢复。</td>
+  </tr>
+</table>
+
+<h3>权重导出：export_lm_head_weight.py</h3>
+<p>Qwen2.5-0.5B 的 lm_head 与 embedding 共享同一份权重（tied weights），因此 safetensors 里只有 <code>model.embed_tokens.weight</code>。这个脚本不依赖 PyTorch，直接解析 safetensors 格式把这份 [151936, 896] 的权重抽出来：源权重是 BF16，脚本通过移位转成 FP32，再默认导出为 FP16 的 <code>.npy</code> 文件，供 HLS 仿真和板端上传使用。</p>
+
+<h3>模型查看：inspect_qwen_model.py</h3>
+<p>bring-up 阶段经常需要确认「某个 tensor 叫什么、shape 是多少、dtype 是什么」。这个脚本只读取 <code>config.json</code> 和 safetensors 的 header（不加载权重数据），因此启动极快，适合当作随手翻的「模型结构字典」。</p>
+
+<h3>fixture 生成：prepare_lm_head_hls_fixture.py</h3>
+<p>golden trace 目录里的中间量是全量的，直接喂给 HLS testbench 太大。这个脚本把每一步 decode 需要的最小输入集压缩成 4 个文件，加上顶层 <code>manifest.json</code> 索引，构成一个自包含的测试夹具（fixture）。</p>
+
+<h3>板端验证三件套</h3>
+<p>板端验证按「从小到大」分三层：</p>
+<ol>
+  <li><strong>4×4 小测试</strong>（<code>stage_h4_board_small_test.py</code>）：权重小到能手算，专门验证协议与边界行为（tie、penalty、错误恢复）。</li>
+  <li><strong>本机回环</strong>（<code>run_module16_tcp_loopback.py</code>）：不碰真板，用 NumPy 仿真器验证 host 端协议栈和 fixture 本身。</li>
+  <li><strong>真板 trace</strong>（<code>run_module16_board_trace.py</code>）：把完整 fixture 通过 LMH1 TCP 送到 AXU9EGB，逐步比对输出 token 与回读 logits。</li>
+</ol>
+
+<h2>tests/ 单元测试</h2>
+
+<p><code>tests/</code> 目录使用 Python 标准库 <code>unittest</code> 框架，不需要额外安装 pytest。运行方式：</p>
+
+<pre><code># 运行单个测试文件（二选一）
+python -m unittest tests.test_lm_head_cpu_reference
+python tests/test_lm_head_cpu_reference.py</code></pre>
+
+<table class="tb">
+  <tr><th>测试文件</th><th>覆盖内容</th></tr>
+  <tr>
+    <td><code>test_lm_head_cpu_reference.py</code></td>
+    <td>测 <code>last_hidden_state</code> 取尾、分块 matmul 与 dense FP32 一致、repetition penalty 去重、argmax tie 取最小 id、FP16 cast 后 tie 行为、内建 safetensors 读取器的 BF16 解码。</td>
+  </tr>
+  <tr>
+    <td><code>test_module16_tcp_protocol.py</code></td>
+    <td>测 LMH1 协议帧 round-trip、CRC32 错误拒绝、socketpair 上的权重上传 + ping + penalty argmax、tie 保留最小 token id。</td>
+  </tr>
+</table>
+
+<div class="warn">这些单测锁定的是「容易被改坏」的语义细节：例如 argmax 出现并列最大值时必须取<strong>最小</strong> token id、FP16 量化可能制造新的 tie、CRC32 错误的帧必须被拒绝。修改 Python 参考实现或协议代码后务必重跑。</div>
+
+<h2>artifacts/ 产物</h2>
+
+<p><code>artifacts/</code> 目录存放权重副本与各类导出产物，是工具链的「原料仓库」：</p>
+
+<table class="tb">
+  <tr><th>产物</th><th>说明</th></tr>
+  <tr>
+    <td><code>Qwen2.5-0.5B-Instruct/model.safetensors</code></td>
+    <td>约 988MB 的本地权重副本，SHA-256 <code>fdf756fa...</code> 与官方一致。</td>
+  </tr>
+  <tr>
+    <td><code>model.embed_tokens.weight.fp16.npy</code></td>
+    <td>约 260MB 的 FP16 lm_head / embedding 权重，供 HLS 仿真与板端上传。</td>
+  </tr>
+  <tr>
+    <td><code>module16_cpu_logits/00..07_computed_logits_fp32.npy</code></td>
+    <td>每步 151936 维 FP32 CPU 计算 logits。</td>
+  </tr>
+  <tr>
+    <td><code>module16_hls_fixtures/</code></td>
+    <td><code>manifest.json</code> + <code>step_00..07</code> 各 4 文件的紧凑 fixture。</td>
+  </tr>
+</table>
+
+<h2>数据流闭环</h2>
+
+<p>把上面的脚本串起来，就构成模块 16 的完整验证数据流：</p>
+
+<pre><code>run_full_generate_trace.py（插桩 FP16 推理）
+        │  导出 golden trace
+        ▼
+qwen25_0p5b_instruct_full_generation_trace/
+        │  prepare_lm_head_hls_fixture.py 压缩成 fixture
+        ▼
+artifacts/module16_hls_fixtures/
+        │  run_module16_board_trace.py 经 LMH1 TCP 送出
+        ▼
+HLS IP / 真实 AXU9EGB 板卡
+        │  回读 token 与 logits
+        ▼
+与 fixture golden + processed scores 双重比对</code></pre>
+
+<div class="note">「双重比对」指既比对 raw logits（FP16 精度门限 atol 0.02），也比对经过 repetition penalty 处理后的 processed scores（复现 <code>model.generate</code> 的行为），确保板端实现的语义与 PyTorch 完全一致。</div>
+
+<h2>常用命令速查</h2>
+
+<pre><code># 查看模型结构（打印架构参数与前 80 个权重）
+python tools/inspect_qwen_model.py artifacts/Qwen2.5-0.5B-Instruct --max-weights 80
+
+# 只看第 0 层的权重
+python tools/inspect_qwen_model.py artifacts/Qwen2.5-0.5B-Instruct --filter "model.layers.0"
+
+# 查看一个 .npy 文件的统计信息
+python tools/read_npy.py &lt;路径&gt;
+
+# 运行全部单元测试
+python -m unittest discover tests
+
+# 本机 TCP 回环冒烟（不需要真板）
+python tools/run_module16_tcp_loopback.py</code></pre>
+
+<div class="prenext">
+  <span class="prev"><a href="fpga.html">← 上一篇：7. 上板部署（realFpga）</a></span>
+  <span class="next"><a href="resources.html">下一篇：9. 教程与参考资源 →</a></span>
+</div>
+
+</div>
+
+<div class="footer">LLM_FPGA 技术文档 · Qwen2.5-0.5B-Instruct FPGA 推理验证工程 · correctness-first</div>
+
+</body>
+</html>

@@ -1,0 +1,324 @@
+#-----------------------------------------------------------
+# Vivado v2021.1 (64-bit)
+# SW Build 3247384 on Thu Jun 10 19:36:33 MDT 2021
+# IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
+# Start of session at: Fri Jul 24 21:34:30 2026
+# Process ID: 29272
+# Current directory: D:/program/LLM_FPGA
+# Command line: vivado.exe -mode batch -nojournal -log D:\program\LLM_FPGA\realFpga\results\20260724_stage_c\create_bd_attempt6_reference_aligned.log -source realFpga\vivado\create_lm_head_axu9eg_bd.tcl
+# Log file: D:/program/LLM_FPGA/realFpga/results/20260724_stage_c/create_bd_attempt6_reference_aligned.log
+# Journal file: 
+#-----------------------------------------------------------
+CRITICAL WARNING: [Common 17-741] No write access right to the local Tcl store at 'C'. XilinxTclStore is reverted to the installation area. If you want to use local Tcl Store, please change the access right and relaunch Vivado.
+source {realFpga\vivado\create_lm_head_axu9eg_bd.tcl}
+# set script_dir [file normalize [file dirname [info script]]]
+# set repo_root [file normalize [file join $script_dir ".." ".."]]
+# set project_dir [file normalize [file join $script_dir "build" "lm_head_axu9eg"]]
+# set ip_repo [file normalize [file join $repo_root "module16_lm_head_hls" \
+#     "build" "lm_head_export" "solution1" "impl" "ip"]]
+# set project_name "lm_head_axu9eg"
+# set design_name "lm_head_system"
+# set part_name "xczu9eg-ffvb1156-2-i"
+# if {![file exists [file join $ip_repo "component.xml"]]} {
+#     error "LM Head IP repository is missing component.xml: $ip_repo"
+# }
+# create_project -force $project_name $project_dir -part $part_name
+# set_property target_language Verilog [current_project]
+# set_property simulator_language Mixed [current_project]
+# set_property ip_repo_paths [list $ip_repo] [current_project]
+# update_ip_catalog
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1700] Loaded user IP repository 'd:/program/LLM_FPGA/module16_lm_head_hls/build/lm_head_export/solution1/impl/ip'.
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'D:/install/Xilinx/Vivado/2021.1/data/ip'.
+# set lmh_ipdefs [get_ipdefs -all -filter {
+#     VLNV =~ "xilinx.com:hls:lm_head_argmax:*"
+# }]
+# if {[llength $lmh_ipdefs] != 1} {
+#     error "Expected exactly one lm_head_argmax IP definition, got: $lmh_ipdefs"
+# }
+# create_bd_design $design_name
+Wrote  : <D:\program\LLM_FPGA\realFpga\vivado\build\lm_head_axu9eg\lm_head_axu9eg.srcs\sources_1\bd\lm_head_system\lm_head_system.bd> 
+# set ps [create_bd_cell -type ip \
+#     -vlnv xilinx.com:ip:zynq_ultra_ps_e:* zynq_ultra_ps_e_0]
+# set_property -dict [list \
+#     CONFIG.PSU__PSS_REF_CLK__FREQMHZ {33.333} \
+#     CONFIG.PSU__CRL_APB__PL0_REF_CTRL__FREQMHZ {100} \
+#     CONFIG.PSU__CRL_APB__PL0_REF_CTRL__SRCSEL {DPLL} \
+#     CONFIG.PSU__CRL_APB__PL0_REF_CTRL__DIVISOR0 {4} \
+#     CONFIG.PSU__CRL_APB__PL0_REF_CTRL__DIVISOR1 {1} \
+#     CONFIG.PSU__PL_CLK0_BUF {TRUE} \
+#     CONFIG.PSU__USE__FABRIC__RST {1} \
+#     CONFIG.PSU__NUM_FABRIC_RESETS {1} \
+#     CONFIG.PSU__USE__RST0 {0} \
+#     CONFIG.PSU__USE__M_AXI_GP0 {1} \
+#     CONFIG.PSU__USE__M_AXI_GP2 {0} \
+#     CONFIG.PSU__USE__S_AXI_GP2 {1} \
+#     CONFIG.PSU__USE__DDR_INTF_REQUESTED {0} \
+#     CONFIG.PSU__DDRC__ENABLE {1} \
+#     CONFIG.PSU__CRF_APB__DDR_CTRL__SRCSEL {DPLL} \
+#     CONFIG.PSU__DDRC__VREF {1} \
+#     CONFIG.PSU__DDRC__ECC {Disabled} \
+#     CONFIG.PSU__DDRC__BUS_WIDTH {64 Bit} \
+#     CONFIG.PSU__DDRC__DRAM_WIDTH {16 Bits} \
+#     CONFIG.PSU__DDRC__MEMORY_TYPE {DDR 4} \
+#     CONFIG.PSU__DDRC__COMPONENTS {Components} \
+#     CONFIG.PSU__DDRC__SPEED_BIN {DDR4_1600J} \
+#     CONFIG.PSU__CRF_APB__DDR_CTRL__FREQMHZ {800} \
+#     CONFIG.PSU__DDRC__DEVICE_CAPACITY {8192 MBits} \
+#     CONFIG.PSU__DDRC__RANK_ADDR_COUNT {0} \
+#     CONFIG.PSU__DDRC__BG_ADDR_COUNT {1} \
+#     CONFIG.PSU__DDRC__BANK_ADDR_COUNT {2} \
+#     CONFIG.PSU__DDRC__ROW_ADDR_COUNT {16} \
+#     CONFIG.PSU__DDRC__COL_ADDR_COUNT {10} \
+#     CONFIG.PSU__DDRC__CL {10} \
+#     CONFIG.PSU__DDRC__CWL {9} \
+#     CONFIG.PSU__DDRC__T_RCD {10} \
+#     CONFIG.PSU__DDRC__T_RP {10} \
+#     CONFIG.PSU__DDRC__T_RC {47.5} \
+#     CONFIG.PSU__DDRC__T_RAS_MIN {35} \
+#     CONFIG.PSU__DDRC__T_FAW {35} \
+#     CONFIG.PSU__DDRC__DDR4_T_REF_MODE {0} \
+#     CONFIG.PSU__DDRC__DDR4_T_REF_RANGE {Normal (0-85)} \
+#     CONFIG.PSU__DDRC__PHY_DBI_MODE {0} \
+#     CONFIG.PSU__DDRC__PARITY_ENABLE {0} \
+#     CONFIG.PSU__DDRC__CLOCK_STOP_EN {0} \
+#     CONFIG.PSU__DDRC__DDR4_CAL_MODE_ENABLE {0} \
+#     CONFIG.PSU__DDRC__DDR4_CRC_CONTROL {0} \
+#     CONFIG.PSU__DDRC__TRAIN_DATA_EYE {1} \
+#     CONFIG.PSU__DDRC__TRAIN_READ_GATE {1} \
+#     CONFIG.PSU__DDRC__TRAIN_WRITE_LEVEL {1} \
+#     CONFIG.PSU__DDRC__DDR4_ADDR_MAPPING {1} \
+#     CONFIG.PSU__DDRC__BRC_MAPPING {ROW_BANK_COL} \
+#     CONFIG.PSU__DDRC__DM_DBI {DM_NO_DBI} \
+#     CONFIG.PSU__DDRC__PER_BANK_REFRESH {0} \
+#     CONFIG.PSU__DDRC__FGRM {1X} \
+#     CONFIG.PSU__DDRC__LP_ASR {manual normal} \
+#     CONFIG.PSU__DDRC__DIMM_ADDR_MIRROR {0} \
+#     CONFIG.PSU__DDRC__STATIC_RD_MODE {0} \
+#     CONFIG.PSU__DDRC__SELF_REF_ABORT {0} \
+#     CONFIG.PSU__ENET3__PERIPHERAL__ENABLE {1} \
+#     CONFIG.PSU__ENET3__PERIPHERAL__IO {MIO 64 .. 75} \
+#     CONFIG.PSU__ENET3__GRP_MDIO__ENABLE {1} \
+#     CONFIG.PSU__ENET3__GRP_MDIO__IO {MIO 76 .. 77} \
+#     CONFIG.PSU__UART0__PERIPHERAL__ENABLE {1} \
+#     CONFIG.PSU__UART0__PERIPHERAL__IO {MIO 42 .. 43} \
+#     CONFIG.PSU__TTC0__PERIPHERAL__ENABLE {1} \
+# ] $ps
+# set lmh [create_bd_cell -type ip \
+#     -vlnv xilinx.com:hls:lm_head_argmax:1.0 lm_head_argmax_0]
+# set ctrl_smc [create_bd_cell -type ip \
+#     -vlnv xilinx.com:ip:smartconnect:* axi_smc_ctrl]
+# set_property -dict [list CONFIG.NUM_SI {1} CONFIG.NUM_MI {1}] $ctrl_smc
+# set mem_smc [create_bd_cell -type ip \
+#     -vlnv xilinx.com:ip:smartconnect:* axi_smc_mem]
+# set_property -dict [list CONFIG.NUM_SI {4} CONFIG.NUM_MI {1}] $mem_smc
+# set rst [create_bd_cell -type ip \
+#     -vlnv xilinx.com:ip:proc_sys_reset:* rst_ps8_0_100M]
+# set const_zero [create_bd_cell -type ip \
+#     -vlnv xilinx.com:ip:xlconstant:* const_zero]
+# set_property -dict [list CONFIG.CONST_VAL {0}] $const_zero
+# set const_one [create_bd_cell -type ip \
+#     -vlnv xilinx.com:ip:xlconstant:* const_one]
+# set_property -dict [list CONFIG.CONST_VAL {1}] $const_one
+# connect_bd_intf_net \
+#     [get_bd_intf_pins $ps/M_AXI_HPM0_FPD] \
+#     [get_bd_intf_pins $ctrl_smc/S00_AXI]
+# connect_bd_intf_net \
+#     [get_bd_intf_pins $ctrl_smc/M00_AXI] \
+#     [get_bd_intf_pins $lmh/s_axi_control]
+# set memory_interfaces [list \
+#     m_axi_gmem_hidden \
+#     m_axi_gmem_weight \
+#     m_axi_gmem_history \
+#     m_axi_gmem_logits \
+# ]
+# set si_index 0
+# foreach interface_name $memory_interfaces {
+#     set si_pin [format "S%02d_AXI" $si_index]
+#     connect_bd_intf_net \
+#         [get_bd_intf_pins $lmh/$interface_name] \
+#         [get_bd_intf_pins $mem_smc/$si_pin]
+#     incr si_index
+# }
+# connect_bd_intf_net \
+#     [get_bd_intf_pins $mem_smc/M00_AXI] \
+#     [get_bd_intf_pins $ps/S_AXI_HP0_FPD]
+# set pl_clk0 [get_bd_pins $ps/pl_clk0]
+# set clock_pins [list \
+#     $ps/maxihpm0_fpd_aclk \
+#     $ps/saxihp0_fpd_aclk \
+#     $ctrl_smc/aclk \
+#     $mem_smc/aclk \
+#     $lmh/ap_clk \
+#     $rst/slowest_sync_clk \
+# ]
+# foreach clock_pin $clock_pins {
+#     connect_bd_net $pl_clk0 [get_bd_pins $clock_pin]
+# }
+# connect_bd_net \
+#     [get_bd_pins $ps/pl_resetn0] \
+#     [get_bd_pins $rst/ext_reset_in]
+# connect_bd_net \
+#     [get_bd_pins $const_zero/dout] \
+#     [get_bd_pins $rst/aux_reset_in] \
+#     [get_bd_pins $rst/mb_debug_sys_rst]
+# connect_bd_net \
+#     [get_bd_pins $const_one/dout] \
+#     [get_bd_pins $rst/dcm_locked]
+# connect_bd_net \
+#     [get_bd_pins $rst/peripheral_aresetn] \
+#     [get_bd_pins $ctrl_smc/aresetn] \
+#     [get_bd_pins $mem_smc/aresetn] \
+#     [get_bd_pins $lmh/ap_rst_n]
+# assign_bd_address -offset 0xA0000000 -range 0x00010000 \
+#     -target_address_space [get_bd_addr_spaces $ps/Data] \
+#     [get_bd_addr_segs $lmh/s_axi_control/Reg] -force
+Slave segment '/lm_head_argmax_0/s_axi_control/Reg' is being assigned into address space '/zynq_ultra_ps_e_0/Data' at <0xA000_0000 [ 64K ]>.
+# assign_bd_address
+Slave segment '/zynq_ultra_ps_e_0/SAXIGP2/HP0_DDR_HIGH' is being assigned into address space '/lm_head_argmax_0/Data_m_axi_gmem_hidden' at <0x8_0000_0000 [ 32G ]>.
+Slave segment '/zynq_ultra_ps_e_0/SAXIGP2/HP0_DDR_HIGH' is being assigned into address space '/lm_head_argmax_0/Data_m_axi_gmem_history' at <0x8_0000_0000 [ 32G ]>.
+Slave segment '/zynq_ultra_ps_e_0/SAXIGP2/HP0_DDR_HIGH' is being assigned into address space '/lm_head_argmax_0/Data_m_axi_gmem_logits' at <0x8_0000_0000 [ 32G ]>.
+Slave segment '/zynq_ultra_ps_e_0/SAXIGP2/HP0_DDR_HIGH' is being assigned into address space '/lm_head_argmax_0/Data_m_axi_gmem_weight' at <0x8_0000_0000 [ 32G ]>.
+Slave segment '/zynq_ultra_ps_e_0/SAXIGP2/HP0_DDR_LOW' is being assigned into address space '/lm_head_argmax_0/Data_m_axi_gmem_hidden' at <0x0000_0000 [ 2G ]>.
+Slave segment '/zynq_ultra_ps_e_0/SAXIGP2/HP0_DDR_LOW' is being assigned into address space '/lm_head_argmax_0/Data_m_axi_gmem_history' at <0x0000_0000 [ 2G ]>.
+Slave segment '/zynq_ultra_ps_e_0/SAXIGP2/HP0_DDR_LOW' is being assigned into address space '/lm_head_argmax_0/Data_m_axi_gmem_logits' at <0x0000_0000 [ 2G ]>.
+Slave segment '/zynq_ultra_ps_e_0/SAXIGP2/HP0_DDR_LOW' is being assigned into address space '/lm_head_argmax_0/Data_m_axi_gmem_weight' at <0x0000_0000 [ 2G ]>.
+Slave segment '/zynq_ultra_ps_e_0/SAXIGP2/HP0_LPS_OCM' is being assigned into address space '/lm_head_argmax_0/Data_m_axi_gmem_hidden' at <0xFF00_0000 [ 16M ]>.
+INFO: [BD 41-1051] The usage register of slave segment /zynq_ultra_ps_e_0/SAXIGP2/HP0_LPS_OCM does not match the usage memory of address space /lm_head_argmax_0/Data_m_axi_gmem_hidden and will be excluded. Use the include_bd_addr_seg command to override this precaution and make the slave segment visible within this address space.
+Excluding slave segment /zynq_ultra_ps_e_0/SAXIGP2/HP0_LPS_OCM from address space /lm_head_argmax_0/Data_m_axi_gmem_hidden.
+Slave segment '/zynq_ultra_ps_e_0/SAXIGP2/HP0_LPS_OCM' is being assigned into address space '/lm_head_argmax_0/Data_m_axi_gmem_history' at <0xFF00_0000 [ 16M ]>.
+INFO: [BD 41-1051] The usage register of slave segment /zynq_ultra_ps_e_0/SAXIGP2/HP0_LPS_OCM does not match the usage memory of address space /lm_head_argmax_0/Data_m_axi_gmem_history and will be excluded. Use the include_bd_addr_seg command to override this precaution and make the slave segment visible within this address space.
+Excluding slave segment /zynq_ultra_ps_e_0/SAXIGP2/HP0_LPS_OCM from address space /lm_head_argmax_0/Data_m_axi_gmem_history.
+Slave segment '/zynq_ultra_ps_e_0/SAXIGP2/HP0_LPS_OCM' is being assigned into address space '/lm_head_argmax_0/Data_m_axi_gmem_logits' at <0xFF00_0000 [ 16M ]>.
+INFO: [BD 41-1051] The usage register of slave segment /zynq_ultra_ps_e_0/SAXIGP2/HP0_LPS_OCM does not match the usage memory of address space /lm_head_argmax_0/Data_m_axi_gmem_logits and will be excluded. Use the include_bd_addr_seg command to override this precaution and make the slave segment visible within this address space.
+Excluding slave segment /zynq_ultra_ps_e_0/SAXIGP2/HP0_LPS_OCM from address space /lm_head_argmax_0/Data_m_axi_gmem_logits.
+Slave segment '/zynq_ultra_ps_e_0/SAXIGP2/HP0_LPS_OCM' is being assigned into address space '/lm_head_argmax_0/Data_m_axi_gmem_weight' at <0xFF00_0000 [ 16M ]>.
+INFO: [BD 41-1051] The usage register of slave segment /zynq_ultra_ps_e_0/SAXIGP2/HP0_LPS_OCM does not match the usage memory of address space /lm_head_argmax_0/Data_m_axi_gmem_weight and will be excluded. Use the include_bd_addr_seg command to override this precaution and make the slave segment visible within this address space.
+Excluding slave segment /zynq_ultra_ps_e_0/SAXIGP2/HP0_LPS_OCM from address space /lm_head_argmax_0/Data_m_axi_gmem_weight.
+# validate_bd_design
+INFO: [xilinx.com:ip:smartconnect:1.0-1] lm_head_system_axi_smc_ctrl_0: SmartConnect lm_head_system_axi_smc_ctrl_0 is in Low-Area Mode.
+WARNING: [xilinx.com:ip:smartconnect:1.0-1] lm_head_system_axi_smc_ctrl_0: IP lm_head_system_axi_smc_ctrl_0 is configured in Low-area mode as all propagated traffic is low-bandwidth (AXI4LITE). SI S00_AXI has property HAS_BURST == 1. WRAP bursts are not supported in Low-area mode and will result in DECERR if received.
+WARNING: [xilinx.com:ip:smartconnect:1.0-1] lm_head_system_axi_smc_ctrl_0: If WRAP transactions are required then turn off Low-area mode using ADVANCED_PROPERTIES. Execute following: set_property CONFIG.ADVANCED_PROPERTIES {__experimental_features__ {disable_low_area_mode 1}} [get_bd_cells /lm_head_system_axi_smc_ctrl_0]
+INFO: [xilinx.com:ip:smartconnect:1.0-1] lm_head_system_axi_smc_mem_0: SmartConnect lm_head_system_axi_smc_mem_0 is in High-performance Mode.
+WARNING: [BD 41-237] Bus Interface property AWUSER_WIDTH does not match between /zynq_ultra_ps_e_0/S_AXI_HP0_FPD(1) and /axi_smc_mem/M00_AXI(0)
+WARNING: [BD 41-237] Bus Interface property ARUSER_WIDTH does not match between /zynq_ultra_ps_e_0/S_AXI_HP0_FPD(1) and /axi_smc_mem/M00_AXI(0)
+WARNING: [BD 41-927] Following properties on pin /lm_head_argmax_0/ap_clk have been updated from connected ip, but BD cell '/lm_head_argmax_0' does not accept parameter changes, so they may not be synchronized with cell properties:
+	FREQ_HZ = 99999001 
+Please resolve any mismatches by directly setting properties on BD cell </lm_head_argmax_0> to completely resolve these warnings.
+# save_bd_design
+Wrote  : <D:\program\LLM_FPGA\realFpga\vivado\build\lm_head_axu9eg\lm_head_axu9eg.srcs\sources_1\bd\lm_head_system\lm_head_system.bd> 
+# set bd_file [get_files [format "*/%s.bd" $design_name]]
+# generate_target all $bd_file
+INFO: [BD 41-1662] The design 'lm_head_system.bd' is already validated. Therefore parameter propagation will not be re-run.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/axi_smc_mem/S00_AXI_arlock'(1) to pin: '/lm_head_argmax_0/m_axi_gmem_hidden_ARLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/axi_smc_mem/S00_AXI_awlock'(1) to pin: '/lm_head_argmax_0/m_axi_gmem_hidden_AWLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/axi_smc_mem/S01_AXI_arlock'(1) to pin: '/lm_head_argmax_0/m_axi_gmem_weight_ARLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/axi_smc_mem/S01_AXI_awlock'(1) to pin: '/lm_head_argmax_0/m_axi_gmem_weight_AWLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/axi_smc_mem/S02_AXI_arlock'(1) to pin: '/lm_head_argmax_0/m_axi_gmem_history_ARLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/axi_smc_mem/S02_AXI_awlock'(1) to pin: '/lm_head_argmax_0/m_axi_gmem_history_AWLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/axi_smc_mem/S03_AXI_arlock'(1) to pin: '/lm_head_argmax_0/m_axi_gmem_logits_ARLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/axi_smc_mem/S03_AXI_awlock'(1) to pin: '/lm_head_argmax_0/m_axi_gmem_logits_AWLOCK'(2) - Only lower order bits will be connected.
+VHDL Output written to : D:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/synth/lm_head_system.v
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/axi_smc_mem/S00_AXI_arlock'(1) to pin: '/lm_head_argmax_0/m_axi_gmem_hidden_ARLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/axi_smc_mem/S00_AXI_awlock'(1) to pin: '/lm_head_argmax_0/m_axi_gmem_hidden_AWLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/axi_smc_mem/S01_AXI_arlock'(1) to pin: '/lm_head_argmax_0/m_axi_gmem_weight_ARLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/axi_smc_mem/S01_AXI_awlock'(1) to pin: '/lm_head_argmax_0/m_axi_gmem_weight_AWLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/axi_smc_mem/S02_AXI_arlock'(1) to pin: '/lm_head_argmax_0/m_axi_gmem_history_ARLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/axi_smc_mem/S02_AXI_awlock'(1) to pin: '/lm_head_argmax_0/m_axi_gmem_history_AWLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/axi_smc_mem/S03_AXI_arlock'(1) to pin: '/lm_head_argmax_0/m_axi_gmem_logits_ARLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-2384] Width mismatch when connecting pin: '/axi_smc_mem/S03_AXI_awlock'(1) to pin: '/lm_head_argmax_0/m_axi_gmem_logits_AWLOCK'(2) - Only lower order bits will be connected.
+VHDL Output written to : D:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/sim/lm_head_system.v
+VHDL Output written to : D:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/hdl/lm_head_system_wrapper.v
+INFO: [xilinx.com:ip:zynq_ultra_ps_e:3.3-0] lm_head_system_zynq_ultra_ps_e_0_0: 
+Changes in your design (including the PCW configuration settings) are not automatically exported from Vivado to Xilinx's SDK, Petalinux or Yocto.
+This is by design to avoid disrupting existing embedded development efforts. To have any changes of your design taking effect in the embedded software flow please export your
+design by going through Vivado's main menu, click on File, then Export finally select Export Hardware, please ensure you click on the Include BitStream option.
+The auto-generated HDF file is all you need to import in Xilinx's SDK, Petalinux or Yocto for your changes to be reflected in the Embedded Software Flow.
+For more information, please consult PG201, section: Exporting PCW Settings to Embedded Software Flows
+INFO: [PSU-0] Address Range of DDR (0x7ff00000 to 0x7fffffff) is reserved by PMU for internal purpose.
+INFO: [IP_Flow 19-5611] Unable to find an associated reset port for the interface 'M_AXI_HPM0_FPD'. A default connection has been created.
+INFO: [IP_Flow 19-5611] Unable to find an associated reset port for the interface 'S_AXI_HP0_FPD'. A default connection has been created.
+INFO: [BD 41-1029] Generation completed for the IP Integrator block zynq_ultra_ps_e_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block lm_head_argmax_0 .
+Exporting to file d:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_axi_smc_ctrl_0/bd_0/hw_handoff/lm_head_system_axi_smc_ctrl_0.hwh
+Generated Block Design Tcl file d:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_axi_smc_ctrl_0/bd_0/hw_handoff/lm_head_system_axi_smc_ctrl_0_bd.tcl
+Generated Hardware Definition File d:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_axi_smc_ctrl_0/bd_0/synth/lm_head_system_axi_smc_ctrl_0.hwdef
+INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_smc_ctrl .
+Exporting to file d:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_axi_smc_mem_0/bd_0/hw_handoff/lm_head_system_axi_smc_mem_0.hwh
+Generated Block Design Tcl file d:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_axi_smc_mem_0/bd_0/hw_handoff/lm_head_system_axi_smc_mem_0_bd.tcl
+Generated Hardware Definition File d:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_axi_smc_mem_0/bd_0/synth/lm_head_system_axi_smc_mem_0.hwdef
+INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_smc_mem .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block rst_ps8_0_100M .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block const_zero .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block const_one .
+Exporting to file D:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/hw_handoff/lm_head_system.hwh
+Generated Block Design Tcl file D:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/hw_handoff/lm_head_system_bd.tcl
+Generated Hardware Definition File D:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/synth/lm_head_system.hwdef
+generate_target: Time (s): cpu = 00:00:24 ; elapsed = 00:00:28 . Memory (MB): peak = 1281.910 ; gain = 0.000
+# set wrapper_files [make_wrapper -files $bd_file -top]
+# add_files -norecurse $wrapper_files
+# set_property top ${design_name}_wrapper [current_fileset]
+# update_compile_order -fileset sources_1
+# puts "LMH_STAGE_C_CREATE=PASS"
+LMH_STAGE_C_CREATE=PASS
+# puts "LMH_STAGE_C_PART=[get_property PART [current_project]]"
+LMH_STAGE_C_PART=xczu9eg-ffvb1156-2-i
+# puts "LMH_STAGE_C_HLS_VLNV=[get_property VLNV $lmh]"
+LMH_STAGE_C_HLS_VLNV=xilinx.com:hls:lm_head_argmax:1.0
+# puts "LMH_STAGE_C_PL0_ACTUAL_MHZ=[get_property CONFIG.PSU__CRL_APB__PL0_REF_CTRL__ACT_FREQMHZ $ps]"
+LMH_STAGE_C_PL0_ACTUAL_MHZ=99.999001
+# puts "LMH_STAGE_C_GEM3_IO=[get_property CONFIG.PSU__ENET3__PERIPHERAL__IO $ps]"
+LMH_STAGE_C_GEM3_IO=MIO 64 .. 75
+# puts "LMH_STAGE_C_MDIO_IO=[get_property CONFIG.PSU__ENET3__GRP_MDIO__IO $ps]"
+LMH_STAGE_C_MDIO_IO=MIO 76 .. 77
+# puts "LMH_STAGE_C_UART0_IO=[get_property CONFIG.PSU__UART0__PERIPHERAL__IO $ps]"
+LMH_STAGE_C_UART0_IO=MIO 42 .. 43
+# puts "LMH_STAGE_C_CONTROL_BASE=0xA0000000"
+LMH_STAGE_C_CONTROL_BASE=0xA0000000
+# puts "LMH_STAGE_C_DDR_REQUESTED=[get_property CONFIG.PSU__USE__DDR_INTF_REQUESTED $ps]"
+LMH_STAGE_C_DDR_REQUESTED=0
+# puts "LMH_STAGE_C_DDR_ENABLE=[get_property CONFIG.PSU__DDRC__ENABLE $ps]"
+LMH_STAGE_C_DDR_ENABLE=1
+# puts "LMH_STAGE_C_DDR_BUS_WIDTH=[get_property CONFIG.PSU__DDRC__BUS_WIDTH $ps]"
+LMH_STAGE_C_DDR_BUS_WIDTH=64 Bit
+# puts "LMH_STAGE_C_DDR_DRAM_WIDTH=[get_property CONFIG.PSU__DDRC__DRAM_WIDTH $ps]"
+LMH_STAGE_C_DDR_DRAM_WIDTH=16 Bits
+# puts "LMH_STAGE_C_DDR_DEVICE_CAPACITY=[get_property CONFIG.PSU__DDRC__DEVICE_CAPACITY $ps]"
+LMH_STAGE_C_DDR_DEVICE_CAPACITY=8192 MBits
+# puts "LMH_STAGE_C_DDR_ROW_ADDR_COUNT=[get_property CONFIG.PSU__DDRC__ROW_ADDR_COUNT $ps]"
+LMH_STAGE_C_DDR_ROW_ADDR_COUNT=16
+# puts "LMH_STAGE_C_DDR_FREQ_MHZ=[get_property CONFIG.PSU__CRF_APB__DDR_CTRL__FREQMHZ $ps]"
+LMH_STAGE_C_DDR_FREQ_MHZ=800
+# puts "LMH_STAGE_C_DDR_SPEED_BIN=[get_property CONFIG.PSU__DDRC__SPEED_BIN $ps]"
+LMH_STAGE_C_DDR_SPEED_BIN=DDR4_1600J
+# puts "LMH_STAGE_C_DDR_PRESET_STATUS=REFERENCE_ALIGNED_RMSNORM_AXU9EGB"
+LMH_STAGE_C_DDR_PRESET_STATUS=REFERENCE_ALIGNED_RMSNORM_AXU9EGB
+# foreach address_space [lsort [get_bd_addr_spaces]] {
+#     puts "LMH_STAGE_C_ADDR_SPACE=$address_space"
+#     foreach segment [lsort [get_bd_addr_segs -of_objects $address_space]] {
+#         puts "LMH_STAGE_C_ADDR_SEGMENT=$address_space|$segment|[get_property OFFSET $segment]|[get_property RANGE $segment]"
+#     }
+# }
+LMH_STAGE_C_ADDR_SPACE=/lm_head_argmax_0/Data_m_axi_gmem_hidden
+LMH_STAGE_C_ADDR_SEGMENT=/lm_head_argmax_0/Data_m_axi_gmem_hidden|/lm_head_argmax_0/Data_m_axi_gmem_hidden/SEG_zynq_ultra_ps_e_0_HP0_DDR_HIGH|0x0000000800000000|0x0000000800000000
+LMH_STAGE_C_ADDR_SEGMENT=/lm_head_argmax_0/Data_m_axi_gmem_hidden|/lm_head_argmax_0/Data_m_axi_gmem_hidden/SEG_zynq_ultra_ps_e_0_HP0_DDR_LOW|0x0000000000000000|0x0000000080000000
+LMH_STAGE_C_ADDR_SPACE=/lm_head_argmax_0/Data_m_axi_gmem_history
+LMH_STAGE_C_ADDR_SEGMENT=/lm_head_argmax_0/Data_m_axi_gmem_history|/lm_head_argmax_0/Data_m_axi_gmem_history/SEG_zynq_ultra_ps_e_0_HP0_DDR_HIGH|0x0000000800000000|0x0000000800000000
+LMH_STAGE_C_ADDR_SEGMENT=/lm_head_argmax_0/Data_m_axi_gmem_history|/lm_head_argmax_0/Data_m_axi_gmem_history/SEG_zynq_ultra_ps_e_0_HP0_DDR_LOW|0x0000000000000000|0x0000000080000000
+LMH_STAGE_C_ADDR_SPACE=/lm_head_argmax_0/Data_m_axi_gmem_logits
+LMH_STAGE_C_ADDR_SEGMENT=/lm_head_argmax_0/Data_m_axi_gmem_logits|/lm_head_argmax_0/Data_m_axi_gmem_logits/SEG_zynq_ultra_ps_e_0_HP0_DDR_HIGH|0x0000000800000000|0x0000000800000000
+LMH_STAGE_C_ADDR_SEGMENT=/lm_head_argmax_0/Data_m_axi_gmem_logits|/lm_head_argmax_0/Data_m_axi_gmem_logits/SEG_zynq_ultra_ps_e_0_HP0_DDR_LOW|0x0000000000000000|0x0000000080000000
+LMH_STAGE_C_ADDR_SPACE=/lm_head_argmax_0/Data_m_axi_gmem_weight
+LMH_STAGE_C_ADDR_SEGMENT=/lm_head_argmax_0/Data_m_axi_gmem_weight|/lm_head_argmax_0/Data_m_axi_gmem_weight/SEG_zynq_ultra_ps_e_0_HP0_DDR_HIGH|0x0000000800000000|0x0000000800000000
+LMH_STAGE_C_ADDR_SEGMENT=/lm_head_argmax_0/Data_m_axi_gmem_weight|/lm_head_argmax_0/Data_m_axi_gmem_weight/SEG_zynq_ultra_ps_e_0_HP0_DDR_LOW|0x0000000000000000|0x0000000080000000
+LMH_STAGE_C_ADDR_SPACE=/lm_head_argmax_0/s_axi_control
+LMH_STAGE_C_ADDR_SEGMENT=/lm_head_argmax_0/s_axi_control|/lm_head_argmax_0/s_axi_control/Reg||0x00010000
+LMH_STAGE_C_ADDR_SPACE=/zynq_ultra_ps_e_0/Data
+LMH_STAGE_C_ADDR_SEGMENT=/zynq_ultra_ps_e_0/Data|/zynq_ultra_ps_e_0/Data/SEG_lm_head_argmax_0_Reg|0x00A0000000|0x0000010000
+LMH_STAGE_C_ADDR_SPACE=/zynq_ultra_ps_e_0/SAXIGP2
+LMH_STAGE_C_ADDR_SEGMENT=/zynq_ultra_ps_e_0/SAXIGP2|/zynq_ultra_ps_e_0/SAXIGP2/HP0_DDR_HIGH||0x000800000000
+LMH_STAGE_C_ADDR_SEGMENT=/zynq_ultra_ps_e_0/SAXIGP2|/zynq_ultra_ps_e_0/SAXIGP2/HP0_DDR_LOW||0x80000000
+LMH_STAGE_C_ADDR_SEGMENT=/zynq_ultra_ps_e_0/SAXIGP2|/zynq_ultra_ps_e_0/SAXIGP2/HP0_LPS_OCM||0x01000000
+# close_project
+# exit
+INFO: [Common 17-206] Exiting Vivado at Fri Jul 24 21:35:19 2026...

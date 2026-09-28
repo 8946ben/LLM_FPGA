@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>上板部署 - LLM_FPGA 技术文档</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">LLM_FPGA 教程<small>Qwen2.5-0.5B-Instruct FPGA 推理验证工程</small></div>
+  <div class="search-box">correctness-first · 逐模块对齐 · AXU9EGB</div>
+</div>
+
+<div class="sidebar">
+  <h4>LLM_FPGA 教程</h4>
+  <ul>
+    <li><a href="index.html">1. 项目总览</a></li>
+    <li><a href="model.html">2. 模型结构与权重</a></li>
+    <li><a href="trace.html">3. Golden Trace 数据集</a></li>
+    <li><a href="python_ref.html">4. Python 参考实现</a></li>
+  </ul>
+  <h4>FPGA 实现</h4>
+  <ul>
+    <li><a href="hls.html">5. HLS 模块设计（模块 16）</a></li>
+    <li><a href="protocol.html">6. LMH1 网络协议</a></li>
+    <li><a href="fpga.html" class="active">7. 上板部署（realFpga）</a></li>
+  </ul>
+  <h4>附录</h4>
+  <ul>
+    <li><a href="tools.html">8. 工具链与测试</a></li>
+    <li><a href="resources.html">9. 教程与参考资源</a></li>
+  </ul>
+</div>
+
+<div class="main">
+
+<h1>7. 上板部署（realFpga）</h1>
+
+<p>本篇介绍如何把模块 16（LM Head + Argmax）真正跑在 <strong>AXU9EGB 开发板</strong>上。对应代码目录为 <code>realFpga/</code>，主要参考文档为 <code>realFpga/AXU9EGB_MODULE16_BOARD_BRINGUP_PLAN.md</code>（上板计划）与 <code>realFpga/DEBUG_LOG.md</code>（67 篇调试日志，6240 行）。</p>
+
+<h2>7.1 目标与总体路线</h2>
+
+<table class="tb">
+  <tr><th>项目</th><th>说明</th></tr>
+  <tr><td>目标板卡</td><td>AXU9EGB 开发板（XCZU9EG-2FFVB1156I，Zynq UltraScale+ MPSoC）</td></tr>
+  <tr><td>工具版本</td><td>Vivado / Vitis 2021.1</td></tr>
+  <tr><td>软件路线</td><td>A53 standalone 裸机 + lwIP raw TCP</td></tr>
+  <tr><td>PS 配置来源</td><td>复用同事 RMSNorm 工程已验证的 PS 配置</td></tr>
+</table>
+
+<div class="note"><strong>设计原则：</strong>控制通道与数据通道分离——控制通道走 <code>M_AXI_HPM0_FPD → AXI-Lite</code> 配置 HLS 寄存器；数据通道走 <code>HLS 4×m_axi → S_AXI_HP0_FPD → PS DDR4</code> 搬运 hidden/weight/history/logits。</div>
+
+<h2>7.2 阶段规划（A ~ I）</h2>
+
+<table class="tb">
+  <tr><th>阶段</th><th>内容</th></tr>
+  <tr><td>A</td><td>冻结软件基线</td></tr>
+  <tr><td>B</td><td>导出 HLS IP</td></tr>
+  <tr><td>C</td><td>建 Vivado Block Design（100MHz 先行）</td></tr>
+  <tr><td>D</td><td>导出 XSA，建 Vitis 平台</td></tr>
+  <tr><td>E</td><td>规划 PS DDR NOLOAD 缓冲区</td></tr>
+  <tr><td>F</td><td>实现 LMH1 多帧 TCP 服务端</td></tr>
+  <tr><td>G</td><td>编写上位机脚本</td></tr>
+  <tr><td>H</td><td>逐级点亮：HelloWorld → ping → AXI-Lite → 4×4 → 分块上传 → 完整权重 → 8 步 trace</td></tr>
+  <tr><td>I</td><td>升级 200MHz（尚未执行）</td></tr>
+</table>
+
+<h2>7.3 realFpga/ 目录结构</h2>
+
+<table class="tb">
+  <tr><th>目录 / 文件</th><th>内容</th></tr>
+  <tr><td><code>vivado/</code></td><td><code>create_lm_head_axu9eg_bd.tcl</code>（247 行，生成 BD）、<code>build_lm_head_axu9eg.tcl</code>（综合/实现/bitstream/XSA）、<code>build/lm_head_axu9eg/</code>（完整工程，含 26.5MB bit）</td></tr>
+  <tr><td><code>vitis/</code></td><td>XSCT 脚本 + workspace：<code>lm_head_axu9eg_platform</code> 平台、<code>lm_head_net_diag</code> A53 应用</td></tr>
+  <tr><td><code>results/</code></td><td><code>20260724_baseline</code>（基线）、<code>stage_b_ip_export</code>、<code>stage_c</code>（Vivado 构建与 <code>lm_head_axu9eg.xsa</code>）</td></tr>
+  <tr><td><code>tools/stage_f_board_smoke.py</code></td><td>板端冒烟测试脚本</td></tr>
+  <tr><td><code>deliverables/20260725_module16_v1/</code></td><td>交付 ZIP v3：约 360KB 源码 + 330MB 大产物包</td></tr>
+  <tr><td><code>DEBUG_LOG.md</code></td><td>67 篇调试日志，6240 行</td></tr>
+</table>
+
+<h2>7.4 Vivado Block Design</h2>
+
+<p>BD 名称为 <code>lm_head_system</code>，IP 清单如下：</p>
+
+<table class="tb">
+  <tr><th>IP 实例</th><th>作用</th></tr>
+  <tr><td><code>zynq_ultra_ps_e_0</code></td><td>Zynq UltraScale+ PS</td></tr>
+  <tr><td><code>lm_head_argmax_0</code></td><td>HLS IP（VLNV <code>xilinx.com:hls:lm_head_argmax:1.0</code>）</td></tr>
+  <tr><td><code>axi_smc_ctrl</code></td><td>SmartConnect（1S1M），控制通路</td></tr>
+  <tr><td><code>axi_smc_mem</code></td><td>SmartConnect（4S1M），数据通路</td></tr>
+  <tr><td><code>rst_ps8_0_100M</code></td><td>proc_sys_reset 复位模块</td></tr>
+  <tr><td><code>const_zero</code> / <code>const_one</code></td><td>xlconstant 常量</td></tr>
+</table>
+
+<h3>控制通路与数据通路</h3>
+<pre><code>控制通路：PS M_AXI_HPM0_FPD → axi_smc_ctrl → HLS s_axi_control
+          （基地址 0xA0000000，64KiB）
+
+数据通路：HLS 4×m_axi（gmem_hidden / gmem_weight / gmem_history / gmem_logits，各 32bit）
+          → axi_smc_mem → PS S_AXI_HP0_FPD → PS DDR
+          （HP0 映射 DDR_LOW 2G + DDR_HIGH 32G）</code></pre>
+
+<h3>时钟与复位</h3>
+<ul>
+  <li><strong>时钟：</strong>单一时钟域 <code>pl_clk0</code>（请求 100MHz，实际 99.999001MHz）驱动所有 AXI / HLS / 复位；HLS 按 200MHz 综合、100MHz 安全运行。</li>
+  <li><strong>复位：</strong><code>pl_resetn0 → ext_reset_in</code>；<code>interconnect_aresetn</code> → 两个 SmartConnect；<code>peripheral_aresetn</code> → HLS <code>ap_rst_n</code>。</li>
+  <li><strong>中断：</strong>HLS <code>interrupt</code> 有意不接，改用轮询 <code>ap_done</code>。</li>
+</ul>
+
+<h3>PS 配置</h3>
+<ul>
+  <li>33.333MHz 参考时钟；DDR4-1600J 4GB 64-bit，训练全开，ECC 关。</li>
+  <li>GEM3 RGMII（MIO64-75）+ MDIO（MIO76-77）；UART0（MIO42-43）；TTC0。</li>
+  <li>与同事 RMSNorm 工程对齐 <strong>1111 项 PSU 参数</strong>（1110 项一致）；<code>psu_ddr_init_data()</code> 共 523694 字符，逐字节一致。</li>
+</ul>
+
+<h3>实现结果</h3>
+<table class="tb">
+  <tr><th>指标</th><th>结果</th></tr>
+  <tr><td>时序</td><td>WNS +3.921 / +4.262 ns，THS 0，0 布线错误</td></tr>
+  <tr><td>资源</td><td>LUT 3.8%，DSP 5/2520，BRAM 6/912</td></tr>
+  <tr><td>bitstream</td><td>SHA-256 以 <code>723F56E9</code> 开头</td></tr>
+  <tr><td>XSA</td><td><code>results/20260724_stage_c/lm_head_axu9eg.xsa</code></td></tr>
+</table>
+
+<h2>7.5 Vitis PS 端软件</h2>
+
+<p>软件位于 <code>vitis/workspace/lm_head_net_diag/src/</code>，由三个关键部分组成：</p>
+
+<h3>main.c：启动流程</h3>
+<pre><code>platform 初始化
+  → DDR smoke test（0x10000000，4096 字写读 + Cache flush/invalidate，过了才起网络）
+  → lwip_init
+  → 静态 IP 192.168.8.190（无串口交互，printf 仅走 UART）
+  → 主循环：xemacif_input + TCP 定时器</code></pre>
+
+<h3>lwip_lm_head_raw_server.c（1179 行，核心）</h3>
+<ul>
+  <li>LMH1 TCP server，端口 <strong>19016</strong>，单连接多帧状态机：跨 pbuf 拼帧、响应发完复位帧状态、权重跨连接保留。</li>
+  <li>流式权重接收：单块最大 16MiB，直写 DDR 预留区并立即 <code>Xil_DCacheFlushRange</code>。</li>
+  <li>收到 RUN_TOKEN 时：配置 HLS 寄存器（地址 / hidden_size / vocab_size / write_logits / penalty 开关与数值）→ <code>XLm_head_argmax_Start</code> + 轮询 <code>IsDone</code>（超时保护 1e9 次）→ <code>Xil_DCacheInvalidateRange</code> 读回 logits / token / score → 4KiB 分段 <code>tcp_write</code> + <code>tcp_sent</code> 回调回传。</li>
+</ul>
+
+<h3>lmh_buffers.h + lscript.ld：PS DDR NOLOAD 布局</h3>
+<table class="tb">
+  <tr><th>缓冲区</th><th>大小</th></tr>
+  <tr><td>weight</td><td>272269312 B</td></tr>
+  <tr><td>hidden</td><td>1792 B</td></tr>
+  <tr><td>history</td><td>18992 B</td></tr>
+  <tr><td>logits</td><td>303872 B</td></tr>
+  <tr><td>网络 RX 缓冲</td><td>1 MiB</td></tr>
+</table>
+<p>全部 64B 对齐，通过链接脚本以 NOLOAD 方式预留，避免与裸机程序其它段冲突。</p>
+
+<h2>7.6 板级验收结果</h2>
+
+<h3>网络 / DDR 基础项</h3>
+<ul>
+  <li>ping 8/8 零丢包；TCP 回显 PASS；DDR 64KiB 冒烟 PASS。</li>
+</ul>
+
+<table class="tb">
+  <tr><th>测试项</th><th>内容</th><th>结果</th></tr>
+  <tr><td>H-4 受控 4×4</td><td>四用例 + 异常恢复</td><td>全 PASS（penalty 改 top-1、平局取小 id、logits 误差 0）</td></tr>
+  <tr><td>H-5 逐级放大</td><td>vocab 8192 档</td><td>上传 24.99 MiB/s、计算 0.603 s、token / Top-5 全对</td></tr>
+  <tr><td>H-6 完整规模</td><td>259.66 MiB 权重，260 个 chunk</td><td>上传 7.69 s（33.76 MiB/s）；step0 token 104198 正确；151936 个 logits 最大误差 0.015625（&lt; 0.02 门限）；raw / processed Top-5 5/5；单次 HLS 计算 11.165 s @100MHz（1.36 亿次乘加）</td></tr>
+  <tr><td>H-7 八步生成</td><td>权重复用不重传</td><td>8/8 token 与 <code>metadata.json.generated_ids</code> 完全一致，生成文本「我是Qwen，由阿里云开发」；最坏误差 0.015625；每步约 11.17 s，8 步累计 89.35 s；raw 与 processed Top-5 的差异证明 penalty 在 FPGA 内真实生效</td></tr>
+  <tr><td>H-8 penalty 开关</td><td>默认关闭 penalty 重测 8 步</td><td>仍 8/8 PASS；用 score = 30.046875 vs 30.046875 / 1.1 证明开关真实下发</td></tr>
+</table>
+
+<div class="note">每次测试后都做存活检查：ping 10/10、A53 Running、JTAG 链完整，全部 PASS。</div>
+
+<h2>7.7 调试经验精选（来自 DEBUG_LOG 67 篇）</h2>
+
+<div class="danger"><strong>最大的坑：</strong>首次上板一启动 HLS 就 AXI / DAP 锁死、ping 消失。根因有两层——
+<ul>
+  <li>复位拓扑错误（<code>interconnect_aresetn</code> / <code>peripheral_aresetn</code> 混接）；</li>
+  <li>proc_sys_reset 的 <code>aux_reset_in</code> 是<strong>低有效</strong>（<code>C_AUX_RESET_HIGH=0</code>），而 BD 接了 <code>const_zero</code>，导致 SmartConnect 和 HLS 永久复位。</li>
+</ul>
+修复：改接 <code>const_one</code>；并改进下载顺序（psu_init → 配置 PL → 解除 PS-PL isolation → 用 AXI-Lite 无启动预检读 AP_CTRL → 下 ELF），用 <code>force-mem-accesses</code> 预检区分「控制口不响应」与「数据口出错」。修复后 AP_CTRL 读回 <code>0x4</code>（ap_idle）正常。</div>
+
+<div class="warn"><strong>Vitis HLS 2021.1 的年代问题：</strong>在 2026 年，<code>core_revision</code> 的 32-bit 有符号溢出会导致 IP 打包失败，需用 <code>run_export_ip_2021_compat.ps1</code> 兼容脚本 + Vivado 重打包。并且 <code>vitis_hls.bat</code> 的退出码<strong>不可信</strong>（内部失败仍返回 0），必须检查 <code>component.xml</code> 是否实际生成。</div>
+
+<div class="warn"><strong>其它常见误判与陷阱：</strong>
+<ul>
+  <li>误判 PS DDR 未启用：看 <code>USE__DDR_INTF_REQUESTED=0</code> 就判定 DDR 关闭是错的。</li>
+  <li>Vitis IDE 构建「假成功」（ELF 缺失）：改用 Makefile 构建并验证 ELF 存在。</li>
+  <li>PHY 通用识别补丁（<code>xemacpsif_physpeed.c</code>）打入 BSP 后，<strong>bsp regenerate 会覆盖补丁，需要重打</strong>；lwIP 参数需调大（<code>mem_size 262144</code>、<code>tcp_snd_buf/wnd 32768</code>、<code>memp_num_tcp_seg 512</code>）。</li>
+  <li>逐级放大策略：4×4 → vocab 128 / 1024 / 8192 / 65536 → 完整 151936，每一级都留证据，出问题能快速定位到刚放大的那一级。</li>
+</ul>
+</div>
+
+<h2>7.8 当前状态</h2>
+
+<div class="note">模块 16 已于 <strong>2026-07-25</strong> 在真实 AXU9EGB 上按「成功定义」完成 100MHz 功能验收，交付物 v3 ZIP 已生成；阶段 I（200MHz 升级）尚未执行。</div>
+
+<div class="prenext">
+  <span class="prev"><a href="protocol.html">← 上一篇：6. LMH1 网络协议</a></span>
+  <span class="next"><a href="tools.html">下一篇：8. 工具链与测试 →</a></span>
+</div>
+
+</div>
+
+<div class="footer">LLM_FPGA 技术文档 · Qwen2.5-0.5B-Instruct FPGA 推理验证工程 · correctness-first</div>
+
+</body>
+</html>

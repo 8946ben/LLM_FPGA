@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>lm_head_argmax Verilog 模块结构图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; color: #e0e0e0; font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; padding: 20px; }
+  h1 { text-align: center; margin-bottom: 8px; color: #64ffda; font-size: 22px; }
+  .subtitle { text-align: center; color: #8892b0; margin-bottom: 24px; font-size: 13px; }
+  .diagram-container { display: flex; justify-content: center; }
+  svg { max-width: 100%; height: auto; }
+
+  /* legend */
+  .legend { display: flex; justify-content: center; gap: 28px; margin-top: 20px; flex-wrap: wrap; font-size: 12px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch { width: 14px; height: 14px; border-radius: 3px; }
+
+  /* info boxes below */
+  .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; max-width: 1100px; margin: 28px auto 0; }
+  .info-card { background: #16213e; border: 1px solid #233554; border-radius: 8px; padding: 16px; }
+  .info-card h3 { color: #64ffda; font-size: 14px; margin-bottom: 10px; }
+  .info-card table { width: 100%; font-size: 12px; border-collapse: collapse; }
+  .info-card td { padding: 4px 8px; border-bottom: 1px solid #1a2a4a; }
+  .info-card td:first-child { color: #8892b0; white-space: nowrap; padding-right: 16px; }
+  .info-card td:last-child { color: #ccd6f6; font-family: 'Consolas', 'Courier New', monospace; }
+</style>
+</head>
+<body>
+
+<h1>lm_head_argmax — Vitis HLS 综合后 Verilog 模块结构图</h1>
+<p class="subtitle">目标器件: xcu280-fsvh2892-2L-e &nbsp;|&nbsp; 目标时钟: 4 ns (250 MHz) &nbsp;|&nbsp; 估计时钟: 2.920 ns (342 MHz)</p>
+
+<div class="diagram-container">
+<svg viewBox="0 0 1100 820" xmlns="http://www.w3.org/2000/svg" style="background:#0f1923;border-radius:10px;">
+  <defs>
+    <!-- arrow marker -->
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#64ffda"/>
+    </marker>
+    <marker id="arrowOut" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#ff9f43"/>
+    </marker>
+    <marker id="arrowCtrl" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#a29bfe"/>
+    </marker>
+
+    <!-- shadow filter -->
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+
+    <!-- gradient fills -->
+    <linearGradient id="gradTop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#64ffda" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#64ffda" stop-opacity="0.06"/>
+    </linearGradient>
+    <linearGradient id="gradSub" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5a7df0" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#5a7df0" stop-opacity="0.06"/>
+    </linearGradient>
+    <linearGradient id="gradMem" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff9f43" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#ff9f43" stop-opacity="0.06"/>
+    </linearGradient>
+    <linearGradient id="gradCtrl" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a29bfe" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#a29bfe" stop-opacity="0.06"/>
+    </linearGradient>
+    <linearGradient id="gradCompute" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e056a0" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#e056a0" stop-opacity="0.06"/>
+    </linearGradient>
+    <linearGradient id="gradDDR" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff6b6b" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#ff6b6b" stop-opacity="0.08"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ========== TOP MODULE ========== -->
+  <rect x="1" y="1" width="1098" height="818" rx="12" fill="url(#gradTop)" stroke="#64ffda" stroke-width="2" filter="url(#shadow)"/>
+  <text x="550" y="28" text-anchor="middle" fill="#64ffda" font-size="15" font-weight="bold">lm_head_argmax (顶层模块 · 2900 行 Verilog)</text>
+
+  <!-- AXI-Lite control port -->
+  <rect x="910" y="44" width="170" height="46" rx="6" fill="#1a1a3e" stroke="#a29bfe" stroke-width="1.2"/>
+  <text x="995" y="62" text-anchor="middle" fill="#a29bfe" font-size="10" font-weight="bold">s_axi_control</text>
+  <text x="995" y="78" text-anchor="middle" fill="#a29bfe" font-size="9" opacity="0.7">AXI-Lite Slave</text>
+
+  <!-- ========== DDR EXTERNAL MEMORY ========== -->
+  <rect x="30" y="44" width="200" height="110" rx="8" fill="url(#gradDDR)" stroke="#ff6b6b" stroke-width="1.5"/>
+  <text x="130" y="66" text-anchor="middle" fill="#ff6b6b" font-size="12" font-weight="bold">外部 DDR / HBM</text>
+  <text x="130" y="82" text-anchor="middle" fill="#ff6b6b" font-size="9" opacity="0.8">(板载内存)</text>
+  <line x1="50" y1="92" x2="210" y2="92" stroke="#ff6b6b" stroke-width="0.5" opacity="0.4"/>
+  <text x="50" y="108" fill="#ff6b6b" font-size="9" opacity="0.8">weight[151936×896]</text>
+  <text x="50" y="122" fill="#ff6b6b" font-size="9" opacity="0.8">hidden[896]</text>
+  <text x="50" y="136" fill="#ff6b6b" font-size="9" opacity="0.8">history_bitmap[4748]</text>
+  <text x="50" y="150" fill="#ff6b6b" font-size="9" opacity="0.8">raw_logits[151936]</text>
+
+  <!-- ========== AXI MASTER MODULES ========== -->
+  <!-- m_axi_gmem_hidden -->
+  <rect x="280" y="44" width="150" height="50" rx="6" fill="url(#gradMem)" stroke="#ff9f43" stroke-width="1.2"/>
+  <text x="355" y="64" text-anchor="middle" fill="#ff9f43" font-size="10" font-weight="bold">m_axi_hidden</text>
+  <text x="355" y="82" text-anchor="middle" fill="#ff9f43" font-size="8" opacity="0.7">AXI Master (读)</text>
+
+  <!-- m_axi_gmem_weight -->
+  <rect x="280" y="108" width="150" height="50" rx="6" fill="url(#gradMem)" stroke="#ff9f43" stroke-width="1.2"/>
+  <text x="355" y="128" text-anchor="middle" fill="#ff9f43" font-size="10" font-weight="bold">m_axi_weight</text>
+  <text x="355" y="146" text-anchor="middle" fill="#ff9f43" font-size="8" opacity="0.7">AXI Master (读)</text>
+
+  <!-- m_axi_gmem_history -->
+  <rect x="280" y="172" width="150" height="50" rx="6" fill="url(#gradMem)" stroke="#ff9f43" stroke-width="1.2"/>
+  <text x="355" y="192" text-anchor="middle" fill="#ff9f43" font-size="10" font-weight="bold">m_axi_history</text>
+  <text x="355" y="210" text-anchor="middle" fill="#ff9f43" font-size="8" opacity="0.7">AXI Master (读)</text>
+
+  <!-- m_axi_gmem_logits -->
+  <rect x="280" y="236" width="150" height="50" rx="6" fill="url(#gradMem)" stroke="#ff9f43" stroke-width="1.2"/>
+  <text x="355" y="256" text-anchor="middle" fill="#ff9f43" font-size="10" font-weight="bold">m_axi_logits</text>
+  <text x="355" y="274" text-anchor="middle" fill="#ff9f43" font-size="8" opacity="0.7">AXI Master (写)</text>
+
+  <!-- DDR → AXI arrows (read) -->
+  <line x1="230" y1="69" x2="275" y2="69" stroke="#ff9f43" stroke-width="1.5" marker-end="url(#arrowOut)"/>
+  <line x1="230" y1="133" x2="275" y2="133" stroke="#ff9f43" stroke-width="1.5" marker-end="url(#arrowOut)"/>
+  <line x1="230" y1="197" x2="275" y2="197" stroke="#ff9f43" stroke-width="1.5" marker-end="url(#arrowOut)"/>
+  <!-- AXI → DDR arrow (write) -->
+  <line x1="275" y1="261" x2="230" y2="261" stroke="#ff9f43" stroke-width="1.5" marker-end="url(#arrowOut)"/>
+
+  <!-- ========== CONTROL S_AXI ========== -->
+  <rect x="480" y="44" width="160" height="46" rx="6" fill="url(#gradCtrl)" stroke="#a29bfe" stroke-width="1.2"/>
+  <text x="560" y="62" text-anchor="middle" fill="#a29bfe" font-size="10" font-weight="bold">control_s_axi</text>
+  <text x="560" y="78" text-anchor="middle" fill="#a29bfe" font-size="8" opacity="0.7">AXI-Lite Slave 寄存器</text>
+
+  <!-- control params -->
+  <rect x="480" y="100" width="160" height="80" rx="6" fill="#151540" stroke="#a29bfe" stroke-width="0.8" stroke-dasharray="4,3"/>
+  <text x="560" y="118" text-anchor="middle" fill="#a29bfe" font-size="9" opacity="0.9">控制寄存器</text>
+  <text x="495" y="136" fill="#a29bfe" font-size="8" opacity="0.7">hidden_size (I)</text>
+  <text x="495" y="150" fill="#a29bfe" font-size="8" opacity="0.7">vocab_size (I)</text>
+  <text x="495" y="164" fill="#a29bfe" font-size="8" opacity="0.7">write_logits (I)</text>
+  <text x="495" y="176" fill="#a29bfe" font-size="8" opacity="0.7">enable_repetition_penalty (I)</text>
+
+  <rect x="480" y="190" width="160" height="36" rx="5" fill="#151540" stroke="#a29bfe" stroke-width="0.8" stroke-dasharray="4,3"/>
+  <text x="560" y="208" text-anchor="middle" fill="#a29bfe" font-size="8" opacity="0.7">repetition_penalty (I)</text>
+  <text x="560" y="222" text-anchor="middle" fill="#a29bfe" font-size="8" opacity="0.7">selected_token (O)</text>
+
+  <!-- status out -->
+  <rect x="480" y="236" width="160" height="28" rx="5" fill="#151540" stroke="#a29bfe" stroke-width="0.8" stroke-dasharray="4,3"/>
+  <text x="560" y="254" text-anchor="middle" fill="#a29bfe" font-size="8" opacity="0.7">selected_score (O)</text>
+
+  <!-- ctrl bus to s_axi -->
+  <line x1="640" y1="67" x2="905" y2="67" stroke="#a29bfe" stroke-width="1" marker-end="url(#arrowCtrl)" stroke-dasharray="6,3"/>
+
+  <!-- ========== DATAPATH — COMPUTE PIPELINE ========== -->
+  <!-- hidden cache BRAM -->
+  <rect x="700" y="108" width="180" height="42" rx="6" fill="url(#gradCompute)" stroke="#e056a0" stroke-width="1.2"/>
+  <text x="790" y="126" text-anchor="middle" fill="#e056a0" font-size="10" font-weight="bold">hidden_cache (BRAM)</text>
+  <text x="790" y="142" text-anchor="middle" fill="#e056a0" font-size="8" opacity="0.7">896 × FP16 (双端口 RAM)</text>
+
+  <!-- Pipeline: load_hidden -->
+  <rect x="700" y="170" width="180" height="36" rx="5" fill="url(#gradSub)" stroke="#5a7df0" stroke-width="1"/>
+  <text x="790" y="190" text-anchor="middle" fill="#5a7df0" font-size="9" font-weight="bold">Pipeline: load_hidden</text>
+  <text x="790" y="202" text-anchor="middle" fill="#5a7df0" font-size="7" opacity="0.7">II=1, 流式加载 896 维</text>
+
+  <!-- Pipeline: dot_product -->
+  <rect x="700" y="224" width="180" height="36" rx="5" fill="url(#gradSub)" stroke="#5a7df0" stroke-width="1"/>
+  <text x="790" y="244" text-anchor="middle" fill="#5a7df0" font-size="9" font-weight="bold">Pipeline: dot_product</text>
+  <text x="790" y="256" text-anchor="middle" fill="#5a7df0" font-size="7" opacity="0.7">II=6, 151936×896 点积</text>
+
+  <!-- FP operators box -->
+  <rect x="700" y="278" width="180" height="74" rx="6" fill="url(#gradCompute)" stroke="#e056a0" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="790" y="296" text-anchor="middle" fill="#e056a0" font-size="9" font-weight="bold">FP 运算单元集</text>
+  <text x="715" y="314" fill="#e056a0" font-size="7.5" opacity="0.7">fadd_32ns_32ns_32 (FP32 加法器)</text>
+  <text x="715" y="326" fill="#e056a0" font-size="7.5" opacity="0.7">fmul_32ns_32ns_32 (FP32 乘法器)</text>
+  <text x="715" y="338" fill="#e056a0" font-size="7.5" opacity="0.7">hptosp: FP16→FP32 转换</text>
+  <text x="715" y="350" fill="#e056a0" font-size="7.5" opacity="0.7">sptohp: FP32→FP16 转换</text>
+
+  <!-- ========== PENALTY + ARGMAX ========== -->
+  <rect x="700" y="370" width="180" height="50" rx="6" fill="url(#gradCompute)" stroke="#e056a0" stroke-width="1.2"/>
+  <text x="790" y="390" text-anchor="middle" fill="#e056a0" font-size="10" font-weight="bold">Repetition Penalty</text>
+  <text x="790" y="408" text-anchor="middle" fill="#e056a0" font-size="8" opacity="0.7">seen→ ÷1.1 (正) / ×1.1 (负)</text>
+
+  <rect x="700" y="436" width="180" height="42" rx="6" fill="url(#gradCompute)" stroke="#e056a0" stroke-width="1.2"/>
+  <text x="790" y="454" text-anchor="middle" fill="#e056a0" font-size="10" font-weight="bold">Argmax</text>
+  <text x="790" y="470" text-anchor="middle" fill="#e056a0" font-size="8" opacity="0.7">相等取较小 token ID</text>
+
+  <!-- flow control -->
+  <rect x="700" y="498" width="180" height="30" rx="5" fill="url(#gradSub)" stroke="#5a7df0" stroke-width="0.8"/>
+  <text x="790" y="517" text-anchor="middle" fill="#5a7df0" font-size="8">flow_control_loop_pipe</text>
+
+  <!-- ========== ARROWS: COMPUTE FLOW ========== -->
+  <!-- m_axi_hidden → load_hidden -->
+  <line x1="430" y1="69" x2="695" y2="188" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- m_axi_weight → dot_product -->
+  <line x1="430" y1="133" x2="695" y2="242" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- m_axi_history → penalty -->
+  <line x1="430" y1="197" x2="695" y2="395" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- m_axi_logits ← raw_logits -->
+  <line x1="695" y1="465" x2="430" y2="261" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- load_hidden → hidden_cache -->
+  <line x1="790" y1="170" x2="790" y2="154" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- hidden_cache → dot_product -->
+  <line x1="790" y1="150" x2="790" y2="220" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- dot_product → FP ops -->
+  <line x1="790" y1="260" x2="790" y2="274" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- FP ops → penalty -->
+  <line x1="790" y1="352" x2="790" y2="366" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- penalty → argmax -->
+  <line x1="790" y1="420" x2="790" y2="432" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- control connections -->
+  <line x1="560" y1="180" x2="695" y2="395" stroke="#a29bfe" stroke-width="0.8" stroke-dasharray="5,4"/>
+  <line x1="560" y1="180" x2="695" y2="242" stroke="#a29bfe" stroke-width="0.8" stroke-dasharray="5,4"/>
+
+  <!-- ========== OUTPUT ========== -->
+  <rect x="920" y="210" width="155" height="42" rx="6" fill="url(#gradTop)" stroke="#64ffda" stroke-width="1.2"/>
+  <text x="997" y="228" text-anchor="middle" fill="#64ffda" font-size="10" font-weight="bold">selected_token</text>
+  <text x="997" y="244" text-anchor="middle" fill="#64ffda" font-size="8" opacity="0.7">uint32 → token ID</text>
+
+  <rect x="920" y="268" width="155" height="42" rx="6" fill="url(#gradTop)" stroke="#64ffda" stroke-width="1.2"/>
+  <text x="997" y="286" text-anchor="middle" fill="#64ffda" font-size="10" font-weight="bold">selected_score</text>
+  <text x="997" y="302" text-anchor="middle" fill="#64ffda" font-size="8" opacity="0.7">FP32 → 最高分数</text>
+
+  <line x1="880" y1="457" x2="997" y2="231" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="880" y1="457" x2="997" y2="289" stroke="#64ffda" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ========== DATA FLOW LABELS ========== -->
+  <text x="540" y="310" text-anchor="middle" fill="#64ffda" font-size="11" font-weight="bold">▼ 数据通路 ▼</text>
+
+  <!-- Step labels -->
+  <rect x="915" y="340" width="165" height="155" rx="8" fill="#0a1628" stroke="#64ffda" stroke-width="0.8" stroke-dasharray="4,3"/>
+  <text x="997" y="360" text-anchor="middle" fill="#64ffda" font-size="10" font-weight="bold">执行步骤</text>
+  <text x="930" y="380" fill="#64ffda" font-size="9" opacity="0.8">① 加载 hidden → BRAM</text>
+  <text x="930" y="398" fill="#64ffda" font-size="9" opacity="0.8">② 逐 token 点积 (FP16×FP16)</text>
+  <text x="930" y="416" fill="#64ffda" font-size="9" opacity="0.8">③ FP32 累加 → FP16 截断</text>
+  <text x="930" y="434" fill="#64ffda" font-size="9" opacity="0.8">④ 可选写回 raw_logits</text>
+  <text x="930" y="452" fill="#64ffda" font-size="9" opacity="0.8">⑤ 查询 history, 应用 penalty</text>
+  <text x="930" y="470" fill="#64ffda" font-size="9" opacity="0.8">⑥ argmax (相等取小 ID)</text>
+  <text x="930" y="488" fill="#64ffda" font-size="9" opacity="0.8">⑦ 输出 token + score</text>
+
+  <!-- ========== BOTTOM SUMMARY BAR ========== -->
+  <rect x="30" y="550" width="1040" height="255" rx="10" fill="#0a1628" stroke="#233554" stroke-width="1"/>
+
+  <text x="60" y="578" fill="#64ffda" font-size="13" font-weight="bold">综合资源报告 (全尺寸 151936×896, 4ns 目标时钟)</text>
+
+  <rect x="50" y="595" width="100" height="24" rx="4" fill="#151540"/>
+  <text x="100" y="612" text-anchor="middle" fill="#a29bfe" font-size="9" font-weight="bold">BRAM18K</text>
+  <text x="170" y="612" fill="#ccd6f6" font-size="13" font-weight="bold">9</text>
+
+  <rect x="210" y="595" width="100" height="24" rx="4" fill="#151540"/>
+  <text x="260" y="612" text-anchor="middle" fill="#e056a0" font-size="9" font-weight="bold">DSP</text>
+  <text x="330" y="612" fill="#ccd6f6" font-size="13" font-weight="bold">5</text>
+
+  <rect x="370" y="595" width="100" height="24" rx="4" fill="#151540"/>
+  <text x="420" y="612" text-anchor="middle" fill="#5a7df0" font-size="9" font-weight="bold">FF</text>
+  <text x="490" y="612" fill="#ccd6f6" font-size="13" font-weight="bold">4,757</text>
+
+  <rect x="530" y="595" width="100" height="24" rx="4" fill="#151540"/>
+  <text x="580" y="612" text-anchor="middle" fill="#5a7df0" font-size="9" font-weight="bold">LUT</text>
+  <text x="650" y="612" fill="#ccd6f6" font-size="13" font-weight="bold">5,657</text>
+
+  <rect x="690" y="595" width="140" height="24" rx="4" fill="#151540"/>
+  <text x="760" y="612" text-anchor="middle" fill="#ff6b6b" font-size="9" font-weight="bold">延迟 (cycles)</text>
+  <text x="850" y="612" fill="#ff6b6b" font-size="13" font-weight="bold">824,709,518</text>
+
+  <rect x="885" y="595" width="175" height="24" rx="4" fill="#151540"/>
+  <text x="972" y="612" text-anchor="middle" fill="#ff9f43" font-size="9" font-weight="bold">延迟 (时间)</text>
+  <text x="1055" y="612" fill="#ff9f43" font-size="13" font-weight="bold">~3.299 s/token</text>
+
+  <text x="60" y="655" fill="#64ffda" font-size="13" font-weight="bold">生成的 Verilog 文件清单 (syn/verilog/)</text>
+
+  <text x="60" y="682" fill="#8892b0" font-size="10">顶层</text>
+  <text x="120" y="682" fill="#ccd6f6" font-size="10" font-family="Consolas, monospace">lm_head_argmax.v</text>
+  <text x="360" y="682" fill="#8892b0" font-size="10">控制总线</text>
+  <text x="440" y="682" fill="#ccd6f6" font-size="10" font-family="Consolas, monospace">lm_head_argmax_control_s_axi.v</text>
+
+  <text x="60" y="702" fill="#8892b0" font-size="10">AXI Master</text>
+  <text x="120" y="702" fill="#ccd6f6" font-size="10" font-family="Consolas, monospace">lm_head_argmax_gmem_hidden_m_axi.v</text>
+  <text x="360" y="702" fill="#ccd6f6" font-size="10" font-family="Consolas, monospace">lm_head_argmax_gmem_weight_m_axi.v</text>
+  <text x="60" y="720" fill="#ccd6f6" font-size="10" font-family="Consolas, monospace">lm_head_argmax_gmem_history_m_axi.v</text>
+  <text x="360" y="720" fill="#ccd6f6" font-size="10" font-family="Consolas, monospace">lm_head_argmax_gmem_logits_m_axi.v</text>
+
+  <text x="60" y="740" fill="#8892b0" font-size="10">片上存储</text>
+  <text x="120" y="740" fill="#ccd6f6" font-size="10" font-family="Consolas, monospace">lm_head_argmax_hidden_cache.v (BRAM)</text>
+
+  <text x="60" y="758" fill="#8892b0" font-size="10">FP 单元</text>
+  <text x="120" y="758" fill="#ccd6f6" font-size="10" font-family="Consolas, monospace">lm_head_argmax_fadd_*  /  fmul_*  /  fdiv_*  /  fcmp_*  /  hcmp_*</text>
+  <text x="360" y="758" fill="#ccd6f6" font-size="10" font-family="Consolas, monospace">lm_head_argmax_hptosp_*  /  sptohp_*</text>
+
+  <text x="60" y="778" fill="#8892b0" font-size="10">流水控制</text>
+  <text x="120" y="778" fill="#ccd6f6" font-size="10" font-family="Consolas, monospace">lm_head_argmax_flow_control_loop_pipe.v</text>
+  <text x="360" y="778" fill="#ccd6f6" font-size="10" font-family="Consolas, monospace">lm_head_argmax_Pipeline_load_hidden.v</text>
+  <text x="60" y="796" fill="#ccd6f6" font-size="10" font-family="Consolas, monospace">lm_head_argmax_Pipeline_dot_product.v</text>
+</svg>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-swatch" style="background:#64ffda"></div> 顶层 / 数据流</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#ff9f43"></div> AXI Master 端口</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#a29bfe"></div> AXI-Lite 控制</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#e056a0"></div> 计算 / 存储单元</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#5a7df0"></div> 流水线控制</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#ff6b6b"></div> 外部 DDR</div>
+</div>
+
+<div class="info-grid">
+  <div class="info-card">
+    <h3>接口一览</h3>
+    <table>
+      <tr><td>时钟</td><td>ap_clk (250 MHz)</td></tr>
+      <tr><td>复位</td><td>ap_rst_n (低有效)</td></tr>
+      <tr><td>AXI Master (hidden 读)</td><td>m_axi_gmem_hidden_* (40 信号)</td></tr>
+      <tr><td>AXI Master (weight 读)</td><td>m_axi_gmem_weight_* (40 信号)</td></tr>
+      <tr><td>AXI Master (history 读)</td><td>m_axi_gmem_history_* (40 信号)</td></tr>
+      <tr><td>AXI Master (logits 写)</td><td>m_axi_gmem_logits_* (40 信号)</td></tr>
+      <tr><td>AXI-Lite Slave</td><td>s_axi_control_* (~20 信号)</td></tr>
+    </table>
+  </div>
+
+  <div class="info-card">
+    <h3>HLS pragma 与综合结果映射</h3>
+    <table>
+      <tr><td>#pragma PIPELINE II=1</td><td>load_hidden: 每周期 1 个 FP16 值</td></tr>
+      <tr><td>#pragma LOOP_TRIPCOUNT</td><td>综合器推断循环边界</td></tr>
+      <tr><td>m_axi max_read_burst</td><td>weight 端口 256 beat 突发</td></tr>
+      <tr><td>m_axi num_read_outstanding</td><td>weight 端口 16 个未完成事务</td></tr>
+      <tr><td>BIND_STORAGE BRAM</td><td>hidden_cache 映射为 9 个 BRAM18K</td></tr>
+      <tr><td>点积 II=6</td><td>FP32 累加依赖, 每 6 周期产出一项</td></tr>
+      <tr><td>总延迟</td><td>824M cycles ≈ 3.3 s (串行基线)</td></tr>
+    </table>
+  </div>
+
+  <div class="info-card">
+    <h3>数据精度路径</h3>
+    <table>
+      <tr><td>weight</td><td>FP16 (外部 DDR 存储)</td></tr>
+      <tr><td>hidden</td><td>FP16 → hidden_cache (BRAM)</td></tr>
+      <tr><td>乘法</td><td>FP16×FP16 → FP32 (hptosp 转换后)</td></tr>
+      <tr><td>累加</td><td>FP32 accumulator (896 项累加)</td></tr>
+      <tr><td>raw_logit</td><td>FP32 → FP16 (sptohp 截断)</td></tr>
+      <tr><td>penalty</td><td>FP16 → FP32, 应用 penalty</td></tr>
+      <tr><td>argmax</td><td>FP32 比较, uint32 token ID</td></tr>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import socket
 from dataclasses import dataclass
+from typing import Callable
 
 import numpy as np
 
@@ -71,8 +72,18 @@ class LmHeadClient:
             raise ProtocolError("invalid PING response length")
         return PingResult(*PING_RESULT.unpack(payload))
 
-    def load_weight(self, weight: np.ndarray, *, chunk_bytes: int = 4 << 20) -> None:
-        weight = np.ascontiguousarray(weight, dtype="<f2")
+    def load_weight(
+        self,
+        weight: np.ndarray,
+        *,
+        chunk_bytes: int = 4 << 20,
+        progress: Callable[[int, int], None] | None = None,
+    ) -> None:
+        if chunk_bytes <= 0:
+            raise ValueError("chunk_bytes must be positive")
+        weight = np.asarray(weight)
+        if weight.dtype != np.dtype("<f2") or not weight.flags.c_contiguous:
+            weight = np.ascontiguousarray(weight, dtype="<f2")
         if weight.ndim != 2:
             raise ValueError("weight must have shape [vocab_size, hidden_size]")
         vocab_size, hidden_size = weight.shape
@@ -92,6 +103,8 @@ class LmHeadClient:
             status, _, _, _ = RESULT_PREFIX.unpack(response)
             if status != STATUS_OK:
                 raise ProtocolError(f"LOAD_WEIGHT failed with status {status}")
+            if progress is not None:
+                progress(end, total)
 
     def run_token(
         self,
@@ -130,4 +143,3 @@ class LmHeadClient:
             np.frombuffer(raw, dtype="<f2").copy() if logits_bytes else None
         )
         return TokenResult(token_id, score, logits)
-

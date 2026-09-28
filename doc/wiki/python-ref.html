@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python 参考实现 · LLM_FPGA 项目图wiki</title>
+<link rel="stylesheet" href="assets/wiki.css">
+</head>
+<body>
+
+<header class="wiki-header">
+  <div class="bar">
+    <a class="brand" href="index.html">LLM_FPGA 项目图wiki<span>以图为核心</span></a>
+    <nav>
+      <a href="index.html">总览</a>
+      <a href="model.html">模型与权重</a>
+      <a href="trace.html">Golden Trace</a>
+      <a href="python-ref.html" class="active">Python 参考</a>
+      <a href="hls.html">HLS 内核</a>
+      <a href="protocol.html">网络协议</a>
+      <a href="fpga.html">上板部署</a>
+      <a href="verify.html">验证闭环</a>
+      <a href="tools.html">工具链</a>
+      <a href="roadmap.html">ABI V2 路线</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>Python 参考实现</h1>
+<p class="lede">
+<code>qwen25_0p5b_python_reference/</code> 提供三层次参考：可复现的 trace 导出（generate 路径）、
+贴近 FPGA runtime 的显式 prefill/decode、以及不依赖 transformers 的纯模块级数学实现。
+它们的共同产物就是 golden trace 与上板 fixture。
+</p>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart TB
+  subgraph PATH_A["路径 A · 生成当前 trace 的路径"]
+    direction TB
+    A1["run_full_generate_trace.py<br/>model.generate()<br/>do_sample=False · output_scores=True"]
+    A2["transformers 插桩快照<br/>snapshots/modeling_qwen2_fpga_instrumented.py"]
+    A3["snapshots/fpga_recorder.py<br/>start_forward / record_tensor / record_metadata"]
+    A4["generation_config.json<br/>repetition_penalty = 1.1"]
+  end
+
+  subgraph PATH_B["路径 B · 贴近 FPGA runtime 的显式循环"]
+    direction TB
+    B1["manual_prefill_decode.py<br/>显式 prefill 一次 + decode 逐 token"]
+    B2["只保存 outputs.logits<br/>torch.argmax 直接选 token"]
+    B3["不维护历史 token 集合<br/>不应用 repetition penalty"]
+  end
+
+  subgraph PATH_C["路径 C · 纯 PyTorch 手写实现"]
+    direction TB
+    C1["qwen2_generate.py<br/>decoder_layer / qwen2_forward"]
+    C2["qwen2_module_reference.py<br/>逐算子数学参考"]
+  end
+
+  OUT["qwen25_0p5b_instruct_full_generation_trace/<br/>8 step × 24 layer golden .npy"]
+  CPU["lm_head_cpu_reference.py<br/>CPU 侧 LM Head + penalty + argmax 验证器"]
+
+  A1 --> A2 --> A3 --> OUT
+  A4 --> A1
+  B1 --> B2 --> B3
+  C1 --> C2
+  OUT --> CPU
+  CPU -- "8/8 token<br/>Top-5 5/5" --> V{"PASS"}
+  C2 -. "数学口径参照" .-> CPU
+
+  click A1 "verify.html" "验证闭环"
+  click A3 "trace.html" "Golden Trace"
+  click OUT "trace.html" "Golden Trace"
+  click CPU "verify.html" "验证闭环"
+</div>
+<figcaption>
+图 1　三条参考路径与它们的产物。路径 A 生成了仓库当前的 trace；路径 B 与 FPGA runtime 结构一致但不含
+penalty，两者 token 结果相同；路径 C 用于核对单个算子的数学定义。
+</figcaption>
+</figure>
+
+<h2>模块级参考函数与 FPGA 模块的对应</h2>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart LR
+  subgraph REF["qwen2_module_reference.py"]
+    direction TB
+    R1["rmsnorm()"]
+    R2["linear()"]
+    R3["project_qkv()"]
+    R4["rotate_half()<br/>apply_rotary_pos_emb()"]
+    R5["repeat_kv()"]
+    R6["attention_core()"]
+    R7["attention_output_projection()"]
+    R8["swiglu_mlp()"]
+    R9["lm_head()"]
+    R10["greedy_next_token()"]
+    R11["layer_flow_order()"]
+  end
+
+  subgraph GOLD["golden 文件名"]
+    direction TB
+    G1["attention_rmsnorm_output.npy<br/>mlp_rmsnorm_output.npy"]
+    G2["attention_q/k/v_projection.npy"]
+    G3["attention_q/k_after_rope.npy"]
+    G4["attention_k_repeated_for_gqa.npy"]
+    G5["attention_softmax_weights.npy<br/>attention_qk_scores_after_mask.npy"]
+    G6["attention_output_projection.npy"]
+    G7["mlp_silu_gate_times_up.npy"]
+    G8["mlp_down_projection.npy"]
+    G9["lm_head_vocab_logits.npy"]
+    G10["metadata.json · generated_ids"]
+  end
+
+  R1 --> G1
+  R2 --> G2
+  R3 --> G2
+  R4 --> G3
+  R5 --> G4
+  R6 --> G5
+  R7 --> G6
+  R8 --> G7
+  R8 --> G8
+  R9 --> G9
+  R10 --> G10
+  R11 -. "定义实现顺序" .-> G1
+</div>
+<figcaption>
+图 2　参考函数到 golden 文件的映射。<code>layer_flow_order()</code> 直接给出 README 中 18 步 FPGA 实现顺序，
+是拆分模块时的唯一顺序依据。
+</figcaption>
+</figure>
+
+<h2>LM Head CPU 验证器</h2>
+
+<figure class="diagram">
+<div class="mermaid">
+flowchart LR
+  W["model.embed_tokens.weight.fp16.npy<br/>[151936, 896]"]
+  T["golden trace<br/>8 个 step 目录"]
+  D["discover_steps()"]
+  H["last_hidden_state()<br/>取序列最后一个位置"]
+  C["lm_head_chunked()<br/>默认 4096 词表项一块<br/>FP32 累加"]
+  P["apply_repetition_penalty()<br/>penalty = 1.1"]
+  G["greedy_argmax()<br/>FP16 上比较，平分取较小 token"]
+  M["error_metrics() · top_k_ids()<br/>最大绝对误差 / cosine / Top-5"]
+  R["validate_trace()<br/>输出 PASS / FAIL"]
+
+  W --> C
+  T --> D --> H --> C --> P --> G --> R
+  C --> M --> R
+</div>
+<figcaption>
+图 3　<code>lm_head_cpu_reference.py</code> 的验证链路。argmax 在 <strong>FP16</strong> 输出上执行而不是 FP32 累加器上，
+这是 step 7 能正确选出 token 100013 的关键（100013 与 100048 转 FP16 后同为 20.203125）。
+</figcaption>
+</figure>
+
+<div class="table-scroll">
+<table>
+  <tr><th>文件</th><th>作用</th><th>关键函数</th></tr>
+  <tr><td><code>run_full_generate_trace.py</code></td><td>HF <code>model.generate()</code> 路径的 trace 导出</td><td><code>save_generation_scores()</code></td></tr>
+  <tr><td><code>manual_prefill_decode.py</code></td><td>显式 prefill/decode 循环，接近 FPGA runtime</td><td><code>save_score()</code></td></tr>
+  <tr><td><code>qwen2_generate.py</code></td><td>不依赖 transformers 的手写 Qwen2 前向</td><td><code>decoder_layer()</code>、<code>qwen2_forward()</code></td></tr>
+  <tr><td><code>qwen2_module_reference.py</code></td><td>逐算子数学参考</td><td><code>rmsnorm()</code> … <code>layer_flow_order()</code></td></tr>
+  <tr><td><code>lm_head_cpu_reference.py</code></td><td>模块 16 的 CPU golden 闭环验证</td><td><code>validate_trace()</code></td></tr>
+  <tr><td><code>snapshots/fpga_recorder.py</code></td><td>把张量写成 FPGA 友好命名的 <code>.npy</code></td><td><code>record_tensor()</code></td></tr>
+  <tr><td><code>snapshots/modeling_qwen2_fpga_instrumented.py</code></td><td>插桩后的 Qwen2 模型源码快照</td><td><code>Qwen2MLP</code>、<code>Qwen2RotaryEmbedding</code></td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>H200 复现环境：</strong>conda env <code>/data3/output/conda_envs/qwen25_fpga_transformers</code>，
+模型 <code>/data3/models/Qwen2.5-0.5B-Instruct</code>，插桩 transformers 在 <code>/data3/output/transformers</code>。
+两条路径产出的 generated_ids 完全一致：<code>[104198, 48, 16948, 3837, 67071, 102661, 99718, 100013]</code>。
+</div>
+
+</main>
+
+<footer>
+  <span class="updated">最后更新：2026-09-28</span> ·
+  数据来源：<code>qwen25_0p5b_python_reference/</code> 源码与 <code>MODULE16_LM_HEAD_STAGE1.md</code>
+</footer>
+
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/wiki-init.js"></script>
+</body>
+</html>

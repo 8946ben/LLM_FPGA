@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>工具链 · LLM_FPGA 项目图wiki</title>
+<link rel="stylesheet" href="assets/wiki.css">
+</head>
+<body>
+
+<header class="wiki-header">
+  <div class="bar">
+    <a class="brand" href="index.html">LLM_FPGA 项目图wiki<span>以图为核心</span></a>
+    <nav>
+      <a href="index.html">总览</a>
+      <a href="model.html">模型与权重</a>
+      <a href="trace.html">Golden Trace</a>
+      <a href="python-ref.html">Python 参考</a>
+      <a href="hls.html">HLS 内核</a>
+      <a href="protocol.html">网络协议</a>
+      <a href="fpga.html">上板部署</a>
+      <a href="verify.html">验证闭环</a>
+      <a href="tools.html" class="active">工具链</a>
+      <a href="roadmap.html">ABI V2 路线</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>工具链与测试</h1>
+<p class="lede">
+<code>tools/</code> 里的脚本构成「模型 → golden → fixture → 上板」的完整通路；
+<code>tests/</code> 冻结协议与数值口径；<code>artifacts/</code> 保存被 Git 忽略的大体积中间产物。
+</p>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart LR
+  MODEL["模型目录或 model.safetensors<br/>Qwen2.5-0.5B-Instruct"]
+
+  subgraph T_INSPECT["探查"]
+    direction TB
+    I1["inspect_qwen_model.py<br/>config.json + safetensors 头<br/>打印模块结构与权重 shape"]
+    I2["read_npy.py<br/>打印 shape / dtype / 统计 / 样本值"]
+  end
+
+  subgraph T_BUILD["构建 golden 与 fixture"]
+    direction TB
+    B1["qwen25_0p5b_python_reference/<br/>run_full_generate_trace.py<br/>manual_prefill_decode.py"]
+    B2["prepare_lm_head_hls_fixture.py"]
+    B3["export_lm_head_weight.py"]
+    B4["lm_head_cpu_reference.py"]
+  end
+
+  subgraph T_RUN["上板与回环"]
+    direction TB
+    R1["run_module16_tcp_loopback.py<br/>本机 TCP 回环"]
+    R2["stage_h4_board_small_test.py<br/>4×4 受控上板用例"]
+    R3["run_module16_board_trace.py<br/>真实板卡 8-step"]
+    R4["realFpga/tools/stage_f_board_smoke.py<br/>板卡协议 smoke"]
+    R5["orin_qwen25_smoke.py<br/>Orin 上跑 Qwen2.5-0.5B"]
+  end
+
+  subgraph T_TEST["测试"]
+    direction TB
+    U1["tests/test_lm_head_cpu_reference.py"]
+    U2["tests/test_module16_tcp_protocol.py"]
+  end
+
+  A1["artifacts/<br/>Qwen2.5-0.5B-Instruct/<br/>module16_cpu_logits/<br/>module16_hls_fixtures/step_00..07<br/>model.embed_tokens.weight.fp16.npy"]
+  TRACE["qwen25_0p5b_instruct_full_generation_trace/"]
+
+  MODEL --> I1
+  MODEL --> B1 --> TRACE
+  TRACE --> B2 --> A1
+  MODEL --> B3 --> A1
+  TRACE --> B4 --> A1
+  A1 --> R1
+  A1 --> R2
+  A1 --> R3
+  A1 --> R4
+  A1 --> I2
+  MODEL --> R5
+  B4 --> U1
+  R1 --> U2
+</div>
+<figcaption>
+图 1　脚本之间的数据依赖。所有大体积产物落在被 Git 忽略的 <code>artifacts/</code> 下，
+因此仓库本身只保存 golden trace 与源码，上板前需要先在本地重建 fixture 与权重。
+</figcaption>
+</figure>
+
+<h2>从零到上板的调用顺序</h2>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart TB
+  C0["python -m unittest discover -s tests -v<br/>冻结协议与数值口径"]
+  C1["python qwen25_0p5b_python_reference/lm_head_cpu_reference.py<br/>无需权重，先验证 8 步生成策略"]
+  C2["python tools/export_lm_head_weight.py &lt;模型目录&gt; artifacts/model.embed_tokens.weight.fp16.npy"]
+  C3["python qwen25_0p5b_python_reference/lm_head_cpu_reference.py --weight artifacts/... --output-dir artifacts/module16_cpu_logits<br/>完整矩阵乘闭环"]
+  C4["python tools/prepare_lm_head_hls_fixture.py<br/>生成 step_00..07 fixture"]
+  C5["vitis_hls.bat -f module16_lm_head_hls/run_csim.tcl"]
+  C6["vitis_hls.bat -f module16_lm_head_hls/run_csynth.tcl"]
+  C7["vitis_hls.bat -f module16_lm_head_hls/run_cosim.tcl"]
+  C8["run_export_ip_2021_compat.ps1"]
+  C9["python tools/run_module16_tcp_loopback.py --step 0<br/>不带板卡先跑通协议"]
+  C10["python tools/stage_h4_board_small_test.py<br/>4×4 上板"]
+  C11["python tools/run_module16_board_trace.py --step 0 --load-weight<br/>真实 step 00"]
+  C12["python tools/run_module16_board_trace.py --step 1..7<br/>权重复用"]
+  C13["python tools/run_module16_board_trace.py --step 0<br/>关闭 logits 回传测性能"]
+
+  C0 --> C1 --> C2 --> C3 --> C4 --> C5 --> C6 --> C7 --> C8 --> C9 --> C10 --> C11 --> C12 --> C13
+</div>
+<figcaption>
+图 2　推荐执行顺序。每一步的产物都是下一步的输入，任何一步失败都应在该层定位，
+不要跳到板卡上再回头排查数值问题。
+</figcaption>
+</figure>
+
+<div class="table-scroll">
+<table>
+  <tr><th>脚本</th><th>作用</th><th>关键参数</th></tr>
+  <tr><td><code>tools/inspect_qwen_model.py</code></td><td>读取 config 与 safetensors 头，打印结构与权重 shape</td><td><code>--max-weights</code>、<code>--filter</code></td></tr>
+  <tr><td><code>tools/read_npy.py</code></td><td>通用 <code>.npy</code> 查看器</td><td>—</td></tr>
+  <tr><td><code>tools/export_lm_head_weight.py</code></td><td>从 safetensors 直接导出 tied embedding 权重，不依赖 torch/safetensors 包</td><td>输出固定校验 <code>[151936, 896]</code>、FP16</td></tr>
+  <tr><td><code>tools/prepare_lm_head_hls_fixture.py</code></td><td>把 trace 转成 <code>hidden.fp16.bin</code> / <code>history_bitmap.u32.bin</code> / <code>golden_logits.fp16.bin</code> / <code>expected_token.txt</code></td><td>—</td></tr>
+  <tr><td><code>tools/run_module16_tcp_loopback.py</code></td><td>本机 TCP 回环，用 NumPy 后端替代板端</td><td><code>--step 0..7</code></td></tr>
+  <tr><td><code>tools/stage_h4_board_small_test.py</code></td><td>4×4 受控上板用例，含 penalty 改变 Top-1 的构造</td><td>无需完整权重</td></tr>
+  <tr><td><code>tools/run_module16_board_trace.py</code></td><td>真实板卡 trace 客户端，默认不启用 penalty</td><td><code>--host</code>、<code>--port</code>、<code>--step</code>、<code>--load-weight</code>、<code>--chunk-bytes</code>、<code>--return-logits</code>、<code>--enable-repetition-penalty</code>、<code>--inspect-only</code></td></tr>
+  <tr><td><code>tools/orin_qwen25_smoke.py</code></td><td>在 Jetson Orin 上跑 Qwen2.5-0.5B-Instruct，建立异构基线</td><td><code>--model-path</code>、<code>--prompt</code>、<code>--max-new-tokens</code></td></tr>
+  <tr><td><code>realFpga/tools/stage_f_board_smoke.py</code></td><td>板端 LMH1 协议 smoke：分片帧头、CRC 错误恢复、多帧会话</td><td>—</td></tr>
+  <tr><td><code>tests/test_lm_head_cpu_reference.py</code></td><td>公式、prefill 末位、penalty、argmax tie-break、BF16 读取</td><td>6 项</td></tr>
+  <tr><td><code>tests/test_module16_tcp_protocol.py</code></td><td>帧收发、CRC 拒绝、分块上传、PING/READY</td><td>与前者合计 10 项</td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>fixture 与权重的 SHA-256 必须留档：</strong>260 MiB 权重经过网络与 DDR 后若输出错误，
+第一件要做的事是确认输入文件本身没被替换或损坏，这只能靠事先记录的摘要。
+</div>
+
+<div class="note warn">
+<strong>不要把大文件提交进 Git：</strong><code>artifacts/</code> 已被忽略；
+仓库内另有一个约 80 MB 的 FlightLLM bitstream，低于 GitHub 100 MB 硬限制但高于 50 MB 推荐值，
+继续增大 trace 时建议引入 Git LFS。
+</div>
+
+</main>
+
+<footer>
+  <span class="updated">最后更新：2026-09-28</span> ·
+  数据来源：<code>tools/</code>、<code>tests/</code>、<code>MODULE16_LM_HEAD_STAGE1.md</code>
+</footer>
+
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/wiki-init.js"></script>
+</body>
+</html>

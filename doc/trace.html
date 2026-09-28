@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Golden Trace 数据集 - LLM_FPGA 技术文档</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">LLM_FPGA 教程<small>Qwen2.5-0.5B-Instruct FPGA 推理验证工程</small></div>
+  <div class="search-box">correctness-first · 逐模块对齐 · AXU9EGB</div>
+</div>
+
+<div class="sidebar">
+  <h4>LLM_FPGA 教程</h4>
+  <ul>
+    <li><a href="index.html">1. 项目总览</a></li>
+    <li><a href="model.html">2. 模型结构与权重</a></li>
+    <li><a href="trace.html" class="active">3. Golden Trace 数据集</a></li>
+    <li><a href="python_ref.html">4. Python 参考实现</a></li>
+  </ul>
+  <h4>FPGA 实现</h4>
+  <ul>
+    <li><a href="hls.html">5. HLS 模块设计（模块 16）</a></li>
+    <li><a href="protocol.html">6. LMH1 网络协议</a></li>
+    <li><a href="fpga.html">7. 上板部署（realFpga）</a></li>
+  </ul>
+  <h4>附录</h4>
+  <ul>
+    <li><a href="tools.html">8. 工具链与测试</a></li>
+    <li><a href="resources.html">9. 教程与参考资源</a></li>
+  </ul>
+</div>
+
+<div class="main">
+
+<h1>3. Golden Trace 数据集</h1>
+
+<p>本篇介绍整个工程的「标尺」——<strong>golden trace 数据集</strong>。所有 FPGA 模块（HLS 内核、板端实现）的正确性，都要拿自己的输出和这里的 golden <code>.npy</code> 文件逐项比较。理解了 trace 的组织方式，后面的 Python 参考实现、HLS 模块设计就都顺理成章了。</p>
+
+<h2>什么是 golden trace</h2>
+
+<p>golden trace 是对 <strong>一次完整推理过程的全部中间张量</strong> 的记录。它由<strong>插桩版 HuggingFace Transformers</strong> 生成：修改 <code>modeling_qwen2.py</code>，并配合 <code>fpga_recorder.py</code>，在 FP16 eager 推理的每一步，把 RMSNorm、Q/K/V 投影、RoPE、KV cache、softmax、MLP 等每一个中间量都保存成 <code>.npy</code> 文件。</p>
+
+<div class="note">有了 golden trace，验证 FPGA 模块就不再是「跑一遍看结果像不像」，而是<strong>逐张量、逐 bit 级比对</strong>：任何模块算错了，都能立刻定位到出错的具体算子。</div>
+
+<h2>当前 trace 摘要</h2>
+
+<pre><code>model             = Qwen/Qwen2.5-0.5B-Instruct
+prompt            = 你好，请用一句话介绍你自己。
+input_token_count = 36
+max_new_tokens    = 8
+decode            = greedy（do_sample=False, use_cache=True, attn_implementation=eager）
+response          = 我是Qwen，由阿里云开发
+generated_ids     = [104198, 48, 16948, 3837, 67071, 102661, 99718, 100013]
+files             = 7386
+step_dirs         = 8（1 个 prefill + 7 个 decode）
+layer_dirs        = 192（8 步 × 24 层）</code></pre>
+
+<p>一次生成共 8 步：<strong>1 次 prefill</strong>（一次过完整的 36 个 prompt token）加 <strong>7 次 decode</strong>（每次只算 1 个新 token，KV cache 逐步增长），采用贪心解码（greedy），总共生成 8 个 token。</p>
+
+<h2>目录结构</h2>
+
+<pre><code>qwen25_0p5b_instruct_full_generation_trace/
+├── 00_prefill_full_prompt/          # 完整 prompt 的 prefill forward
+├── 01_decode_token_01/              # 第 1 个 decode 步（KV cache 逐步增长）
+├── 02_decode_token_02/
+├── ...                              # 03 ~ 06 略
+├── 07_decode_token_07/              # 第 7 个 decode 步
+├── generation_token_vocab_logits/   # 每步用于选 token 的 FP32 processed scores（8 个 .npy）
+├── metadata.json                    # prompt、input ids、generated ids、输出文本、trace 元信息
+├── name_mapping.json                # 原始 recorder 文件名 → FPGA 友好文件名映射
+└── flightllm_test_demo/             # FlightLLM FPGA LLM demo 参考工程</code></pre>
+
+<table class="tb">
+  <tr><th>条目</th><th>说明</th></tr>
+  <tr><td><code>00_prefill_full_prompt/</code></td><td>对完整 prompt（36 个 token）做一次 prefill forward，并保存全部中间量</td></tr>
+  <tr><td><code>01_decode_token_01/</code> ~ <code>07_decode_token_07/</code></td><td>逐 token 的 decode 步，每步只输入 1 个 token，KV cache 逐步增长</td></tr>
+  <tr><td><code>generation_token_vocab_logits/</code></td><td>每一步用于选出下一个 token 的 FP32 processed scores，共 8 个 <code>.npy</code></td></tr>
+  <tr><td><code>metadata.json</code></td><td>记录 prompt、input ids、generated ids、输出文本以及 trace 元信息</td></tr>
+  <tr><td><code>name_mapping.json</code></td><td>原始 recorder 文件名到 FPGA 友好文件名的映射表</td></tr>
+  <tr><td><code>flightllm_test_demo/</code></td><td>FlightLLM FPGA LLM demo 参考工程（作为工程组织参考）</td></tr>
+</table>
+
+<h2>每个 step 目录里有什么</h2>
+
+<p>每个 step 目录（prefill 或某个 decode 步）包含该步的<strong>整体输入/输出文件</strong>，以及 24 个 transformer block 的子目录：</p>
+
+<pre><code>00_prefill_full_prompt/
+├── model_input_token_ids.npy        # 本步输入的 token ids
+├── lm_head_input.npy                # lm_head 的输入 hidden state
+├── lm_head_vocab_logits.npy         # lm_head 输出的全词表 logits
+├── final_rmsnorm_input.npy          # 最后一层 RMSNorm 的输入
+├── final_rmsnorm_output.npy         # 最后一层 RMSNorm 的输出
+├── metadata.jsonl                   # 本步的元信息（逐行 JSON）
+├── layer_00_transformer_block/      # 第 0 层 transformer block
+├── layer_01_transformer_block/
+├── ...                              # 02 ~ 22 略
+└── layer_23_transformer_block/      # 第 23 层 transformer block</code></pre>
+
+<p>每个 <code>layer_XX_transformer_block/</code> 子目录里约有 <strong>40 个 <code>.npy</code></strong>，覆盖该层完整的数据流：</p>
+
+<ul>
+  <li>RMSNorm 的输入 / 输出；</li>
+  <li>Q / K / V 投影结果；</li>
+  <li>RoPE 前后的 Q / K（含 cos / sin）；</li>
+  <li>KV cache 更新后的内容；</li>
+  <li>GQA repeat 后的 K / V；</li>
+  <li>加 mask 前后的 attention scores；</li>
+  <li>softmax 后的注意力权重；</li>
+  <li>加权 value 求和（attention 输出）；</li>
+  <li>attention 输出投影、残差相加；</li>
+  <li>MLP 全链路：gate / up 投影、SiLU、gate*up、down 投影。</li>
+</ul>
+
+<h2>golden tensor 形状示例</h2>
+
+<p>下面列出几个典型的 golden tensor 及其形状，帮助你建立对数据规模的直觉：</p>
+
+<table class="tb">
+  <tr><th>张量文件</th><th>所在步骤</th><th>形状</th><th>说明</th></tr>
+  <tr><td><code>model_input_token_ids.npy</code></td><td>prefill</td><td>(1, 36)</td><td>完整 prompt 的 36 个 token id</td></tr>
+  <tr><td><code>layer0/attention_input_after_rmsnorm.npy</code></td><td>prefill</td><td>(1, 36, 896)</td><td>第 0 层 attention 的 RMSNorm 输出（896 维 hidden）</td></tr>
+  <tr><td><code>attention_qk_scores_after_mask.npy</code></td><td>prefill</td><td>(1, 14, 36, 36)</td><td>14 个 Q head，36×36 的因果 mask 后 scores</td></tr>
+  <tr><td><code>attention_k_cache_after_update.npy</code></td><td>prefill</td><td>(1, 2, 36, 64)</td><td>GQA：2 个 KV head，64 维 head_dim</td></tr>
+  <tr><td><code>model_input_token_ids.npy</code></td><td>decode 第 1 步</td><td>(1, 1)</td><td>decode 每步只输入 1 个新 token</td></tr>
+  <tr><td><code>attention_qk_scores_after_mask.npy</code></td><td>decode 第 1 步</td><td>(1, 14, 1, 37)</td><td>KV cache = 36 + 1 = 37</td></tr>
+  <tr><td><code>attention_qk_scores_after_mask.npy</code></td><td>decode 第 7 步</td><td>(1, 14, 1, 43)</td><td>KV cache 增长到 36 + 7 = 43</td></tr>
+  <tr><td><code>prefill_next_token_vocab_logits.npy</code></td><td>generation_token_vocab_logits/</td><td>(1, 151936)</td><td>全词表（151936 词）的 FP32 processed scores</td></tr>
+</table>
+
+<p>注意 decode 步的 scores 最后一维从 <strong>37 增长到 43</strong>——这正是 KV cache 逐步增长的直接体现。</p>
+
+<h2>数据格式说明</h2>
+
+<p>golden trace 全程为 <strong>FP16 推理</strong>（GPU，eager attention）。<code>.npy</code> 文件保持推理时的原始 dtype：</p>
+
+<ul>
+  <li>FP16 张量按 <code>float16</code> 原样存储；</li>
+  <li>BF16 张量在保存时会被转换为 FP32 存储；</li>
+  <li><code>generation_token_vocab_logits/</code> 下用于选 token 的 processed scores 为 FP32。</li>
+</ul>
+
+<h2>FPGA 模块实现顺序（18 步）</h2>
+
+<p>golden trace 逐张量覆盖的特性，决定了 FPGA 模块可以<strong>按数据流顺序逐个实现、逐个对齐</strong>。推荐的实现顺序如下：</p>
+
+<ol>
+  <li>RMSNorm</li>
+  <li>Linear Q/K/V projection</li>
+  <li>RoPE</li>
+  <li>KV cache update</li>
+  <li>GQA KV repeat</li>
+  <li>QK matmul and scale</li>
+  <li>causal mask</li>
+  <li>softmax</li>
+  <li>attention weighted value sum</li>
+  <li>attention output projection</li>
+  <li>residual add</li>
+  <li>MLP RMSNorm</li>
+  <li>MLP gate/up projection</li>
+  <li>SiLU</li>
+  <li>gate*up</li>
+  <li>MLP down projection</li>
+  <li>final RMSNorm</li>
+  <li>lm_head logits</li>
+</ol>
+
+<div class="note">建议第一个验证目标：<code>00_prefill_full_prompt/layer_00_transformer_block/attention_rmsnorm_input.npy</code> 和 <code>attention_rmsnorm_output.npy</code>——即第 0 层 prefill 的 attention RMSNorm。验证节奏：先做 layer 0 prefill，再做 layer 0 decode，最后扩展到全部 24 层。</div>
+
+<h2>注意事项</h2>
+
+<div class="warn">本仓库保存的是 <strong>0.5B 小模型的 demo trace</strong>，不是完整 Qwen2.5-7B 的 trace。golden tensor 的用途是 correctness verification（正确性验证），<strong>性能优化应放在结果对齐之后</strong>。另外，仓库内包含约 80MB 的 FlightLLM bitstream；后续若引入更多大 trace，建议使用 Git LFS 或外部 artifact storage 管理。</div>
+
+<div class="prenext">
+  <span class="prev"><a href="model.html">← 上一篇：2. 模型结构与权重</a></span>
+  <span class="next"><a href="python_ref.html">下一篇：4. Python 参考实现 →</a></span>
+</div>
+
+</div>
+
+<div class="footer">LLM_FPGA 技术文档 · Qwen2.5-0.5B-Instruct FPGA 推理验证工程 · correctness-first</div>
+
+</body>
+</html>

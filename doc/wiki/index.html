@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>项目总览 · LLM_FPGA 项目图wiki</title>
+<link rel="stylesheet" href="assets/wiki.css">
+</head>
+<body>
+
+<header class="wiki-header">
+  <div class="bar">
+    <a class="brand" href="index.html">LLM_FPGA 项目图wiki<span>以图为核心</span></a>
+    <nav>
+      <a href="index.html" class="active">总览</a>
+      <a href="model.html">模型与权重</a>
+      <a href="trace.html">Golden Trace</a>
+      <a href="python-ref.html">Python 参考</a>
+      <a href="hls.html">HLS 内核</a>
+      <a href="protocol.html">网络协议</a>
+      <a href="fpga.html">上板部署</a>
+      <a href="verify.html">验证闭环</a>
+      <a href="tools.html">工具链</a>
+      <a href="roadmap.html">ABI V2 路线</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>LLM_FPGA 项目详细架构图</h1>
+<p class="lede">
+Qwen2.5-0.5B-Instruct 的 FPGA 推理验证工程。目标是 correctness-first：先用 PyTorch 导出逐模块 golden 张量，
+再用 HLS 实现同一模块并逐项对拍，最后在 ALINX AXU9EGB 真实板卡上跑通 8 步 trace。
+图中节点均为仓库中真实存在的文件或模块，点击可进入对应详情页。
+</p>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart TB
+
+  subgraph HOST["入口层 · 上位机 / Orin"]
+    direction LR
+    H1["tools/run_module16_board_trace.py<br/>真实板卡 8-step trace 客户端"]
+    H2["tools/stage_h4_board_small_test.py<br/>4×4 受控上板用例"]
+    H3["tools/run_module16_tcp_loopback.py<br/>TCP 回环回归"]
+    H4["module16_lm_head_hls/net/<br/>cpu_client.py · lmh_protocol.py<br/>fpga_server_emulator.py"]
+    H5["orin_backend/<br/>Orin 异构推理后端"]
+  end
+
+  subgraph DATA["数据与参考层 · golden 与 fixture"]
+    direction LR
+    D1["qwen25_0p5b_instruct_full_generation_trace/<br/>1 prefill + 7 decode × 24 layer<br/>7386 个 .npy"]
+    D2["qwen25_0p5b_python_reference/<br/>run_full_generate_trace.py<br/>manual_prefill_decode.py<br/>qwen2_module_reference.py"]
+    D3["tools/prepare_lm_head_hls_fixture.py<br/>→ artifacts/module16_hls_fixtures/step_00..07"]
+    D4["tools/export_lm_head_weight.py<br/>→ artifacts/model.embed_tokens.weight.fp16.npy"]
+    D5["tools/read_npy.py<br/>tools/inspect_qwen_model.py"]
+  end
+
+  subgraph PS["PS 层 · Cortex-A53 standalone + lwIP"]
+    direction LR
+    P1["main.c · platform.c<br/>平台初始化与自检"]
+    P2["lwip_lm_head_raw_server.c<br/>LMH1 raw TCP server :19016"]
+    P3["lmh_buffers.h + lscript.ld<br/>PS DDR NOLOAD 缓冲区"]
+  end
+
+  subgraph PL["PL 层 · XCZU9EG-2FFVB1156I"]
+    direction LR
+    L1["lm_head_argmax<br/>xilinx.com:hls:lm_head_argmax:1.0<br/>src/lm_head_kernel.cpp"]
+  end
+
+  subgraph MEM["存储层"]
+    direction LR
+    M1["PS DDR4 4 GB · 64-bit<br/>weight 259.66 MiB · hidden 1792 B<br/>history 18992 B · logits 303872 B"]
+    M2["PL DDR4 2 GB · 32-bit<br/>KV Cache（ABI V2 规划）"]
+  end
+
+  subgraph BUILD["构建层 · Vivado / Vitis HLS / Vitis 2021.1"]
+    direction LR
+    B1["module16_lm_head_hls/<br/>run_csim.tcl · run_csynth.tcl · run_cosim.tcl<br/>run_export_ip.tcl"]
+    B2["realFpga/vivado/<br/>create_lm_head_axu9eg_bd.tcl<br/>build_lm_head_axu9eg.tcl"]
+    B3["realFpga/vitis/<br/>create_platform.tcl · build_net_diag.tcl<br/>program_net_diag.tcl"]
+    B4["realFpga/results/<br/>20260724_baseline<br/>20260724_stage_b_ip_export<br/>20260724_stage_c"]
+  end
+
+  D2 --> D1
+  D1 --> D3
+  D4 --> H1
+  D3 --> H1
+  D3 --> H2
+  H1 --> H4
+  H2 --> H4
+  H3 --> H4
+  H5 --> H4
+
+  H4 -- "LMH1 帧 / TCP 19016" --> P2
+  P1 --> P2
+  P2 --> P3
+  P3 -- "AXI-Lite 配置地址与启动" --> L1
+
+  L1 -- "m_axi 读 weight / hidden / history<br/>m_axi 写 raw_logits" --> M1
+  M2 -. "ABI V2 复用规划" .-> L1
+
+  B1 --> L1
+  B2 --> P1
+  B3 --> P2
+  B1 --> B4
+  B2 --> B4
+
+  click H1 "fpga.html" "上板部署"
+  click H2 "fpga.html" "上板部署"
+  click H3 "protocol.html" "LMH1 协议"
+  click H4 "protocol.html" "LMH1 协议"
+  click H5 "roadmap.html" "ABI V2 路线"
+  click D1 "trace.html" "Golden Trace"
+  click D2 "python-ref.html" "Python 参考"
+  click D3 "tools.html" "工具链"
+  click D4 "tools.html" "工具链"
+  click D5 "tools.html" "工具链"
+  click P1 "fpga.html" "上板部署"
+  click P2 "fpga.html" "上板部署"
+  click P3 "fpga.html" "上板部署"
+  click L1 "hls.html" "HLS 内核"
+  click M1 "fpga.html" "上板部署"
+  click M2 "roadmap.html" "ABI V2 路线"
+  click B1 "hls.html" "HLS 内核"
+  click B2 "fpga.html" "上板部署"
+  click B3 "fpga.html" "上板部署"
+  click B4 "verify.html" "验证闭环"
+</div>
+<figcaption>
+图 1　项目分层详细架构。数据自左向右流：Python 参考与 golden trace 产出 fixture 与 FP16 权重，
+经 LMH1 协议入 PS，PS 用 AXI-Lite 启动 PL 的 <code>lm_head_argmax</code>，IP 经 m_axi 直读 PS DDR 完成后回传 token。
+</figcaption>
+</figure>
+
+<div class="legend">
+  <span><span class="swatch" style="background:#eaf3ff;border-color:#8ab4f8"></span>软件 / 主机侧</span>
+  <span><span class="swatch" style="background:#f2f4f7;border-color:#c6d0da"></span>数据与构建产物</span>
+  <span><span class="swatch" style="background:#fff8e5;border-color:#e6c34a"></span>虚线边 = 尚未实现的规划</span>
+</div>
+
+<h2>页面导航</h2>
+
+<div class="table-scroll">
+<table>
+  <tr><th>页面</th><th>核心图</th><th>对应源码 / 目录</th></tr>
+  <tr><td><a href="model.html">模型与权重</a></td><td>Qwen2.5-0.5B 24 层 Transformer block 数据流、tied embedding 结构</td><td><code>Qwen2.5-0.5B-Instruct模型结构.md</code></td></tr>
+  <tr><td><a href="trace.html">Golden Trace</a></td><td>8 step × 24 layer 目录组织与张量形状阶梯</td><td><code>qwen25_0p5b_instruct_full_generation_trace/</code></td></tr>
+  <tr><td><a href="python-ref.html">Python 参考</a></td><td>generate 路径与手写 prefill/decode 路径对照流程</td><td><code>qwen25_0p5b_python_reference/</code></td></tr>
+  <tr><td><a href="hls.html">HLS 内核</a></td><td><code>lm_head_argmax</code> 内部循环、接口与综合性能</td><td><code>module16_lm_head_hls/</code></td></tr>
+  <tr><td><a href="protocol.html">网络协议</a></td><td>LMH1 24 字节帧头、LOAD_WEIGHT / RUN_TOKEN / PING 时序</td><td><code>module16_lm_head_hls/net/</code></td></tr>
+  <tr><td><a href="fpga.html">上板部署</a></td><td>板级拓扑、PS DDR 内存布局、Vivado Block Design 结构</td><td><code>realFpga/</code></td></tr>
+  <tr><td><a href="verify.html">验证闭环</a></td><td>从公式到真实板卡的 6 级验证阶梯与各阶段结论</td><td><code>MODULE16_LM_HEAD_VALIDATION_REPORT.md</code></td></tr>
+  <tr><td><a href="tools.html">工具链</a></td><td>tools / tests / artifacts 依赖关系与调用顺序</td><td><code>tools/</code>、<code>tests/</code></td></tr>
+  <tr><td><a href="roadmap.html">ABI V2 路线</a></td><td>M00–M15 全模块分层与 10-10 交付排期</td><td><code>doc/0924/</code></td></tr>
+</table>
+</div>
+
+</main>
+
+<footer>
+  <span class="updated">最后更新：2026-09-28</span> ·
+  生成自工作区 <code>d:/program/LLM_FPGA</code> ·
+  纯静态站点，双击本页即可离线浏览。
+</footer>
+
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/wiki-init.js"></script>
+</body>
+</html>

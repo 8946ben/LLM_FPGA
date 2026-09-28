@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ASCII"?>
+<sdkproject:SdkProject xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:sdkproject="http://www.xilinx.com/sdkproject" name="lm_head_net_diag" location="D:/program/LLM_FPGA/realFpga/vitis/workspace/lm_head_net_diag" platform="D:/program/LLM_FPGA/realFpga/vitis/workspace/lm_head_axu9eg_platform/export/lm_head_axu9eg_platform/lm_head_axu9eg_platform.xpfm" platformUID="xilinx:::0.0(custom)" systemProject="lm_head_net_diag_system" sysConfig="lm_head_axu9eg_platform" runtime="C/C++" cpu="standalone_domain" cpuInstance="psu_cortexa53_0" os="standalone" mssSignature="0fe6c14dd0878e29c4e5f90a7e7fd966">
+  <configuration name="Debug" id="xilinx.gnu.arm.a53.exe.debug.538116831" dirty="true">
+    <configBuildOptions xsi:type="sdkproject:SdkOptions"/>
+    <lastBuildOptions xsi:type="sdkproject:SdkOptions"/>
+  </configuration>
+  <configuration name="Release" id="xilinx.gnu.arm.a53.exe.release.1808841974" dirty="true">
+    <configBuildOptions xsi:type="sdkproject:SdkOptions"/>
+  </configuration>
+  <template appTemplateName="lwip_echo_server" hasBspSettings="true"/>
+</sdkproject:SdkProject>

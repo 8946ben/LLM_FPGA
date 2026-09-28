@@ -1,0 +1,291 @@
+/* LLM_FPGA 项目图wiki 全站样式
+ * 纯静态、离线可用；图为主体，文字只做注解。
+ */
+
+:root {
+  --bg: #f6f8fa;
+  --panel: #ffffff;
+  --ink: #1f2328;
+  --muted: #59636e;
+  --line: #d1d9e0;
+  --line-soft: #e6ebf0;
+  --accent: #0969da;
+  --accent-soft: #ddf4ff;
+  --warn-bg: #fff8e5;
+  --warn-line: #e6c34a;
+  --ok-bg: #eefbf2;
+  --ok-line: #4ac26b;
+  --radius: 8px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei",
+    "PingFang SC", "Hiragino Sans GB", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+/* ---------- 顶部导航 ---------- */
+
+.wiki-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--line);
+}
+
+.wiki-header .bar {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 10px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 18px;
+}
+
+.wiki-header .brand {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.wiki-header .brand span {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+.wiki-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 2px;
+}
+
+.wiki-header nav a {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.wiki-header nav a:hover { background: var(--line-soft); color: var(--ink); }
+
+.wiki-header nav a.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ---------- 主体 ---------- */
+
+main {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 24px 64px;
+}
+
+h1 {
+  font-size: 25px;
+  margin: 0 0 6px;
+  letter-spacing: -0.2px;
+}
+
+h2 {
+  font-size: 18px;
+  margin: 34px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+
+h3 { font-size: 15px; margin: 22px 0 8px; }
+
+.lede {
+  color: var(--muted);
+  margin: 0 0 22px;
+  max-width: 900px;
+}
+
+p { margin: 8px 0; }
+
+a { color: var(--accent); }
+
+code, kbd, .path {
+  font-family: ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas,
+    "Liberation Mono", monospace;
+  font-size: 0.88em;
+  background: #f0f3f6;
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+pre {
+  background: #0d1117;
+  color: #e6edf3;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: 13px;
+}
+
+/* ---------- 图 ---------- */
+
+figure.diagram {
+  margin: 18px 0 26px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 16px 12px;
+  overflow-x: auto;
+}
+
+figure.diagram .mermaid {
+  margin: 0 auto;
+  text-align: center;
+  min-height: 60px;
+}
+
+figure.diagram figcaption {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+figure.diagram.wide { padding-left: 8px; padding-right: 8px; }
+
+/* ---------- 卡片与网格 ---------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+  margin: 16px 0;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.card h3 { margin-top: 0; }
+
+.card .path { display: inline-block; margin-bottom: 6px; word-break: break-all; }
+
+.card p { color: var(--muted); font-size: 13.5px; margin: 6px 0 0; }
+
+/* ---------- 表格 ---------- */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14px 0;
+  background: var(--panel);
+  font-size: 13.5px;
+}
+
+th, td {
+  border: 1px solid var(--line);
+  padding: 7px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+th { background: #f2f5f8; font-weight: 600; }
+
+td code { white-space: nowrap; }
+
+.table-scroll { overflow-x: auto; }
+
+/* ---------- 提示块 ---------- */
+
+.note {
+  border-left: 4px solid var(--accent);
+  background: var(--accent-soft);
+  padding: 10px 14px;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin: 14px 0;
+  font-size: 14px;
+}
+
+.note.warn {
+  border-left-color: var(--warn-line);
+  background: var(--warn-bg);
+}
+
+.note.ok {
+  border-left-color: var(--ok-line);
+  background: var(--ok-bg);
+}
+
+.note strong { font-weight: 700; }
+
+/* ---------- 图例 ---------- */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 12px 0 4px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.legend span.swatch {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  margin-right: 6px;
+  vertical-align: -1px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+}
+
+/* ---------- 页脚 ---------- */
+
+footer {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 16px 24px 40px;
+  color: var(--muted);
+  font-size: 12.5px;
+  border-top: 1px solid var(--line);
+}
+
+footer .updated { font-weight: 600; color: var(--ink); }
+
+/* ---------- 小屏 ---------- */
+
+@media (max-width: 640px) {
+  main { padding: 18px 14px 48px; }
+  .wiki-header .bar { padding: 8px 14px; }
+  h1 { font-size: 21px; }
+}

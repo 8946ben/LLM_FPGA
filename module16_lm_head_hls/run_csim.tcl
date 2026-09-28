@@ -18,8 +18,8 @@ set_top lm_head_argmax
 add_files [file join $module_dir "src" "lm_head_kernel.cpp"] -cflags "-I[file join $module_dir include]"
 add_files -tb [file join $module_dir "tb" "lm_head_tb.cpp"] -cflags "-I[file join $module_dir include]"
 open_solution -reset solution1
-set_part {xcu280-fsvh2892-2L-e}
-create_clock -period 4 -name default
+set_part {xczu9eg-ffvb1156-2-i}
+create_clock -period 5 -name default
 
 if {$step_index eq "all"} {
     set csim_args [format {--trace-all %s %s} $weight_path $fixture_root]

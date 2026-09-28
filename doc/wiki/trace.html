@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Golden Trace · LLM_FPGA 项目图wiki</title>
+<link rel="stylesheet" href="assets/wiki.css">
+</head>
+<body>
+
+<header class="wiki-header">
+  <div class="bar">
+    <a class="brand" href="index.html">LLM_FPGA 项目图wiki<span>以图为核心</span></a>
+    <nav>
+      <a href="index.html">总览</a>
+      <a href="model.html">模型与权重</a>
+      <a href="trace.html" class="active">Golden Trace</a>
+      <a href="python-ref.html">Python 参考</a>
+      <a href="hls.html">HLS 内核</a>
+      <a href="protocol.html">网络协议</a>
+      <a href="fpga.html">上板部署</a>
+      <a href="verify.html">验证闭环</a>
+      <a href="tools.html">工具链</a>
+      <a href="roadmap.html">ABI V2 路线</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>Golden Trace 数据集</h1>
+<p class="lede">
+<code>qwen25_0p5b_instruct_full_generation_trace/</code> 保存了一次完整生成的逐模块中间量：
+1 次 prefill（36 token）+ 7 次 decode，共 8 个 step，每个 step 24 层，合计 192 个层目录、7386 个文件。
+每个层目录内固定 39 个 <code>.npy</code>，命名与计算图中的算子一一对应。
+</p>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart TB
+  ROOT["qwen25_0p5b_instruct_full_generation_trace/"]
+  ROOT --> S0["00_prefill_full_prompt/<br/>T = 36"]
+  ROOT --> S1["01_decode_token_01/<br/>T = 1"]
+  ROOT --> SD["…<br/>02 … 06"]
+  ROOT --> S7["07_decode_token_07/<br/>T = 1"]
+  ROOT --> G["generation_token_vocab_logits/<br/>模型 generate 返回的 FP32 processed scores"]
+  ROOT --> MD["metadata.json<br/>prompt / input ids / generated ids / 输出文本"]
+  ROOT --> NM["name_mapping.json<br/>recorder 原始名 → FPGA 友好名"]
+  ROOT --> FL["flightllm_test_demo/<br/>上游 FlightLLM 参考工程"]
+
+  S0 --> L0["layer_00_transformer_block/ … layer_23_transformer_block/<br/>每层 39 个 .npy"]
+  S0 --> TOP["step 级文件<br/>model_input_token_ids.npy · position_ids.npy<br/>token_embedding_output.npy<br/>rotary_embedding_cos.npy / sin.npy<br/>final_rmsnorm_input.npy / output.npy<br/>lm_head_input.npy · lm_head_vocab_logits.npy"]
+
+  click G "verify.html" "验证闭环"
+  click L0 "hls.html" "HLS 内核"
+</div>
+<figcaption>
+图 1　trace 目录组织。每个 step 自带 step 级张量（embedding、RoPE 表、final RMSNorm、LM Head 输入与输出），
+层内张量单独成目录，因此任意模块都可以只取自己关心的那一个文件做对拍。
+</figcaption>
+</figure>
+
+<h2>层内 39 个张量的真实计算顺序</h2>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart TB
+  IN["transformer_block_input.npy"]
+
+  subgraph ATT["attention 子模块（对应 FPGA 实现顺序 1–11）"]
+    direction TB
+    A1["attention_rmsnorm_input.npy"]
+    A2["attention_rmsnorm_output.npy<br/>= attention_input_after_rmsnorm.npy"]
+    A3["attention_q_projection.npy<br/>attention_k_projection.npy<br/>attention_v_projection.npy"]
+    A4["attention_q_before_rope.npy<br/>attention_k_before_rope.npy"]
+    A5["attention_rope_cos.npy / attention_rope_sin.npy"]
+    A6["attention_q_after_rope.npy<br/>attention_k_after_rope.npy"]
+    A7["attention_k_cache_after_update.npy<br/>attention_v_cache_after_update.npy"]
+    A8["attention_k_repeated_for_gqa.npy<br/>attention_v_repeated_for_gqa.npy"]
+    A9["attention_qk_scores_before_mask.npy"]
+    A10["attention_qk_scores_after_mask.npy"]
+    A11["attention_softmax_weights.npy<br/>= attention_weights_after_dropout_or_softmax.npy"]
+    A12["attention_weighted_value_sum.npy<br/>attention_value_states.npy"]
+    A13["attention_context_before_output_projection.npy"]
+    A14["attention_output_projection_input.npy"]
+    A15["attention_output_projection.npy"]
+    A16["attention_module_output.npy"]
+    A17["attention_residual_add_output.npy"]
+  end
+
+  subgraph MLP["mlp 子模块（对应 FPGA 实现顺序 12–16）"]
+    direction TB
+    M1["mlp_rmsnorm_input.npy"]
+    M2["mlp_rmsnorm_output.npy<br/>= mlp_input_after_rmsnorm.npy"]
+    M3["mlp_gate_projection.npy<br/>mlp_up_projection.npy"]
+    M4["mlp_silu_gate_activation.npy"]
+    M5["mlp_silu_gate_times_up.npy"]
+    M6["mlp_down_projection.npy"]
+    M7["mlp_module_output.npy"]
+  end
+
+  OUT["transformer_block_output.npy<br/>= 下一层的 transformer_block_input.npy"]
+
+  IN --> A1 --> A2 --> A3 --> A4 --> A5 --> A6 --> A7 --> A8 --> A9 --> A10 --> A11 --> A12 --> A13 --> A14 --> A15 --> A16 --> A17
+  A17 --> M1 --> M2 --> M3 --> M4 --> M5 --> M6 --> M7 --> OUT
+</div>
+<figcaption>
+图 2　层内张量流转。文件名即模块边界，因此 FPGA 每实现一个算子，就能在图中定位到唯一的一个 golden 文件；
+<code>attention_qk_scores_after_mask.npy</code> 这类中间量是定位 softmax / mask 顺序错误的直接证据。
+</figcaption>
+</figure>
+
+<h2>prefill 与 decode 的形状差异</h2>
+
+<figure class="diagram">
+<div class="mermaid">
+flowchart LR
+  P["00_prefill_full_prompt<br/>model_input_token_ids [1, 36]<br/>attention_qk_scores_after_mask [1, 14, 36, 36]<br/>attention_k_cache_after_update [1, 2, 36, 64]"]
+  D1["01_decode_token_01<br/>model_input_token_ids [1, 1]<br/>attention_qk_scores_after_mask [1, 14, 1, 37]"]
+  D7["07_decode_token_07<br/>model_input_token_ids [1, 1]<br/>attention_qk_scores_after_mask [1, 14, 1, 43]"]
+  P -->|"prefill 写入 KV Cache<br/>序列长度 36"| D1
+  D1 -->|"每步 +1，KV Cache 累积"| D7
+</div>
+<figcaption>
+图 3　形状阶梯。query 长度在 decode 时恒为 1，而 key/value 长度随 KV Cache 每步递增，
+这一维之差是本项目最容易实现出错的边界（tile 大小、mask 起点、cache 偏移）。
+</figcaption>
+</figure>
+
+<div class="table-scroll">
+<table>
+  <tr><th>张量</th><th>prefill 形状</th><th>decode 形状</th><th>用途</th></tr>
+  <tr><td><code>model_input_token_ids.npy</code></td><td>(1, 36)</td><td>(1, 1)</td><td>本步输入 token</td></tr>
+  <tr><td><code>token_embedding_output.npy</code></td><td>(1, 36, 896)</td><td>(1, 1, 896)</td><td>embedding 输出</td></tr>
+  <tr><td><code>attention_qk_scores_after_mask.npy</code></td><td>(1, 14, 36, 36)</td><td>(1, 14, 1, 37) … (1, 14, 1, 43)</td><td>mask 后 QK 分数</td></tr>
+  <tr><td><code>attention_k_cache_after_update.npy</code></td><td>(1, 2, 36, 64)</td><td>逐步增长</td><td>KV Cache 更新结果</td></tr>
+  <tr><td><code>lm_head_input.npy</code></td><td>(1, 36, 896)</td><td>(1, 1, 896)</td><td>模块 16 的输入</td></tr>
+  <tr><td><code>lm_head_vocab_logits.npy</code></td><td>(1, 36, 151936)</td><td>(1, 1, 151936)</td><td>FP16 raw LM Head logits（不含 penalty）</td></tr>
+</table>
+</div>
+
+<div class="note warn">
+<strong>两类 logits 不要混用：</strong>step 目录下的 <code>lm_head_vocab_logits.npy</code> 是模型 forward 内部的
+<strong>FP16 raw logits</strong>，不含 repetition penalty；而 <code>generation_token_vocab_logits/</code> 里的是
+<code>model.generate()</code> 返回的 <strong>FP32 processed scores</strong>（已应用 penalty = 1.1）。
+把后者当 raw logits 去验证矩阵乘，会得到约 1.07～2.73 的假误差。
+</div>
+
+<div class="note">
+<strong>verification 口径：</strong>只有 <code>raw_top1 == processed_top1 == metadata.generated_ids</code>
+在本 trace 中同时成立，所以「token 全对」并不能证明 penalty 实现正确 —— 必须单独比完整 scores。
+</div>
+
+</main>
+
+<footer>
+  <span class="updated">最后更新：2026-09-28</span> ·
+  数据来源：<code>qwen25_0p5b_instruct_full_generation_trace/</code> 实际目录与文件清单
+</footer>
+
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/wiki-init.js"></script>
+</body>
+</html>

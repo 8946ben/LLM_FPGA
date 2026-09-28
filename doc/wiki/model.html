@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模型与权重 · LLM_FPGA 项目图wiki</title>
+<link rel="stylesheet" href="assets/wiki.css">
+</head>
+<body>
+
+<header class="wiki-header">
+  <div class="bar">
+    <a class="brand" href="index.html">LLM_FPGA 项目图wiki<span>以图为核心</span></a>
+    <nav>
+      <a href="index.html">总览</a>
+      <a href="model.html" class="active">模型与权重</a>
+      <a href="trace.html">Golden Trace</a>
+      <a href="python-ref.html">Python 参考</a>
+      <a href="hls.html">HLS 内核</a>
+      <a href="protocol.html">网络协议</a>
+      <a href="fpga.html">上板部署</a>
+      <a href="verify.html">验证闭环</a>
+      <a href="tools.html">工具链</a>
+      <a href="roadmap.html">ABI V2 路线</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<h1>模型结构与权重</h1>
+<p class="lede">
+被迁移的模型是 <code>Qwen/Qwen2.5-0.5B-Instruct</code>，权重为 BF16、共 290 个 tensor，
+文件 <code>model.safetensors</code>。<code>tie_word_embeddings=True</code>，所以 <code>lm_head.weight</code>
+只是逻辑名，实际复用 <code>model.embed_tokens.weight</code>。
+</p>
+
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart TB
+  TOK["input_ids<br/>shape [1, T]"]
+  EMB["model.embed_tokens.weight<br/>[151936, 896]<br/>BF16 · 词表行主序"]
+  TOK --> EMB
+
+  subgraph BLK["model.layers[i] · Qwen2DecoderLayer · i = 0 .. 23"]
+    direction TB
+    N1["input_layernorm.weight [896]<br/>RMSNorm"]
+    QKV["self_attn.q_proj [896, 896]<br/>self_attn.k_proj [128, 896]<br/>self_attn.v_proj [128, 896]"]
+    ROPE["q_proj 的 RoPE 位置编码<br/>position_embeddings"]
+    GQA["GQA Attention<br/>14 Q heads / 2 KV heads<br/>head_dim 64 · 每 KV head 服务 7 个 Q head"]
+    KVC["KV Cache<br/>k_cache [1, 2, T, 64]<br/>v_cache [1, 2, T, 64]"]
+    OPROJ["self_attn.o_proj.weight<br/>[896, 896]"]
+    R1["residual add"]
+    N2["post_attention_layernorm.weight [896]<br/>RMSNorm"]
+    GATE["mlp.gate_proj.weight [4864, 896]"]
+    UP["mlp.up_proj.weight [4864, 896]"]
+    SILU["SiLU(gate_proj)"]
+    MUL["逐元素相乘"]
+    DOWN["mlp.down_proj.weight [896, 4864]"]
+    R2["residual add"]
+  end
+
+  EMB --> N1
+  N1 --> QKV
+  QKV -- "q [1,14,T,64]<br/>k/v [1,2,T,64]" --> ROPE
+  ROPE --> GQA
+  GQA -. "decode 时追加当前 k/v" .-> KVC
+  KVC -. "读取历史 k/v" .-> GQA
+  GQA --> OPROJ
+  OPROJ --> R1
+  N1 -. "attn 前残差" .-> R1
+  R1 --> N2
+  N2 --> GATE
+  N2 --> UP
+  GATE --> SILU
+  SILU --> MUL
+  UP --> MUL
+  MUL --> DOWN
+  DOWN --> R2
+  R1 -. "mlp 前残差" .-> R2
+
+  NORMF["model.norm.weight [896]<br/>final RMSNorm"]
+  LOGITS["lm_head logits [1, T, 151936]<br/>FP16 raw logits"]
+  POLICY["RepetitionPenalty(1.1)<br/>generation_config.json"]
+  ARGMAX["greedy argmax<br/>→ selected_token"]
+
+  R2 --> NORMF
+  NORMF --> LOGITS
+  LOGITS --> POLICY
+  POLICY --> ARGMAX
+
+  click N1 "hls.html" "HLS 内核（模块 16 之后的模块）"
+  click LOGITS "hls.html" "模块 16"
+  click ARGMAX "hls.html" "模块 16"
+</div>
+<figcaption>
+图 1　单层 Transformer block 的真实权重名与张量形状，以及 LM Head 到 token 选择的收尾链路。
+图中形状为 prefill（T = 36）时的值；decode 时 T = 1，KV Cache 沿序列维追加。
+</figcaption>
+</figure>
+
+<h2>关键常量</h2>
+
+<div class="table-scroll">
+<table>
+  <tr><th>项</th><th>值</th><th>说明</th></tr>
+  <tr><td>num_hidden_layers</td><td>24</td><td><code>layer_00</code> … <code>layer_23</code></td></tr>
+  <tr><td>hidden_size</td><td>896</td><td>激活宽度，也是 LM Head 的 inner dim</td></tr>
+  <tr><td>num_attention_heads</td><td>14</td><td>每个 head 64 维</td></tr>
+  <tr><td>num_key_value_heads</td><td>2</td><td>GQA，group size = 7</td></tr>
+  <tr><td>head_dim</td><td>64</td><td>14 × 64 = 896</td></tr>
+  <tr><td>intermediate_size</td><td>4864</td><td>SwiGLU 中间维</td></tr>
+  <tr><td>vocab_size</td><td>151936</td><td>embedding / lm_head 行数</td></tr>
+  <tr><td>max_position_embeddings</td><td>32768</td><td>当前 trace 只用到 43</td></tr>
+  <tr><td>torch_dtype</td><td>bfloat16</td><td>trace 执行期 LM Head 输出转 FP16</td></tr>
+</table>
+</div>
+
+<h2>tied embedding 与 LM Head 权重导出</h2>
+
+<figure class="diagram">
+<div class="mermaid">
+flowchart LR
+  M["model.safetensors<br/>BF16 · 290 tensors<br/>988097824 bytes"]
+  E["model.embed_tokens.weight<br/>[151936, 896]"]
+  L["lm_head.weight<br/>逻辑名，文件中不存在"]
+  X["tools/export_lm_head_weight.py<br/>直接从 safetensors 头解析<br/>不依赖 torch / safetensors 包"]
+  A["artifacts/model.embed_tokens.weight.fp16.npy<br/>272269440 bytes<br/>FP16 · [151936, 896]"]
+
+  M -- "tie_word_embeddings=True" --> E
+  M -. "查找会失败" .-> L
+  E --> X
+  L -. "不应查找" .-> X
+  X --> A
+  click X "tools.html" "工具链"
+</div>
+<figcaption>
+图 2　LM Head 权重导出路径。因为 <code>tie_word_embeddings=True</code>，必须取
+<code>model.embed_tokens.weight</code>；导出脚本会校验 shape 必须为 <code>[151936, 896]</code> 并输出 FP16。
+</figcaption>
+</figure>
+
+<div class="note warn">
+<strong>易错点：</strong>导出时若按 <code>lm_head.weight</code> 去 <code>model.safetensors</code> 里查找会直接失败。
+<code>lm_head</code> 在 Qwen2.5-0.5B 中只存在于逻辑结构中，权重物理上只有 embedding 那一份。
+</div>
+
+<div class="note">
+<strong>数值口径：</strong>FPGA 内核按 FP16 权重 × FP16 hidden、FP32 累加计算，输出转回 FP16 raw logits，
+因此 golden 也必须按同一口径转换后再比对，不能拿 BF16 权重直接对拍。
+</div>
+
+</main>
+
+<footer>
+  <span class="updated">最后更新：2026-09-28</span> ·
+  数据来源：<code>Qwen2.5-0.5B-Instruct模型结构.md</code>、<code>tools/inspect_qwen_model.py</code>
+</footer>
+
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/wiki-init.js"></script>
+</body>
+</html>

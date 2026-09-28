@@ -7,3 +7,36 @@ Thumbs.db
 artifacts/
 module16_lm_head_hls/build/
 vitis_hls.log
+
+# ---- Vivado / Vitis 运行日志与缓存 ----
+.Xil/
+vivado*.jou
+vivado*.log
+webtalk*.jou
+webtalk*.log
+*.backup.jou
+*.backup.log
+
+# ---- Vivado 工程构建产物（保留 Tcl 脚本与读写报告） ----
+realFpga/vivado/build/
+ref/rmsnorm_axu9eg/
+
+# ---- Vitis 工作区生成物（lm_head_net_diag/src 源码除外） ----
+realFpga/vitis/workspace/.metadata/
+realFpga/vitis/workspace/.analytics
+realFpga/vitis/workspace/IDE.log
+realFpga/vitis/workspace/*/Debug/
+realFpga/vitis/workspace/*/_ide/
+realFpga/vitis/workspace/*/tempdsa/
+realFpga/vitis/workspace/*/export/
+realFpga/vitis/workspace/*/hw/
+realFpga/vitis/workspace/*/logs/
+realFpga/vitis/workspace/*/zynqmp_fsbl/
+realFpga/vitis/workspace/*/zynqmp_pmufw/
+realFpga/vitis/workspace/*/psu_cortexa53_0/
+
+# ---- 编译与索引产物 ----
+*.o
+*.d
+*.pdom
+*.bit

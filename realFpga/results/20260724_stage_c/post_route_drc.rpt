@@ -1,0 +1,142 @@
+Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
+-----------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2021.1 (win64) Build 3247384 Thu Jun 10 19:36:33 MDT 2021
+| Date         : Sat Jul 25 08:44:27 2026
+| Host         : LAPTOP-NHABUFB2 running 64-bit major release  (build 9200)
+| Command      : report_drc -file D:/program/LLM_FPGA/realFpga/results/20260724_stage_c/post_route_drc.rpt
+| Design       : lm_head_system_wrapper
+| Device       : xczu9eg-ffvb1156-2-i
+| Speed File   : -2
+| Design State : Fully Routed
+-----------------------------------------------------------------------------------------------------------
+
+Report DRC
+
+Table of Contents
+-----------------
+1. REPORT SUMMARY
+2. REPORT DETAILS
+
+1. REPORT SUMMARY
+-----------------
+            Netlist: netlist
+          Floorplan: impl_1
+      Design limits: <entire design considered>
+           Ruledeck: default
+             Max violations: <unlimited>
+             Violations found: 20
++----------+----------+---------------------------------------------------------------------+------------+
+| Rule     | Severity | Description                                                         | Violations |
++----------+----------+---------------------------------------------------------------------+------------+
+| AVAL-318 | Warning  | DSP_dynamic_PCIN_tieoff_only_on_bottom_sites                        | 1          |
+| DPIP-2   | Warning  | Input pipelining                                                    | 5          |
+| DPOP-3   | Warning  | PREG Output pipelining                                              | 6          |
+| DPOP-4   | Warning  | MREG Output pipelining                                              | 2          |
+| DPREG-7  | Warning  | DSP48E2_PregDynOpmodeZmuxP:                                         | 1          |
+| AVAL-155 | Advisory | enum_AMULTSEL_BMULTSEL_enum_DREG_ADREG_0_connects_CED_CEAD_RSTD_GND | 4          |
+| AVAL-156 | Advisory | enum_USE_MULT_NONE__enum_DREG_ADREG_0_connects_CED_CEAD_RSTD_GND    | 1          |
++----------+----------+---------------------------------------------------------------------+------------+
+
+2. REPORT DETAILS
+-----------------
+AVAL-318#1 Warning
+DSP_dynamic_PCIN_tieoff_only_on_bottom_sites  
+The DSP48E2 lm_head_system_i/lm_head_argmax_0/inst/grp_lm_head_argmax_Pipeline_dot_product_fu_377/fadd_32ns_32ns_32_8_full_dsp_1_U5/lm_head_argmax_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP is not placed on a bottom site of the device, has OPMODE[5:4] driven by active nets (value '01' uses PCIN bus), and ties some or all of its PCIN bus pin(s) to GND, but that connectivity is only available for the bottom DSP site. Care should be taken for the effect on that PCIN if the DSP site below it is used.
+Related violations: <none>
+
+DPIP-2#1 Warning
+Input pipelining  
+DSP lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP input lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#2 Warning
+Input pipelining  
+DSP lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP input lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#3 Warning
+Input pipelining  
+DSP lm_head_system_i/lm_head_argmax_0/inst/grp_lm_head_argmax_Pipeline_dot_product_fu_377/fadd_32ns_32ns_32_8_full_dsp_1_U5/lm_head_argmax_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP input lm_head_system_i/lm_head_argmax_0/inst/grp_lm_head_argmax_Pipeline_dot_product_fu_377/fadd_32ns_32ns_32_8_full_dsp_1_U5/lm_head_argmax_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#4 Warning
+Input pipelining  
+DSP lm_head_system_i/lm_head_argmax_0/inst/grp_lm_head_argmax_Pipeline_dot_product_fu_377/fadd_32ns_32ns_32_8_full_dsp_1_U5/lm_head_argmax_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP input lm_head_system_i/lm_head_argmax_0/inst/grp_lm_head_argmax_Pipeline_dot_product_fu_377/fadd_32ns_32ns_32_8_full_dsp_1_U5/lm_head_argmax_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-2#5 Warning
+Input pipelining  
+DSP lm_head_system_i/lm_head_argmax_0/inst/grp_lm_head_argmax_Pipeline_dot_product_fu_377/fadd_32ns_32ns_32_8_full_dsp_1_U5/lm_head_argmax_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP input lm_head_system_i/lm_head_argmax_0/inst/grp_lm_head_argmax_Pipeline_dot_product_fu_377/fadd_32ns_32ns_32_8_full_dsp_1_U5/lm_head_argmax_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPOP-3#1 Warning
+PREG Output pipelining  
+DSP lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP output lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP/PATTERNDETECT is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-3#2 Warning
+PREG Output pipelining  
+DSP lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP output lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP/CARRYOUT[3:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-3#3 Warning
+PREG Output pipelining  
+DSP lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP output lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-3#4 Warning
+PREG Output pipelining  
+DSP lm_head_system_i/lm_head_argmax_0/inst/grp_lm_head_argmax_Pipeline_dot_product_fu_377/fadd_32ns_32ns_32_8_full_dsp_1_U5/lm_head_argmax_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP output lm_head_system_i/lm_head_argmax_0/inst/grp_lm_head_argmax_Pipeline_dot_product_fu_377/fadd_32ns_32ns_32_8_full_dsp_1_U5/lm_head_argmax_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP/PATTERNDETECT is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-3#5 Warning
+PREG Output pipelining  
+DSP lm_head_system_i/lm_head_argmax_0/inst/grp_lm_head_argmax_Pipeline_dot_product_fu_377/fadd_32ns_32ns_32_8_full_dsp_1_U5/lm_head_argmax_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP output lm_head_system_i/lm_head_argmax_0/inst/grp_lm_head_argmax_Pipeline_dot_product_fu_377/fadd_32ns_32ns_32_8_full_dsp_1_U5/lm_head_argmax_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-3#6 Warning
+PREG Output pipelining  
+DSP lm_head_system_i/lm_head_argmax_0/inst/grp_lm_head_argmax_Pipeline_dot_product_fu_377/fadd_32ns_32ns_32_8_full_dsp_1_U5/lm_head_argmax_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP output lm_head_system_i/lm_head_argmax_0/inst/grp_lm_head_argmax_Pipeline_dot_product_fu_377/fadd_32ns_32ns_32_8_full_dsp_1_U5/lm_head_argmax_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-4#1 Warning
+MREG Output pipelining  
+DSP lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP multiplier stage lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP/PATTERNDETECT is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-4#2 Warning
+MREG Output pipelining  
+DSP lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP multiplier stage lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPREG-7#1 Warning
+DSP48E2_PregDynOpmodeZmuxP:  
+The DSP48E2 cell lm_head_system_i/lm_head_argmax_0/inst/grp_lm_head_argmax_Pipeline_dot_product_fu_377/fadd_32ns_32ns_32_8_full_dsp_1_U5/lm_head_argmax_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP with the given dynamic OPMODE[8:0] connections may lead to an unregistered asynchronous feedback path without the PREG attribute enabled. Please refer to the user guide and if one of the internal P feedback opmodes is possible for this design the PREG attribute must be set to 1, currently set to 0
+Related violations: <none>
+
+AVAL-155#1 Advisory
+enum_AMULTSEL_BMULTSEL_enum_DREG_ADREG_0_connects_CED_CEAD_RSTD_GND  
+lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP: DSP48E2 is not using the D port (AMULTSEL = A and BMULTSEL = B). For improved power characteristics, set DREG and ADREG to '1', tie CED, CEAD, and RSTD to logic '0'.
+Related violations: <none>
+
+AVAL-155#2 Advisory
+enum_AMULTSEL_BMULTSEL_enum_DREG_ADREG_0_connects_CED_CEAD_RSTD_GND  
+lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP: DSP48E2 is not using the D port (AMULTSEL = A and BMULTSEL = B). For improved power characteristics, set DREG and ADREG to '1', tie CED, CEAD, and RSTD to logic '0'.
+Related violations: <none>
+
+AVAL-155#3 Advisory
+enum_AMULTSEL_BMULTSEL_enum_DREG_ADREG_0_connects_CED_CEAD_RSTD_GND  
+lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP: DSP48E2 is not using the D port (AMULTSEL = A and BMULTSEL = B). For improved power characteristics, set DREG and ADREG to '1', tie CED, CEAD, and RSTD to logic '0'.
+Related violations: <none>
+
+AVAL-155#4 Advisory
+enum_AMULTSEL_BMULTSEL_enum_DREG_ADREG_0_connects_CED_CEAD_RSTD_GND  
+lm_head_system_i/lm_head_argmax_0/inst/grp_lm_head_argmax_Pipeline_dot_product_fu_377/fadd_32ns_32ns_32_8_full_dsp_1_U5/lm_head_argmax_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP: DSP48E2 is not using the D port (AMULTSEL = A and BMULTSEL = B). For improved power characteristics, set DREG and ADREG to '1', tie CED, CEAD, and RSTD to logic '0'.
+Related violations: <none>
+
+AVAL-156#1 Advisory
+enum_USE_MULT_NONE__enum_DREG_ADREG_0_connects_CED_CEAD_RSTD_GND  
+lm_head_system_i/lm_head_argmax_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U16/lm_head_argmax_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP: DSP48E2 is not using the Multiplier (USE_MULT = NONE). For improved power characteristics, set DREG and ADREG to '1', tie CED, CEAD, and RSTD to logic '0'.
+Related violations: <none>
+
+

@@ -1,0 +1,56 @@
+#-----------------------------------------------------------
+# Vivado v2021.1 (64-bit)
+# SW Build 3247384 on Thu Jun 10 19:36:33 MDT 2021
+# IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
+# Start of session at: Fri Jul 24 18:24:45 2026
+# Process ID: 56808
+# Current directory: D:/program/LLM_FPGA
+# Command line: vivado.exe -mode batch -nojournal -log D:\program\LLM_FPGA\realFpga\results\20260724_stage_c\build_bitstream_attempt2.log -source D:\program\LLM_FPGA\realFpga\vivado\build_lm_head_axu9eg.tcl
+# Log file: D:/program/LLM_FPGA/realFpga/results/20260724_stage_c/build_bitstream_attempt2.log
+# Journal file: 
+#-----------------------------------------------------------
+source {D:\program\LLM_FPGA\realFpga\vivado\build_lm_head_axu9eg.tcl}
+# set script_dir [file normalize [file dirname [info script]]]
+# set project_dir [file normalize [file join $script_dir "build" "lm_head_axu9eg"]]
+# set project_file [file join $project_dir "lm_head_axu9eg.xpr"]
+# set result_dir [file normalize [file join $script_dir ".." "results" \
+#     "20260724_stage_c"]]
+# file mkdir $result_dir
+# if {![file exists $project_file]} {
+#     error "Vivado project is missing; run create_lm_head_axu9eg_bd.tcl first: $project_file"
+# }
+# open_project $project_file
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1700] Loaded user IP repository 'd:/program/LLM_FPGA/module16_lm_head_hls/build/lm_head_export/solution1/impl/ip'.
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'D:/install/Xilinx/Vivado/2021.1/data/ip'.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_zynq_ultra_ps_e_0_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_zynq_ultra_ps_e_0_0/lm_head_system_zynq_ultra_ps_e_0_0.dcp'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_zynq_ultra_ps_e_0_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_zynq_ultra_ps_e_0_0/lm_head_system_zynq_ultra_ps_e_0_0_stub.v'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_zynq_ultra_ps_e_0_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_zynq_ultra_ps_e_0_0/lm_head_system_zynq_ultra_ps_e_0_0_stub.vhdl'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_zynq_ultra_ps_e_0_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_zynq_ultra_ps_e_0_0/lm_head_system_zynq_ultra_ps_e_0_0_sim_netlist.v'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_zynq_ultra_ps_e_0_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_zynq_ultra_ps_e_0_0/lm_head_system_zynq_ultra_ps_e_0_0_sim_netlist.vhdl'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_lm_head_argmax_0_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_lm_head_argmax_0_0/lm_head_system_lm_head_argmax_0_0.dcp'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_lm_head_argmax_0_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_lm_head_argmax_0_0/lm_head_system_lm_head_argmax_0_0_stub.v'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_lm_head_argmax_0_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_lm_head_argmax_0_0/lm_head_system_lm_head_argmax_0_0_stub.vhdl'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_lm_head_argmax_0_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_lm_head_argmax_0_0/lm_head_system_lm_head_argmax_0_0_sim_netlist.v'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_lm_head_argmax_0_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_lm_head_argmax_0_0/lm_head_system_lm_head_argmax_0_0_sim_netlist.vhdl'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_axi_smc_ctrl_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_axi_smc_ctrl_0/lm_head_system_axi_smc_ctrl_0.dcp'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_axi_smc_ctrl_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_axi_smc_ctrl_0/lm_head_system_axi_smc_ctrl_0_stub.v'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_axi_smc_ctrl_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_axi_smc_ctrl_0/lm_head_system_axi_smc_ctrl_0_stub.vhdl'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_axi_smc_ctrl_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_axi_smc_ctrl_0/lm_head_system_axi_smc_ctrl_0_sim_netlist.v'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_axi_smc_ctrl_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_axi_smc_ctrl_0/lm_head_system_axi_smc_ctrl_0_sim_netlist.vhdl'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_axi_smc_mem_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_axi_smc_mem_0/lm_head_system_axi_smc_mem_0.dcp'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_axi_smc_mem_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_axi_smc_mem_0/lm_head_system_axi_smc_mem_0_stub.v'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_axi_smc_mem_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_axi_smc_mem_0/lm_head_system_axi_smc_mem_0_stub.vhdl'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_axi_smc_mem_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_axi_smc_mem_0/lm_head_system_axi_smc_mem_0_sim_netlist.v'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_axi_smc_mem_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_axi_smc_mem_0/lm_head_system_axi_smc_mem_0_sim_netlist.vhdl'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_rst_ps8_0_100M_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_rst_ps8_0_100M_0/lm_head_system_rst_ps8_0_100M_0.dcp'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_rst_ps8_0_100M_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_rst_ps8_0_100M_0/lm_head_system_rst_ps8_0_100M_0_stub.v'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_rst_ps8_0_100M_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_rst_ps8_0_100M_0/lm_head_system_rst_ps8_0_100M_0_stub.vhdl'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_rst_ps8_0_100M_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_rst_ps8_0_100M_0/lm_head_system_rst_ps8_0_100M_0_sim_netlist.v'. Please regenerate to continue.
+WARNING: [IP_Flow 19-3664] IP 'lm_head_system_rst_ps8_0_100M_0' generated file not found 'd:/program/LLM_FPGA/realFpga/vivado/build/lm_head_axu9eg/lm_head_axu9eg.gen/sources_1/bd/lm_head_system/ip/lm_head_system_rst_ps8_0_100M_0/lm_head_system_rst_ps8_0_100M_0_sim_netlist.vhdl'. Please regenerate to continue.
+open_project: Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 1282.238 ; gain = 0.000
+# launch_runs synth_1 -jobs 4
+ERROR: [Common 17-69] Command failed:  Run 'synth_1' needs to be reset before launching. The run can be reset using the Tcl command 'reset_run synth_1'.
+INFO: [Common 17-206] Exiting Vivado at Fri Jul 24 18:24:58 2026...

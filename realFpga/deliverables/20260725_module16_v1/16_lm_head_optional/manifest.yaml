@@ -1,0 +1,121 @@
+module:
+  name: lm_head_argmax
+  owner: zb
+  status: ps-tested
+  target_model: Qwen2.5-0.5B-Instruct
+  target_board: AXU9EGB
+  target_part: xczu9eg-ffvb1156-2-i
+  tools_version: "2021.1"
+  supports:
+    prefill: true
+    decode: true
+  notes:
+    - The interface consumes one final-token hidden vector per invocation.
+    - Repetition penalty is supported per request and disabled by default by the host client.
+
+# Compatibility summary fields consumed by tools/validate_ip_manifest.py.
+name: lm_head_argmax
+top_function: lm_head_argmax
+control_interface: s_axi_control
+data_interfaces:
+  - m_axi_gmem_hidden
+  - m_axi_gmem_weight
+  - m_axi_gmem_history
+  - m_axi_gmem_logits
+dtype: fp16_le
+
+hls:
+  top_function: lm_head_argmax
+  source_files:
+    - hls/src/lm_head_kernel.cpp
+    - hls/include/lm_head_kernel.hpp
+  testbench: hls/tb/lm_head_tb.cpp
+  ip_repository: ip_repo/lm_head_argmax/
+  vlnv: xilinx.com:hls:lm_head_argmax:1.0
+
+interfaces:
+  control: s_axi_control
+  control_base_address: "0xA0000000"
+  data:
+    - port: m_axi_gmem_hidden
+      meaning: final-token hidden state
+    - port: m_axi_gmem_weight
+      meaning: tied embedding / LM Head weight
+    - port: m_axi_gmem_history
+      meaning: token-seen bitmap for optional repetition penalty
+    - port: m_axi_gmem_logits
+      meaning: optional full raw vocabulary logits
+
+tensors:
+  inputs:
+    - name: hidden
+      shape: "[896]"
+      dtype: fp16_le
+      layout: contiguous
+    - name: weight
+      shape: "[151936, 896]"
+      dtype: fp16_le
+      layout: row_major_token_hidden
+    - name: history_bitmap
+      shape: "[4748]"
+      dtype: uint32_le
+      layout: token_id_div_32_bitset
+  outputs:
+    - name: raw_logits
+      shape: "[151936]"
+      dtype: fp16_le
+      layout: contiguous
+      optional: true
+    - name: selected_token
+      shape: scalar
+      dtype: uint32
+      layout: register
+    - name: selected_score
+      shape: scalar
+      dtype: fp32
+      layout: register
+
+registers:
+  required:
+    - ap_start
+    - ap_done
+  arguments:
+    - {name: hidden, width: 64, offset: "0x10"}
+    - {name: weight, width: 64, offset: "0x1c"}
+    - {name: history_bitmap, width: 64, offset: "0x28"}
+    - {name: raw_logits, width: 64, offset: "0x34"}
+    - {name: hidden_size, width: 32, offset: "0x40"}
+    - {name: vocab_size, width: 32, offset: "0x48"}
+    - {name: write_logits, width: 32, offset: "0x50"}
+    - {name: enable_repetition_penalty, width: 32, offset: "0x58"}
+    - {name: repetition_penalty, width: 32, offset: "0x60"}
+    - {name: selected_token, width: 32, offset: "0x68"}
+    - {name: selected_score, width: 32, offset: "0x78"}
+
+network:
+  protocol: LMH1
+  transport: TCP
+  version: 1
+  default_host: 192.168.8.190
+  default_port: 19016
+  opcodes:
+    load_weight: 1
+    run_token: 2
+    ping: 3
+
+tests:
+  golden_trace_root: ../../integration_tests/golden_traces/qwen25_0p5b_instruct_full_generation_trace
+  fixture_root: artifacts/module16_hls_fixtures
+  tolerance:
+    raw_logits_atol: 0.02
+    processed_scores_atol: 0.02
+  passed:
+    hls_csim_steps: 8
+    rtl_cosim_transactions: 1
+    real_board_steps_penalty_off: 8
+    real_board_steps_penalty_on: 8
+
+reports:
+  hls_report: reports/hls/
+  vivado_report: reports/vivado/
+  board_acceptance: reports/BOARD_ACCEPTANCE.md

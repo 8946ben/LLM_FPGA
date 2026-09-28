@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HLS 模块设计（模块 16） - LLM_FPGA 技术文档</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">LLM_FPGA 教程<small>Qwen2.5-0.5B-Instruct FPGA 推理验证工程</small></div>
+  <div class="search-box">correctness-first · 逐模块对齐 · AXU9EGB</div>
+</div>
+
+<div class="sidebar">
+  <h4>LLM_FPGA 教程</h4>
+  <ul>
+    <li><a href="index.html">1. 项目总览</a></li>
+    <li><a href="model.html">2. 模型结构与权重</a></li>
+    <li><a href="trace.html">3. Golden Trace 数据集</a></li>
+    <li><a href="python_ref.html">4. Python 参考实现</a></li>
+  </ul>
+  <h4>FPGA 实现</h4>
+  <ul>
+    <li><a href="hls.html" class="active">5. HLS 模块设计（模块 16）</a></li>
+    <li><a href="protocol.html">6. LMH1 网络协议</a></li>
+    <li><a href="fpga.html">7. 上板部署（realFpga）</a></li>
+  </ul>
+  <h4>附录</h4>
+  <ul>
+    <li><a href="tools.html">8. 工具链与测试</a></li>
+    <li><a href="resources.html">9. 教程与参考资源</a></li>
+  </ul>
+</div>
+
+<div class="main">
+
+<h1>5. HLS 模块设计（模块 16）</h1>
+
+<p>本章介绍模块 16（LM Head）的 Vitis HLS 实现，对应目录 <code>module16_lm_head_hls/</code>。模块 16 是推理链的最后一环：把 <strong>896 维 hidden 向量</strong>与 <strong>151936×896 的权重矩阵</strong>相乘得到词表 logits，再施加 repetition penalty，最后 argmax 选出下一个 token。</p>
+
+<div class="warn">RMSNorm <strong>不在</strong>本模块内，本模块只做「线性层 + penalty + argmax」三件事。另外 Qwen2.5-0.5B 的 lm_head 与 embed_tokens 共享权重（tied weights），权重文件即 <code>artifacts/model.embed_tokens.weight.fp16.npy</code>，约 260MB。</div>
+
+<h2>目录结构</h2>
+<table class="tb">
+  <tr><th>路径</th><th>说明</th></tr>
+  <tr><td><code>include/lm_head_kernel.hpp</code></td><td>顶层函数声明与常量定义</td></tr>
+  <tr><td><code>src/lm_head_kernel.cpp</code></td><td>唯一可综合源文件</td></tr>
+  <tr><td><code>tb/lm_head_tb.cpp</code></td><td>csim / cosim 共用的 testbench</td></tr>
+  <tr><td><code>net/</code></td><td>Python TCP 协议层：<code>lmh_protocol.py</code>（111 行）、<code>cpu_client.py</code>（145 行）、<code>fpga_server_emulator.py</code>（231 行）。纯仿真集成层，与 HLS 内核解耦</td></tr>
+  <tr><td><code>build/</code></td><td>4 个 HLS 工程输出：csim / cosim / csynth / export</td></tr>
+  <tr><td><code>run_csim.tcl</code> / <code>run_cosim.tcl</code> / <code>run_csynth.tcl</code> / <code>run_export_ip.tcl</code></td><td>四个仿真/综合/导出脚本</td></tr>
+  <tr><td><code>run_export_ip_2021_compat.ps1</code></td><td>修复 Vitis HLS 2021.1 导出 IP 时 core_revision 溢出的问题</td></tr>
+  <tr><td><code>NETWORK_PROTOCOL.md</code></td><td>LMH1 网络协议文档（见第 6 章）</td></tr>
+  <tr><td><code>SIMULATION_REPORT.md</code></td><td>仿真验证报告</td></tr>
+  <tr><td><code>lm_head_verilog_diagram.html</code></td><td>RTL 结构图（可视化）</td></tr>
+</table>
+
+<h2>顶层函数与接口</h2>
+<p>内核以 <code>extern "C"</code> 导出，4 个内存指针各自映射到一路独立的 <code>m_axi</code> bundle，互不抢带宽：</p>
+<table class="tb">
+  <tr><th>参数</th><th>m_axi bundle</th><th>depth</th><th>备注</th></tr>
+  <tr><td><code>hidden</code></td><td>gmem_hidden</td><td>896</td><td>输入 hidden 向量（FP16）</td></tr>
+  <tr><td><code>weight</code></td><td>gmem_weight</td><td>136134656 = 151936×896 个 half</td><td>带 <code>max_read_burst_length=256</code>、<code>num_read_outstanding=16</code></td></tr>
+  <tr><td><code>history_bitmap</code></td><td>gmem_history</td><td>4748 个 u32 word</td><td>已生成 token 的位图</td></tr>
+  <tr><td><code>raw_logits</code></td><td>gmem_logits</td><td>151936</td><td>输出词表 logits（FP16）</td></tr>
+</table>
+<p>所有指针地址、标量参数以及 <code>return</code> 统一挂在 <code>s_axilite bundle=control</code> 上，由 PS 端通过寄存器读写控制。</p>
+
+<h2>数据类型与计算路径</h2>
+<ul>
+  <li>输入 hidden、权重、输出 logits 均为 <strong>FP16</strong>（<code>hls_half.h</code> 的 <code>half</code>），<strong>没有整数量化</strong>。</li>
+  <li>矩阵乘：FP16×FP16 乘法，<strong>FP32 累加</strong>（float accumulator），最终结果再转回 FP16 写出。</li>
+  <li>repetition penalty 在 <strong>FP32 域</strong>进行：logit 为负数则乘 penalty，为正数则除 penalty。</li>
+  <li>argmax 在 <strong>FP16 域</strong>进行；相同分数时保留较小的 token ID。</li>
+  <li>history bitmap 为 <code>ap_uint&lt;32&gt;</code> 数组，每个 token 占 1 bit，共 (151936+31)/32 = <strong>4748 words</strong>，用于标记哪些 token 需要施加 penalty。</li>
+</ul>
+
+<h2>关键 pragma</h2>
+<pre><code>#pragma HLS BIND_STORAGE variable=hidden_cache type=ram_1p impl=bram
+// load_hidden 循环：PIPELINE II=1
+// LOOP_TRIPCOUNT min=1 / max=896（hidden 维度）
+// LOOP_TRIPCOUNT max=151936（词表维度）</code></pre>
+
+<div class="warn">性能瓶颈：内层 <code>dot_product</code> 循环<strong>没有</strong>显式 pipeline pragma，综合后自动流水仅达到 <strong>II=8</strong>（FP32 累加的依赖链所致），这是当前的主要性能瓶颈。</div>
+
+<h2>Testbench 设计</h2>
+<p><code>tb/lm_head_tb.cpp</code> 包含两类测试：</p>
+<ul>
+  <li><code>run_synthetic_test()</code>：4×4 手工构造用例。token0 的 raw 分最高但受 penalty 压制，正确结果应选 token1 —— 用来验证 penalty 真正改变了 Top-1，而不只是走个过场。</li>
+  <li><code>run_trace_case()</code>：加载真实 fixture（<code>hidden.fp16.bin</code> / <code>golden_logits.fp16.bin</code> / <code>history_bitmap.u32.bin</code> / <code>expected_token.txt</code>）。判定标准：token 匹配 + max_abs_error ≤ 0.02 + cosine ≥ 0.999 + Top-5 重合 ≥ 4。</li>
+</ul>
+<p>testbench 自带 NPY v1/v2/v3 的 FP16 解析器，可直接读取 <code>.npy</code> 权重。运行模式：</p>
+<table class="tb">
+  <tr><th>命令行</th><th>行为</th></tr>
+  <tr><td>无参数</td><td>仅运行 synthetic 测试</td></tr>
+  <tr><td><code>--trace-all weight.npy fixture_root</code></td><td>一次加载权重，连续跑 8 步 trace</td></tr>
+  <tr><td><code>--trace ...</code></td><td>单步 trace</td></tr>
+</table>
+
+<h2>仿真流程</h2>
+<table class="tb">
+  <tr><th>脚本</th><th>作用</th><th>要点</th></tr>
+  <tr><td><code>run_csim.tcl</code></td><td>C 仿真</td><td><code>vitis_hls -f run_csim.tcl</code>；默认 <code>--trace-all</code> 跑全 8 步，<code>-tclargs N</code> 跑单步；part <code>xczu9eg-ffvb1156-2-i</code>，5ns 时钟</td></tr>
+  <tr><td><code>run_cosim.tcl</code></td><td>RTL 协同仿真</td><td>定义 <code>-DLMH_COSIM_SMALL</code> 把尺寸缩为 4×4（避免 Vitis 把 260MiB 权重序列化成超过 1GiB 的文本向量）；csynth 后 <code>cosim_design -rtl verilog -trace_level port</code>，结果 XSim PASS 1/1，事务 542 cycles</td></tr>
+  <tr><td><code>run_csynth.tcl</code></td><td>全尺寸纯综合</td><td>产出资源/时序报告</td></tr>
+  <tr><td><code>run_export_ip.tcl</code> / <code>.ps1</code></td><td>导出 IP</td><td>得到 <code>xilinx.com:hls:lm_head_argmax:1.0</code></td></tr>
+</table>
+<div class="note">其中三个 tcl 的前部都会把 Vitis_HLS 2021.1 的 DLL 目录注入 PATH，用于修复 2021.1 在 Windows 下子进程环境变量不传播的问题。</div>
+
+<h2>性能与资源（csynth 全尺寸）</h2>
+<table class="tb">
+  <tr><th>项目</th><th>数值</th><th>说明</th></tr>
+  <tr><td>器件</td><td>XCZU9EG-2FFVB1156I</td><td>AXU9EGB 板卡所用 Zynq UltraScale+</td></tr>
+  <tr><td>目标时钟</td><td>5ns / 200MHz</td><td>综合约束</td></tr>
+  <tr><td>估计时钟</td><td>3.650ns</td><td>约 274MHz 可达，时序有余量</td></tr>
+  <tr><td>延迟</td><td>1,097,890,446 cycles ≈ 5.489 s/token</td><td>串行基线，受 II=8 瓶颈限制</td></tr>
+  <tr><td>BRAM18K</td><td>14</td><td rowspan="4">串行实现，资源占用极低</td></tr>
+  <tr><td>DSP</td><td>5</td></tr>
+  <tr><td>FF</td><td>4880</td></tr>
+  <tr><td>LUT</td><td>5816</td></tr>
+</table>
+
+<h2>验证结论</h2>
+<ul>
+  <li>全尺寸 C 仿真 <strong>8/8 trace 通过</strong>：max err ≤ 0.0156、cosine = 1.0、Top-5 全中。</li>
+  <li>cosim 4×4 同构核 <strong>PASS</strong>（XSim 1/1）。</li>
+  <li>TCP 回环 <strong>8/8 通过</strong>（见第 6 章协议层）。</li>
+</ul>
+<p>当前版本定位为 <strong>correctness baseline</strong>：功能全对，但尚未做多 PE / 分 bank 并行优化。后续计划：</p>
+<ol>
+  <li>多 PE 点积，消除 II=8 瓶颈；</li>
+  <li>PS DDR4 / AXI HP 数据通路；</li>
+  <li>bitstream 板级验证 —— 已在 <code>realFpga/</code> 完成，见第 7 章。</li>
+</ol>
+
+<div class="prenext">
+  <span class="prev"><a href="python_ref.html">← 上一篇：4. Python 参考实现</a></span>
+  <span class="next"><a href="protocol.html">下一篇：6. LMH1 网络协议 →</a></span>
+</div>
+
+</div>
+
+<div class="footer">LLM_FPGA 技术文档 · Qwen2.5-0.5B-Instruct FPGA 推理验证工程 · correctness-first</div>
+
+</body>
+</html>

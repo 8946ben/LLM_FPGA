@@ -1,0 +1,21 @@
+#-----------------------------------------------------------
+# Vivado v2021.1 (64-bit)
+# SW Build 3247384 on Thu Jun 10 19:36:33 MDT 2021
+# IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
+# Start of session at: Fri Jul 24 17:05:43 2026
+# Process ID: 37128
+# Current directory: D:/program/LLM_FPGA
+# Command line: vivado.exe -notrace -mode batch -log D:\program\LLM_FPGA\realFpga\results\20260724_baseline\verify_lm_head_ip_final.log -journal D:\program\LLM_FPGA\realFpga\results\20260724_baseline\verify_lm_head_ip_final.jou -source D:\program\LLM_FPGA\realFpga\vivado\verify_lm_head_ip.tcl -tclargs D:\program\LLM_FPGA\module16_lm_head_hls\build\lm_head_export\solution1\impl\ip
+# Log file: D:/program/LLM_FPGA/realFpga/results/20260724_baseline/verify_lm_head_ip_final.log
+# Journal file: D:\program\LLM_FPGA\realFpga\results\20260724_baseline\verify_lm_head_ip_final.jou
+#-----------------------------------------------------------
+source {D:\program\LLM_FPGA\realFpga\vivado\verify_lm_head_ip.tcl} -notrace
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1700] Loaded user IP repository 'd:/program/LLM_FPGA/module16_lm_head_hls/build/lm_head_export/solution1/impl/ip'.
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'D:/install/Xilinx/Vivado/2021.1/data/ip'.
+LMH_IP_VERIFY=PASS
+LMH_IP_VLNV=xilinx.com:hls:lm_head_argmax:1.0
+LMH_IP_NAME=lm_head_argmax
+LMH_IP_VERSION=1.0
+LMH_IP_REPOSITORY=D:/program/LLM_FPGA/module16_lm_head_hls/build/lm_head_export/solution1/impl/ip
+INFO: [Common 17-206] Exiting Vivado at Fri Jul 24 17:05:48 2026...

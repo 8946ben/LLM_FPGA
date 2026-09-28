@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>从 II=8 到多路 MAC：交错累加器交互图</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --page: #101722;
+      --panel: #182231;
+      --panel2: #1d2b3c;
+      --ink: #edf3fb;
+      --muted: #a6b4c6;
+      --line: #344356;
+      --cyan: #62d7da;
+      --blue: #75a9ff;
+      --orange: #ffbd72;
+      --green: #7bd9a2;
+      --red: #ff8b87;
+      --accent: #253c52;
+      --focus: #a8c9ff;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --page: #f1f5f8;
+        --panel: #ffffff;
+        --panel2: #f5f8fb;
+        --ink: #142232;
+        --muted: #536579;
+        --line: #d5dee7;
+        --cyan: #087e83;
+        --blue: #315fae;
+        --orange: #a75b08;
+        --green: #267c4d;
+        --red: #b73a35;
+        --accent: #e7eef5;
+        --focus: #294d80;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font: 400 16px/1.55 system-ui, "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+    main { width: min(1080px, calc(100% - 32px)); margin: 34px auto 56px; }
+    header { margin-bottom: 22px; }
+    .eyebrow { color: var(--cyan); font-size: 13px; letter-spacing: .09em; }
+    h1 { margin: 5px 0 8px; font-size: clamp(25px, 4vw, 36px); line-height: 1.2; font-weight: 500; }
+    h2 { margin: 0 0 10px; font-size: 19px; line-height: 1.35; font-weight: 500; }
+    h3 { margin: 0 0 7px; font-size: 15px; font-weight: 500; }
+    p { margin: 7px 0; }
+    .intro { max-width: 820px; color: var(--muted); }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      margin: 16px 0;
+      box-shadow: 0 8px 24px #00000012;
+    }
+    .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 18px 0; }
+    .fact { padding: 13px 15px; border-radius: 11px; background: var(--panel2); }
+    .fact strong { display: block; font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
+    .fact span { color: var(--muted); font-size: 13px; }
+    .scenario-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+    button, select, input { font: inherit; }
+    button {
+      color: var(--ink); background: var(--panel2); border: 1px solid var(--line);
+      border-radius: 9px; padding: 9px 13px; cursor: pointer;
+    }
+    button:hover { background: var(--accent); }
+    button[aria-pressed="true"] { color: var(--ink); border-color: var(--cyan); background: var(--accent); }
+    button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    .controls { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr) auto; align-items: end; gap: 16px; margin: 14px 0; }
+    .controls-secondary { display: grid; grid-template-columns: minmax(250px, 440px) 1fr; align-items: center; gap: 18px; margin: 10px 0 16px; }
+    label { display: block; color: var(--muted); font-size: 13px; }
+    label output { color: var(--ink); font-variant-numeric: tabular-nums; }
+    input[type="range"] { display: block; width: 100%; margin: 9px 0 0; accent-color: var(--cyan); }
+    select { color: var(--ink); background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; }
+    .readout { min-width: 142px; padding: 10px 12px; background: var(--panel2); border-radius: 9px; }
+    .readout b { color: var(--cyan); font-size: 20px; font-variant-numeric: tabular-nums; }
+    .readout small { display: block; color: var(--muted); }
+    .equation { overflow-x: auto; padding: 10px 12px; margin: 12px 0; background: var(--panel2); border-radius: 9px; font: 500 15px/1.6 ui-monospace, Consolas, monospace; white-space: nowrap; }
+    .diagram-wrap { overflow-x: auto; padding: 8px 2px 3px; }
+    svg { display: block; width: 100%; min-width: 630px; height: auto; }
+    .stage { fill: var(--panel2); stroke: var(--line); stroke-width: 1; }
+    .stage-label { fill: var(--muted); font: 400 12px system-ui, sans-serif; }
+    .stage-index { fill: var(--muted); font: 400 10px ui-monospace, monospace; }
+    .lane-label { fill: var(--ink); font: 500 12px system-ui, sans-serif; }
+    .op-dot { fill: var(--blue); stroke: var(--panel); stroke-width: 2; }
+    .op-dot.active { fill: var(--orange); }
+    .feedback { fill: none; stroke: var(--orange); stroke-width: 2; stroke-dasharray: 5 5; }
+    .timeline { display: grid; grid-template-columns: repeat(16, minmax(18px, 1fr)); gap: 4px; margin: 9px 0; }
+    .tick { min-height: 44px; padding: 4px 2px; text-align: center; border-radius: 6px; background: var(--panel2); color: var(--muted); font: 400 11px/1.3 ui-monospace, Consolas, monospace; }
+    .tick.issue { background: var(--accent); color: var(--cyan); box-shadow: inset 0 -3px var(--cyan); }
+    .tick.current { outline: 2px solid var(--orange); outline-offset: 1px; }
+    .tick b { display: block; color: var(--ink); font-size: 10px; font-weight: 500; }
+    .playback { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .playback .spacer { flex: 1; }
+    .status { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+    .note { color: var(--muted); font-size: 13px; }
+    .compare { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; }
+    .compare article { background: var(--panel2); border-radius: 10px; padding: 14px; }
+    .compare p { color: var(--muted); font-size: 14px; }
+    .compare .metric { color: var(--cyan); font-variant-numeric: tabular-nums; }
+    .pipeline-concept { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr; align-items: center; gap: 8px; margin: 13px 0; }
+    .block { min-height: 73px; display: grid; place-items: center; text-align: center; padding: 8px; border-radius: 10px; background: var(--panel2); }
+    .block b { font-weight: 500; }
+    .block small { color: var(--muted); font-size: 12px; }
+    .arrow { color: var(--muted); }
+    .caveat { border-left: 3px solid var(--orange); padding-left: 12px; color: var(--muted); }
+    .cycle-detail { background: var(--panel2); border-radius: 10px; padding: 13px 15px; margin: 13px 0; }
+    .cycle-detail p { margin: 4px 0; }
+    .lane-reads { display: grid; grid-template-columns: repeat(auto-fit, minmax(245px, 1fr)); gap: 6px; margin-top: 9px; color: var(--cyan); font: 400 13px/1.5 ui-monospace, Consolas, monospace; overflow-wrap: anywhere; }
+    .lane-read { display: grid; grid-template-columns: 58px 1fr; gap: 2px 9px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px; }
+    .lane-read b { grid-row: span 2; align-self: center; color: var(--ink); }
+    .lane-read span:last-child { color: var(--muted); }
+    .lane-read.idle { grid-template-columns: 58px 1fr; color: var(--muted); }
+    .bank-board { overflow-x: auto; padding: 3px 0 8px; }
+    .bank-row { display: grid; gap: 4px; align-items: center; min-width: 620px; margin: 5px 0; }
+    .bank-lane-label { color: var(--muted); font-size: 12px; }
+    .bank-cell { min-width: 25px; padding: 7px 2px; border-radius: 5px; text-align: center; background: var(--panel2); color: var(--muted); font: 400 11px ui-monospace, Consolas, monospace; }
+    .bank-cell.waiting { color: var(--muted); opacity: .62; }
+    .bank-cell.ready { color: var(--green); }
+    .bank-cell.selected { background: var(--accent); color: var(--orange); box-shadow: inset 0 -3px var(--orange); }
+    .bank-legend { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted); font-size: 12px; margin-top: 8px; }
+    .legend-key { color: var(--ink); }
+    .system-flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; align-items: stretch; margin: 14px 0; }
+    .flow-step { position: relative; background: var(--panel2); border-radius: 9px; padding: 12px; }
+    .flow-step b { display: block; font-weight: 500; }
+    .flow-step small { color: var(--muted); font-size: 12px; }
+    .flow-num { display: inline-block; margin-right: 5px; color: var(--cyan); font-variant-numeric: tabular-nums; }
+    .resource-equation { font: 400 13px/1.7 ui-monospace, Consolas, monospace; color: var(--muted); overflow-wrap: anywhere; }
+    code { color: var(--ink); font-family: ui-monospace, Consolas, monospace; }
+    footer { color: var(--muted); font-size: 12px; margin-top: 20px; }
+    @media (max-width: 720px) {
+      main { width: min(100% - 20px, 680px); margin-top: 20px; }
+      .panel { padding: 15px; }
+      .facts, .compare { grid-template-columns: 1fr; }
+      .controls { grid-template-columns: 1fr 1fr; }
+      .controls-secondary { grid-template-columns: 1fr; }
+      .readout { grid-column: 1 / -1; }
+      .pipeline-concept { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); text-align: center; }
+      .timeline { grid-template-columns: repeat(8, minmax(24px, 1fr)); }
+      .system-flow { grid-template-columns: 1fr 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+<main id="lesson">
+  <header>
+    <div class="eyebrow">LLM_FPGA · MODULE 16 · 交互式硬件调度图</div>
+    <h1>从 II=8 到多路 MAC</h1>
+    <p class="intro">看懂流水线为什么不等于多计算单元，以及交错累加器怎样解除反馈等待；再把乘加 lane 复制出来，才是真正的空间并行。</p>
+    <div class="facts" aria-label="当前 LM Head 的综合数据">
+      <div class="fact"><strong>18 stages</strong><span>点积流水线深度：一项计算流过的阶段数</span></div>
+      <div class="fact"><strong>II = 8</strong><span>当前循环发起相邻点积项的最小间隔</span></div>
+      <div class="fact"><strong>1 MAC lane</strong><span>当前点积的 FP32 乘法器和 FP32 加法器各 1 个</span></div>
+    </div>
+  </header>
+
+  <section class="panel" aria-labelledby="model-title">
+    <h2 id="model-title">先选一种调度方式</h2>
+    <p class="note">橙色点表示当前周期正在流水线中前进的乘加项。逐步播放，观察每拍何时能送入新工作、每条 lane 使用哪个累加器。</p>
+    <div class="scenario-buttons" role="group" aria-label="选择调度方案">
+      <button type="button" data-preset="current" aria-pressed="true">当前：单累加器 · II=8</button>
+      <button type="button" data-preset="interleaved" aria-pressed="false">交错：单 lane · II≈1</button>
+      <button type="button" data-preset="parallel" aria-pressed="false">并行：8 lanes · II≈1</button>
+    </div>
+    <div class="controls">
+      <label for="banks">每条 lane 的 partial 累加器数量：<output id="banksValue">1</output>
+        <input id="banks" type="range" min="1" max="16" value="1" step="1">
+      </label>
+      <label for="lanes">MAC lane 数：
+        <select id="lanes">
+          <option value="1">1 条 lane</option>
+          <option value="2">2 条 lane</option>
+          <option value="4">4 条 lane</option>
+          <option value="8">8 条 lane</option>
+        </select>
+      </label>
+      <div class="readout"><b id="iiValue">II = 8</b><small id="throughputValue">0.125 MAC/周期（归一化）</small></div>
+    </div>
+    <div class="equation" aria-live="polite"><span id="formula">当前实际综合值：II = 8。单一累加器须等反馈返回。</span></div>
+    <div class="diagram-wrap">
+      <svg id="pipeline" viewBox="0 0 900 190" role="img" aria-label="点积项在18级乘加流水线中的周期位置">
+        <title>18级乘加流水线时序动画</title>
+        <desc>选择方案并播放，橙色圆点沿阶段移动；一条或多条 lane 表示乘加硬件实例。</desc>
+      </svg>
+    </div>
+    <div class="playback">
+      <button type="button" id="play">▶ 播放</button>
+      <button type="button" id="step">下一拍</button>
+      <button type="button" id="reset">重置</button>
+      <span class="spacer"></span>
+      <span class="status" id="cycleStatus" aria-live="polite">周期 0 / 31</span>
+    </div>
+    <div class="timeline" id="timeline" role="img" aria-label="32个时钟周期中的计算发起节拍"></div>
+    <p class="note" id="timelineCaption">青色格是启动一个 MAC 的周期；格内数字为本拍启动的工作数。序号从0开始。</p>
+    <div class="cycle-detail" aria-live="polite">
+      <h3>当前拍的输入与累加器分配</h3>
+      <p id="cycleNarrative">周期0：发起一项乘加，送入 partial[0]。</p>
+      <div class="lane-reads" id="laneReads"></div>
+    </div>
+    <div class="controls-secondary">
+      <label for="feedbackDelay">用于交错模型的加法反馈延迟假设：<output id="feedbackValue">8 拍</output>
+        <input id="feedbackDelay" type="range" min="4" max="12" value="8" step="1">
+      </label>
+      <p class="note">移动滑块可观察反馈变长时需要更多 partial 才能维持 II≈1。当前方案仍显示项目 HLS 实测 II=8。</p>
+    </div>
+    <h3>每条 lane 的 partial bank 状态</h3>
+    <div class="bank-board" id="bankBoard" role="img" aria-label="每条计算 lane 的部分和 bank 状态"></div>
+    <div class="bank-legend"><span class="legend-key">橙色：本拍分配</span><span class="legend-key">灰色：等待反馈</span><span class="legend-key">绿色：可再次使用</span></div>
+    <p class="note" id="bankSummary">状态按简化的发起时间模型计算，用于解释依赖轮换，不是对 HLS 内部具体写回拍号的仿真。</p>
+  </section>
+
+  <section class="panel" aria-labelledby="pipeline-title">
+    <h2 id="pipeline-title">18级深度和 II=8 分别在说什么</h2>
+    <div class="pipeline-concept" aria-label="一个乘加项经过流水线的过程">
+      <div class="block"><b>取数 / 转换</b><small>读取 FP16 权重与 hidden</small></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="block"><b>FP32 乘法</b><small>报告中的算子延迟约5拍；1个 fmul IP</small></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="block"><b>FP32 累加</b><small>反馈约8拍；1个 fadd IP</small></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="block"><b>部分和写回</b><small>结果回到对应 accumulator</small></div>
+    </div>
+    <div class="compare">
+      <article><h3>深度 = 18</h3><p>一个乘加项从进入计算流水线到完成约经过18个阶段。它是<strong class="metric">单项延迟</strong>，不是计算单元数量。</p></article>
+      <article><h3>II = 8</h3><p>单累加器的下一项依赖上一项的和。现有综合调度每隔8拍发起一项，持续吞吐约<strong class="metric">0.125 MAC/周期</strong>。</p></article>
+      <article><h3>流水线 ≠ 多 lane</h3><p>当前一套乘法器和一套加法器内部有多级流水；HLS 报告确认点积子模块仅<strong class="metric">1 个 fmul + 1 个 fadd</strong>。</p></article>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="partial-title">
+    <h2 id="partial-title">交错累加器怎样把等待藏起来</h2>
+    <p>设加法结果反馈约需 <strong>8 拍</strong>。只有一个累加器时，第0项写回之前就要更新它，所以第1项只能等。准备多组独立 partial sums 后，连续输入先写不同的组：</p>
+    <div class="equation" id="bankEquation">第 0 拍：MAC₀ → partial[0]　│　第 8 拍前 partial[0] 仍在等待</div>
+    <p>每个累加器被再次使用前，其他组先承接新工作。近似依赖约束是 <code>II ≥ ceil(反馈延迟 / 可轮换累加器数)</code>。16 组对约8拍反馈留出余量；它们是<strong>累加状态</strong>，不是16个乘法器。最后还要把所有 partial sum 归约成该词元的一个 logit。</p>
+    <p class="caveat">调度公式只用于理解。真实 II 还要由 HLS 根据运算延迟、内存端口和综合出的依赖关系确认；16 组是设计起点，不是无需综合验证的保证。</p>
+  </section>
+
+  <section class="panel" aria-labelledby="lanes-title">
+    <h2 id="lanes-title">何时才算真的增加了计算单元</h2>
+    <p><strong>交错累加</strong>让同一条 MAC lane 更常工作：一条乘法器和一条加法器可以目标为每拍接收一个独立 partial 的新任务。<strong>复制 lane</strong>则真正实例化多套乘法器 / 加法器，一拍并行处理多个乘加。</p>
+    <div class="equation">持续吞吐 ≈ lane 数 × 每条 lane 的发起率　=　U × (1 / II) MAC/周期</div>
+    <div class="compare">
+      <article><h3>当前</h3><p>U=1，II=8<br><span class="metric">0.125 MAC/周期</span><br>综合总共约5个 DSP，其中乘法器约3个、加法器约2个。</p></article>
+      <article><h3>单 lane 交错</h3><p>U=1，目标 II=1<br><span class="metric">1 MAC/周期</span><br>吞吐理论约提升8倍；FPGA 上还是原来那一条乘加 lane。</p></article>
+      <article><h3>8 lanes 并行</h3><p>U=8，目标 II=1<br><span class="metric">8 MAC/周期</span><br>乘法器与加法器各复制8套；每拍要供给8组输入。</p></article>
+    </div>
+    <p class="note">8-lane 方案不能只写循环展开：还需每拍读取8个 FP16 权重、并发读取8个 hidden，并将 hidden 缓存与 partial sums 分 bank。项目的 HP0 是128 bit，理论上恰好每拍承载8个 FP16 权重；DDR 实效带宽仍须实测。</p>
+  </section>
+  <section class="panel" aria-labelledby="endtoend-title">
+    <h2 id="endtoend-title">把每一拍放回整个 LM Head</h2>
+    <div class="system-flow" aria-label="优化后一次词元计算的数据流">
+      <div class="flow-step"><b><span class="flow-num">01</span>hidden 驻片上</b><small>896 个 FP16 = 1792 bytes；重复用于整个词表</small></div>
+      <div class="flow-step"><b><span class="flow-num">02</span>权重按宽字读取</b><small>128 bit = 每拍8个FP16；每行896个值共112拍</small></div>
+      <div class="flow-step"><b><span class="flow-num">03</span>lane 并行点积</b><small>U路乘加，K组partial/lane；最终归约成1个FP16 logit</small></div>
+      <div class="flow-step"><b><span class="flow-num">04</span>策略与选词</b><small>可选repetition penalty → argmax；正式推理可不写完整logits</small></div>
+    </div>
+    <p class="resource-equation">一个词元：896 × 1 MAC　→　8 lanes 时约112个输入拍 + 流水线收尾<br>全词表：151936 × 896 = 136134656 MAC；FP16权重约272269312 bytes（259.66 MiB）<br>理想计算下限：U=8、II=1、100 MHz → 约170 ms；单个128-bit HP0在100 MHz的理论读带宽也是1.6 GB/s，实际DDR吞吐会令运行更慢。</p>
+    <p class="caveat">交错累加器隐藏加法反馈延迟；8路 lane 复制乘加硬件。两种优化作用不同，且都要为计算供给权重和 hidden 数据。128 bit只是端口理论宽度，不能当成已测得的DDR实效带宽。</p>
+  </section>
+  <footer>依据项目 Vitis HLS 2021.1 报告：dot_product II=8、depth=18；其乘加算子实例各1个。交互图中的交错方案与多 lane 数值是调度模型，不代表已经综合或上板验证的优化结果。</footer>
+</main>
+<script>
+(() => {
+  const root = document.getElementById('lesson');
+  const svg = root.querySelector('#pipeline');
+  const bankSlider = root.querySelector('#banks');
+  const laneSelect = root.querySelector('#lanes');
+  const playButton = root.querySelector('#play');
+  const stepButton = root.querySelector('#step');
+  const resetButton = root.querySelector('#reset');
+  const tickGrid = root.querySelector('#timeline');
+  const cycleStatus = root.querySelector('#cycleStatus');
+  const feedbackSlider = root.querySelector('#feedbackDelay');
+  const feedbackValue = root.querySelector('#feedbackValue');
+  const bankBoard = root.querySelector('#bankBoard');
+  const bankSummary = root.querySelector('#bankSummary');
+  const cycleNarrative = root.querySelector('#cycleNarrative');
+  const laneReads = root.querySelector('#laneReads');
+  const presetButtons = [...root.querySelectorAll('[data-preset]')];
+  const depth = 18;
+  let feedback = 8;
+  let cycle = 0;
+  let timer = null;
+  let preset = 'current';
+
+  function settings() {
+    const banks = Number(bankSlider.value);
+    const lanes = Number(laneSelect.value);
+    const ii = preset === 'current' && banks === 1 ? 8 : Math.max(1, Math.ceil(feedback / banks));
+    return { banks, lanes, ii };
+  }
+
+  function setPreset(name) {
+    preset = name;
+    if (name === 'current') { bankSlider.value = 1; laneSelect.value = '1'; }
+    if (name === 'interleaved') { bankSlider.value = 16; laneSelect.value = '1'; }
+    if (name === 'parallel') { bankSlider.value = 16; laneSelect.value = '8'; }
+    presetButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.preset === name)));
+    stop();
+    cycle = 0;
+    render();
+  }
+
+  function renderSvg(s) {
+    const left = 96;
+    const top = 50;
+    const cell = 37;
+    const rowGap = 43;
+    const lanesShown = Math.min(s.lanes, 8);
+    const height = top + lanesShown * rowGap + 20;
+    svg.setAttribute('viewBox', `0 0 900 ${height}`);
+    const parts = [
+      '<title>18级乘加流水线的逐周期位置</title>',
+      '<desc>左侧是计算 lane，横向是18个抽象流水级。蓝点是已发起的乘加项，橙点标出当前周期。</desc>',
+      '<text x="8" y="24" class="stage-label">lane / 阶段</text>'
+    ];
+    for (let stage = 0; stage < depth; stage++) {
+      const x = left + stage * cell;
+      parts.push(`<rect class="stage" x="${x}" y="30" width="32" height="${lanesShown * rowGap + 12}" rx="5"></rect>`);
+      parts.push(`<text class="stage-index" x="${x + 16}" y="22" text-anchor="middle">${stage}</text>`);
+    }
+    for (let lane = 0; lane < lanesShown; lane++) {
+      const y = top + lane * rowGap;
+      parts.push(`<text class="lane-label" x="8" y="${y + 5}">lane ${lane}</text>`);
+      for (let stage = 0; stage < depth; stage++) {
+        const x = left + stage * cell + 16;
+        parts.push(`<line x1="${x}" y1="${y + 10}" x2="${x}" y2="${y + 21}" stroke="var(--line)" stroke-width="1"></line>`);
+      }
+      for (let issue = 0; issue <= Math.floor(cycle / s.ii); issue++) {
+        const launch = issue * s.ii;
+        const age = cycle - launch;
+        if (age >= 0 && age < depth) {
+          const x = left + age * cell + 16;
+          const current = launch === cycle;
+          parts.push(`<circle class="op-dot${current ? ' active' : ''}" cx="${x}" cy="${y + 15}" r="8"><title>lane ${lane}：乘加项 ${issue}，流水阶段 ${age}</title></circle>`);
+        }
+      }
+      const operation = Math.floor(cycle / s.ii);
+      const activeBank = operation % s.banks;
+      parts.push(`<text class="stage-label" x="${left + depth * cell + 12}" y="${y + 19}">partial[${activeBank}]</text>`);
+    }
+    svg.innerHTML = parts.join('');
+  }
+
+  function renderTicks(s) {
+    const count = 32;
+    tickGrid.innerHTML = '';
+    for (let t = 0; t < count; t++) {
+      const issue = t % s.ii === 0;
+      const cell = document.createElement('div');
+      cell.className = `tick${issue ? ' issue' : ''}${t === cycle ? ' current' : ''}`;
+      cell.setAttribute('aria-label', `周期 ${t}${issue ? `，发起 ${s.lanes} 个 MAC` : '，没有新发起'}`);
+      cell.innerHTML = `${t}<b>${issue ? `+${s.lanes}` : '·'}</b>`;
+      tickGrid.append(cell);
+    }
+  }
+
+  function renderCycleDetails(s) {
+    const issueNow = cycle % s.ii === 0;
+    const ordinal = Math.floor(cycle / s.ii);
+    const bank = ordinal % s.banks;
+    if (issueNow) {
+      const first = ordinal * s.lanes;
+      const last = first + s.lanes - 1;
+      cycleNarrative.textContent = `周期 ${cycle}：发起第 ${ordinal} 组工作，lane 0–${s.lanes - 1} 同拍各执行1个 MAC；本组累加写入各 lane 自己的 partial[${bank}]。${s.lanes > 1 ? `本拍合计 ${s.lanes} 个乘加。` : ''}`;
+      laneReads.innerHTML = Array.from({ length: s.lanes }, (_, lane) => {
+        const index = first + lane;
+        return `<div class="lane-read"><b>lane ${lane}</b><span>hidden[${index}] × W[token, ${index}]</span><span>→ partial[${bank}]</span></div>`;
+      }).join('');
+      if (last >= 896) cycleNarrative.textContent += `（注意：本图只展示概念索引；hidden 长度是 896，超出范围的示例索引应由真实尾块掩码处理。）`;
+    } else {
+      const until = s.ii - (cycle % s.ii);
+      cycleNarrative.textContent = `周期 ${cycle}：当前没有发起新 MAC；单 lane 的下一个发起点在 ${until} 拍后。流水线中较早启动的乘加仍在推进。`;
+      laneReads.innerHTML = `<div class="lane-read idle"><b>输入</b><span>本拍不启动新乘加</span><span>等待下一发起拍</span></div>`;
+    }
+  }
+
+  function renderBanks(s) {
+    const issueNow = cycle % s.ii === 0;
+    const ordinal = Math.floor(cycle / s.ii);
+    const currentBank = ordinal % s.banks;
+    bankBoard.innerHTML = Array.from({ length: Math.min(s.lanes, 8) }, (_, lane) => {
+      const cells = Array.from({ length: s.banks }, (_, bank) => {
+        const latestOrdinal = ordinal - ((ordinal - bank + s.banks * 100) % s.banks);
+        const used = latestOrdinal >= 0;
+        const launchCycle = latestOrdinal * s.ii;
+        const age = cycle - launchCycle;
+        const selected = issueNow && bank === currentBank;
+        const waiting = used && age < feedback && !selected;
+        const state = selected ? 'selected' : waiting ? 'waiting' : 'ready';
+        const detail = selected ? `本拍写入 partial[${bank}]` : used ? `上次发起于第 ${launchCycle} 拍；已过 ${age} 拍；${waiting ? '等待反馈' : '可复用'}` : '尚未使用，可分配';
+        return `<div class="bank-cell ${state}" title="lane ${lane} / ${detail}"><b>${bank}</b><small>${selected ? '分配' : waiting ? `${Math.max(0, feedback - age)}拍` : used ? '可用' : '空闲'}</small></div>`;
+      }).join('');
+      return `<div class="bank-row" style="grid-template-columns: 52px repeat(${s.banks}, minmax(30px, 1fr))"><span class="bank-lane-label">lane ${lane}</span>${cells}</div>`;
+    }).join('');
+    const revisit = s.banks * s.ii;
+    bankSummary.textContent = `周期 ${cycle}：每条 lane 展示 ${s.banks} 组累加状态。当前配置下同一 bank 每 ${revisit} 拍轮回一次；反馈延迟假设 ${feedback} 拍，${revisit >= feedback ? '轮回间隔足以覆盖该反馈延迟（模型估算）。' : '轮回间隔短于反馈延迟，复用时可能仍需等待。'}图中灰/绿状态基于发起时刻简化估算，不模拟具体 HLS 写回拍。`;
+  }
+
+  function render() {
+    const s = settings();
+    const macPerCycle = s.lanes / s.ii;
+    root.querySelector('#banksValue').textContent = s.banks;
+    feedbackValue.textContent = `${feedback} 拍`;
+    root.querySelector('#iiValue').textContent = `II = ${s.ii}${preset === 'current' && s.banks === 1 ? '（实测）' : '（估算）'}`;
+    root.querySelector('#throughputValue').textContent = `${macPerCycle.toFixed(3).replace(/0+$/, '').replace(/\.$/, '')} MAC/周期（归一化）`;
+    if (preset === 'current' && s.banks === 1) {
+      root.querySelector('#formula').textContent = '项目 HLS 实际综合值：II = 8；每条 MAC lane 平均每 8 拍发起一项。';
+      root.querySelector('#bankEquation').textContent = '第 0 拍：MAC₀ → partial[0]　│　第 1～7 拍：等待这次累加结果　│　第 8 拍：MAC₁ → partial[0]';
+    } else {
+      root.querySelector('#formula').textContent = `简化反馈模型：II ≥ ceil(${feedback} 拍反馈延迟 ÷ ${s.banks} 组 partial) = ${s.ii}；${s.lanes} 条 lane 每拍可启动 ${s.lanes} 项。`;
+      const entries = [];
+      for (let issue = 0; issue < Math.min(s.banks, 8); issue++) entries.push(`第 ${issue * s.ii} 拍：MAC${issue} → partial[${issue}]`);
+      entries.push(`partial[0] 最早约第 ${s.banks * s.ii} 拍再次使用`);
+      root.querySelector('#bankEquation').textContent = entries.join('　│　');
+    }
+    root.querySelector('#timelineCaption').textContent = `32拍节拍图：青色格发起工作，每格 +${s.lanes} 表示${s.lanes}条 lane 各启动1项；lane 内每隔 ${s.ii} 拍启动一次。`;
+    cycleStatus.textContent = `周期 ${cycle} / 31`;
+    renderSvg(s);
+    renderTicks(s);
+    renderCycleDetails(s);
+    renderBanks(s);
+  }
+
+  function stop() {
+    if (timer !== null) window.clearInterval(timer);
+    timer = null;
+    playButton.textContent = '▶ 播放';
+    playButton.setAttribute('aria-pressed', 'false');
+  }
+
+  function advance() {
+    if (cycle >= 31) { stop(); return; }
+    cycle += 1;
+    render();
+    if (cycle >= 31) stop();
+  }
+
+  playButton.addEventListener('click', () => {
+    if (timer !== null) { stop(); return; }
+    if (cycle >= 31) cycle = 0;
+    playButton.textContent = 'Ⅱ 暂停';
+    playButton.setAttribute('aria-pressed', 'true');
+    timer = window.setInterval(advance, 440);
+    render();
+  });
+  stepButton.addEventListener('click', () => { stop(); advance(); });
+  resetButton.addEventListener('click', () => { stop(); cycle = 0; render(); });
+  presetButtons.forEach(button => button.addEventListener('click', () => setPreset(button.dataset.preset)));
+  bankSlider.addEventListener('input', () => { preset = 'custom'; presetButtons.forEach(button => button.setAttribute('aria-pressed', 'false')); stop(); cycle = 0; render(); });
+  laneSelect.addEventListener('change', () => { preset = 'custom'; presetButtons.forEach(button => button.setAttribute('aria-pressed', 'false')); stop(); cycle = 0; render(); });
+  feedbackSlider.addEventListener('input', () => { feedback = Number(feedbackSlider.value); preset = 'custom'; presetButtons.forEach(button => button.setAttribute('aria-pressed', 'false')); stop(); cycle = 0; render(); });
+  render();
+})();
+</script>
+</body>
+</html>
