@@ -1,0 +1,12 @@
+{
+  "source_sha256": {
+    "D:\\program\\LLM_FPGA\\module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\standalone\\scripts\\private_board_common.tcl": "7bca7a4f1b1b1775edf3554bc4dc052ef40f3f254e7d5085908cb59942937f4b",
+    "D:\\program\\LLM_FPGA\\module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\standalone\\scripts\\private_board_entry.tcl": "ecf57ea1c2fc5ea0b1567122cbc2b133502138e4cbc5a30a7b950cb6c65c8159"
+  },
+  "runtime_sha256": {
+    "D:\\program\\LLM_FPGA\\module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\reports\\board_acceptance_20261030_r3\\chinese\\control\\private_board_common.tcl": "26d3839ca79bff1d98ddd2cdae372e4413afd4b43f5b1f3e55e452191049917e",
+    "D:\\program\\LLM_FPGA\\module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\reports\\board_acceptance_20261030_r3\\chinese\\control\\private_board_entry.tcl": "f65bd58bbdade9203ea587ce205f93f6fc9d1fe53830066b2d4e0bd18bf0f1e0"
+  },
+  "only_change": "Accept exact initial APU L2 already-reset stop error then original rst/dow/con; full errorinfo; require real action markers even when batch exits0",
+  "package_unchanged": true
+}

@@ -1,0 +1,35 @@
+{
+  "state": "PASS",
+  "date": "2026-10-21",
+  "scope": "v4 offline baseline; v3.1 P1 reused without hardware rebuild",
+  "baseline_name": "lm_head v3.1 PL DDR / dense / 200MHz",
+  "baseline_build_config": "0x30c08011",
+  "baseline_capabilities": "0x382",
+  "baseline_numeric_sha256": {
+    "deliverables/20261020_M14_V3_1_r1/M14_V3_1_20261020_r1/module_14_lm_head_v3_1/src/lm_head_v2.cpp": "926911392a1664c05072ac3df2c9c494e55b9d94e72776c67ee5e642d5a5ef91",
+    "deliverables/20261020_M14_V3_1_r1/M14_V3_1_20261020_r1/module_14_lm_head_v3_1/include/lm_head_v2.hpp": "8eb849e0921a7ac98856a21675ef676c4febfb2feba3e99f90cd3dce5f5aa4bf",
+    "deliverables/20261020_M14_V3_1_r1/M14_V3_1_20261020_r1/module_14_lm_head_v3_1/reference/lm_head_v2_ref.py": "5e661e1eed336b72f59ac4a4f69ddaac932f10c475c8a7db6a9793f62fe97d4f",
+    "deliverables/20261020_M14_V3_1_r1/M14_V3_1_20261020_r1/module_14_lm_head_v3_1/reports/board_v31_20261019/package/ARTIFACTS.sha256": "db8750c17b9fae4fbca9d55e63f66774a401153340278e0b2356ddf3a6e76db3",
+    "deliverables/20261020_M14_V3_1_r1/M14_V3_1_20261020_r1/module_14_lm_head_v3_1/reports/board_v31_20261019/package/RUN_PROFILE.json": "f3a02045297f9e3517f1fd25b30b3373221e6af5a396aaa95ec774c2677ee0c6"
+  },
+  "canonical_weight_sha256": "4e96b0df6d274768cbb7e72404011853d23349999b658dc2f4dfb3c431ea223f",
+  "source_model_sha256": "fdf756fa7fcbe7404d5c60e26bff1a0c8b8aa1f72ced49e7dd0210fe288fb7fe",
+  "baseline_performance": {
+    "ip_cycles_min": 23550366,
+    "ip_cycles_max": 23550413,
+    "ip_ms_median": 117.75183,
+    "ip_ms_p95": 117.75202,
+    "ip_ms_max": 117.752065,
+    "a53_wall_ms_median": 117.77003270032701,
+    "a53_wall_ms_p95": 117.77058770587706,
+    "a53_wall_ms_max": 117.77082770827708,
+    "speedup_ip_vs_11_09s": 94.18112652686587
+  },
+  "baseline_decode_equivalent_tokens_s": 8.492437017751657,
+  "baseline_accepted_zip_sha256": "7b9512bfc3a6126b04654ff1374857edb15f881635965d4f90ed69080c36fb01",
+  "v4_hardware_identity": "NOT_ASSIGNED",
+  "v4_hardware": "NOT_BUILT_NOT_TESTED",
+  "source_numeric_reference": "Frozen accepted reference copied byte-for-byte",
+  "upstream_direct_weights": "DEFERRED: awaiting framework documents",
+  "board_access": "NONE"
+}

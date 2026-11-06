@@ -1,0 +1,52 @@
+{
+  "state": "PASS_INDEPENDENT_LOSSLESS_FIFO_RLE_TRACE",
+  "utc": "2026-11-03T09:56:45.278960+00:00",
+  "monitor_sha256": "7ca5e013f9a5292d783d7e04d0aea9ddd061c22d0dabe2b69b014e091a0b4af1",
+  "exact_original_cycles_compared": 20000,
+  "original_channel_status_byte_equal": true,
+  "stable_cycles": 2000000,
+  "stable_rle_records": 2,
+  "samples": {
+    "0": {
+      "samples": 20000,
+      "kernel_rss_start_kib": 9624,
+      "kernel_rss_end_kib": 10532,
+      "growth_mib": 0.88671875,
+      "peak_group_rss_kib": 627852
+    },
+    "1": {
+      "samples": 2000000,
+      "kernel_rss_start_kib": 10028,
+      "kernel_rss_end_kib": 10104,
+      "growth_mib": 0.07421875,
+      "peak_group_rss_kib": 584484
+    }
+  },
+  "evidence_sha256": {
+    "launcher.log": "2af7fe577616a9093c238b69eb157214e710a3b5cf0816f0a1c3feca20ea63a3",
+    "elaborate\\resources.jsonl": "19eede8d792ad1ddaf339087dd6cecd6d8db1b017ed9bfd10d0299c15e8a87af",
+    "elaborate\\tool.log": "9f4d7a1c8d589bf91f5ca43cf5ac8e982aab0106bf7764a139bbb5298423e2b5",
+    "mode_0\\allocation_samples.csv": "85c6e723684a1f226c6cd64fea96233deb97847fd66eb78bcf68b2ca900a0a39",
+    "mode_0\\new_depth.csv.block.rle": "2789a7e84c17719fc58e36615ad7e1ac92fbf9ed86a776d68a3c3e0029c5c34c",
+    "mode_0\\new_depth.csv.depth.rle": "04315ad307488e5b9c34f603751a39987cd3b348f0777addbcbea0725f5ed129",
+    "mode_0\\new_status.csv": "982fa35479cf3b8b1e1081fa78abc798d3c8ef0d964a4ded10ece0f0e5aa2901",
+    "mode_0\\old_depth.csv": "0e41eaa6522a47642991a4e4052b67ae367dea47a10ffdab2ad6f9b672d107b8",
+    "mode_0\\old_status.csv": "982fa35479cf3b8b1e1081fa78abc798d3c8ef0d964a4ded10ece0f0e5aa2901",
+    "mode_0\\resources.jsonl": "0abf11cec1202b4e4e1d43a229c107451878058e6292772875f4ce01d37dec50",
+    "mode_0\\tool.log": "7325d79362efb87357b8f3641864b42a4504e7e5358f279fee36278408d34a3b",
+    "mode_1\\allocation_samples.csv": "703558332a5d02758ed3f9adc5b4806056b0ebec7c0a6926cbd57d264d1eb182",
+    "mode_1\\new_depth.csv.block.rle": "08599058492ce7bc64f7eab7cdaf7050280e6c96e9ef64a88867de5a941f618d",
+    "mode_1\\new_depth.csv.depth.rle": "13d11f3fb9ae293e2556444bce87a127d01f5bb6bbabac322dd6b0b7ba21a106",
+    "mode_1\\new_status.csv": "c95fbf5e19a1e5c2712c7674012793ff80c66ba47957fba560b02bd11162dc36",
+    "mode_1\\resources.jsonl": "466beb2221815d7a1f1e676201bb7e2d040906d135a6f0d931da56e4490ecdc4",
+    "mode_1\\tool.log": "b6c3f84b6531004629447a5875d2c5752fd45d4884c8ceb0f71bc949a4af2616"
+  },
+  "limits": [
+    "Monitor unit only; actual FIFO depth/occupancy/deadlock qualification requires completed full RTL",
+    "Trace schema changes to separate lossless run_length,value columns; original channel-status fields preserved",
+    "Long constant traces retain no per-cycle queue; high-activity trace disk size still depends on transitions"
+  ],
+  "full_m14": "NOT_RUN",
+  "board": "NOT_RUN",
+  "automatic_next_stage": false
+}

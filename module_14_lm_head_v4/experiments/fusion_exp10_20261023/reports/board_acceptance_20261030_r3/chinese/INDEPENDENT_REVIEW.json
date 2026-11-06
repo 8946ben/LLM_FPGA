@@ -1,0 +1,19 @@
+{
+  "variant": "exp10",
+  "case": "chinese",
+  "state": "PASS_FIXED_INPUT_TARGET_TRANSFER_AND_1033_OUTPUT_CALLS",
+  "median_ms": 33.00082500825008,
+  "p95_ms": 33.02910029100291,
+  "m14_equivalent_outputs_per_s": 30.302272738636194,
+  "candidate_count": 17764,
+  "measured": 30,
+  "warmup": 3,
+  "stability": 1000,
+  "sha256": {
+    "request.bin": "5ed8930ae0f869c506956455257f0c919645e38e0e264e0847862c3e249b6551",
+    "header.bin": "db7076f18bd291f029dd7e3f544f4d43e7c1beb4b6fb1c0da6be918cf2bce339",
+    "records.bin": "5786c7838abcfce20b3d08c9930710255339f8213c3e297f745cddfd832b039e"
+  },
+  "timing_scope": "A53 full control_call through verified scalar return; fixed preloaded hidden/history; no IP-cycle counter/full LLM/TTFT",
+  "full_array_and_multistep_qualification": "PENDING_SEPARATE_TEST"
+}

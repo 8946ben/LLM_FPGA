@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/business_ethics.csv:53",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "550023b12503d50987e751c5ca86b6e027c7c099875a41141e3f815b35ebd51d",
+  "group_sha256": "0e8c3f6b263357b949ea312b55b1874a53ffb115fe358b4048425e871e21f92a",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "f36ae36327d866d356e12007.npz",
+  "npz_sha256": "f2663454899d62b13cd6ab7a108eccf04e234037435f3926b41de184b4c43cc9",
+  "generated_ids": [
+    105073,
+    102031,
+    32664,
+    100169,
+    33108,
+    100470,
+    105121,
+    99531,
+    108894,
+    3407,
+    16,
+    13,
+    3070,
+    109487,
+    64,
+    334
+  ],
+  "input_tokens": 130,
+  "seconds": 0.47152510000159964,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

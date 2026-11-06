@@ -1,0 +1,26 @@
+{
+  "variant": "exp10",
+  "sequence": [
+    "math",
+    "chinese",
+    "math"
+  ],
+  "source_sha256": {
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\math.hidden.bin": "906c34ee2e253d5ec98c298868d8abe678495617bbca4cc9bb8ae399d3b37605",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\math.history.bin": "6273b03cf000650e6a4ae7fae1afebf4659fc4d028044bb03bcab747969b5b0e",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\math.scores.bin": "a6a316fdf90ca9164bf0c2a704b1778fd4480250e5fc23cfb8cc60b911407e65",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\math.expected.bin": "8128cbb056e85aab5d8e294a55bac09c285d18cf692641f1daca55892a3e1bd0",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\math.sparse.bin": "340f05d84f41158b0b8e0dfacca11a970c478fcf9d44f75145e85d69db9584d8",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\math.result.bin": "e63e76ce092606e4a6a2f35226115128f6b336ef130c3c4d88dfe1fb66ad6e94",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\chinese.hidden.bin": "36806b76e29d6ecda853fea82a08d08b38f2dbcdacfdfd80d594d9b70d96b3c7",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\chinese.history.bin": "2ae0e8d1cfd8f446c5e3708b84911ded24b4c4333b49400b66220ddc7b442563",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\chinese.scores.bin": "e5440ae74000b812170ec22b0f53b72ef3471c54a57060dab251eb1b56d30454",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\chinese.expected.bin": "2e686a50af1936329504836b5c558e8894ab363086a7c03fa64d0f1bf1cc8482",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\chinese.sparse.bin": "c68ab6ad20117387e26e4fe1707e39e4835d32c812d2937c692a44d57254cefb",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\chinese.result.bin": "3735e0f709fc259b0f10d78cb2b64ce18297ddefed54dc658c62a546d113cd76",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\reports\\selector_integration_fixture_20261021\\descriptor_production.bin": "6e8c548466113436076955b8c89b942bfc00f7bd2769df5a0bd79d5eb071e930",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\reports\\selector_integration_fixture_20261021\\descriptor_debug.bin": "16515dd87af1964b6bdf6389a38f716af98c266dd15f826d4b1c02405fcfcc92"
+  },
+  "entry_sha256": "800b590301ae6d283aa6a359dd4e71929c4ab3d1a21a199a70c7a6df0d1413b6",
+  "scope": "Same configured hardware, CPU remains halted, only hidden/history and debug descriptor updated; actual binary readback each step; not autoregressive/free generation"
+}

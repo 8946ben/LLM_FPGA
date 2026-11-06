@@ -6,6 +6,10 @@ __pycache__/
 Thumbs.db
 artifacts/
 module16_lm_head_hls/build/
+module_14_lm_head_v2/build/
+module_14_lm_head_v2/board/build/
+module_14_lm_head_v2/standalone/build/
+module_14_lm_head_v2/standalone/workspace/
 vitis_hls.log
 
 # ---- Vivado / Vitis 运行日志与缓存 ----
@@ -40,3 +44,51 @@ realFpga/vitis/workspace/*/psu_cortexa53_0/
 *.d
 *.pdom
 *.bit
+module_14_lm_head_v2/standalone/tcp_workspace/
+
+# Frozen delivery ZIPs, weights, and extracted verification copies
+/deliverables/
+
+# ================= 构建产物与仿真中间数据（2026-11-06 补充） =================
+# Vivado / Vitis HLS 每次综合、协同仿真都会重新生成，不入库
+**/build/
+**/syn/
+**/impl/
+**/standalone/
+**/hls/solution1/
+**/*.Xil/
+**/tmp.gen/
+*.aps
+*.log
+*.rpt
+
+# ================= 实验报告与原始数据（体积大、可重跑生成） =================
+module_14_lm_head_v4/reports/
+module_14_lm_head_v4/data/
+module_14_lm_head_v4/board/
+module_14_lm_head_v4b/reports/
+module_14_lm_head_v3_1/reports/
+module_14_lm_head_v2/reports/
+.cache/
+.gen/
+.srcs/
+bak/
+tmp/
+
+# ================= 二进制 / 权重 / 波形文件 =================
+*.u8
+*.bin
+*.f32
+*.dat
+*.dcp
+*.safetensors
+*.npz
+*.npy
+*.hex
+*.xsa
+*.xclbin
+*.bc
+*.adb
+*.elf
+*.a
+*.exe

@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/chinese_driving_rule.csv:108",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "9b2d6f226c024c1a3a0c67cefc20ff50c1e71d299deebfd92e36201854901dbc",
+  "group_sha256": "3b9f723df1d2b4b6e2a163425ff30d5c3e69b8d762fa2578146b511b612f31fd",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "d162165be11c37a46c9c76b6.npz",
+  "npz_sha256": "75a1e985842890d3bad5e84f706acf707b44b06df0571d6e42bbcba945710e10",
+  "generated_ids": [
+    102349,
+    20412,
+    5122,
+    32,
+    13,
+    220,
+    21,
+    15,
+    107875,
+    271,
+    102401,
+    20412,
+    5122,
+    100345,
+    26940,
+    105492
+  ],
+  "input_tokens": 77,
+  "seconds": 0.44083369994768873,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

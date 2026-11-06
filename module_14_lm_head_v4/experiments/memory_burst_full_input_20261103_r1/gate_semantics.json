@@ -1,0 +1,51 @@
+{
+  "state": "PASS_INDEPENDENT_BURST_MODEL_SEMANTICS",
+  "utc": "2026-11-03T07:57:23.229432+00:00",
+  "model_sha256": "07e2f1b17f10b989bdb980cc208c463c914170c14fc598851f71aeba21e74c40",
+  "legacy": {
+    "state": "PASS_LEGACY_SUBPHASE_ONLY",
+    "overall_workflow_state": "FAILED_NO_AUTOMATIC_RETRY",
+    "events": 2093,
+    "counts": {
+      "INIT": 3,
+      "R": 1055,
+      "W": 1033,
+      "BW": 2
+    },
+    "boundary_rejections": 15,
+    "unknown_reads": 13,
+    "model_sha256": "07e2f1b17f10b989bdb980cc208c463c914170c14fc598851f71aeba21e74c40",
+    "event_sha256": "2ea7c15c308975ad4c57f5dc6e1f3fa1740a74a1a6a9a406117852a110ba8035"
+  },
+  "paired_events": 41805,
+  "paired_counts": {
+    "I": 8,
+    "R": 20003,
+    "RE": 1168,
+    "W": 19459,
+    "WE": 1160,
+    "PERR": 3,
+    "PRERR": 4
+  },
+  "unknown_or_z_read_events": 4575,
+  "invalid_read_events": 504,
+  "warnings_per_model": 516,
+  "distinct_warning_messages": 204,
+  "warnings_exact_multiset_equal": true,
+  "direct_expression_vs_typed_four_state_differences": 16432,
+  "evidence_sha256": {
+    "burst_events.csv": "e86c7a2fe1efbfb43fd83f7a3a60ab8e1d86d0417a457ad15baba40decb93d3c",
+    "warning_events.tsv": "51f85c8a32daea9a63c10cac955179f5f9f8d828d71d0b118abd95ce46794bda",
+    "tool.log": "eef4458daaa41c5218dcf00a78f0b800efe5147d1e38311c127de9582fc8cdbd",
+    "resources.jsonl": "ed97333de278f7f7936ad5ba3ea6447a1d5bbaf7faa5d62e450b0786ad3c829a"
+  },
+  "limits": [
+    "Finite simulated-model semantics, not full RTL/FIFO/AXI pressure or decode qualification",
+    "Typed 8/32/128-bit four-state comparisons and actual candidate bit records are used; original direct-expression failures retained",
+    "Read flags/range errors/bits independently replayed; no-page unchanged-queue and generic/bank shape assertions executed in SV",
+    "Paired aliases cross512MiB; original broader 2093 includes independent byte event replay and generic-width SV assertions"
+  ],
+  "full_m14": "NOT_RUN",
+  "board": "NOT_RUN",
+  "automatic_next_stage": false
+}

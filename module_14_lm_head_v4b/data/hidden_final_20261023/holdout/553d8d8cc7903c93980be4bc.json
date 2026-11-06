@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/conceptual_physics.csv:55",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "e68a96652dd9f82562c6ef4285329c93972f206b39dbc7995a0ff568319e6255",
+  "group_sha256": "23bdfbf2bc56e1fd62ba9652cfdaca2788fa502e47d7b78ff59536b6ee97b098",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "553d8d8cc7903c93980be4bc.npz",
+  "npz_sha256": "f1bbdbbba05200f02357b02bc8c77c9b367210e37bd9145d573e541f475c7d28",
+  "generated_ids": [
+    99487,
+    106367,
+    104429,
+    34187,
+    32664,
+    102462,
+    101290,
+    108894,
+    33108,
+    99892,
+    99788,
+    3407,
+    32,
+    13,
+    220,
+    46944
+  ],
+  "input_tokens": 94,
+  "seconds": 0.4275678999838419,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

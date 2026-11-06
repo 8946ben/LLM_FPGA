@@ -1,0 +1,27 @@
+{
+  "host_exe_sha256": "2c71f59fcdaa7f36bcbfa45861f95901aebf1493df9cda30d7e59b352e58d966",
+  "target_pl_ddr": "NOT_RUN",
+  "mock_scope": "CRC of received bytes and READ from reference file; not physical DDR, lwIP receive path, or actual network",
+  "parent_v31_sources_unchanged": true,
+  "updated": "2026-10-23T02:06:38.1891349+08:00",
+  "target_copy_alignment_length_combinations": 88,
+  "python_tests": 13,
+  "network_access": "NONE",
+  "source_sha256": {
+    "standalone/upload_arena_tcp.py": "bdca6ae684c59c4b6b8c9ad04a38309df43b2c4a51139d6879ba207aec536168",
+    "tests/arena_loader_core_test.c": "4b1830baf241dfe75fd6b5305cd266134e3755ab12fa0e3db96653104d9c5d19",
+    "tests/test_arena_transport.py": "c797f7f0a0d6bbc49e02af752fcf4ad0f7ce9126c01f36e2e4c7b11a8a105651",
+    "standalone/arena_loader.ld": "e5798cf0e4e87d7ccd1342279673a8811caeeff79b29f6d020ef45b1cf2a2fd1",
+    "standalone/arena_loader/arena_layout.h": "de980827baba14d1174a3cc7dc50c01391f3c0e2d1151c9c9c3a8ba686884f5f",
+    "standalone/arena_loader/loader_core.c": "c9be17bd61a75fa3fbd91e1d35830dfeaa8624041a2a552442c7801345ef2144",
+    "standalone/arena_loader/loader_core.h": "d98947dcd36ae27bb0614cc817de523124bf4c493a3d7e3b000d64bf93e7c611",
+    "standalone/arena_loader/main.c": "a2bc6dd118af372af6675dff3453a590faa56cc8c0dbca528da7ebd31abe66a5",
+    "standalone/arena_loader/platform_config.h": "e94e88388bc5a10891b50179af8ac8dc976c397677354eb0436c97ffeee3d3fd",
+    "standalone/arena_loader/platform_zynqmp.c": "d33ee377de6a2a5695d1a98367d3fb5f57864acfcea326066df5c5682a6b7bec",
+    "standalone/arena_loader/platform.h": "e5911f581ca203f98404b12da9ca910ca2f3f4cdfc4740da77dc87db8b8cc0f3"
+  },
+  "target_main_compiled": false,
+  "board": "NOT_RUN",
+  "scope": "C protocol/64bit bounds/CRC/aligned-copy/partial-ACK; Python fragmented replies + full320MiB mock transfer and negative cases; local real image preflight",
+  "state": "PASS_HOST_ONLY_NO_BSP_ELF_BOARD"
+}

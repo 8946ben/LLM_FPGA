@@ -1,0 +1,35 @@
+{
+  "scope": "Matching XSA offline BSP and ELF only",
+  "guards": {
+    "group_gib": 16,
+    "min_available_gib": 32,
+    "bsp_timeout_s": 1800,
+    "elf_timeout_s": 600
+  },
+  "source_sha256": {
+    "build_software.py": "f6a2acc351fb6aaddf4db4008e683b7a27696f7e8fb3cf0e533cd424114380f3",
+    "INDEPENDENT_HARDWARE_REVIEW.json": "c17ce5dcfe4246986eac6da3e41f88a70170dd8530a5c28be3405ca22c7d5a25",
+    "platform.tcl": "518642d6b44bb8fc854fbf6c3d1e09a9b604cc8cf170888c612c259ac52cecba",
+    "run_build.py": "c059644b9c3ba2d0d59e8899a9eb0137431ac4c049c9fe19141220ba32e035a8",
+    "xemacpsif_physpeed.c": "4ad6f6537c3f9c648ea84435714b282c9b82ab7e36d45eb46db94ab0865bedf5",
+    "ps/arena_loader.ld": "e5798cf0e4e87d7ccd1342279673a8811caeeff79b29f6d020ef45b1cf2a2fd1",
+    "ps/d64_cases.h": "c245d4b208c6fd64a05a137754dc7172ac255dc4d4c473b38deeee2406b067a5",
+    "ps/d64_control.c": "1d9b8d9247dafa8d9a02db197a1099c07005a9c2a1208ed112b5b32313bac04a",
+    "ps/d64_control.h": "6542420faf8665ca572de33ddd9aa11365c685797df0eff954717d1c50345329",
+    "ps/d64_layout.h": "d5f20deabb24455e9692c9dcde4f341bec6981dac44448c79f49674530825d2f",
+    "ps/d64_ps_main.c": "b80fa3f7d3874df5a12742d6cfcb98bd29d4b4e263b533ab0f650c1a9ce2bcec",
+    "ps/layout.json": "332fcb680de4eea392153943d8714cf9f51bf4ba080fd177fd8b8e7d486e0d5c",
+    "ps/SOURCE_DERIVATION.json": "3ed49f2c2631c0a3ca33574f9f19080ab09c230402ec398dd88062bea7271daf",
+    "ps/test_control.c": "d4dabfcc0153a1709b751c99fa3fdd995b9a8762ce5ce3005733af49cd9451d2",
+    "ps/test_loader.c": "c4cc30f3ba1d5c1107681d80e0381be3a4ee1171f31e3b46f8a348c2154fe0a2",
+    "ps/upload_d64.py": "af5810fb4ddfb67752dd98d91b017d70bd9a6f748b55768e240bf30e2edae51a",
+    "ps/loader/arena_layout.h": "4ad98436b2245beac5e6a64ff18c5c617842bbfe63e545f93b5f0d58706e4b44",
+    "ps/loader/loader_core.c": "cf38d20ea19bf1511d7442dd7144d59bb90788067016ab67b0738a5b617bc93e",
+    "ps/loader/loader_core.h": "8c5df189f3638d98b923e725f81d1baa34f6b9e8f023aa45d2f01e7c5b84225c",
+    "ps/loader/main.c": "13cbcc9107dd0b247b4a61a225d52d6dc88de721aeb46f303eee13f57c533c4f",
+    "ps/loader/platform.h": "e5911f581ca203f98404b12da9ca910ca2f3f4cdfc4740da77dc87db8b8cc0f3",
+    "ps/loader/platform_config.h": "e94e88388bc5a10891b50179af8ac8dc976c397677354eb0436c97ffeee3d3fd",
+    "ps/loader/platform_zynqmp.c": "d33ee377de6a2a5695d1a98367d3fb5f57864acfcea326066df5c5682a6b7bec"
+  },
+  "manual_change": "XSCT launcher explicitly supports -nodisp; r1 Xvfb pre-launch failure preserved; new workspace; no system modification"
+}

@@ -1,0 +1,17 @@
+{
+  "corpus_sha256": "7debd5ddff9d46187fcc60755df87c7557fa71cb9c6694c806912888368a0c22",
+  "model_lock_sha256": "076438e8242f95da97360a339d7173d7fcacf82d6c811f0faedf9b4e666da51d",
+  "canonical_weight_sha256": "4e96b0df6d274768cbb7e72404011853d23349999b658dc2f4dfb3c431ea223f",
+  "collector_sha256": "a1d139153545bd8a72554f9c7b14bf0b52f44af8c75749dfdae28f76e6b7ca19",
+  "gpu_head_sha256": "dc3c83d16a2cb525462bca2d245ce950ffb1033d5d70826c7386670872073256",
+  "torch": "2.13.0+cu130",
+  "transformer_dtype": "BF16",
+  "head_dtype": "FP32_H8_INTERLEAVE16_SEPARATE_MULTIPLY_ADD",
+  "penalty": 1.1,
+  "system_prompt": "You are Qwen, created by Alibaba Cloud. You are a helpful assistant.",
+  "max_input_tokens": 2048,
+  "max_new_tokens": 16,
+  "raw_top_k": 256,
+  "selection_lock_sha256": "9b0d4269b72e5d8b989b95f2c914670ebbbfe9d6152917b45b53f8f8a640c393",
+  "teacher_forcing": "Canonical dense autoregressive trajectory, not dataset-answer labels"
+}

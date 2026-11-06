@@ -1,0 +1,2500 @@
+{
+  "state": "PASS_OFFLINE_ROUTE_WITH_EXPLICIT_FINDING_DISPOSITIONS_NOT_BOARD",
+  "utc": "2026-11-06T02:50:16.339320+00:00",
+  "metrics": {
+    "setup_slack_ns": 0.019,
+    "hold_slack_ns": 0.009,
+    "part": "xczu9eg-ffvb1156-2-i",
+    "target_mhz": 200,
+    "stage": "ROUTED_NOT_BITSTREAM_NOT_BOARD"
+  },
+  "post_route_dcp": {
+    "path": "/home/zhangben/gpuFpgaLLM_experiments/lm_head_v4_partial_20261024_r1/module_14_lm_head_v4/reports/d64_system_200m_20261106_r4/hardware/post_route.dcp",
+    "bytes": 87996913,
+    "sha256": "8cfba198ca9a23dbbb0c538921a572d02546020c9a89ffa0d447e29aa8e5772e"
+  },
+  "collection_archive_sha256": "4805abf90e1e69535fb66dc815c24396b9947e810884078bb7b4c0bd3e785892",
+  "resources": {
+    "samples": 5287,
+    "peak_group_gib": 11.559959411621094,
+    "min_available_gib": 237.4093780517578
+  },
+  "cdc_summary": [
+    [
+      "CDC-3",
+      "Info",
+      "174"
+    ],
+    [
+      "CDC-9",
+      "Info",
+      "12"
+    ],
+    [
+      "CDC-15",
+      "Warning",
+      "4"
+    ]
+  ],
+  "drc_summary": [
+    [
+      "DPIP-2",
+      "Warning",
+      "225"
+    ],
+    [
+      "DPOP-3",
+      "Warning",
+      "243"
+    ],
+    [
+      "DPOP-4",
+      "Warning",
+      "34"
+    ],
+    [
+      "DPREG-7",
+      "Warning",
+      "64"
+    ],
+    [
+      "PDCN-1569",
+      "Warning",
+      "3"
+    ],
+    [
+      "RTSTAT-10",
+      "Warning",
+      "1"
+    ],
+    [
+      "AVAL-155",
+      "Advisory",
+      "115"
+    ],
+    [
+      "AVAL-156",
+      "Advisory",
+      "17"
+    ]
+  ],
+  "bus_skew_min_slack_ns": 4.381,
+  "pin_ports_checked": 73,
+  "dsp_count": 182,
+  "dpreg7_count": 64,
+  "dsp_feedback": "Conservative exhaustive OPMODE evaluation: sequential outputs and protected LUTs without exposed INIT are independent unconstrained Boolean leaves; no P feedback for any PREG=0 cell",
+  "findings": {
+    "ddr_reset": "Only missing output delay is MIG-owned asynchronous DDR reset; AM5/LVCMOS12/DRIVE8 and MIG fanin verified. No synchronous data endpoint exempted. No added false path or invented delay.",
+    "cdc15": "All four paths in vendor debug hub read/write FIFO; production AXI CDC reports synchronized structures and positive bus-skew limits.",
+    "dpreg7": "All 64 warned DSPs conservatively evaluated with protected LUT outputs unconstrained; feedback mux choices excluded even in this overapproximation; no RTL edits or warning suppression.",
+    "pipelining": "DSP pipeline recommendations retained; declared target timing positive; no numerical qualification inferred.",
+    "pdcn1569": "Three LUT warnings confined to debug hub; not computation datapath.",
+    "rtstat10": "Vendor MIG unused calibration/debug nets listed in raw report; actual routable nets complete."
+  },
+  "board": "NOT_RUN",
+  "full12rtl": "INCOMPLETE_USER_STOPPED",
+  "bit_allowed": "Manual generation from this exact post_route DCP/project only, with matching XSA/BSP audit still required",
+  "dsp": [
+    {
+      "cell": "m14_d64_system_i/ddr4_0/inst/u_ddr4_mem_intfc/u_ddr_cal_riu/mcs0/inst/microblaze_I/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/MUL_Unit_I/Use_HW_MUL.Using_DSP48_Architectures.No_MUL64.dsp_module_I2/Using_DSP48E1.DSP48E1_I1/Using_FPGA.DSP48E1_I1",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/ddr4_0/inst/u_ddr4_mem_intfc/u_ddr_cal_riu/mcs0/inst/microblaze_I/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/MUL_Unit_I/Use_HW_MUL.Using_DSP48_Architectures.No_MUL64.dsp_module_I3/Using_DSP48E1.DSP48E1_I1/Using_FPGA.DSP48E1_I1",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/ddr4_0/inst/u_ddr4_mem_intfc/u_ddr_cal_riu/mcs0/inst/microblaze_I/U0/MicroBlaze_Core_I/Performance.Core/Data_Flow_I/MUL_Unit_I/Use_HW_MUL.Using_DSP48_Architectures.dsp_module_I1/Using_DSP48E1.DSP48E1_I1/Using_FPGA.DSP48E1_I1",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U1189/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U1189/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/fmul_32ns_32ns_32_5_max_dsp_1_U1189/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000011111"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U265/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U265/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U265/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U265/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U266/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U266/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U266/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U266/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U267/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U267/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U267/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U267/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U268/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U268/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U268/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U268/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U269/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U269/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U269/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U269/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U270/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U270/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U270/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U270/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U271/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U271/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U271/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U271/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U272/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U272/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U272/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fadd_32ns_32ns_32_8_full_dsp_1_U272/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U273/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U273/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U273/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000011111"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U274/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U274/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U274/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000011111"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U275/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U275/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U275/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000011111"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U276/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U276/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U276/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000011111"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U277/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U277/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U277/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000011111"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U278/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U278/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U278/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000011111"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U279/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U279/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U279/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000011111"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U280/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U280/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/dot_product_rows_U0/grp_dot_product_rows_Pipeline_dot_word_loop_fu_1264/fmul_32ns_32ns_32_5_max_dsp_1_U280/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000011111"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/p_anonymous_namespace_candidate_policy_U0/grp_p_anonymous_namespace_candidate_policy_Pipeline_candidate_policy_loop_fu_121/fmul_32ns_32ns_32_5_max_dsp_1_U1124/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/p_anonymous_namespace_candidate_policy_U0/grp_p_anonymous_namespace_candidate_policy_Pipeline_candidate_policy_loop_fu_121/fmul_32ns_32ns_32_5_max_dsp_1_U1124/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/p_anonymous_namespace_candidate_policy_U0/grp_p_anonymous_namespace_candidate_policy_Pipeline_candidate_policy_loop_fu_121/fmul_32ns_32ns_32_5_max_dsp_1_U1124/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000011111"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U985/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U985/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U985/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U985/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U986/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U986/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U986/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U986/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U987/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U987/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U987/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U987/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U988/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U988/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U988/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U988/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U989/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U989/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U989/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U989/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U990/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U990/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U990/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U990/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U991/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U991/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U991/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U991/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U992/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U992/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U992/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_lm_head_v4_candidate_1_fu_369/grp_p_anonymous_namespace_candidate_dataflow_fu_360/reduce_rows_U0/grp_reduce_partials_fu_1355/fadd_32ns_32ns_32_8_full_dsp_1_U992/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/fmul_32ns_32ns_32_5_max_dsp_1_U166/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/fmul_32ns_32ns_32_5_max_dsp_1_U166/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/fmul_32ns_32ns_32_5_max_dsp_1_U166/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000011111"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U49/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U49/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U49/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U49/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U50/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U50/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U50/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U50/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U51/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U51/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U51/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U51/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U52/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U52/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U52/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U52/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U53/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U53/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U53/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U53/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U54/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U54/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U54/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U54/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U55/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U55/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U55/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U55/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U56/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U56/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U56/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U56/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U57/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U57/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U57/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U57/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U58/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U58/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U58/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U58/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U59/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U59/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U59/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U59/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U60/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U60/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U60/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U60/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U61/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U61/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U61/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U61/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U62/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U62/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U62/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U62/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U63/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U63/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U63/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U63/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U64/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U64/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U64/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U64/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U65/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U65/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U65/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U65/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U66/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U66/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U66/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U66/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U67/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U67/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U67/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U67/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U68/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U68/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U68/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U68/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U69/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U69/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U69/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U69/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U70/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U70/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U70/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U70/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U71/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U71/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U71/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U71/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U72/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U72/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U72/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U72/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U73/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U73/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U73/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U73/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U74/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U74/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U74/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U74/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U75/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U75/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U75/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U75/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U76/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U76/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U76/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U76/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U77/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U77/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U77/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U77/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U78/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U78/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U78/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U78/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U79/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U79/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U79/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U79/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U80/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U80/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U80/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U80/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U81/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U81/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U81/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U81/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U82/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U82/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U82/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U82/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U83/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U83/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U83/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U83/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U84/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U84/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U84/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U84/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U85/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U85/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U85/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U85/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U86/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U86/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U86/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U86/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U87/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U87/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U87/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U87/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U88/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U88/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U88/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U88/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U89/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U89/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U89/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U89/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U90/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U90/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U90/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U90/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U91/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U91/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U91/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U91/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U92/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U92/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U92/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U92/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U93/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U93/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U93/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U93/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U94/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U94/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U94/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U94/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U95/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U95/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U95/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U95/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U96/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U96/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[0]",
+        "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U96/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.ALIGN_ADD/DSP2/OPMODE[1]"
+      ],
+      "possible_opmode": [
+        "000000000",
+        "000000101",
+        "000110000",
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fadd_32ns_32ns_32_8_full_dsp_1_U96/lm_head_v4_partial_proto_fadd_32ns_32ns_32_8_full_dsp_1_ip_u/inst/i_synth/ADDSUB_OP.ADDSUB/DSP.OP/DSP48E1_BODY.NORM_RND/FULL_USAGE_DSP.SHIFT_RND/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 1,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000110101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U100/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U100/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U100/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000011111"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U101/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U101/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U101/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000011111"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U102/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U102/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U102/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000011111"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U103/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U103/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U103/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000011111"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U104/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U104/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U104/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000011111"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U99/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP1/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000000101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U99/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.MULT/DSP48E1_SPD_SGL_VARIANT.FIX_MULT/DSP2/i_no_versal_es1_workaround.DSP",
+      "preg": 1,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "001010101"
+      ],
+      "p_feedback_possible": false
+    },
+    {
+      "cell": "m14_d64_system_i/selector_0/inst/grp_p_anonymous_namespace_partial_preview_fu_338/grp_p_anonymous_namespace_partial_preview_Pipeline_preview_beat_loop_fu_158/fmul_32ns_32ns_32_5_max_dsp_1_U99/lm_head_v4_partial_proto_fmul_32ns_32ns_32_5_max_dsp_1_ip_u/inst/i_synth/MULT.OP/i_non_prim.R_AND_R/LAT_OPT.FULL.R_AND_R/DSP48E1_SGL_EXP_IP.OLD_ADD.ADD/i_no_versal_es1_workaround.DSP",
+      "preg": 0,
+      "opmodereg": 0,
+      "invert": 0,
+      "leaves": [],
+      "possible_opmode": [
+        "000011111"
+      ],
+      "p_feedback_possible": false
+    }
+  ],
+  "auditor_negative_controls": [
+    {
+      "case": "z_p_feedback",
+      "rejected": true
+    },
+    {
+      "case": "x_p_feedback",
+      "rejected": true
+    },
+    {
+      "case": "w_p_feedback",
+      "rejected": true
+    }
+  ],
+  "dsp_mux_primary_reference": "https://docs.amd.com/api/khub/documents/pTysoma4TYgNH95BrY1Sbw/content"
+}

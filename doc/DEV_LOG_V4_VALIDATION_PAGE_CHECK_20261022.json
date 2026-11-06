@@ -1,0 +1,33 @@
+{
+  "state": "PASS_STATIC_DATA_LINK_AND_JAVASCRIPT_SYNTAX_ONLY",
+  "date": "2026-10-22",
+  "timezone": "Asia/Shanghai",
+  "scenario_count": 17,
+  "journal_entries": 67,
+  "history_preservation": "Update script asserts all original66 entries unchanged before writing; appended1",
+  "canonical_snapshot_equals_generated_page": true,
+  "route_snapshot_synchronized": true,
+  "javascript_syntax_blocks": 5,
+  "documents": [
+    {
+      "path": "开发日志.html",
+      "sha256": "07c7dc6e2bdd15b3ced12f68cf01d5be61009d41dbfa39ddee31d250f63b09c6",
+      "unique_ids": 67
+    },
+    {
+      "path": "doc/design/V4Validation.html",
+      "sha256": "f060266123132b58034a72daa120510ec3406b75f58b6505b5db1ea3480166ed",
+      "unique_ids": 22
+    },
+    {
+      "path": "doc/design/R4Sparse.html",
+      "sha256": "1a260f7af537c1b055ff4c9442f669d8835a65e1e4e87181d57feb539f1627aa",
+      "unique_ids": 54
+    }
+  ],
+  "browser_preview": "NOT_RUN: CUA policy rejects file:// observation; no alternative browser/workaround used",
+  "responsive": "CSS850px/520px breakpoints and overflow containers inspected; no visual viewport verification",
+  "scene_interaction": "Search/filter/scene controls have matching static IDs and handlers; browser interaction NOT_RUN",
+  "gpu_rtl_board_access": "NONE",
+  "new_test_execution": "NONE"
+}

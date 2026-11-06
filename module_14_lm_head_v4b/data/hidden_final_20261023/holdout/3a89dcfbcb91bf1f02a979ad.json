@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/college_actuarial_science.csv:0",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "134f186c91282168a840f29f5f92a0e3c41ab05b8d1eb1ccf4cf3cece0a3f9a7",
+  "group_sha256": "bedb966ab56064a51f5f1044d97258236f1942b045e881468f7d34162bbae672",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "3a89dcfbcb91bf1f02a979ad.npz",
+  "npz_sha256": "c787314ec8d14a2f727f15fd64882dbb797ccdd1f8753c173816161515300671",
+  "generated_ids": [
+    105073,
+    109228,
+    43268,
+    33071,
+    23384,
+    38507,
+    40027,
+    33108,
+    30540,
+    8863,
+    114714,
+    107402,
+    3407,
+    101140,
+    3837,
+    97639
+  ],
+  "input_tokens": 146,
+  "seconds": 1.6373829999938607,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

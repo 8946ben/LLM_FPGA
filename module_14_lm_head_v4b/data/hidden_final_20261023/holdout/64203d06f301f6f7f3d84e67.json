@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/sports_science.csv:68",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "3d0d2428c4e256ac1465e270e6382d1fbebcf5a8e80a871422da395e484b26b1",
+  "group_sha256": "55eb18f7bcb9297dd056c3fb4f292f09aa2db5bbe970117f94832473315c1d29",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "64203d06f301f6f7f3d84e67.npz",
+  "npz_sha256": "1d8168b902b9a3ea603ac49ec993b0de6a5693c76da4849f103835df38f2dd73",
+  "generated_ids": [
+    105418,
+    100796,
+    47534,
+    104034,
+    104867,
+    99659,
+    20412,
+    422,
+    13,
+    32181,
+    238,
+    27733,
+    102660,
+    3407,
+    99917,
+    104506
+  ],
+  "input_tokens": 76,
+  "seconds": 1.6448176000267267,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

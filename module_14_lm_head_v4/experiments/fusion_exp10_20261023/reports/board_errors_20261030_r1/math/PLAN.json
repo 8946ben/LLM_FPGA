@@ -1,0 +1,12 @@
+{
+  "variant": "exp10",
+  "case": "math",
+  "tests": [
+    "validate_only",
+    "bad_magic",
+    "overlap",
+    "bad_command"
+  ],
+  "scope": "Valid descriptor-only, invalid magic/overlap/command; exact preflight status, no stale result and first16B of three scratch regions unchanged. Does not prove every scratch byte or runtime failure handling.",
+  "source_sha256": "c16b98b1739338e5213bee81639128654c129852c21a1aec543b18d15c65d253"
+}

@@ -1,0 +1,44 @@
+{
+  "state": "PASS_OPTIMIZED_MODEL_21_GATES_EXACT_WIRE_AND_RESOURCES_ONLY",
+  "utc": "2026-11-05T06:37:27.914249+00:00",
+  "model_source_files_identical": 8,
+  "wire": {
+    "counters": {
+      "AR": 1038,
+      "R": 131108,
+      "AW": 11,
+      "W": 152,
+      "B": 10
+    },
+    "reset_canceled_reads": 1,
+    "reset_canceled_b": 1,
+    "epochs": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "four_state_unwritten_reads": 2,
+    "consecutive_r_handshakes": 118036,
+    "source_trace_sha256": "5e1e5c5ba425d85f958b1ac3c15f043b181be581b8e840e38f24565303b5c461"
+  },
+  "wire_bytes_exact_to_original": true,
+  "positive_wire_sha256": "5e1e5c5ba425d85f958b1ac3c15f043b181be581b8e840e38f24565303b5c461",
+  "guards": "8GiB/32GiB spare/300s compile/180s percase",
+  "resource_samples": 193,
+  "peak_group_gib": 0.8420906066894531,
+  "positive_elapsed_s": 6.013560312800109,
+  "baseline_positive_elapsed_s": 6.0195744330994785,
+  "independent_process_identity_count": 91,
+  "tool_options": "-debug off --O3;-stats",
+  "model_qualification": "1 positive +20 expected-rejection cases independently reviewed",
+  "limits": [
+    "No full-DUT run under optimized compile yet",
+    "Positive walltime near6s includes launch overhead;not evidence of full-DUT acceleration",
+    "Original12persistent suite remains1/12,timeout preserved",
+    "No FPGA/MIG or physical decode timing"
+  ],
+  "next_action": "Manually freeze bounded actual-DUT prefix comparison using identical input/source/full weights;validate full selected prefix bytes before deciding complete12case budget",
+  "automatic_next_stage": false
+}

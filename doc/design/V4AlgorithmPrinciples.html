@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="逐一理解 lm_head 的七类候选筛选方法：聚类、低秩、融合、部分通道、倒排桶、学习路由、多表哈希。">
+<title>从全词表到候选集 · lm_head 稀疏算法原理</title>
+<style>
+:root{--bg:#f6f5ef;--paper:#fffefa;--ink:#213b36;--muted:#5d6d67;--line:#d8dfd4;--green:#196650;--orange:#a34c28;--blue:#3768ad;--purple:#80519b;--soft:#edf2e9}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:80px}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.85 "Microsoft YaHei","PingFang SC",sans-serif}a{color:var(--green);text-underline-offset:4px}a:hover{color:var(--orange)}button,input,select{font:inherit}button,select{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--orange);outline-offset:4px}header{max-width:1240px;margin:auto;padding:45px 36px 30px}.topline{display:flex;justify-content:space-between;gap:20px;font-size:13px}.eyebrow{letter-spacing:2px;font-size:12px;color:var(--green);font-weight:700;margin:45px 0 14px}h1{font-size:clamp(32px,4.7vw,62px);line-height:1.3;letter-spacing:-1px;max-width:900px;margin:0 0 22px}h1 em{font-style:normal;color:var(--green)}.lede{max-width:820px;font-size:18px;color:var(--muted)}.hero-bottom{display:flex;gap:28px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:30px;padding-top:20px;font-size:13px}.hero-bottom b{font-size:23px;margin-right:6px}.shell{max-width:1240px;margin:auto;display:grid;grid-template-columns:218px minmax(0,1fr);gap:36px;padding:0 36px 60px}aside{position:sticky;top:20px;align-self:start;font-size:13px;padding-top:16px}aside a{display:block;text-decoration:none;padding:7px 12px;border-left:2px solid var(--line)}aside a:hover,aside a.active{border-color:var(--green);background:#e6eee2;font-weight:700}aside small{display:block;color:var(--muted);margin:14px 12px}main{min-width:0}section{scroll-margin-top:24px;margin:0 0 24px;padding:30px;background:var(--paper);border:1px solid var(--line);border-radius:4px}h2{font-size:26px;line-height:1.45;margin:0 0 18px}h3{font-size:17px;margin:22px 0 8px}p{margin:10px 0}.section-num{font:13px/1.5 Consolas,monospace;color:var(--green);letter-spacing:1px;margin-bottom:9px}.method-head{display:flex;justify-content:space-between;align-items:start;gap:15px}.tag{border:1px solid var(--line);padding:3px 10px;font-size:12px;white-space:nowrap;border-radius:20px}.idea{font-size:18px;color:var(--green);border-left:3px solid var(--green);padding:2px 0 2px 16px;margin:18px 0}.formula{background:var(--soft);padding:15px 18px;margin:16px 0;overflow-x:auto;font:15px/1.9 Consolas,"Microsoft YaHei",monospace;white-space:pre-wrap;overflow-wrap:anywhere;border-radius:3px}.formula small{font:13px/1.8 "Microsoft YaHei",sans-serif;color:var(--muted)}.steps{display:flex;gap:7px;align-items:stretch;margin:22px 0}.steps>div{flex:1;min-width:0;background:#f0f3eb;border-top:3px solid var(--green);padding:12px;font-size:13px;line-height:1.65}.steps b{display:block;margin-bottom:5px;font-size:14px}.steps>span{align-self:center;color:var(--green)}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:25px}.note{color:var(--muted);font-size:13px}.caution{background:#fbf0e6;border-left:3px solid #c17c47;padding:12px 16px;font-size:14px;margin:18px 0}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:13px;text-align:left}th,td{border-bottom:1px solid var(--line);padding:11px 9px;vertical-align:top}th{color:var(--green);background:#eef2e9}td:first-child{font-weight:700;white-space:nowrap}code{font:14px Consolas,monospace;overflow-wrap:anywhere}.glossary{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;font-size:14px}.glossary>div{padding:8px 0;border-bottom:1px solid var(--line)}.glossary b{display:inline-block;min-width:64px;color:var(--green)}.matrix-figure{display:flex;align-items:center;justify-content:center;gap:16px;padding:28px 12px;background:var(--soft);margin:20px 0;flex-wrap:wrap}.matrix{display:grid;grid-template-columns:repeat(6,11px);gap:4px}.matrix i{display:block;height:11px;background:#bacbb8;border-radius:1px}.matrix i.on{background:var(--green)}.matrix-label{text-align:center;font-size:12px;line-height:1.6}.matrix-label strong{display:block}.mathsign{font-size:25px;color:var(--green)}.legend{display:flex;flex-wrap:wrap;gap:18px;font-size:12px;margin:12px 0}.swatch{display:inline-block;width:12px;height:12px;vertical-align:middle;margin-right:5px;background:var(--green)}.swatch.off{background:#d7ddd3}.swatch.winner{background:#b87529}.controls{display:flex;gap:18px;flex-wrap:wrap;margin:20px 0}.controls label{display:flex;align-items:center;gap:8px;font-size:14px}.controls select{max-width:100%;background:white;border:1px solid var(--line);padding:5px 8px}input[type=range]{width:120px;accent-color:var(--green)}output{font-weight:bold;min-width:16px}.demo-result{padding:16px 18px;border:1px solid var(--line);background:#f0f4eb;margin:18px 0;font-size:15px}.demo-table td,.demo-table th{padding:8px;font-size:12px}.demo-table tr.kept{background:#edf4e9}.demo-table tr.missed{background:#fff0e5}.demo-table .bar{display:inline-block;height:9px;background:var(--green);min-width:1px}.dim-row{display:flex;flex-wrap:wrap;gap:7px}.dim{padding:5px 9px;font:12px/1.8 Consolas,monospace;background:#e5e8e1;color:#5d6d67;border:1px solid transparent}.dim.selected{background:#e3eee0;border-color:var(--green);color:var(--green)}.union-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:5px;margin:18px 0}.token{padding:10px 0;text-align:center;background:#e5e8e1;font:13px Consolas,monospace;border:2px solid transparent;position:relative}.token.route{background:#c8e2c3}.token.lowrank{background:#cbdcf3}.token.both{background:linear-gradient(135deg,#c8e2c3 50%,#cbdcf3 50%)}.token.special{border-color:var(--purple)}.token.target:after{content:'★';position:absolute;top:-12px;right:0;color:#a34c28}.toggle{border:1px solid var(--green);border-radius:3px;background:white;color:var(--green);padding:6px 12px}.toggle[aria-pressed=true]{background:var(--green);color:white}.sources li{padding:5px 0;font-size:14px}.sources{padding-left:22px}footer{font-size:12px;color:var(--muted);padding:5px 0 30px}.mini{font-size:12px;color:var(--muted)}.mobile-toc{display:none}noscript{display:block;padding:12px;background:#fbf0e6}.skip{position:absolute;left:12px;top:-100px;background:white;padding:8px;z-index:10}.skip:focus{top:10px}@media(max-width:950px){.shell{grid-template-columns:170px minmax(0,1fr);gap:20px;padding:0 22px 40px}header{padding:30px 22px}section{padding:24px}.twocol{grid-template-columns:1fr;gap:0}.steps{flex-wrap:wrap}.steps>div{flex-basis:38%}}@media(max-width:680px){.shell{display:block;padding:0 14px 30px}header{padding:25px 18px}.topline{flex-direction:column;gap:6px}.eyebrow{margin-top:28px}aside{display:none}.mobile-toc{display:block;margin:0 0 18px}.mobile-toc summary{padding:10px;background:var(--soft);cursor:pointer}.mobile-toc a{display:inline-block;padding:7px 10px;font-size:13px}section{padding:22px 17px}h2{font-size:23px}.glossary{grid-template-columns:1fr}.tag{display:none}.union-grid{grid-template-columns:repeat(6,1fr)}.steps>span{display:none}.steps{gap:8px}.controls{gap:12px}.controls label{flex-wrap:wrap}.hero-bottom{gap:15px}h1{letter-spacing:0}.matrix-figure{gap:10px}}@media print{aside,.mobile-toc,.controls,.topline,.skip{display:none}.shell{display:block;padding:0}header{padding:10px 0}section{break-inside:avoid;border:0;border-top:1px solid #ccc;border-radius:0;padding:18px 0}body{background:white;font-size:12px}h1{font-size:32px}h2{font-size:22px}a{color:inherit}.hero-bottom{margin:10px 0}.eyebrow{margin-top:10px}.demo-table{font-size:11px}}
+</style>
+</head>
+<body>
+<a class="skip" href="#common">跳到原理正文</a>
+<header>
+ <div class="topline"><a href="V4Validation.html#gpu-summary">← 返回 557 配置 GPU 对比</a><span>LLM / MODULE 14 · 算法阅读页</span></div>
+ <div class="eyebrow">ALGORITHM FIELD GUIDE · 2026.11.02</div>
+ <h1>从全词表，<br>到值得精算的<em>候选集。</em></h1>
+ <p class="lede">逐一理解图里的七类稀疏化方法。先看它怎样少算，再看它为什么可能漏选，以及代价究竟转移到了哪里。</p>
+ <div class="hero-bottom"><span><b>7</b>类候选筛选方法</span><span><b>151,936</b>个词表行</span><span><b>896</b>维 hidden</span><span>含 dense 基线 · 两个交互示例 · 完全离线</span></div>
+</header>
+<div class="shell">
+<aside aria-label="算法目录">
+ <small>从共同问题开始</small><a href="#common">共同框架与符号</a><a href="#overview">一张表看差异</a>
+ <small>原始方法 · 实验 1 / 8–10</small><a href="#dense">00　Dense 基线</a><a href="#cluster">01　L2 投票聚类</a><a href="#lowrank">02　低秩预筛</a><a href="#hybrid">03　聚类＋低秩融合</a>
+ <small>新增方法 · 研究 11–14</small><a href="#partial">04　部分通道预筛</a><a href="#affinity">05　全词表倒排桶</a><a href="#learned">06　学习式桶路由</a><a href="#lsh">07　多表哈希检索</a>
+ <small>动手理解</small><a href="#demo">交互：部分通道</a><a href="#cost">计算量与阅读边界</a><a href="#sources">项目事实来源</a>
+</aside>
+<main>
+<details class="mobile-toc"><summary>展开算法目录</summary><a href="#common">共同框架</a><a href="#overview">总览</a><a href="#dense">Dense</a><a href="#cluster">聚类</a><a href="#lowrank">低秩</a><a href="#hybrid">融合</a><a href="#partial">部分通道</a><a href="#affinity">倒排桶</a><a href="#learned">学习路由</a><a href="#lsh">哈希</a><a href="#demo">交互示例</a><a href="#sources">来源</a></details>
+<section id="common">
+ <div class="section-num">THE SHARED PROBLEM</div><h2>每生成一个词，为什么要读这么多权重？</h2>
+ <p>模型最后得到一个 hidden 向量 <code>h</code>。输出头 <code>W</code> 的每一行对应一个 token；对每行做点积，就得到该词的原始分数。全词表 dense 要对 151,936 行分别计算 896 维点积。</p>
+ <div class="formula">sᵢ = wᵢᵀh = Σⱼ Wᵢⱼ hⱼ
+winner = argmaxᵢ policy(sᵢ, history)
+<small>本项目 policy 对 history 中已出现的词施加 1.1 倍重复惩罚：负分乘 1.1，非负分除 1.1；稳定同分选择较小 ID。</small></div>
+ <p>这里的稀疏化围绕<strong>“哪些词需要完整点积”</strong>展开。先用便宜的规则构造候选集 <code>S</code>，再只读取候选对应的原始 BF16 权重行，按固定 FP32 运算合同精算。权重本身仍然保留。</p>
+ <div class="steps"><div><b>① 输入</b>hidden h<br>与 history</div><span>→</span><div><b>② 候选生成</b>聚类 / 近似分数<br>桶 / 哈希</div><span>→</span><div><b>③ 并集去重</b>合并 14 个<br>必保特殊 ID</div><span>→</span><div><b>④ 原权重精算</b>完整 896 维<br>policy → winner</div></div>
+ <div class="caution"><strong>精算能修正分数，不能找回被排除的词。</strong>若 dense 赢家不在 S 中，后续算得再精确也无法恢复它。页面中的“召回”指 dense 赢家是否被候选覆盖；它与任务答对率、自由生成质量是不同指标。</div>
+ <div class="glossary"><div><b>V / H</b>词表大小 / hidden 维度</div><div><b>K</b>最终并集去重后的候选词数</div><div><b>C / R</b>中心或桶总数 / 查询选中的数量</div><div><b>L</b>聚类每簇列表上限；哈希中另指表数</div><div><b>r / T</b>低秩维度 / 按预览保留的 Top-T</div><div><b>d / P</b>选取的原始通道数 / 每词归属的桶数</div></div>
+</section>
+<section id="overview">
+ <div class="section-num">SEVEN WAYS TO SCREEN</div><h2>它们分别从哪里省计算？</h2>
+ <div class="tablewrap"><table><thead><tr><th>方法</th><th>候选来自哪里</th><th>查询时是否扫全词表</th><th>近似发生在哪里</th></tr></thead><tbody>
+ <tr><td><a href="#dense">Dense</a></td><td>所有词</td><td>是，完整 H 维</td><td>无候选筛选近似</td></tr>
+ <tr><td><a href="#cluster">L2 投票聚类</a></td><td>最近 R 簇的训练投票词表</td><td>通常否，只算 C 个距离</td><td>hidden 分簇和列表覆盖</td></tr>
+ <tr><td><a href="#lowrank">低秩</a></td><td>低秩全词表预览的 Top-T</td><td>是，但降到 r 维</td><td>用低维子空间近似 W</td></tr>
+ <tr><td><a href="#hybrid">融合</a></td><td>聚类候选 ∪ 低秩候选</td><td>低秩分支仍扫全词表</td><td>两路共同漏选才丢失赢家</td></tr>
+ <tr><td><a href="#partial">部分通道</a></td><td>原始 d 个通道预览的 Top-T</td><td>是，但只读 d 列</td><td>忽略剩余 H−d 个通道</td></tr>
+ <tr><td><a href="#affinity">倒排桶</a></td><td>按权重亲和度归桶的完整词表</td><td>否，只评分 C 个原型</td><td>桶分数替代桶内逐词评分</td></tr>
+ <tr><td><a href="#learned">学习路由</a></td><td>监督线性模型选中的完整桶</td><td>否，只评分 C 个桶</td><td>学习模型预测哪些桶含赢家</td></tr>
+ <tr><td><a href="#lsh">多表哈希</a></td><td>同码桶和邻近哈希桶</td><td>不逐词评分，但可能读到大桶</td><td>用随机投影的碰撞替代内积排序</td></tr>
+ </tbody></table></div>
+</section>
+<section id="dense">
+ <div class="method-head"><div><div class="section-num">00 / REFERENCE</div><h2>Dense：完整词表逐行精算</h2></div><span class="tag">对照基线</span></div>
+ <p class="idea">把每个词都算一遍，作为其他方案的比较对象。</p>
+ <p>直接计算 <code>Wh</code>，再对全部词执行 history policy 和稳定最大值选择。没有候选召回损失；相对它自己的赢家定义，覆盖率为 100%。</p>
+ <div class="formula">每步乘法项 = VH = 151936 × 896 = 136,134,656
+BF16 权重大小 = 2VH = 259.65625 MiB</div>
+ <p>它的优点是流程规则、权重行连续；代价是每步都涉及整个大矩阵。稀疏方法需要在候选生成开销与减少的精算工作之间取得收益。</p>
+</section>
+<section id="cluster">
+ <div class="method-head"><div><div class="section-num">01 / CLUSTER · 实验 1、8</div><h2>L2 投票聚类：相似的 hidden，复用相似的候选表</h2></div><span class="tag">训练统计路由</span></div>
+ <p class="idea">先问“当前状态像哪一类训练状态”，再查那一类常见的高分词。</p>
+ <div class="steps"><div><b>离线：聚类 hidden</b>训练 h 做 L2 k-means，得到 C 个中心</div><span>→</span><div><b>离线：投票建表</b>按簇累积高分词与赢家票数</div><span>→</span><div><b>在线：最近 R 簇</b>取各表前 L 个词，合并后精算</div></div>
+ <p>项目聚类的对象是<strong>训练 hidden 向量</strong>。每簇候选表的词，由这个簇里的训练样本投票产生：raw Top 词按排名获得 <code>1/rank</code> 票，dense 赢家额外获得 4 票。票数降序，同票按 ID 排序。</p>
+ <div class="formula">D꜀(h) = ‖h − μ꜀‖² = ‖h‖² + ‖μ꜀‖² − 2 μ꜀ᵀh
+S = ⋃꜀∈最近R簇 List꜀[:L] ∪ Special</div>
+ <div class="twocol"><div><h3>参数怎样影响它？</h3><p><code>C128_R4_L16384</code> 表示 128 个中心、选最近 4 簇、每簇最多读 16,384 个有效 ID。实际 K 是去重结果，通常小于 <code>R×L+14</code>。C 增大会细分空间，但每簇训练样本也可能减少；增加 R 或 L 通常扩大候选。</p></div><div><h3>为什么会漏？</h3><p>新状态可能落到错误簇；赢家可能没在该簇的训练投票中出现，或被列表上限截掉。即使读全部簇，训练列表也不保证覆盖整个词表。旧路由遇到空簇使用显式 dense fallback，这种回退应单独统计。</p></div></div>
+ <p class="note">主要乘法项约 CH＋KH；优点是不需要每步扫描所有词的预览权重。列表覆盖依赖训练分布。</p>
+</section>
+<section id="lowrank">
+ <div class="method-head"><div><div class="section-num">02 / LOW RANK · 实验 1、9</div><h2>低秩预筛：用少量共同方向，估计所有词的分数</h2></div><span class="tag">子空间近似</span></div>
+ <p class="idea">让每个词先在 r 维空间里便宜地比一次，只给领先者完整精算。</p>
+ <p>离线对 W 的列空间提取主要方向。项目通过 <code>WᵀW</code> 的特征分解构造按能量排序的基 <code>B ∈ ℝᴴˣʳ</code>，并计算 <code>A = WB ∈ ℝⱽˣʳ</code>。理想实数下，<code>W ≈ ABᵀ</code>；项目将因子存为 BF16，因此还包含因子量化误差。</p>
+ <div class="formula">z = Bᵀh　　　　　　H 维 → r 维
+ŝ = Az ≈ Wh　　　　给全 V 个词生成预览
+S = TopT(policy(ŝ, history)) ∪ Special</div>
+ <div class="matrix-figure" role="img" aria-label="大矩阵 W 被近似为窄矩阵 A 乘 B 转置；先把 hidden 投影到低维，再计算词表预览">
+ <div class="matrix-label"><div class="matrix" data-matrix="48"></div><strong>W · V×H</strong></div><span class="mathsign">≈</span><div class="matrix-label"><div class="matrix" data-matrix="24" style="grid-template-columns:repeat(3,11px)"></div><strong>A · V×r</strong></div><span class="mathsign">×</span><div class="matrix-label"><div class="matrix" data-matrix="18"></div><strong>Bᵀ · r×H</strong></div>
+ </div>
+ <div class="twocol"><div><h3>r 与 T 是两个不同旋钮</h3><p>r 越大，保留的子空间越多，预览一般更接近原分数，但每步全词表预览更贵。T 越大，保留的近似领先词越多，漏选通常减少，精算代价增加。例如 <code>r64_T16384</code> 是 64 维预览后保留 16,384 个词。</p></div><div><h3>为什么会漏？</h3><p>被舍弃方向可能恰好决定两个高分词的次序；整体矩阵重构误差小，并不保证赢家排序正确。只要真实赢家的预览排到 T 之后，就无法被该路找回。</p></div></div>
+ <p class="note">乘法项约 r(H＋V)＋KH。低秩仍扫描整个词表，只是每行由 H 维减为 r 维。即使 r=H，BF16 因子与运算顺序也不自动等同原数值合同；T=V 则从候选覆盖上回到全词表。</p>
+</section>
+<section id="hybrid">
+ <div class="method-head"><div><div class="section-num">03 / HYBRID · 实验 1、10</div><h2>聚类＋低秩融合：用候选并集互相补漏</h2></div><span class="tag">双路召回</span></div>
+ <p class="idea">聚类靠训练经验，低秩看当前分数；任一路找到词，就保留它。</p>
+ <p>两路独立生成候选，再按全局 ID 合并、排序和去重，最后统一用原权重精算。这里的“融合”是<strong>集合并集</strong>，不是把聚类分数与低秩分数做加权平均。</p>
+ <div class="formula">S = Scluster ∪ Slowrank ∪ Special
+最终漏选 = 聚类漏选 ∩ 低秩漏选</div>
+ <p>例如本项目两套方法分别为 <code>C128/R4/L16384 + r128/T16384</code> 和 <code>C256/R4/L8192 + r64/T16384</code>。低秩可以补回训练列表未收录的词，聚类也可以补回低秩排序落后的词。质量收益取决于两路的错误是否互补；不能直接把两个漏选率相乘。</p>
+ <h3>试一下：并集怎样找回赢家？</h3>
+ <p class="note">下面是手工构造的 12 词集合示意。★ ID7 为假设的 dense 赢家，紫框 ID11 为示意必保词；不代表实测输入或 14 个真实特殊 ID。</p>
+ <div class="controls"><button class="toggle" id="route-toggle" type="button" aria-pressed="true">聚类候选：开启</button><button class="toggle" id="rank-toggle" type="button" aria-pressed="false">低秩候选：关闭</button></div>
+ <div class="union-grid" id="union-grid" aria-label="候选集合示意"></div><div id="union-status" class="demo-result" aria-live="polite"></div>
+ <div class="legend"><span><i class="swatch" style="background:#c8e2c3"></i>聚类提供</span><span><i class="swatch" style="background:#cbdcf3"></i>低秩提供</span><span>双色：两路共有</span><span>紫框：必保</span></div>
+ <p class="note">代价约 CH＋r(H＋V)＋KH，还要加两路候选构建成本。候选更多不必然更快；同配置的并集覆盖不会低于任一分支，但精算 K 也不会更小。</p>
+</section>
+<section id="partial">
+ <div class="method-head"><div><div class="section-num">04 / PARTIAL CHANNEL · 研究 11</div><h2>部分通道预筛：只看当前最重要的几列</h2></div><span class="tag">原始坐标子集</span></div>
+ <p class="idea">896 个通道不必先全部读出；先用其中 d 个通道估计哪些词值得精算。</p>
+ <p>它直接保留 W 的部分原始列。静态方案总用列 RMS 最大的 d 列；动态方案结合当前 hidden，按 <code>|hⱼ| × RMS(W[:,j])</code> 排序，每步选择不同的列。RMS 是整个词表上该列权重的均方根。</p>
+ <div class="formula">RMSⱼ = √(Σᵢ Wᵢⱼ² / V)
+Jdynamic = Top-dⱼ(|hⱼ| × RMSⱼ)　　Jstatic = Top-dⱼ(RMSⱼ)
+ŝᵢ = Σⱼ∈J Wᵢⱼ hⱼ
+S = TopT(policy(ŝ, history)) ∪ Special</div>
+ <div class="steps"><div><b>选 d 个原始通道</b>不做低秩旋转</div><span>→</span><div><b>全词表 d 维预览</b>读对应 d 列</div><span>→</span><div><b>Top-T 与精算</b>候选恢复完整 H 维</div></div>
+ <div class="twocol"><div><h3>与低秩有什么区别？</h3><p>低秩的每个方向通常混合所有原始通道；部分通道只选坐标子集。前者读低秩因子，后者读 W 的原始列。动态选列可以随 h 改变，不需要用赢家标签训练。</p></div><div><h3>误差与实现代价</h3><p>被忽略通道的总贡献可能很大，也可能与已选通道抵消；列 RMS 是全词表统计，不能保证对某个赢家最优。动态列访问还需要合适的列式或分块权重布局；保留行式精算权重时可能要增加副本。</p></div></div>
+ <p class="note">主要乘法项 Vd＋KH，另有动态 H 维打分及选择。Top-T 的输入仍有 V 个词。<a href="#demo">下方可以实际调节 d 和 T，观察赢家漏选。</a></p>
+</section>
+<section id="affinity">
+ <div class="method-head"><div><div class="section-num">05 / AFFINITY BUCKET · 研究 12</div><h2>全词表倒排桶：先把每一个词都放进索引</h2></div><span class="tag">权重亲和归桶</span></div>
+ <p class="idea">为整个词表建立可查询的目录，在线只打开分数最高的几个目录。</p>
+ <p>项目沿用训练 hidden 的中心并归一化为原型 p。离线计算每个词权重 wᵢ 与所有原型的亲和分数，将词放入得分最高的 P 个桶。每个桶保存完整的 ID 列表，<strong>不使用旧聚类的 L 截断</strong>。</p>
+ <div class="formula">Assign(i) = TopP꜀(wᵢᵀp꜀)
+Bucket꜀ = {i | c ∈ Assign(i)}
+在线 q꜀ = p꜀ᵀh；S = ⋃꜀∈TopR(q) Bucket꜀ ∪ Special</div>
+ <div class="twocol"><div><h3>与投票聚类最关键的差别</h3><p>投票聚类记录“训练状态中哪些词曾得高分”；这里根据完整 W 给<strong>每个词</strong>分配桶，因此词表覆盖完整。P=2 时，每词进入两个桶，索引有 2V 个 ID 条目。</p></div><div><h3>全覆盖为什么仍会漏？</h3><p>每词有桶，只说明它能被某次查询取到。当前 h 选中的 R 个桶仍可能不含赢家；桶原型得分不能准确代表桶里每个词。增加 P 或 R 会扩大支持和流量。R=C 时覆盖全部词，成为完整性对照端点。</p></div></div>
+ <p class="note">乘法项约 CH＋KH。每词索引占 4P 字节，另有偏移表；所读条目 E 可含重复，去重后的候选数为 K。桶长不均会影响缓冲与耗时。</p>
+</section>
+<section id="learned">
+ <div class="method-head"><div><div class="section-num">06 / LEARNED ROUTER · 研究 13</div><h2>学习式桶路由：直接学习“哪个桶可能装着赢家”</h2></div><span class="tag">监督线性筛选器</span></div>
+ <p class="idea">桶保持不变，把选桶规则换成用训练样本拟合的预测器。</p>
+ <p>它与倒排桶共用完整的词—桶分配。离线将训练样本的 dense 赢家映射到所属桶，并加入 raw Top256 词的软标签：赢家标签总权重为 1，按 <code>1/rank</code> 归一化的 Top256 标签总权重为 0.25；词在多个桶时均分权重。</p>
+ <div class="formula">训练：min Θ,b mean ‖y − (Θx + b)‖² + λ‖Θ‖²，λ = 0.01
+在线：q = Gh + b
+S = ⋃꜀∈TopR(q) Bucket꜀ ∪ Special</div>
+ <p>项目采用 ridge 线性回归。训练输入按通道中心化、标准化，完成后将变换折叠进系数；在线仅使用 BF16 的 <code>G[C,H]</code> 与 FP32 bias。原 LM 和原始输出权重 W 均不因此训练。它受 Learning to Screen 思路启发，是本项目的线性桶原型。</p>
+ <div class="twocol"><div><h3>它学到的是什么？</h3><p>亲和桶直接使用原型点积；学习路由会调整每个通道对桶分数的作用，使训练中含赢家的桶更靠前。分数只是选桶信号，不是最终词概率，最后仍需精算。</p></div><div><h3>为什么监督也不保证命中？</h3><p>线性能力有限，训练分布可能不能代表新状态。标签中的 dense 赢家受 history 影响，而当前路由仅输入 h；相同 h、不同 history 可能需要不同桶，筛选器无法直接区分。</p></div></div>
+ <p class="note">乘法项约 CH＋KH，另有 C 次偏置加法。在线筛选器小，不代表 K 小；训练效果应在独立数据上检验。</p>
+</section>
+<section id="lsh">
+ <div class="method-head"><div><div class="section-num">07 / MULTI-TABLE LSH · 研究 14</div><h2>多表哈希检索：相似方向，争取落进相同的桶</h2></div><span class="tag">随机投影索引</span></div>
+ <p class="idea">把高维向量压成一小串二进制码，用查表替代逐词评分。</p>
+ <p>每张表选 b 个固定随机超平面。向量在每个超平面的哪一侧决定一个 bit，b 个符号拼成桶号。离线将全部词权重写入每张表的倒排桶；在线对 h 算哈希码，取同码桶，必要时再探测汉明距离为 1 的邻桶，跨表合并后精算。</p>
+ <div class="formula">bitⱼ(x) = 1[rⱼᵀx ≥ 0]；code(x) = Σⱼ bitⱼ(x)·2ʲ
+半径 0：每表查 1 个桶
+半径 1：每表查自身＋翻转任一 bit 的 b 个邻桶，共 b＋1 个桶</div>
+ <h3>页面里的两个变体</h3>
+ <div class="twocol"><div><h3>Angular：直接比较方向</h3><p>对 w 和 h 直接做随机符号投影。方向越接近，碰撞概率越高。但目标是最大内积；一个范数大的权重即使夹角稍大，也可能得到更高点积，方向相似不能完整反映内积排名。</p></div><div><h3>MIPS：把内积改写为球面相似</h3><p>令 M 为最大权重范数，构造 <code>w′=[w/M, √(1−‖w‖²/M²)]</code>，查询用 <code>h′=[h,0]</code>。所有 w′ 的范数为 1，点积为原内积除以 M；固定非零 h 时，角度排序因此对应原内积排序。</p></div></div>
+ <div class="formula">w′ᵀh′ = wᵀh / M；‖w′‖ = 1
+示例：angular_b8_L8_p1 = 8 bit / 表，查 8 张表，邻桶半径 1</div>
+ <p>变换建立的是理想相似度关系；有限随机位数、表数与探测预算仍可能错过赢家。MIPS 哈希也没有直接建模 history 惩罚。表越多、邻桶越多通常召回更高，但读到的条目和去重开销也增加；b 越大，桶通常更细，命中更难。</p>
+ <p class="note">当前项目原型固定计算 8 张表的投影，即使只探测 4 张表，投影乘法项仍为 8bH。哈希并非必然次线性：大桶、偏斜和精算 K 都可能主导时间。这里的 L 指表数，与聚类每簇上限 L 含义不同。</p>
+</section>
+<section id="demo">
+ <div class="section-num">INTERACTIVE / PARTIAL CHANNEL</div><h2>只看几列，真的可能错过赢家吗？</h2>
+ <p>调节 d、T 或 hidden 场景，直接比较<strong>预览分数</strong>与<strong>完整分数</strong>。绿色行属于 Top-T 候选；橙色行表示完整赢家被漏掉。改变 T 不会改变预览，只改变有资格进入精算的词数。</p>
+ <p class="note">教学数据：8 个词、6 个通道。使用下方固定整数 W，普通实数点积；省略 history、特殊 ID、BF16 与固定归约顺序，便于独立理解筛选效应。不是项目实测或质量评估。</p>
+ <div class="controls"><label>通道选择 <select id="demo-choice"><option value="dynamic">动态 |h|×RMS</option><option value="static">静态 RMS</option></select></label><label>hidden <select id="demo-hidden"><option value="a">场景 A · 贡献抵消</option><option value="b">场景 B · 通道切换</option></select></label></div>
+ <div class="controls"><label>通道 d <input id="demo-d" type="range" min="1" max="6" value="1"><output id="demo-d-out" for="demo-d">1</output></label><label>候选 T <input id="demo-t" type="range" min="1" max="8" value="1"><output id="demo-t-out" for="demo-t">1</output></label><button class="toggle" id="demo-reset" type="button">重置示例</button></div>
+ <div class="dim-row" id="demo-dims"></div><div class="demo-result" id="demo-result" aria-live="polite"></div>
+ <div class="tablewrap"><table class="demo-table"><thead><tr><th>词 ID</th><th>预览排名</th><th>预览分数</th><th>完整分数</th><th>当前状态</th></tr></thead><tbody id="demo-rows"></tbody></table></div>
+ <details><summary>展开示例权重 W 与计算规则</summary><pre class="formula" id="demo-weight"></pre><p class="note">同分时选择 ID 小者。每次控制变化均重新选通道、算预览、取 Top-T，再在候选内按完整分数选赢家。d=6 时完整实数点积与预览一致，因此 T≥1 即可覆盖完整赢家。</p></details>
+ <noscript>交互示例需要浏览器 JavaScript；上方所有算法原理与下方计算量表仍可离线阅读。</noscript>
+</section>
+<section id="cost">
+ <div class="section-num">READ THE COST CORRECTLY</div><h2>省下点积之后，代价去了哪里？</h2>
+ <p>下表只统计主要乘法项，包含最终 <code>KH</code> 精算。它不等同于时钟周期、DSP 数或实测时间；排序、ID 去重、history policy、访存与调度也会占用资源。</p>
+ <div class="tablewrap"><table><thead><tr><th>方案</th><th>主要乘法项 / 步</th><th>需要额外关注</th></tr></thead><tbody>
+ <tr><td>Dense</td><td>VH</td><td>完整权重读取</td></tr><tr><td>聚类</td><td>CH＋KH</td><td>投票列表覆盖、R 路列表与去重</td></tr><tr><td>低秩</td><td>r(H＋V)＋KH</td><td>因子读取、V 个预览的全局 Top-T</td></tr><tr><td>融合</td><td>CH＋r(H＋V)＋KH</td><td>两路查询、并集 K 增大</td></tr><tr><td>部分通道</td><td>Vd＋KH</td><td>动态选列、列式布局、全局 Top-T；动态另有 H 次通道打分</td></tr><tr><td>倒排桶</td><td>CH＋KH</td><td>桶长偏斜、P 份索引、E 个条目读取</td></tr><tr><td>学习路由</td><td>CH＋KH</td><td>线性表达能力、bias、候选 K</td></tr><tr><td>哈希</td><td>8bH＋KH（当前实现）</td><td>多表索引、邻桶探测、大桶与重复条目</td></tr>
+ </tbody></table></div>
+ <h3>把图上的两个坐标读准</h3>
+ <p><strong>横轴是候选召回：</strong>在指定数据集与固定 dense 轨迹上，赢家落入候选集的比例。要同时看整体与中文、英文、代码、数学各类结果，并区分原校准集和新 1000 题。</p>
+ <p><strong>纵轴是 GPU M14 等效输出率：</strong>包含候选筛选与精算。它不代表完整 LLM decode 速度、TTFT 或 FPGA 输出率；GPU 的排序和 gather 成本，也不能直接替代 FPGA 的存储与流水线分析。</p>
+ <div class="caution">本页用于解释算法，不重新评估或选定发布参数。具体召回、速度、质量门槛与工程状态，以对应日期的原始报告为准。<a href="V4Validation.html#gpu-summary">回到 557 配置对比图 →</a></div>
+</section>
+<section id="sources">
+ <div class="section-num">PROJECT SOURCES</div><h2>讲解对应到项目的哪些实现？</h2>
+ <p>按本地页面和代码整理；公式描述算法结构，实际逐位结果还依赖 BF16 参数、FP32 归约顺序、policy 与稳定同分规则。</p>
+ <ol class="sources">
+ <li><a href="V4Validation.html#gpu-summary">557 配置 GPU 对比</a>：方案分类、配置名与配对质量 / 性能。</li>
+ <li><a href="V4SparseMethods.html">新增四类方案研究报告</a>：部分通道、倒排桶、监督路由、哈希及硬件预算。</li>
+ <li><a href="../../module_14_lm_head_v4/reference/hyperparameter_router_recipe.py">hyperparameter_router_recipe.py</a>：hidden 聚类、L2 最近中心、投票与空簇 fallback。</li>
+ <li><a href="../../module_14_lm_head_v4/reference/hyperparameter_study.py">hyperparameter_study.py</a>：低秩预览、候选并集、policy 与 GPU 算术。</li>
+ <li><a href="../../module_14_lm_head_v4/scripts/run_hyperparameter_studies_20261023.py">run_hyperparameter_studies_20261023.py</a>：低秩基与因子的构造。</li>
+ <li><a href="../../module_14_lm_head_v4/experiments/sparse_methods_20261024/sparse_methods.py">sparse_methods.py</a>：四类新增方法的在线候选路径。</li>
+ <li><a href="../../module_14_lm_head_v4/scripts/run_sparse_methods_20261024.py">run_sparse_methods_20261024.py</a>：列 RMS、完整归桶、ridge 标签与球面哈希索引。</li>
+ </ol>
+</section>
+<footer>本地离线算法原理页 · 编写于 2026-11-02（Asia/Shanghai）· 所有交互只计算页面内教学数据。</footer>
+</main>
+</div>
+<script>
+'use strict';
+document.querySelectorAll('[data-matrix]').forEach(el=>{for(let i=0;i<Number(el.dataset.matrix);i++){const cell=document.createElement('i');cell.className=i%4===0?'on':'';el.append(cell);}});
+const routeSet=new Set([0,1,2,5]),rankSet=new Set([2,3,7,9]);
+function drawUnion(){const route=document.getElementById('route-toggle').getAttribute('aria-pressed')==='true';const rank=document.getElementById('rank-toggle').getAttribute('aria-pressed')==='true';let count=0;const grid=document.getElementById('union-grid');grid.replaceChildren();for(let i=0;i<12;i++){const a=route&&routeSet.has(i),b=rank&&rankSet.has(i),kept=a||b||i===11;if(kept)count++;const el=document.createElement('div');el.className='token'+(a&&b?' both':a?' route':b?' lowrank':'')+(i===11?' special':'')+(i===7?' target':'');el.textContent='ID'+i;el.title='ID'+i+(kept?' · 已纳入候选':' · 未纳入候选');grid.append(el);}document.getElementById('union-status').textContent='最终 K = '+count+'。'+(rank?'★ ID7 被低秩分支找回，进入精算。':'★ ID7 当前未进入候选；聚类分支没有找到它。');}
+['route-toggle','rank-toggle'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{const button=e.currentTarget;const on=button.getAttribute('aria-pressed')!=='true';button.setAttribute('aria-pressed',String(on));button.textContent=(id==='route-toggle'?'聚类候选：':'低秩候选：')+(on?'开启':'关闭');drawUnion();}));drawUnion();
+const toyW=[[9,-7,0,0,0,0],[7,-5,1,0,0,0],[5,5,2,0,0,0],[4,3,0,3,0,0],[0,2,6,2,0,0],[1,-1,0,0,7,0],[-2,1,0,0,0,8],[3,0,2,0,1,2]];
+const hiddenProfiles={a:[1,1,1,1,1,1],b:[0.1,0.2,0.3,0.4,1.6,2]};
+const toyRms=Array.from({length:6},(_,j)=>Math.sqrt(toyW.reduce((s,w)=>s+w[j]*w[j],0)/toyW.length));
+const sumDot=(w,h,dims)=>dims.reduce((s,j)=>s+w[j]*h[j],0);
+const stableOrder=values=>values.map((_,i)=>i).sort((a,b)=>values[b]-values[a]||a-b);
+function calculateToy(d,t,choice,profile){const h=hiddenProfiles[profile];const importance=toyRms.map((r,j)=>r*(choice==='dynamic'?Math.abs(h[j]):1));const dims=stableOrder(importance).slice(0,d);const full=toyW.map(w=>sumDot(w,h,[0,1,2,3,4,5]));const approx=toyW.map(w=>sumDot(w,h,dims));const order=stableOrder(approx),selected=order.slice(0,t),target=stableOrder(full)[0];const actual=selected.slice().sort((a,b)=>full[b]-full[a]||a-b)[0];return{h,importance,dims,full,approx,order,selected,target,actual};}
+function drawToy(){const d=Number(document.getElementById('demo-d').value),t=Number(document.getElementById('demo-t').value),choice=document.getElementById('demo-choice').value,profile=document.getElementById('demo-hidden').value;const data=calculateToy(d,t,choice,profile);document.getElementById('demo-d-out').value=d;document.getElementById('demo-t-out').value=t;const dimBox=document.getElementById('demo-dims');dimBox.replaceChildren();for(let j=0;j<6;j++){const el=document.createElement('span');el.className='dim'+(data.dims.includes(j)?' selected':'');el.textContent='j'+j+' h='+data.h[j]+' · '+data.importance[j].toFixed(2);el.title='通道'+j+'；RMS='+toyRms[j].toFixed(3)+'；选择分数='+data.importance[j].toFixed(3)+(data.dims.includes(j)?'；已选':'；未选');dimBox.append(el);}const hit=data.selected.includes(data.target);document.getElementById('demo-result').textContent=(hit?'已覆盖完整赢家。':'漏掉完整赢家。')+'完整赢家为 ID'+data.target+'（分数 '+data.full[data.target].toFixed(2)+'）；当前候选内精算赢家为 ID'+data.actual+'。本次预览 '+(8*d)+' 项＋候选精算 '+(t*6)+' 项 = '+(8*d+t*6)+' 个乘法项，dense 为 48 项。';const rows=document.getElementById('demo-rows');rows.replaceChildren();for(let i=0;i<8;i++){const kept=data.selected.includes(i),tr=document.createElement('tr');tr.className=i===data.target&&!hit?'missed':kept?'kept':'';const values=['ID'+i+(i===data.target?' ★':''),data.order.indexOf(i)+1,data.approx[i].toFixed(2),data.full[i].toFixed(2),kept?'进入候选 → 完整精算':'未进入候选'];values.forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td);});rows.append(tr);}document.getElementById('demo-weight').textContent='W = [\n'+toyW.map((w,i)=>'  ID'+i+'  ['+w.map(x=>String(x).padStart(2)).join(', ')+']').join('\n')+'\n]\nh = ['+data.h.join(', ')+']\n所选通道（按选择分数排序） = ['+data.dims.join(', ')+']\n列 RMS = ['+toyRms.map(x=>x.toFixed(3)).join(', ')+']';}
+['demo-d','demo-t','demo-choice','demo-hidden'].forEach(id=>document.getElementById(id).addEventListener('input',drawToy));document.getElementById('demo-reset').addEventListener('click',()=>{document.getElementById('demo-d').value=1;document.getElementById('demo-t').value=1;document.getElementById('demo-choice').value='dynamic';document.getElementById('demo-hidden').value='a';drawToy();});drawToy();
+if('IntersectionObserver' in window){const navLinks=[...document.querySelectorAll('aside a')];const observer=new IntersectionObserver(entries=>{const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top);if(visible.length){navLinks.forEach(a=>a.classList.toggle('active',a.hash==='#'+visible[0].target.id));}},{rootMargin:'-5% 0px -65% 0px',threshold:0});document.querySelectorAll('main section').forEach(section=>observer.observe(section));}
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/high_school_politics.csv:126",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "528610bc2aed9bcc12bbcf7a67df8523051a7ddc16185291a46e603d1a77d1f1",
+  "group_sha256": "a17fd06376c73d9d69b6fcaf04e276c78620582925c9c2f09d13bbe9c82ed764",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "b9ebf2b9bcddf89a79e8768d.npz",
+  "npz_sha256": "a4d7df07e1aa1e3474e4d8c8c6adc2b2f3e35e155b687e1621784133d37c1d2d",
+  "generated_ids": [
+    33,
+    13,
+    18137,
+    251,
+    252,
+    34317,
+    18830,
+    43316,
+    104385,
+    101431,
+    104505,
+    33108,
+    107978,
+    99204,
+    99599,
+    100153
+  ],
+  "input_tokens": 136,
+  "seconds": 1.477990800049156,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

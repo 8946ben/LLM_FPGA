@@ -1,0 +1,15 @@
+{
+  "state": "FROZEN_FULL_ARRAY_DEBUG_CAPTURE",
+  "variant": "exp10",
+  "case": "english",
+  "k": 25359,
+  "expected_files": {
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\english.scores.bin": "da6b50a699d480f6bfed8700bc894c7341306bbda3e074d2094449f762892cbe",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\english.expected.bin": "44a0eff917d79ef3e854bde287a6cd99e95e2e302133786d433f3c042d6495db",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\english.sparse.bin": "f35b4d8d29add8e630060254fb75e0e50c29470a0f43f8203f1b1c855f06bc2e",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\english.result.bin": "cb090db419afbdba1bd24e09efbdad05feaed8eea2cc852e288a8b1f1682aa3b"
+  },
+  "script_sha256": "29905d9457436dd8b375d2d812b8b568f940041ff358688e6b167cd53267a794",
+  "production_capture_sha256": "b860234b21c1ed904fe6e912846bdcc712b15dc4038448b9f6b453591f6e47b9",
+  "scope": "Actual full preview, merged IDs, canonical candidate raw; fixed input; separately untimed; no board reinit or stale ticket; preceding same-case production campaign qualified"
+}

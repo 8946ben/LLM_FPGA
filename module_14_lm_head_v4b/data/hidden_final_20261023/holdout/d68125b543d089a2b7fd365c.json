@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/sociology.csv:59",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "8040ee34a7e484209a5329768606e1060709d6af98de9335ec25be9116307193",
+  "group_sha256": "8db4c1ee7d5fa3dbb4bba078a67aace269f4c3f2e93f9b1b4bf0fe1320d6648a",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "d68125b543d089a2b7fd365c.npz",
+  "npz_sha256": "803e9d1ae8f42ca2d5a7a282bd6ce1b99f4237c300fd1b463d30c129e3009d6b",
+  "generated_ids": [
+    88991,
+    102349,
+    20412,
+    425,
+    13,
+    53497,
+    242,
+    99462,
+    3407,
+    16,
+    23,
+    18,
+    23,
+    7948,
+    3837,
+    104114
+  ],
+  "input_tokens": 88,
+  "seconds": 1.5256388999987394,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

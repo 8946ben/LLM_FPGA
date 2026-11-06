@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>路线设计</title>
+<style>
+:root{--bg:#f4f6fa;--ink:#1b2c42;--muted:#596a7e;--line:#dce3ec;--blue:#215fd0}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.75 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1280px;margin:auto;padding:28px;min-width:0}a{color:var(--blue)}h1{font-size:30px;line-height:1.4;margin:12px 0}h2{font-size:20px;margin:0 0 12px}h3{margin:0}p{overflow-wrap:anywhere}button{font:inherit;cursor:pointer;border:1px solid #bccce0;border-radius:7px;background:#fff;color:#295487;padding:6px 12px}button:focus-visible,a:focus-visible,[data-node]:focus-visible{outline:3px solid #4c8ae3;outline-offset:3px}.panel{min-width:0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin:16px 0}.muted{color:var(--muted);font-size:13px}.tag{display:inline-block;background:#edf3fc;border-radius:5px;padding:3px 9px;font-size:12px}.layout>*{min-width:0}.layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px}.diagram-scroll{overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fafcff}.diagram-scroll svg{display:block;width:100%;min-width:650px}.toolbar,.steps{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.steps button[aria-pressed=true]{background:#e5efff;border-color:#4984d6}.node rect{fill:#f0f5ff;stroke:#8eaacf;stroke-width:1.5}.node.selected rect{fill:#e0edff;stroke:#215fd0;stroke-width:3}.node.muted{opacity:.3}.node.step-active rect{fill:#e7f5ee;stroke:#428a70}.node{cursor:pointer}.node-label{font:600 15px/1.45 system-ui,"Microsoft YaHei",sans-serif;padding:12px;overflow:hidden;height:100%;overflow-wrap:anywhere}.node-label small{display:block;font-size:11px;font-weight:400;color:#5e7087;margin-top:5px}.edge{stroke:#8da4c3;stroke-width:2;fill:none}.stage-strip{display:flex;overflow:auto;gap:8px;padding:4px 0}.stage-item{flex:1 0 130px;padding:10px;border:1px solid var(--line);border-radius:7px;font-size:12px}.stage-item b,.stage-item span{display:block}.active{background:#e7efff;border-color:#215fd0}.verified{background:#e9f6ef}.waiting{background:#fff4de}.failed{background:#ffedf0}.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}li{overflow-wrap:anywhere}.proof a{display:inline-block;margin:0 14px 7px 0}.node-detail{white-space:pre-wrap;overflow-wrap:anywhere}.proposal{border-left:4px solid #c49a45;padding-left:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere}summary{cursor:pointer;color:var(--blue)}@media(max-width:800px){main{padding:16px}.layout,.cards{grid-template-columns:1fr}.panel{padding:15px}h1{font-size:25px}.diagram-scroll svg{min-width:700px}}[hidden]{display:none!important}
+</style></head><body><main>
+<a id="back" href="#">返回开发日志路线图</a><div class="muted" id="snapshot"></div>
+<h1 id="title"></h1><span id="scope" class="tag"></span><p id="goal"></p>
+<p id="boundary" class="proposal"></p>
+<section class="panel"><h2>验证进度</h2><div id="stages" class="stage-strip"></div><p id="outcome"></p><p id="next" class="muted"></p></section>
+<section class="panel"><h2>设计原理与数据流</h2><p id="overview"></p>
+ <div class="toolbar"><button id="zoom-in" type="button">放大</button><button id="zoom-fit" type="button">适合窗口</button><button id="reset" type="button">重置步骤</button></div>
+ <div class="layout"><div><div class="diagram-scroll" tabindex="0" aria-label="设计结构，可横向滚动"><svg id="diagram" role="group" aria-label="设计模块，点击或聚焦查看说明"></svg></div><div id="steps" class="steps"></div><p id="step-description" class="muted"></p></div><aside class="panel"><h3 id="node-title">模块说明</h3><p id="node-detail" class="node-detail"></p></aside></div>
+</section>
+<div class="cards"><section class="panel"><h2>实现边界与接口</h2><ul id="contracts"></ul></section><section class="panel"><h2>资源、性能与取舍</h2><ul id="tradeoffs"></ul></section></div>
+<section class="panel"><h2>实现与证据</h2><div id="evidence" class="proof"></div><p class="muted">图展示逻辑设计；验证结论以对应阶段和证据为准。离线页面不查询任务状态。</p></section>
+</main><script id="design-data" type="application/json">{
+  "route": {
+    "id": "R200Layers",
+    "title": "lm_head v3 · 分层规约 / 200 MHz",
+    "parent": "R200",
+    "lifecycle": "completed",
+    "currentStage": "evaluation",
+    "scope": "独立M14，H896/V151936，Decode/penalty ON；不含整体LLM集成",
+    "goal": "分离规约层数组，保持FP32加法配对与舍入顺序，闭合200 MHz并完成同板验证及交付。",
+    "outcome": "实板PASS：IP median117.751805ms、P95117.751890ms，速度为v2的1.90968倍；55项验收/1000连续调用通过，交付版命名lm_head v3。",
+    "next": "v3已验收并封存；v3.1 PL DDR迁移由R31PLDDR承接，当前板卡安排以新路线及项目概览为准。",
+    "cells": {
+      "contract": {
+        "state": "verified",
+        "note": "FP32顺序保持",
+        "detail": "BF16/H8/V1/16槽，分层16→8→4→2→1和相邻lane树，逐位合同不变。",
+        "evidence": [
+          {
+            "label": "阶段证据",
+            "href": "module_14_lm_head_v2/reports/frequency_200_20261016/reduce_layers/source.diff"
+          }
+        ]
+      },
+      "implementation": {
+        "state": "verified",
+        "note": "50004组规约/512 logits",
+        "detail": "Native和CSim通过；正式v3计算源码与归约候选相同，正式RTL42文件仅build_config常量变化。",
+        "evidence": [
+          {
+            "label": "阶段证据",
+            "href": "module_14_lm_head_v2/reports/board200_20261019/identity_validation.json"
+          }
+        ]
+      },
+      "hls": {
+        "state": "verified",
+        "note": "II=1；5ns综合通过",
+        "detail": "Vitis HLS2021.1、5ns/1.35ns：dot II1/159拍，规约各层II1/102拍；3.650ns为HLS估算。",
+        "evidence": [
+          {
+            "label": "阶段证据",
+            "href": "module_14_lm_head_v2/reports/frequency_200_20261016/reduce_layers/hls_summary.json"
+          }
+        ]
+      },
+      "rtl": {
+        "state": "verified",
+        "note": "15笔事务 C post-check PASS",
+        "detail": "H896/V64，512随机logits；修正仿真depth及hidden_size_r向量别名后XSIM+C post-check通过，原失败日志保留。",
+        "evidence": [
+          {
+            "label": "阶段证据",
+            "href": "module_14_lm_head_v2/reports/frequency_200_20261016/reduce_layers/RESULT.md"
+          }
+        ]
+      },
+      "physical": {
+        "state": "verified",
+        "note": "正式镜像WNS +0.943ns",
+        "detail": "全BD 5ns setup/hold/pulse-width通过，无未约束端点；LUT23148/FF40194/BRAM22/DSP59。DRC0 Error/0 Critical，普通警告保留。",
+        "evidence": [
+          {
+            "label": "阶段证据",
+            "href": "module_14_lm_head_v2/reports/board200_20261019/hardware_audit.json"
+          }
+        ]
+      },
+      "board": {
+        "state": "verified",
+        "note": "8步完整logits/错误路径 PASS",
+        "detail": "canonical BF16主机SHA/逐块及全DDR CRC/sentinel通过；8步生产与完整logits严格一致，4错误路径及受控错误golden通过。",
+        "evidence": [
+          {
+            "label": "阶段证据",
+            "href": "module_14_lm_head_v2/reports/board200_20261019/candidate_summary.json"
+          }
+        ]
+      },
+      "evaluation": {
+        "state": "verified",
+        "note": "1.90968×；1000连续 PASS",
+        "detail": "两版各30独立样本；v3 IP median117.751805ms、P95117.751890ms；A53 median117.767348ms；1000调用117.759180s。",
+        "evidence": [
+          {
+            "label": "阶段证据",
+            "href": "module_14_lm_head_v2/reports/board200_20261019/comparison.json"
+          }
+        ],
+        "execution": {
+          "snapshot_at": "2026-10-19T12:10:22+08:00",
+          "location": "本机（离线证据整理）",
+          "host": "LAPTOP-NHABUFB2",
+          "tool": "Vitis HLS/Vivado/Vitis 2021.1；本次整理仅Python/本地文件",
+          "current_task": "本任务板测/构建已结束，交付离线校验PASS。板卡由另一agent使用，不执行板卡操作。",
+          "progress": "两版本各55项campaign；每版30独立性能样本、1000连续调用。",
+          "completed": "200 MHz精度/性能/稳定性与交付目录/ZIP复核完成。",
+          "scope": "独立M14，H896/V151936，Decode/penalty ON；不含整体LLM集成",
+          "source": "module_14_lm_head_v2/reports/board200_20261019/comparison.json"
+        }
+      }
+    },
+    "design_page": "doc/design/R200Layers.html",
+    "evidence": [
+      {
+        "label": "实测报告",
+        "href": "module_14_lm_head_v2/reports/board200_20261019/RESULT.md"
+      },
+      {
+        "label": "v3完整交付",
+        "href": "deliverables/20261019_M14_V3_r1/M14_V3_20261019_r1/README_交付入口.md"
+      }
+    ],
+    "history": [
+      {
+        "snapshot_at": "2026-10-19T12:10:22+08:00",
+        "snapshot": {
+          "id": "R200Layers",
+          "title": "lm_head v3 · 分层规约 / 200 MHz",
+          "parent": "R200",
+          "lifecycle": "completed",
+          "currentStage": "evaluation",
+          "scope": "独立M14，H896/V151936，Decode/penalty ON；不含整体LLM集成",
+          "goal": "分离规约层数组，保持FP32加法配对与舍入顺序，闭合200 MHz并完成同板验证及交付。",
+          "outcome": "实板PASS：IP median117.751805ms、P95117.751890ms，速度为v2的1.90968倍；55项验收/1000连续调用通过，交付版命名lm_head v3。",
+          "next": "本轮已完成。交付包离线复核PASS；当前板卡由另一agent使用，本任务不连接或查询板卡。",
+          "cells": {
+            "contract": {
+              "state": "verified",
+              "note": "FP32顺序保持",
+              "detail": "BF16/H8/V1/16槽，分层16→8→4→2→1和相邻lane树，逐位合同不变。",
+              "evidence": [
+                {
+                  "label": "阶段证据",
+                  "href": "module_14_lm_head_v2/reports/frequency_200_20261016/reduce_layers/source.diff"
+                }
+              ]
+            },
+            "implementation": {
+              "state": "verified",
+              "note": "50004组规约/512 logits",
+              "detail": "Native和CSim通过；正式v3计算源码与归约候选相同，正式RTL42文件仅build_config常量变化。",
+              "evidence": [
+                {
+                  "label": "阶段证据",
+                  "href": "module_14_lm_head_v2/reports/board200_20261019/identity_validation.json"
+                }
+              ]
+            },
+            "hls": {
+              "state": "verified",
+              "note": "II=1；5ns综合通过",
+              "detail": "Vitis HLS2021.1、5ns/1.35ns：dot II1/159拍，规约各层II1/102拍；3.650ns为HLS估算。",
+              "evidence": [
+                {
+                  "label": "阶段证据",
+                  "href": "module_14_lm_head_v2/reports/frequency_200_20261016/reduce_layers/hls_summary.json"
+                }
+              ]
+            },
+            "rtl": {
+              "state": "verified",
+              "note": "15笔事务 C post-check PASS",
+              "detail": "H896/V64，512随机logits；修正仿真depth及hidden_size_r向量别名后XSIM+C post-check通过，原失败日志保留。",
+              "evidence": [
+                {
+                  "label": "阶段证据",
+                  "href": "module_14_lm_head_v2/reports/frequency_200_20261016/reduce_layers/RESULT.md"
+                }
+              ]
+            },
+            "physical": {
+              "state": "verified",
+              "note": "正式镜像WNS +0.943ns",
+              "detail": "全BD 5ns setup/hold/pulse-width通过，无未约束端点；LUT23148/FF40194/BRAM22/DSP59。DRC0 Error/0 Critical，普通警告保留。",
+              "evidence": [
+                {
+                  "label": "阶段证据",
+                  "href": "module_14_lm_head_v2/reports/board200_20261019/hardware_audit.json"
+                }
+              ]
+            },
+            "board": {
+              "state": "verified",
+              "note": "8步完整logits/错误路径 PASS",
+              "detail": "canonical BF16主机SHA/逐块及全DDR CRC/sentinel通过；8步生产与完整logits严格一致，4错误路径及受控错误golden通过。",
+              "evidence": [
+                {
+                  "label": "阶段证据",
+                  "href": "module_14_lm_head_v2/reports/board200_20261019/candidate_summary.json"
+                }
+              ]
+            },
+            "evaluation": {
+              "state": "verified",
+              "note": "1.90968×；1000连续 PASS",
+              "detail": "两版各30独立样本；v3 IP median117.751805ms、P95117.751890ms；A53 median117.767348ms；1000调用117.759180s。",
+              "evidence": [
+                {
+                  "label": "阶段证据",
+                  "href": "module_14_lm_head_v2/reports/board200_20261019/comparison.json"
+                }
+              ],
+              "execution": {
+                "snapshot_at": "2026-10-19T12:10:22+08:00",
+                "location": "本机（离线证据整理）",
+                "host": "LAPTOP-NHABUFB2",
+                "tool": "Vitis HLS/Vivado/Vitis 2021.1；本次整理仅Python/本地文件",
+                "current_task": "本任务板测/构建已结束，交付离线校验PASS。板卡由另一agent使用，不执行板卡操作。",
+                "progress": "两版本各55项campaign；每版30独立性能样本、1000连续调用。",
+                "completed": "200 MHz精度/性能/稳定性与交付目录/ZIP复核完成。",
+                "scope": "独立M14，H896/V151936，Decode/penalty ON；不含整体LLM集成",
+                "source": "module_14_lm_head_v2/reports/board200_20261019/comparison.json"
+              }
+            }
+          },
+          "design_page": "doc/design/R200Layers.html",
+          "evidence": [
+            {
+              "label": "实测报告",
+              "href": "module_14_lm_head_v2/reports/board200_20261019/RESULT.md"
+            },
+            {
+              "label": "v3完整交付",
+              "href": "deliverables/20261019_M14_V3_r1/M14_V3_20261019_r1/README_交付入口.md"
+            }
+          ],
+          "design": {
+            "overview": "分层数组消除原地规约的保守相关，保持FP32顺序；通过DATAFLOW重叠点积、规约与策略阶段，在200 MHz完成独立M14验证。",
+            "status_note": "lm_head v3已实板验收；发布名v3、ABI2、HLS top lm_head_v2、IP2.1、build_config0x20c08011。当前板卡由其他agent使用，不做现场操作。",
+            "nodes": [
+              {
+                "id": "hidden",
+                "row": 0,
+                "col": 0,
+                "title": "Hidden缓存",
+                "caption": "896 BF16 / H8",
+                "detail": "112个128-bit word；hidden读取后在片上复用。"
+              },
+              {
+                "id": "weight",
+                "row": 1,
+                "col": 0,
+                "title": "共享词表权重",
+                "caption": "272269312 B / HP2",
+                "detail": "canonical BF16；128-bit顺序读与FIFO供数；首尾及全DDR校验通过。"
+              },
+              {
+                "id": "dot",
+                "row": 0,
+                "col": 1,
+                "title": "8路交错点积",
+                "caption": "II=1 / 16槽",
+                "detail": "每行896项，8 lane×16 slot部分和；HLS调度159拍/行，与后级DATAFLOW重叠。"
+              },
+              {
+                "id": "reduce",
+                "row": 0,
+                "col": 2,
+                "title": "独立层数组规约",
+                "caption": "16→8→4→2→1",
+                "detail": "三层II均1，规约行HLS102拍；保持FP32配对/舍入，再按相邻lane树合并。"
+              },
+              {
+                "id": "policy",
+                "row": 0,
+                "col": 3,
+                "title": "Penalty / Argmax",
+                "caption": "Debug logits可选",
+                "detail": "按history做penalty并选择token；debug保存penalty前FP32 logits，8步全量SHA一致。"
+              },
+              {
+                "id": "clock",
+                "row": 1,
+                "col": 1,
+                "title": "200 MHz匹配时钟",
+                "caption": "DPLL /2 /1",
+                "detail": "匹配XSA/PS init/bit/ELF；5ns STA通过，PS分频寄存器回读通过；不是频率计测量。"
+              },
+              {
+                "id": "measure",
+                "row": 1,
+                "col": 2,
+                "title": "同板性能与稳定性",
+                "caption": "117.751805 ms / 1.90968×",
+                "detail": "30独立样本，P95117.751890ms；A53独立计时117.767348ms；1000连续PASS。"
+              },
+              {
+                "id": "delivery",
+                "row": 1,
+                "col": 3,
+                "title": "lm_head v3交付",
+                "caption": "936文件 / SHA256",
+                "detail": "源码、完整IP、驱动、配套镜像、BF16资产、原始证据；压缩前与解压后离线复核PASS。"
+              }
+            ],
+            "edges": [
+              {
+                "source": "hidden",
+                "target": "dot",
+                "label": "片上复用"
+              },
+              {
+                "source": "weight",
+                "target": "dot",
+                "label": "128-bit FIFO"
+              },
+              {
+                "source": "dot",
+                "target": "reduce",
+                "label": "128部分和"
+              },
+              {
+                "source": "reduce",
+                "target": "policy",
+                "label": "raw score"
+              },
+              {
+                "source": "clock",
+                "target": "dot",
+                "label": "200 MHz"
+              },
+              {
+                "source": "clock",
+                "target": "reduce",
+                "label": "200 MHz"
+              },
+              {
+                "source": "policy",
+                "target": "measure",
+                "label": "结果/计数"
+              },
+              {
+                "source": "measure",
+                "target": "delivery",
+                "label": "验收证据"
+              }
+            ],
+            "steps": [
+              {
+                "title": "读取与点积",
+                "nodes": [
+                  "hidden",
+                  "weight",
+                  "dot"
+                ],
+                "description": "BF16输入/权重按H8和16槽交错累加；dot II1。"
+              },
+              {
+                "title": "分层规约与策略",
+                "nodes": [
+                  "reduce",
+                  "policy"
+                ],
+                "description": "保持加法顺序，规约各层II1；与点积DATAFLOW重叠，不把159与102拍相加作为全核吞吐。"
+              },
+              {
+                "title": "同板验证与交付",
+                "nodes": [
+                  "clock",
+                  "measure",
+                  "delivery"
+                ],
+                "description": "匹配时钟和镜像，DDR校验后完成55项板测、同口径比较与离线封存。"
+              }
+            ],
+            "contracts": [
+              "BF16、FP32独立乘加、H8/V1/16槽及相邻lane树保持。",
+              "发布名v3与ABI2/IP2.1分别记录；不改已测二进制。",
+              "本轮独立M14，整体LLM集成不在范围。"
+            ],
+            "tradeoffs": [
+              "实测速度1.90968倍，周期数有变化，主频翻倍不等于时延严格减半。",
+              "200 MHz配置模型199.998001MHz；IP按标称时钟，A53独立计时交叉核对。",
+              "WNS+0.943ns，普通DSP/SmartConnect DRC警告保留；不声称无全部warning。"
+            ],
+            "evidence": [
+              {
+                "label": "实测报告",
+                "href": "module_14_lm_head_v2/reports/board200_20261019/RESULT.md"
+              },
+              {
+                "label": "v3完整交付",
+                "href": "deliverables/20261019_M14_V3_r1/M14_V3_20261019_r1/README_交付入口.md"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "task_refs": [
+      {
+        "id": "T01",
+        "label": "T01 完整词表基线与PL DDR迁移"
+      }
+    ]
+  },
+  "design": {
+    "overview": "分层数组消除原地规约的保守相关，保持FP32顺序；通过DATAFLOW重叠点积、规约与策略阶段，在200 MHz完成独立M14验证。",
+    "status_note": "已验收的v3历史基线：ABI2/top lm_head_v2/IP2.1/build0x20c08011；v3.1迁移为独立子路线，尚未板测。",
+    "nodes": [
+      {
+        "id": "hidden",
+        "row": 0,
+        "col": 0,
+        "title": "Hidden缓存",
+        "caption": "896 BF16 / H8",
+        "detail": "112个128-bit word；hidden读取后在片上复用。"
+      },
+      {
+        "id": "weight",
+        "row": 1,
+        "col": 0,
+        "title": "共享词表权重",
+        "caption": "272269312 B / HP2",
+        "detail": "canonical BF16；128-bit顺序读与FIFO供数；首尾及全DDR校验通过。"
+      },
+      {
+        "id": "dot",
+        "row": 0,
+        "col": 1,
+        "title": "8路交错点积",
+        "caption": "II=1 / 16槽",
+        "detail": "每行896项，8 lane×16 slot部分和；HLS调度159拍/行，与后级DATAFLOW重叠。"
+      },
+      {
+        "id": "reduce",
+        "row": 0,
+        "col": 2,
+        "title": "独立层数组规约",
+        "caption": "16→8→4→2→1",
+        "detail": "三层II均1，规约行HLS102拍；保持FP32配对/舍入，再按相邻lane树合并。"
+      },
+      {
+        "id": "policy",
+        "row": 0,
+        "col": 3,
+        "title": "Penalty / Argmax",
+        "caption": "Debug logits可选",
+        "detail": "按history做penalty并选择token；debug保存penalty前FP32 logits，8步全量SHA一致。"
+      },
+      {
+        "id": "clock",
+        "row": 1,
+        "col": 1,
+        "title": "200 MHz匹配时钟",
+        "caption": "DPLL /2 /1",
+        "detail": "匹配XSA/PS init/bit/ELF；5ns STA通过，PS分频寄存器回读通过；不是频率计测量。"
+      },
+      {
+        "id": "measure",
+        "row": 1,
+        "col": 2,
+        "title": "同板性能与稳定性",
+        "caption": "117.751805 ms / 1.90968×",
+        "detail": "30独立样本，P95117.751890ms；A53独立计时117.767348ms；1000连续PASS。"
+      },
+      {
+        "id": "delivery",
+        "row": 1,
+        "col": 3,
+        "title": "lm_head v3交付",
+        "caption": "936文件 / SHA256",
+        "detail": "源码、完整IP、驱动、配套镜像、BF16资产、原始证据；压缩前与解压后离线复核PASS。"
+      }
+    ],
+    "edges": [
+      {
+        "source": "hidden",
+        "target": "dot",
+        "label": "片上复用"
+      },
+      {
+        "source": "weight",
+        "target": "dot",
+        "label": "128-bit FIFO"
+      },
+      {
+        "source": "dot",
+        "target": "reduce",
+        "label": "128部分和"
+      },
+      {
+        "source": "reduce",
+        "target": "policy",
+        "label": "raw score"
+      },
+      {
+        "source": "clock",
+        "target": "dot",
+        "label": "200 MHz"
+      },
+      {
+        "source": "clock",
+        "target": "reduce",
+        "label": "200 MHz"
+      },
+      {
+        "source": "policy",
+        "target": "measure",
+        "label": "结果/计数"
+      },
+      {
+        "source": "measure",
+        "target": "delivery",
+        "label": "验收证据"
+      }
+    ],
+    "steps": [
+      {
+        "title": "读取与点积",
+        "nodes": [
+          "hidden",
+          "weight",
+          "dot"
+        ],
+        "description": "BF16输入/权重按H8和16槽交错累加；dot II1。"
+      },
+      {
+        "title": "分层规约与策略",
+        "nodes": [
+          "reduce",
+          "policy"
+        ],
+        "description": "保持加法顺序，规约各层II1；与点积DATAFLOW重叠，不把159与102拍相加作为全核吞吐。"
+      },
+      {
+        "title": "同板验证与交付",
+        "nodes": [
+          "clock",
+          "measure",
+          "delivery"
+        ],
+        "description": "匹配时钟和镜像，DDR校验后完成55项板测、同口径比较与离线封存。"
+      }
+    ],
+    "contracts": [
+      "BF16、FP32独立乘加、H8/V1/16槽及相邻lane树保持。",
+      "发布名v3与ABI2/IP2.1分别记录；不改已测二进制。",
+      "本轮独立M14，整体LLM集成不在范围。"
+    ],
+    "tradeoffs": [
+      "实测速度1.90968倍，周期数有变化，主频翻倍不等于时延严格减半。",
+      "200 MHz配置模型199.998001MHz；IP按标称时钟，A53独立计时交叉核对。",
+      "WNS+0.943ns，普通DSP/SmartConnect DRC警告保留；不声称无全部warning。"
+    ],
+    "evidence": [
+      {
+        "label": "实测报告",
+        "href": "module_14_lm_head_v2/reports/board200_20261019/RESULT.md"
+      },
+      {
+        "label": "v3完整交付",
+        "href": "deliverables/20261019_M14_V3_r1/M14_V3_20261019_r1/README_交付入口.md"
+      }
+    ]
+  },
+  "stages": [
+    {
+      "id": "contract",
+      "title": "原理 / 数值合同",
+      "description": "核对接口、运算顺序与可比性边界"
+    },
+    {
+      "id": "implementation",
+      "title": "实现 / 离线检查",
+      "description": "源码实现、驱动、协议和主机回归"
+    },
+    {
+      "id": "hls",
+      "title": "HLS 综合",
+      "description": "生产尺寸资源、时钟估算与 II"
+    },
+    {
+      "id": "rtl",
+      "title": "RTL 仿真",
+      "description": "工具生成 Verilog 及 C post-check"
+    },
+    {
+      "id": "physical",
+      "title": "BD / 布局布线",
+      "description": "单模块互连、地址、真实 post-route、bit/XSA"
+    },
+    {
+      "id": "board",
+      "title": "实板正确性",
+      "description": "资产身份、DDR 校验、严格数值与错误路径"
+    },
+    {
+      "id": "evaluation",
+      "title": "性能评估",
+      "description": "独立样本、计时边界、稳定性与采用范围"
+    }
+  ],
+  "back": "../../开发日志.html#route-R200Layers",
+  "updated": "2026-10-30T21:42:01+08:00"
+}</script><script>
+'use strict';
+(()=>{
+const data=JSON.parse(document.getElementById('design-data').textContent),r=data.route,d=data.design,$=id=>document.getElementById(id),ns='http://www.w3.org/2000/svg';
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safe=v=>{const s=String(v||'').trim();return s&&!/[\u0000-\u001f\u007f]/.test(s)&&!s.startsWith('//')&&(!/^[a-z][a-z0-9+.-]*:/i.test(s)||/^(https?:|file:)/i.test(s))?s:'';};
+const states={verified:'✓ 已验证',active:'● 进行中',waiting:'⏸ 等待条件',planned:'○ 未开始',failed:'× 未通过',na:'— 不适用',unknown:'? 未确认'};
+$('back').href=safe(data.back)||'#';$('title').textContent=r.id+' · '+r.title;document.title=r.title+' · 路线设计';$('scope').textContent=r.scope;$('goal').textContent=r.goal;
+$('snapshot').textContent='路线快照 '+data.updated;$('boundary').textContent=d.status_note||'验证范围见下方阶段；未完成的阶段仍待验证。';
+$('outcome').textContent=r.outcome;$('next').textContent='下一步：'+(r.next||'未记录');$('overview').textContent=d.overview||'设计说明尚待补充';
+$('stages').innerHTML=data.stages.map(s=>`<div class="stage-item ${esc(r.cells[s.id].state)}"><b>${esc(s.title)}</b><span>${esc(states[r.cells[s.id].state])}</span>${esc(r.cells[s.id].note)}</div>`).join('');
+for(const id of ['contracts','tradeoffs'])$(''+id).innerHTML=(d[id]||[]).map(s=>`<li>${esc(s)}</li>`).join('')||'<li>尚未记录</li>';
+const relative=h=>/^(?:[a-z][a-z0-9+.-]*:|\/|#)/i.test(h)?h:'../../'+h;
+$('evidence').innerHTML=[...(r.evidence||[]),...(d.evidence||[])].filter(e=>safe(e.href)).map(e=>`<a href="${esc(relative(e.href))}">${esc(e.label)}</a>`).join('')||'尚无附件证据';
+const svg=$('diagram'),nodes=new Map(d.nodes.map(n=>[n.id,n]));
+const width=(Math.max(...d.nodes.map(n=>n.col))+1)*260+20,height=(Math.max(...d.nodes.map(n=>n.row))+1)*160+20;
+svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
+function el(tag,attrs={}){const e=document.createElementNS(ns,tag);for(const [k,v]of Object.entries(attrs))e.setAttribute(k,v);return e;}
+for(const edge of d.edges||[]){const a=nodes.get(edge.source),b=nodes.get(edge.target),vertical=a.col===b.col,forward=vertical?b.row>a.row:b.col>a.col;
+const x1=a.col*260+(vertical?125:forward?230:20),y1=a.row*160+(vertical?(forward?120:20):70),x2=b.col*260+(vertical?125:forward?20:230),y2=b.row*160+(vertical?(forward?20:120):70);
+const path=vertical?`M${x1} ${y1} L${x2} ${y2}`:`M${x1} ${y1} C${(x1+x2)/2} ${y1},${(x1+x2)/2} ${y2},${x2} ${y2}`;
+const line=el('path',{d:path,class:'edge'});svg.append(line);const title=el('title');title.textContent=edge.label||'';line.append(title);
+const arrow=el('path',{d:vertical?`M${x2-5} ${y2+(forward?-7:7)} L${x2} ${y2} L${x2+5} ${y2+(forward?-7:7)}`:`M${x2+(forward?-7:7)} ${y2-5} L${x2} ${y2} L${x2+(forward?-7:7)} ${y2+5}`,class:'edge'});svg.append(arrow);}
+for(const n of d.nodes){const x=n.col*260+20,y=n.row*160+20,g=el('g',{class:'node',tabindex:'0',role:'button','data-node':n.id,'aria-label':n.title});g.append(el('rect',{x,y,width:210,height:100,rx:9}));
+const fo=el('foreignObject',{x,y,width:210,height:100}),box=document.createElementNS('http://www.w3.org/1999/xhtml','div');box.setAttribute('class','node-label');box.textContent=n.title;const small=document.createElementNS('http://www.w3.org/1999/xhtml','small');small.textContent=n.caption||'';box.append(small);fo.append(box);g.append(fo);svg.append(g);}
+function select(id){const n=nodes.get(id);if(!n)return;svg.querySelectorAll('[data-node]').forEach(g=>g.classList.toggle('selected',g.dataset.node===id));$('node-title').textContent=n.title;$('node-detail').textContent=n.detail||n.caption||'未记录';}
+svg.addEventListener('click',e=>{const g=e.target.closest('[data-node]');if(g)select(g.dataset.node);});
+svg.addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){const g=e.target.closest('[data-node]');if(g){e.preventDefault();select(g.dataset.node);}}});
+$('steps').innerHTML=(d.steps||[]).map((s,i)=>`<button type="button" data-step="${i}" aria-pressed="false">${esc(s.title)}</button>`).join('');
+$('steps').addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(!b)return;const s=d.steps[Number(b.dataset.step)];$('steps').querySelectorAll('button').forEach(v=>v.setAttribute('aria-pressed',String(v===b)));svg.querySelectorAll('[data-node]').forEach(g=>{g.classList.toggle('muted',!s.nodes.includes(g.dataset.node));g.classList.toggle('step-active',s.nodes.includes(g.dataset.node));});$('step-description').textContent=s.description||'';select(s.nodes[0]);});
+$('reset').addEventListener('click',()=>{svg.querySelectorAll('[data-node]').forEach(g=>g.classList.remove('muted','step-active'));$('steps').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed','false'));$('step-description').textContent='';});
+let zoom=1;$('zoom-in').addEventListener('click',()=>{zoom=Math.min(2,zoom+.2);svg.style.width=zoom*100+'%';});$('zoom-fit').addEventListener('click',()=>{zoom=1;svg.style.width='100%';svg.style.minWidth='0';});select(d.nodes[0].id);
+})();
+</script></body></html>

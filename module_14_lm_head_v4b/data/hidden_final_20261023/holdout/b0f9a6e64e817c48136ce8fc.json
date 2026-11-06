@@ -1,0 +1,32 @@
+{
+  "id": "dolly:745",
+  "category": "english",
+  "split": "holdout",
+  "prompt_sha256": "18c38cf94eb7a7d12ef271833817f9cce4459ef432fbdced913c7653e774c37c",
+  "group_sha256": "adc05690bad7dffdb9eb3bc290c81bb20032ece43387398e3ad38fa59d7f592c",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "b0f9a6e64e817c48136ce8fc.npz",
+  "npz_sha256": "d557e52e15e1253e10d059008898d6384469628edcb8da72a73f244345838db4",
+  "generated_ids": [
+    27808,
+    355,
+    8325,
+    1524,
+    6342,
+    55279,
+    13928,
+    71225,
+    304,
+    279,
+    5883,
+    4013,
+    330,
+    33,
+    436,
+    331
+  ],
+  "input_tokens": 205,
+  "seconds": 1.4701438999618404,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

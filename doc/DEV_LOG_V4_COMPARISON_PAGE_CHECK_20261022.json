@@ -1,0 +1,38 @@
+{
+  "state": "PASS_STATIC_DATA_LINK_AND_JAVASCRIPT_SYNTAX_ONLY",
+  "date": "2026-10-22",
+  "timezone": "Asia/Shanghai",
+  "engineering_check_count": 17,
+  "comparison_groups": 8,
+  "explicit_variants": 34,
+  "journal_entries": 68,
+  "history_preservation": "Revision script asserts all prior67 entries unchanged before writing; appended1",
+  "plotted_quality_values_match_frozen_result": true,
+  "category_totals_verified": true,
+  "unmeasured_comparison_values_absent": true,
+  "canonical_snapshot_equals_generated_page": true,
+  "route_snapshot_synchronized": true,
+  "javascript_syntax_blocks": 5,
+  "documents": [
+    {
+      "path": "开发日志.html",
+      "sha256": "c6e31f89ffe7ed33ba0597071bdc625d0ba10457e11d02573123127250ea19a7",
+      "unique_ids": 67
+    },
+    {
+      "path": "doc/design/V4Validation.html",
+      "sha256": "f839429da305f6972b41834717207bdbc294d729b3771be2925009c5795a4270",
+      "unique_ids": 20
+    },
+    {
+      "path": "doc/design/R4Sparse.html",
+      "sha256": "1a260f7af537c1b055ff4c9442f669d8835a65e1e4e87181d57feb539f1627aa",
+      "unique_ids": 54
+    }
+  ],
+  "browser_preview": "NOT_RUN: CUA policy rejects file:// observation; no alternative browser/workaround used",
+  "responsive": "CSS850px/520px breakpoints and overflow containers inspected; no visual viewport verification",
+  "scene_interaction": "Experiment search, category switch and metric controls have static IDs/handlers and pass JS syntax; browser interaction NOT_RUN",
+  "gpu_rtl_board_access": "NONE",
+  "new_test_execution": "NONE"
+}

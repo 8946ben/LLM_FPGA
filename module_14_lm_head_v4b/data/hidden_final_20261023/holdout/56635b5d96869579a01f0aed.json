@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/elementary_commonsense.csv:166",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "61e454ad952fa06f282b344abcb5f1478cf9a015cc47beeb76522590dc3fdcd9",
+  "group_sha256": "861613941c03b593b3db66a29c7f1878d0337e349a878748c99b1306ad442c08",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "56635b5d96869579a01f0aed.npz",
+  "npz_sha256": "f4f806a7985efa5210ea4485d720570ac8119d4b2ceb4a7c1ece4248d94062eb",
+  "generated_ids": [
+    102349,
+    20412,
+    32,
+    3837,
+    99608,
+    102671,
+    1773,
+    99676,
+    100041,
+    105196,
+    102640,
+    104491,
+    108201,
+    102011,
+    3837,
+    102888
+  ],
+  "input_tokens": 77,
+  "seconds": 0.4037601000163704,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

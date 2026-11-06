@@ -1,0 +1,14 @@
+{
+  "scope": "Read-only DCP extraction; no synthesis/implementation/bit/board",
+  "dcp_path": "module_14_lm_head_v4/reports/d64_system_200m_20261106_r4/hardware/post_route.dcp",
+  "dcp_sha256": "8cfba198ca9a23dbbb0c538921a572d02546020c9a89ffa0d447e29aa8e5772e",
+  "guards": {
+    "group_gib": 16,
+    "min_available_gib": 32,
+    "timeout_s": 900
+  },
+  "source_sha256": {
+    "extract.tcl": "fc199fc67233b541ba68a34e3a06b65a0cdc592e300b6a50049c7972cfc89a30",
+    "run_extract.py": "2cda9618162139afa830e47bb02ca7890bb9bd66abe80106d7ce0dd93e227998"
+  }
+}

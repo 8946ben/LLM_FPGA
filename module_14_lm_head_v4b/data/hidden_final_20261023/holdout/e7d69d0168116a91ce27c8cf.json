@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/marxist_theory.csv:39",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "f4e1369ca7fb5ea42b3c3dd927d9d160c3957058fcdfaf534c2ef4bc01c46111",
+  "group_sha256": "995cf9be6a5705ecff735ad1c503148d2b483a6aa3513e25b012a314f7f87c5f",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "e7d69d0168116a91ce27c8cf.npz",
+  "npz_sha256": "ce8fda2018f5a5c3a18173051bf79a7d45db7333527b7c48db288d9669f2fb87",
+  "generated_ids": [
+    88991,
+    102349,
+    20412,
+    5122,
+    34,
+    13,
+    54851,
+    99328,
+    109650,
+    9370,
+    101257,
+    28946,
+    3407,
+    102401,
+    104506,
+    48443
+  ],
+  "input_tokens": 84,
+  "seconds": 0.41698249999899417,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

@@ -1,0 +1,218 @@
+{
+  "state": "PASS_ACTUAL_EXTRACTED_WATCHER_CONTROLS_ONLY",
+  "utc": "2026-11-04T20:10:25.905475+00:00",
+  "cases": [
+    {
+      "case": "normal",
+      "error": null,
+      "state": {
+        "phases": {
+          "normal": {
+            "elapsed_s": 0.16851762495934963,
+            "peak_group_rss_kib": 0,
+            "returncode": 0,
+            "expected_fatal": null,
+            "tool_log_sha256": "a3edbeefa2baf0b31bb3f3bac43864166ac6f2c1e4e7eeb93bb883ab9091ff2b"
+          }
+        },
+        "state": "EXECUTING_NORMAL",
+        "phase": "normal",
+        "command": "/home/zhangben/anaconda3/bin/python -c 'print('\"'\"'CONTROL_OK'\"'\"')'",
+        "child_pid": 16356,
+        "child_pgid": 16356
+      },
+      "actual_group_after": [],
+      "unrelated_sentinel_alive": true,
+      "resource_injection": null
+    },
+    {
+      "case": "nonzero",
+      "error": "AssertionError:('nonzero', 7)",
+      "state": {
+        "phases": {},
+        "state": "EXECUTING_NONZERO",
+        "phase": "nonzero",
+        "command": "/home/zhangben/anaconda3/bin/python -c 'import sys;sys.exit(7)'",
+        "child_pid": 16360,
+        "child_pgid": 16360
+      },
+      "actual_group_after": [],
+      "unrelated_sentinel_alive": true,
+      "resource_injection": null
+    },
+    {
+      "case": "timeout",
+      "error": "RuntimeError:PHASE_TIMEOUT",
+      "state": {
+        "phases": {},
+        "state": "EXECUTING_TIMEOUT",
+        "phase": "timeout",
+        "command": "/home/zhangben/anaconda3/bin/python -c 'import time;time.sleep(60)'",
+        "child_pid": 16361,
+        "child_pgid": 16361,
+        "stop_evidence": {
+          "reason": "PHASE_TIMEOUT",
+          "utc": "2026-11-04T20:10:10.187088+00:00",
+          "elapsed_s": 0.8059063190594316,
+          "rss_kib": 8620,
+          "available_kib": 258840520,
+          "members": [
+            {
+              "pid": 16361,
+              "start_ticks": "343754470",
+              "rss_kib": 8620
+            }
+          ]
+        }
+      },
+      "actual_group_after": [],
+      "unrelated_sentinel_alive": true,
+      "resource_injection": null
+    },
+    {
+      "case": "stop",
+      "error": "RuntimeError:STOP_REQUESTED",
+      "state": {
+        "phases": {},
+        "state": "EXECUTING_STOP",
+        "phase": "stop",
+        "command": "/home/zhangben/anaconda3/bin/python -c 'import time;time.sleep(60)'",
+        "child_pid": 16366,
+        "child_pgid": 16366,
+        "stop_evidence": {
+          "reason": "STOP_REQUESTED",
+          "utc": "2026-11-04T20:10:11.635798+00:00",
+          "elapsed_s": 0.12156874081119895,
+          "rss_kib": 8384,
+          "available_kib": 258840860,
+          "members": [
+            {
+              "pid": 16366,
+              "start_ticks": "343754684",
+              "rss_kib": 8384
+            }
+          ]
+        }
+      },
+      "actual_group_after": [],
+      "unrelated_sentinel_alive": true,
+      "resource_injection": null
+    },
+    {
+      "case": "rss",
+      "error": "RuntimeError:GROUP_RSS_ABOVE_16GIB",
+      "state": {
+        "phases": {},
+        "state": "EXECUTING_RSS",
+        "phase": "rss",
+        "command": "/home/zhangben/anaconda3/bin/python -c 'import time;time.sleep(60)'",
+        "child_pid": 16369,
+        "child_pgid": 16369,
+        "stop_evidence": {
+          "reason": "GROUP_RSS_ABOVE_16GIB",
+          "utc": "2026-11-04T20:10:12.938894+00:00",
+          "elapsed_s": 0.12210835795849562,
+          "rss_kib": 16777217,
+          "available_kib": 258841196,
+          "members": [
+            {
+              "pid": 16369,
+              "start_ticks": "343754814",
+              "rss_kib": 16777217
+            }
+          ]
+        }
+      },
+      "actual_group_after": [],
+      "unrelated_sentinel_alive": true,
+      "resource_injection": "rss"
+    },
+    {
+      "case": "spare",
+      "error": "RuntimeError:AVAILABLE_BELOW_32GIB",
+      "state": {
+        "phases": {},
+        "state": "EXECUTING_SPARE",
+        "phase": "spare",
+        "command": "/home/zhangben/anaconda3/bin/python -c 'import time;time.sleep(60)'",
+        "child_pid": 16371,
+        "child_pgid": 16371,
+        "stop_evidence": {
+          "reason": "AVAILABLE_BELOW_32GIB",
+          "utc": "2026-11-04T20:10:14.246731+00:00",
+          "elapsed_s": 0.12133985199034214,
+          "rss_kib": 8068,
+          "available_kib": 33554431,
+          "members": [
+            {
+              "pid": 16371,
+              "start_ticks": "343754945",
+              "rss_kib": 8068
+            }
+          ]
+        }
+      },
+      "actual_group_after": [],
+      "unrelated_sentinel_alive": true,
+      "resource_injection": "spare"
+    },
+    {
+      "case": "orphan",
+      "error": "AssertionError:",
+      "state": {
+        "phases": {},
+        "state": "EXECUTING_ORPHAN",
+        "phase": "orphan",
+        "command": "/home/zhangben/anaconda3/bin/python -c 'import subprocess,sys;subprocess.Popen([sys.executable,'\"'\"'-c'\"'\"','\"'\"'import time;time.sleep(60)'\"'\"'])'",
+        "child_pid": 16373,
+        "child_pgid": 16373
+      },
+      "actual_group_after": [],
+      "unrelated_sentinel_alive": true,
+      "resource_injection": null
+    },
+    {
+      "case": "expected_fatal",
+      "error": null,
+      "state": {
+        "phases": {
+          "expected_fatal": {
+            "elapsed_s": 0.15644940687343478,
+            "peak_group_rss_kib": 8624,
+            "returncode": 1,
+            "expected_fatal": "CONTROL_EXPECTED",
+            "tool_log_sha256": "1842c9d5b48b8890e3ef1defc89d3a65bdd65a920612e76cc5b4c5244cf87c0a"
+          }
+        },
+        "state": "EXECUTING_EXPECTED_FATAL",
+        "phase": "expected_fatal",
+        "command": "/home/zhangben/anaconda3/bin/python -c 'import sys;print('\"'\"'Fatal: CONTROL_EXPECTED'\"'\"');sys.exit(1)'",
+        "child_pid": 16382,
+        "child_pgid": 16382
+      },
+      "actual_group_after": [],
+      "unrelated_sentinel_alive": true,
+      "resource_injection": null
+    },
+    {
+      "case": "wrong_fatal",
+      "error": "AssertionError:('wrong_fatal', ['Fatal: WRONG'])",
+      "state": {
+        "phases": {},
+        "state": "EXECUTING_WRONG_FATAL",
+        "phase": "wrong_fatal",
+        "command": "/home/zhangben/anaconda3/bin/python -c 'import sys;print('\"'\"'Fatal: WRONG'\"'\"');sys.exit(1)'",
+        "child_pid": 16384,
+        "child_pgid": 16384
+      },
+      "actual_group_after": [],
+      "unrelated_sentinel_alive": true,
+      "resource_injection": null
+    }
+  ],
+  "all_owned_groups_empty": true,
+  "eda": "NOT_RUN",
+  "scope": "Exact extracted runner controller with only16GiB threshold and label substituted;9 real isolated process controls, resource values injected not real16GiB allocation. No EDA/DUT/model qualification.",
+  "guard_group_gib": 16,
+  "executed_script_sha256": "e3cc166c7056186e539a454f5a0bd82011b1e523683c40f4db2ad5b6b8216c80"
+}

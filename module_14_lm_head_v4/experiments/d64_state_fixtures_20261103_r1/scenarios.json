@@ -1,0 +1,267 @@
+[
+  {
+    "label": "A0_debug",
+    "fixture": "old_chinese",
+    "debug": 1,
+    "capacity": 79068,
+    "expected": {
+      "expected_status": 0,
+      "token": 20412,
+      "score_bits": 1105086332,
+      "crc": 476316903,
+      "k": 4109,
+      "debug1_assembled_sha256": "191f7387458028dd5a2564d538f80d1e5301d00dd88aa7da14a9a7afa2075a69",
+      "meta_sha256": "270125890642f73254353bf30cc02e74b896b9432ea2efeb53b79e33ab195a7c"
+    },
+    "mutations": [],
+    "case_index": 0,
+    "input_path": "module_14_lm_head_v4/experiments/d64_state_fixtures_20261103_r1/cases/00_A0_debug.meta.bin",
+    "input_sha256": "270125890642f73254353bf30cc02e74b896b9432ea2efeb53b79e33ab195a7c"
+  },
+  {
+    "label": "B0_production",
+    "fixture": "old_english",
+    "debug": 0,
+    "capacity": 79068,
+    "expected": {
+      "expected_status": 0,
+      "token": 389,
+      "score_bits": 1105554108,
+      "crc": 3904411160,
+      "k": 4110,
+      "debug1_assembled_sha256": "696dc491616bec48836618d637b6f527133cdb26294c20fb41bea7515965829d",
+      "meta_sha256": "88f5d72ad608453f256213a7e51748386d04674f92c1d201c49ce8ce0a7018ff"
+    },
+    "mutations": [],
+    "case_index": 1,
+    "input_path": "module_14_lm_head_v4/experiments/d64_state_fixtures_20261103_r1/cases/01_B0_production.meta.bin",
+    "input_sha256": "88f5d72ad608453f256213a7e51748386d04674f92c1d201c49ce8ce0a7018ff"
+  },
+  {
+    "label": "A1_debug",
+    "fixture": "old_chinese",
+    "debug": 1,
+    "capacity": 79068,
+    "expected": {
+      "expected_status": 0,
+      "token": 20412,
+      "score_bits": 1105086332,
+      "crc": 476316903,
+      "k": 4109,
+      "debug1_assembled_sha256": "191f7387458028dd5a2564d538f80d1e5301d00dd88aa7da14a9a7afa2075a69",
+      "meta_sha256": "270125890642f73254353bf30cc02e74b896b9432ea2efeb53b79e33ab195a7c"
+    },
+    "mutations": [],
+    "case_index": 2,
+    "input_path": "module_14_lm_head_v4/experiments/d64_state_fixtures_20261103_r1/cases/02_A1_debug.meta.bin",
+    "input_sha256": "270125890642f73254353bf30cc02e74b896b9432ea2efeb53b79e33ab195a7c"
+  },
+  {
+    "label": "Z0_ties",
+    "fixture": "zero_hidden",
+    "debug": 1,
+    "capacity": 79068,
+    "expected": {
+      "expected_status": 0,
+      "token": 0,
+      "score_bits": 0,
+      "crc": 1696784233,
+      "k": 4110,
+      "debug1_assembled_sha256": "c8f79255278b5b8b3e9ac20bd197617fed689dd1202f42f8f08b60e4cf0241db",
+      "meta_sha256": "8c47b805d9e24b0713c0b07e8c844715fc8b375cf407cb5b1be630a4eadfe35e"
+    },
+    "mutations": [],
+    "case_index": 3,
+    "input_path": "module_14_lm_head_v4/experiments/d64_state_fixtures_20261103_r1/cases/03_Z0_ties.meta.bin",
+    "input_sha256": "8c47b805d9e24b0713c0b07e8c844715fc8b375cf407cb5b1be630a4eadfe35e"
+  },
+  {
+    "label": "E_capacity",
+    "fixture": "old_chinese",
+    "debug": 1,
+    "capacity": 79067,
+    "expected": {
+      "expected_status": 1,
+      "token": 0,
+      "score_bits": 0,
+      "crc": 0,
+      "k": 0,
+      "preview_read_beats": 0
+    },
+    "mutations": [],
+    "access_invariants": {
+      "weight_reads": 0,
+      "meta_reads": 0,
+      "workspace_writes": 0
+    },
+    "case_index": 4,
+    "input_path": "module_14_lm_head_v4/experiments/d64_state_fixtures_20261103_r1/cases/04_E_capacity.meta.bin",
+    "input_sha256": "270125890642f73254353bf30cc02e74b896b9432ea2efeb53b79e33ab195a7c"
+  },
+  {
+    "label": "E_flag",
+    "fixture": "old_chinese",
+    "debug": 2,
+    "capacity": 79068,
+    "expected": {
+      "expected_status": 1,
+      "token": 0,
+      "score_bits": 0,
+      "crc": 0,
+      "k": 0,
+      "preview_read_beats": 0
+    },
+    "mutations": [],
+    "access_invariants": {
+      "weight_reads": 0,
+      "meta_reads": 0,
+      "workspace_writes": 0
+    },
+    "case_index": 5,
+    "input_path": "module_14_lm_head_v4/experiments/d64_state_fixtures_20261103_r1/cases/05_E_flag.meta.bin",
+    "input_sha256": "270125890642f73254353bf30cc02e74b896b9432ea2efeb53b79e33ab195a7c"
+  },
+  {
+    "label": "E_hidden_nan",
+    "fixture": "old_chinese",
+    "debug": 1,
+    "capacity": 79068,
+    "expected": {
+      "expected_status": 2,
+      "token": 0,
+      "score_bits": 0,
+      "crc": 0,
+      "k": 0,
+      "preview_read_beats": 0
+    },
+    "mutations": [
+      {
+        "region": "meta",
+        "offset_bytes": 0,
+        "width_bytes": 2,
+        "expected_original_hex": "c0bf",
+        "replacement_hex": "c07f"
+      }
+    ],
+    "access_invariants": {
+      "weight_reads": 0,
+      "meta_reads": "metadata only; no fixed-count assumption",
+      "workspace_writes": 0
+    },
+    "case_index": 6,
+    "input_path": "module_14_lm_head_v4/experiments/d64_state_fixtures_20261103_r1/cases/06_E_hidden_nan.meta.bin",
+    "input_sha256": "80c0a28933a77eccf0d17c1fdc09841ccb8771a7812c0cb937f1354bab2f4cfc"
+  },
+  {
+    "label": "E_rms_nan",
+    "fixture": "old_chinese",
+    "debug": 1,
+    "capacity": 79068,
+    "expected": {
+      "expected_status": 2,
+      "token": 0,
+      "score_bits": 0,
+      "crc": 0,
+      "k": 0,
+      "preview_read_beats": 0
+    },
+    "mutations": [
+      {
+        "region": "meta",
+        "offset_bytes": 1792,
+        "width_bytes": 4,
+        "expected_original_hex": "08d07e3c",
+        "replacement_hex": "0000c07f"
+      }
+    ],
+    "access_invariants": {
+      "weight_reads": 0,
+      "meta_reads": "metadata only; no fixed-count assumption",
+      "workspace_writes": 0
+    },
+    "case_index": 7,
+    "input_path": "module_14_lm_head_v4/experiments/d64_state_fixtures_20261103_r1/cases/07_E_rms_nan.meta.bin",
+    "input_sha256": "e95e3eca5804c5f11315389d2135cc48fd0e3bc81deb34022281b4c2bfbda175"
+  },
+  {
+    "label": "E_rms_negative",
+    "fixture": "old_chinese",
+    "debug": 1,
+    "capacity": 79068,
+    "expected": {
+      "expected_status": 2,
+      "token": 0,
+      "score_bits": 0,
+      "crc": 0,
+      "k": 0,
+      "preview_read_beats": 0
+    },
+    "mutations": [
+      {
+        "region": "meta",
+        "offset_bytes": 1792,
+        "width_bytes": 4,
+        "expected_original_hex": "08d07e3c",
+        "replacement_hex": "000080bf"
+      }
+    ],
+    "access_invariants": {
+      "weight_reads": 0,
+      "meta_reads": "metadata only; no fixed-count assumption",
+      "workspace_writes": 0
+    },
+    "case_index": 8,
+    "input_path": "module_14_lm_head_v4/experiments/d64_state_fixtures_20261103_r1/cases/08_E_rms_negative.meta.bin",
+    "input_sha256": "a06538d8b7dd86b32407754f25a9ee13922c07cd88893a877aef091490c10ac6"
+  },
+  {
+    "label": "E_preview_nan",
+    "fixture": "old_chinese",
+    "debug": 1,
+    "capacity": 79068,
+    "expected": {
+      "expected_status": 2,
+      "token": 0,
+      "score_bits": 0,
+      "crc": 0,
+      "k": 0,
+      "preview_read_beats": 0
+    },
+    "mutations": [
+      {
+        "region": "weights",
+        "offset_bytes": 1517568,
+        "width_bytes": 2,
+        "expected_original_hex": "ad3c",
+        "replacement_hex": "c07f",
+        "restore_after": true
+      }
+    ],
+    "access_invariants": {
+      "canonical_weight_reads": 0,
+      "notes": "Actual preview must encounter selected-channel NaN; do not replace with a fake error or precomputed preview"
+    },
+    "case_index": 9,
+    "input_path": "module_14_lm_head_v4/experiments/d64_state_fixtures_20261103_r1/cases/09_E_preview_nan.meta.bin",
+    "input_sha256": "270125890642f73254353bf30cc02e74b896b9432ea2efeb53b79e33ab195a7c"
+  },
+  {
+    "label": "A2_after_errors",
+    "fixture": "old_chinese",
+    "debug": 1,
+    "capacity": 79068,
+    "expected": {
+      "expected_status": 0,
+      "token": 20412,
+      "score_bits": 1105086332,
+      "crc": 476316903,
+      "k": 4109,
+      "debug1_assembled_sha256": "191f7387458028dd5a2564d538f80d1e5301d00dd88aa7da14a9a7afa2075a69",
+      "meta_sha256": "270125890642f73254353bf30cc02e74b896b9432ea2efeb53b79e33ab195a7c"
+    },
+    "mutations": [],
+    "case_index": 10,
+    "input_path": "module_14_lm_head_v4/experiments/d64_state_fixtures_20261103_r1/cases/10_A2_after_errors.meta.bin",
+    "input_sha256": "270125890642f73254353bf30cc02e74b896b9432ea2efeb53b79e33ab195a7c"
+  }
+]

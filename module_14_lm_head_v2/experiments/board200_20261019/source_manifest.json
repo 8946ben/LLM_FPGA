@@ -1,0 +1,25 @@
+{
+  "build_config": "0x20c08011",
+  "clock_code": 3,
+  "module_revision": 2,
+  "target_clock_hz": 200000000,
+  "clock_definition": "doc/0924/PS_PL 全模块参数与接口字段说明书.md section 4.2",
+  "numeric_identity": "bf16_rne_h8_interleave16_fp32_adjacent_tree_v2",
+  "arithmetic_candidate_sha256": "926911392a1664c05072ac3df2c9c494e55b9d94e72776c67ee5e642d5a5ef91",
+  "board_ip": "192.168.0.190",
+  "source_sha256": {
+    "src\\lm_head_v2.cpp": "926911392a1664c05072ac3df2c9c494e55b9d94e72776c67ee5e642d5a5ef91",
+    "include\\lm_head_v2.hpp": "6437399c32981ba9d5a9954c022b65d7adbf49334adf80654b71d02019ba42eb",
+    "drivers\\lm_head_v2_driver.c": "bc41949e110507b592d12b6629031f688cfb9a9123272f1c9057de3109bbe796",
+    "drivers\\lm_head_v2_driver.h": "826ad66f794511580b4afbad5057d5f85f6852480b3568a08cb06afb8aae3bc7",
+    "drivers\\lm_head_v2_mmio.c": "266c36c9fdc434948416ae548d97b7018a04bfe9cbe98a2f75b79161d8c6c165",
+    "drivers\\lm_head_v2_mmio.h": "e789ffaf90bc684b03d2b12322e2adbc2b7f6340a161afcda28a0de4b74e9b6e",
+    "drivers\\README.md": "4fcba22edc9af135801a816b1b6abf9b3d2ca7735829dd83ab49aff7b92788d6",
+    "loader\\loader_core.c": "d2d9c67348d96b44618388f7e603b298b453fa7a38e47d5347926da9cbc27bd2",
+    "loader\\loader_core.h": "398e5ff5e51a6037ff9847f91a30f51671067f22d8b49d43e31dd812b5adc745",
+    "loader\\main.c": "4ac718aab5da84617d7f96782d114999f571421a8fa484061901f2bacd7d5869",
+    "loader\\platform.h": "eedc36a81e043f665d58dd9a26671a0442d9a22677be313cdbb3e1956740b840",
+    "loader\\platform_config.h": "e94e88388bc5a10891b50179af8ac8dc976c397677354eb0436c97ffeee3d3fd",
+    "loader\\platform_zynqmp.c": "a8eebce719d3f9ae4b4cf28788449aaf1aa8aea7ff3831128fc60229c5c9a1f5"
+  }
+}

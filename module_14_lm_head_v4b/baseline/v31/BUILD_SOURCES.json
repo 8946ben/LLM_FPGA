@@ -1,0 +1,27 @@
+{
+  "elf_sha256": {
+    "m14_calib_timeout_test.elf": "abd095a3f8aeb0c4cca148641ada0a54e1fffc62a77b7a84155f2bcc875e6226",
+    "m14_pl_ddr_diag.elf": "08917e0616cb596ef9dec5ea4b9efd99f83fa03d02ca0e35c49ee119b2d71994",
+    "m14_tcp_loader.elf": "9b29cb2bcd06d13758231ccb03c3fbdc27c0aa8dba0cec047f2b606440846244",
+    "m14_v2_test.elf": "f8d4d7d81d35a908f2fb19855715379205727ade49bdd8e252b15013cc50922b"
+  },
+  "format": "M14_V31_SOFTWARE_BUILD_IDENTITY",
+  "hardware_xsa_sha256": "89ea49af79a8a5dfacc88edd65f4a60b573f1b7290425787f1b24ecc4783c828",
+  "phy_patch_sha256": "4ad6f6537c3f9c648ea84435714b282c9b82ab7e36d45eb46db94ab0865bedf5",
+  "source_sha256": {
+    "standalone/src/lm_head_v2_mailbox.h": "928c41dd432a00dc8cdadc9ff43fd5d235db5fc768859d14abc577be854f5b8a",
+    "standalone/src/lscript.ld": "34e84e28aae222a1c210532a68a280c0d448bef993c3858d7d4b2da7b5ea1e12",
+    "standalone/src/main.c": "68047f74c64db1eb0cb38dfe3190a280ebb8244c116c3a7e24f58aa6fed4e978",
+    "standalone/src/pl_ddr_layout.h": "ebd30b755063450a19c1d653a26f970a5c2ae87bf360bb2cf65212252dc1fccd",
+    "experiments/board_v31_20261019/drivers/lm_head_v2_driver.c": "7971abf9c5deceab2130058387e079adaa2ca9404ef4dda6d893d514c9186031",
+    "experiments/board_v31_20261019/drivers/lm_head_v2_driver.h": "500562494022fba3d29d356dd59389ec6bcbff375e3ec6a9cf693a0d9a8c9d36",
+    "experiments/board_v31_20261019/drivers/lm_head_v2_mmio.c": "8574b522fbc0992d6df8aab44753ba907955b00fdaf1c7bbfb65e3f002b5a82f",
+    "experiments/board_v31_20261019/drivers/lm_head_v2_mmio.h": "e789ffaf90bc684b03d2b12322e2adbc2b7f6340a161afcda28a0de4b74e9b6e",
+    "experiments/board_v31_20261019/loader/loader_core.c": "487cd0c4db52287f1b660dd56119da2dbf921005aeb11511f16b21976bbd252c",
+    "experiments/board_v31_20261019/loader/loader_core.h": "7f98af24c4bf88381493b5438f28033ee2e72673ef799ec8b42443bb9173bd4b",
+    "experiments/board_v31_20261019/loader/main.c": "1806153ed754db244dc89c0f05d2b196148745cfef4a2ffbc89d2e94594f5e07",
+    "experiments/board_v31_20261019/loader/platform_config.h": "e94e88388bc5a10891b50179af8ac8dc976c397677354eb0436c97ffeee3d3fd",
+    "experiments/board_v31_20261019/loader/platform_zynqmp.c": "a8eebce719d3f9ae4b4cf28788449aaf1aa8aea7ff3831128fc60229c5c9a1f5",
+    "experiments/board_v31_20261019/loader/platform.h": "eedc36a81e043f665d58dd9a26671a0442d9a22677be313cdbb3e1956740b840"
+  }
+}

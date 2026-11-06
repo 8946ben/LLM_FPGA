@@ -1,0 +1,441 @@
+{
+  "state": "PASS_INDEPENDENT_BURST_REAL_FULL_INPUT_INIT_AND_ALL_WORDS",
+  "utc": "2026-11-03T08:10:25.408929+00:00",
+  "model_sha256": "07e2f1b17f10b989bdb980cc208c463c914170c14fc598851f71aeba21e74c40",
+  "actual_compiled_sources_checked": 145,
+  "unchanged_reused_sources_checked": 119,
+  "verified_words_in_sv": 34105344,
+  "verified_bytes_in_sv": 545685504,
+  "host_independent_actual_sentinel_bytes": 1522,
+  "weight_sha256": {
+    "module_14_lm_head_v4/reports/layout_topk_20261024_r1/assets/tiled_W_B1024.bin": "62aed05d6a0a17c092541dde5a9d7e47cd23bcdf59c01d2a294d9de8a500c57e",
+    "artifacts/module14_v2_assets/shared_vocab_weight.bf16.bin": "4e96b0df6d274768cbb7e72404011853d23349999b658dc2f4dfb3c431ea223f"
+  },
+  "kernel_gib_before_weights": 0.4028053283691406,
+  "kernel_gib_after_weights": 7.012901306152344,
+  "kernel_gib_after_all_word_check": 11.338401794433594,
+  "load_growth_gib": 6.610095977783203,
+  "all_word_check_growth_gib": 4.320415496826172,
+  "load_growth_reduction_percent_vs_full_baseline": 85.220850918146,
+  "resource": {
+    "elaborate": {
+      "elapsed_s": 43.843878156971186,
+      "peak_group_rss_kib": 4504580
+    },
+    "xsim": {
+      "elapsed_s": 197.3042345168069,
+      "peak_group_rss_kib": 12427396
+    }
+  },
+  "stages": [
+    {
+      "label": "top_initial",
+      "amount": 0,
+      "rss_kib": 105996
+    },
+    {
+      "label": "reference_constructed",
+      "amount": 0,
+      "rss_kib": 113988
+    },
+    {
+      "label": "reference_run_enter",
+      "amount": 0,
+      "rss_kib": 124572
+    },
+    {
+      "label": "control_regions_ready",
+      "amount": 0,
+      "rss_kib": 125376
+    },
+    {
+      "label": "before_meta_load",
+      "amount": 1289456,
+      "rss_kib": 125376
+    },
+    {
+      "label": "after_meta_load",
+      "amount": 1289456,
+      "rss_kib": 422288
+    },
+    {
+      "label": "before_weights_load",
+      "amount": 545685504,
+      "rss_kib": 422372
+    },
+    {
+      "label": "stream_before_open",
+      "amount": 545685504,
+      "rss_kib": 422372
+    },
+    {
+      "label": "stream_page_created",
+      "amount": 545685504,
+      "rss_kib": 422372
+    },
+    {
+      "label": "stream_progress",
+      "amount": 16777216,
+      "rss_kib": 633484
+    },
+    {
+      "label": "stream_progress",
+      "amount": 33554432,
+      "rss_kib": 846744
+    },
+    {
+      "label": "stream_progress",
+      "amount": 50331648,
+      "rss_kib": 1059668
+    },
+    {
+      "label": "stream_progress",
+      "amount": 67108864,
+      "rss_kib": 1272948
+    },
+    {
+      "label": "stream_progress",
+      "amount": 83886080,
+      "rss_kib": 1486148
+    },
+    {
+      "label": "stream_progress",
+      "amount": 100663296,
+      "rss_kib": 1699252
+    },
+    {
+      "label": "stream_progress",
+      "amount": 117440512,
+      "rss_kib": 1912200
+    },
+    {
+      "label": "stream_progress",
+      "amount": 134217728,
+      "rss_kib": 2125456
+    },
+    {
+      "label": "stream_progress",
+      "amount": 150994944,
+      "rss_kib": 2338488
+    },
+    {
+      "label": "stream_progress",
+      "amount": 167772160,
+      "rss_kib": 2551708
+    },
+    {
+      "label": "stream_progress",
+      "amount": 184549376,
+      "rss_kib": 2765340
+    },
+    {
+      "label": "stream_progress",
+      "amount": 201326592,
+      "rss_kib": 2978440
+    },
+    {
+      "label": "stream_progress",
+      "amount": 218103808,
+      "rss_kib": 3191380
+    },
+    {
+      "label": "stream_progress",
+      "amount": 234881024,
+      "rss_kib": 3404528
+    },
+    {
+      "label": "stream_progress",
+      "amount": 251658240,
+      "rss_kib": 3617744
+    },
+    {
+      "label": "stream_progress",
+      "amount": 268435456,
+      "rss_kib": 3830896
+    },
+    {
+      "label": "stream_progress",
+      "amount": 285212672,
+      "rss_kib": 4043952
+    },
+    {
+      "label": "stream_progress",
+      "amount": 301989888,
+      "rss_kib": 4257212
+    },
+    {
+      "label": "stream_progress",
+      "amount": 318767104,
+      "rss_kib": 4470316
+    },
+    {
+      "label": "stream_progress",
+      "amount": 335544320,
+      "rss_kib": 4683456
+    },
+    {
+      "label": "stream_progress",
+      "amount": 352321536,
+      "rss_kib": 4896872
+    },
+    {
+      "label": "stream_progress",
+      "amount": 369098752,
+      "rss_kib": 5110088
+    },
+    {
+      "label": "stream_progress",
+      "amount": 385875968,
+      "rss_kib": 5323232
+    },
+    {
+      "label": "stream_progress",
+      "amount": 402653184,
+      "rss_kib": 5536404
+    },
+    {
+      "label": "stream_progress",
+      "amount": 419430400,
+      "rss_kib": 5749508
+    },
+    {
+      "label": "stream_progress",
+      "amount": 436207616,
+      "rss_kib": 5962492
+    },
+    {
+      "label": "stream_progress",
+      "amount": 452984832,
+      "rss_kib": 6175844
+    },
+    {
+      "label": "stream_progress",
+      "amount": 469762048,
+      "rss_kib": 6388852
+    },
+    {
+      "label": "stream_progress",
+      "amount": 486539264,
+      "rss_kib": 6601884
+    },
+    {
+      "label": "stream_progress",
+      "amount": 503316480,
+      "rss_kib": 6815140
+    },
+    {
+      "label": "stream_progress",
+      "amount": 520093696,
+      "rss_kib": 7028244
+    },
+    {
+      "label": "stream_progress",
+      "amount": 536870912,
+      "rss_kib": 7241932
+    },
+    {
+      "label": "stream_after_load",
+      "amount": 545685504,
+      "rss_kib": 7353396
+    },
+    {
+      "label": "after_weights_load",
+      "amount": 545685504,
+      "rss_kib": 7353560
+    },
+    {
+      "label": "after_1522_sentinels",
+      "amount": 1522,
+      "rss_kib": 7358892
+    },
+    {
+      "label": "before_full_binary_verify",
+      "amount": 545685504,
+      "rss_kib": 7358892
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 16777216,
+      "rss_kib": 7498708
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 33554432,
+      "rss_kib": 7638080
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 50331648,
+      "rss_kib": 7777308
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 67108864,
+      "rss_kib": 7916592
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 83886080,
+      "rss_kib": 8055764
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 100663296,
+      "rss_kib": 8194996
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 117440512,
+      "rss_kib": 8334424
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 134217728,
+      "rss_kib": 8473648
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 150994944,
+      "rss_kib": 8612872
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 167772160,
+      "rss_kib": 8752100
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 184549376,
+      "rss_kib": 8891388
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 201326592,
+      "rss_kib": 9030612
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 218103808,
+      "rss_kib": 9169908
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 234881024,
+      "rss_kib": 9309140
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 251658240,
+      "rss_kib": 9448376
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 268435456,
+      "rss_kib": 9587816
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 290193408,
+      "rss_kib": 9768424
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 306970624,
+      "rss_kib": 9907656
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 323747840,
+      "rss_kib": 10046864
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 340525056,
+      "rss_kib": 10186100
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 357302272,
+      "rss_kib": 10325332
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 374079488,
+      "rss_kib": 10464768
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 390856704,
+      "rss_kib": 10603996
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 407633920,
+      "rss_kib": 10743144
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 424411136,
+      "rss_kib": 10882572
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 441188352,
+      "rss_kib": 11021716
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 457965568,
+      "rss_kib": 11160988
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 474742784,
+      "rss_kib": 11300376
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 491520000,
+      "rss_kib": 11439580
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 508297216,
+      "rss_kib": 11578720
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 525074432,
+      "rss_kib": 11718112
+    },
+    {
+      "label": "binary_verify_progress",
+      "amount": 541851648,
+      "rss_kib": 11857232
+    },
+    {
+      "label": "after_full_binary_verify",
+      "amount": 545685504,
+      "rss_kib": 11889176
+    }
+  ],
+  "all_observed_simulation_time_ps": 0,
+  "evidence_sha256": {
+    "PLAN.json": "76c6d0d389cd7dac6fba6e928aedde2793442a602ca9cde0a88f7295b1cdcf44",
+    "WORKFLOW.json": "89126b5dd4eeddd5e237bc81810c25f76f413a14d94f7617c51cb2acc341b898",
+    "COMPILED_SOURCES.json": "f5afae867b15b74fb6bb60587428dc17609aaa58fcffb117f2bc8ef62f3ac9ba",
+    "memory_phases.csv": "60c4670364b1e9a528672946f711c7d5fcb3ffd98c07070d4eb5926da3197f2b",
+    "weights_readback.csv": "90d4b87f8747e02d3244d24f35190f710871afc8ac28317fa4a96f9df30cf7d2",
+    "xsim.log": "27e93a2237e14874d5cd54e435619070d61e3b039312064821a81f8caa0c07e1",
+    "xsim_resources.jsonl": "a094f3b9851bbce7108f2e7a0996d250566177a5c934b9f43465568e7a881ed1"
+  },
+  "limits": [
+    "Actual full-project initialization only; no full M14 call, FIFO, numeric output, performance or board qualification",
+    "34105344 all-word comparisons execute in frozen SV with original binary inputs; host rechecks complete source SHA and1522 actual saved bytes, not a complete returned memory dump",
+    "Observed initialization resource budget does not guarantee a complete simulation fits16GiB",
+    "Packed reader check is distinct from byte queue AXI runtime; known residual readpath growth remains to qualify"
+  ],
+  "full_m14": "NOT_RUN",
+  "board": "NOT_RUN",
+  "automatic_next_stage": false
+}

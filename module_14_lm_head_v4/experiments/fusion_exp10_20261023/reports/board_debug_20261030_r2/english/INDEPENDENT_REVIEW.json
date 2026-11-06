@@ -1,0 +1,11 @@
+{
+  "state": "PASS_INDEPENDENT_FULL_BOARD_ARRAY_REVIEW",
+  "variant": "exp10",
+  "case": "english",
+  "preview": 151936,
+  "ids": 25359,
+  "raw": 25359,
+  "guards": 13,
+  "bit_tolerance": 0,
+  "script_sha_matches": true
+}

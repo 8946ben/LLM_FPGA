@@ -1,0 +1,63 @@
+{
+  "state": "PASS_INDEPENDENT_FINITE_CONTROL_REGISTER_REGRESSION",
+  "utc": "2026-11-03T03:16:59.279832+00:00",
+  "actual_compiled_sources_checked": 31,
+  "cases": {
+    "0": {
+      "calls_completed": 4,
+      "polls": 503,
+      "reads_checked": 547,
+      "writes_checked": 12,
+      "done_detection_delays_cycles": [
+        42,
+        22,
+        330,
+        157
+      ],
+      "kernel_rss_growth_mib": 60.69921875,
+      "peak_group_rss_kib": 573396,
+      "results_sha256": "d4f450dbc6a2414725b08734fb8d56942e2a5bef66c7f91fb4bd2267659c61a1",
+      "wire_sha256": "6cf3d9734559ecb4902345394304bb8ad1fc68ce1a0aa4a2f225bfb84b3fd578",
+      "samples_sha256": "77a990b255e8ad217a4ab0bb61bcf5a571c1083adc28f32bc7cb4172de1dd1a8"
+    },
+    "1": {
+      "calls_completed": 4,
+      "polls": 34,
+      "reads_checked": 78,
+      "writes_checked": 12,
+      "done_detection_delays_cycles": [
+        1305,
+        756,
+        261,
+        1035
+      ],
+      "kernel_rss_growth_mib": 8.2890625,
+      "peak_group_rss_kib": 599600,
+      "results_sha256": "f16df6a20ffb8aaf16c1b478ee327bb88133bc017efd407fd069d6ba78493f49",
+      "wire_sha256": "5fe3068fd81fa677b4290c7861cd8ec0f9054fdb81f3f0befbecebb09518cf25",
+      "samples_sha256": "29ea60d4bc2a8bee1161fb2bfc3fb04630f649d48a59e553bd21b775fb6ccbe0"
+    },
+    "2": {
+      "calls_completed": 0,
+      "polls": 5,
+      "reads_checked": 8,
+      "writes_checked": 3,
+      "done_detection_delays_cycles": [],
+      "kernel_rss_growth_mib": 1.2890625,
+      "peak_group_rss_kib": 673492,
+      "results_sha256": "ef2244520d92ad08b9ba24e8271ecefdcd559daff1839a857528fa4c0ee52f00",
+      "wire_sha256": "1083a66e8257c38e22f924719ec1d636ee80a082349e20020fda9a829848cedf",
+      "samples_sha256": "72ed6a646008b70b2040dbcf5210335ff914d610c72eec998320508cd47f418f"
+    }
+  },
+  "full_m14": "NOT_RUN",
+  "board": "NOT_RUN",
+  "finite_fixture_growth_reduction_percent": 86.34403758285603,
+  "limits": [
+    "Fake compute supplies fixed outputs/done; no actual M14 algorithm, DDR, FIFO or real error-path qualification",
+    "Exact control RTL/LEN4/original latency class; changed poll schedule changes random call order; not the original full frozen stall stream",
+    "Guard and cadence applied together: separate effects require earlier orthogonal probes, not attribution from this combined comparison",
+    "No claim of stable asymptotic memory, completed full simulation or 16GiB budget; higher group peak in fixed variant is not lower peak qualification",
+    "No sequence/transaction pooling applied; original allocation continues per poll"
+  ]
+}

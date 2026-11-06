@@ -1,0 +1,41 @@
+{
+  "state": "PASS_INDEPENDENT_REPAIRED_REAL_DUT_FIRST5",
+  "utc": "2026-11-03T11:51:50.867757+00:00",
+  "compiled_source_count": 144,
+  "unchanged_reused_sources": 116,
+  "all_declared_source_edits_reversible": true,
+  "arrays": {
+    "raw_values": 5120,
+    "key_values": 5120,
+    "dims": 64,
+    "weight_read_beats": 40960,
+    "sentinel_bytes": 1522
+  },
+  "weight_load_growth_gib": 6.610034942626953,
+  "resource": {
+    "elaborate": {
+      "elapsed_s": 41.69883084995672,
+      "peak_group_rss_kib": 4535724
+    },
+    "xsim": {
+      "elapsed_s": 3029.4108180282637,
+      "peak_group_rss_kib": 8995328
+    }
+  },
+  "evidence_sha256": {
+    "WORKFLOW.json": "594d7275efddeea4f6913f6aa335d2da026db31d9b7edb334a93436803df8bed",
+    "PLAN.json": "8c28310fba6f2625d3d901629206710b4d2db0366a386a867236a888ec9be4c5",
+    "COMPILED_SOURCES.json": "18e3f9a383fb4b681b13d196b95a8b3539ef4df10e0b7faf687d811c30a5a7f9",
+    "AXI_TRACE_REVIEW.json": "4be7e26ec091df5f2e1df92df442b625a201e6a769483bb881ead6d54525fcb6",
+    "PREVIEW_REVIEW.json": "8c91675e4af150613e9ca58d38951891871bd5f124d669afe8dd2b5739167ea2",
+    "memory_phases.csv": "9e25d55cedb95859f473941f79780d4286cd7869a7b561152c2cb61b7464e724",
+    "weights_readback.csv": "90d4b87f8747e02d3244d24f35190f710871afc8ac28317fa4a96f9df30cf7d2"
+  },
+  "limits": [
+    "First5 blocks only; candidate exact path, complete preview, actual finite FIFO and C postcheck still incomplete",
+    "Partial-stop RLE may lack final tail; never used as full FIFO evidence",
+    "No FPGA performance/board/200MHz implementation qualification"
+  ],
+  "full_m14": "INCOMPLETE",
+  "automatic_next_stage": false
+}

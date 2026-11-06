@@ -1,0 +1,10 @@
+{
+  "state": "FIXED_INPUT_CAMPAIGN_RETURNED_PENDING_INDEPENDENT_REVIEW",
+  "variant": "exp10",
+  "case": "code",
+  "pid": 21040,
+  "started": "2026-10-30T11:30:13.133720+00:00",
+  "automatic_next_case": false,
+  "result_state": "PASS_PRIVATE_PS_CAPTURE",
+  "finished": "2026-10-30T11:33:16.086035+00:00"
+}

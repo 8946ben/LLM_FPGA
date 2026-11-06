@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>路线设计</title>
+<style>
+:root{--bg:#f4f6fa;--ink:#1b2c42;--muted:#596a7e;--line:#dce3ec;--blue:#215fd0}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.75 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1280px;margin:auto;padding:28px;min-width:0}a{color:var(--blue)}h1{font-size:30px;line-height:1.4;margin:12px 0}h2{font-size:20px;margin:0 0 12px}h3{margin:0}p{overflow-wrap:anywhere}button{font:inherit;cursor:pointer;border:1px solid #bccce0;border-radius:7px;background:#fff;color:#295487;padding:6px 12px}button:focus-visible,a:focus-visible,[data-node]:focus-visible{outline:3px solid #4c8ae3;outline-offset:3px}.panel{min-width:0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin:16px 0}.muted{color:var(--muted);font-size:13px}.tag{display:inline-block;background:#edf3fc;border-radius:5px;padding:3px 9px;font-size:12px}.layout>*{min-width:0}.layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px}.diagram-scroll{overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fafcff}.diagram-scroll svg{display:block;width:100%;min-width:650px}.toolbar,.steps{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.steps button[aria-pressed=true]{background:#e5efff;border-color:#4984d6}.node rect{fill:#f0f5ff;stroke:#8eaacf;stroke-width:1.5}.node.selected rect{fill:#e0edff;stroke:#215fd0;stroke-width:3}.node.muted{opacity:.3}.node.step-active rect{fill:#e7f5ee;stroke:#428a70}.node{cursor:pointer}.node-label{font:600 15px/1.45 system-ui,"Microsoft YaHei",sans-serif;padding:12px;overflow:hidden;height:100%;overflow-wrap:anywhere}.node-label small{display:block;font-size:11px;font-weight:400;color:#5e7087;margin-top:5px}.edge{stroke:#8da4c3;stroke-width:2;fill:none}.stage-strip{display:flex;overflow:auto;gap:8px;padding:4px 0}.stage-item{flex:1 0 130px;padding:10px;border:1px solid var(--line);border-radius:7px;font-size:12px}.stage-item b,.stage-item span{display:block}.active{background:#e7efff;border-color:#215fd0}.verified{background:#e9f6ef}.waiting{background:#fff4de}.failed{background:#ffedf0}.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}li{overflow-wrap:anywhere}.proof a{display:inline-block;margin:0 14px 7px 0}.node-detail{white-space:pre-wrap;overflow-wrap:anywhere}.proposal{border-left:4px solid #c49a45;padding-left:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere}summary{cursor:pointer;color:var(--blue)}@media(max-width:800px){main{padding:16px}.layout,.cards{grid-template-columns:1fr}.panel{padding:15px}h1{font-size:25px}.diagram-scroll svg{min-width:700px}}[hidden]{display:none!important}
+</style></head><body><main>
+<a id="back" href="#">返回开发日志路线图</a><div class="muted" id="snapshot"></div>
+<h1 id="title"></h1><span id="scope" class="tag"></span><p id="goal"></p>
+<p id="boundary" class="proposal"></p>
+<section class="panel"><h2>验证进度</h2><div id="stages" class="stage-strip"></div><p id="outcome"></p><p id="next" class="muted"></p></section>
+<section class="panel"><h2>设计原理与数据流</h2><p id="overview"></p>
+ <div class="toolbar"><button id="zoom-in" type="button">放大</button><button id="zoom-fit" type="button">适合窗口</button><button id="reset" type="button">重置步骤</button></div>
+ <div class="layout"><div><div class="diagram-scroll" tabindex="0" aria-label="设计结构，可横向滚动"><svg id="diagram" role="group" aria-label="设计模块，点击或聚焦查看说明"></svg></div><div id="steps" class="steps"></div><p id="step-description" class="muted"></p></div><aside class="panel"><h3 id="node-title">模块说明</h3><p id="node-detail" class="node-detail"></p></aside></div>
+</section>
+<div class="cards"><section class="panel"><h2>实现边界与接口</h2><ul id="contracts"></ul></section><section class="panel"><h2>资源、性能与取舍</h2><ul id="tradeoffs"></ul></section></div>
+<section class="panel"><h2>实现与证据</h2><div id="evidence" class="proof"></div><p class="muted">图展示逻辑设计；验证结论以对应阶段和证据为准。离线页面不查询任务状态。</p></section>
+</main><script id="design-data" type="application/json">{
+  "route": {
+    "id": "R200",
+    "title": "200 MHz原源码诊断 · 首轮未达标",
+    "parent": "R250",
+    "lifecycle": "stopped",
+    "currentStage": "hls",
+    "scope": "独立H8/V1，目标5ns；本轮不做公共ABI/M06/整体LLM集成",
+    "goal": "先用原算法5ns诊断找出真实约束，再针对控制/布线优化并完成200MHz逐级验证。",
+    "outcome": "首次5ns HLS已完成，估算5.328ns / 187.71MHz，尚未达200MHz；dot II=1保持，归约II3→5。没有新RTL/布局布线/板测结论。",
+    "next": "首轮保留为失败分支；后续规约分层方案由子路线R200Layers承接，并于2026-10-19作为lm_head v3验收。",
+    "cells": {
+      "contract": {
+        "state": "verified",
+        "note": "5ns目标与基线已核对",
+        "detail": "固定路径外推差1.351ns；6.182ns中布线5.866ns，主导网扇出256。"
+      },
+      "implementation": {
+        "state": "planned",
+        "note": "归约候选待实现",
+        "detail": "隔离脚本已完成；下一源码候选尚未实现，生产源码未改。"
+      },
+      "hls": {
+        "state": "failed",
+        "note": "完成综合；估算未达5ns",
+        "detail": "完成生成RTL，但估算5.328ns/187.71MHz；dot II=1；归约II3→5；共3条时序估算警告。不是post-route结论。",
+        "execution": {
+          "snapshot_at": "2026-10-16T19:25:45+08:00",
+          "location": "本机",
+          "host": "LAPTOP-NHABUFB2",
+          "tool": "Vitis HLS 2021.1",
+          "cpu": "分配核数未记录",
+          "memory_limit": "未记录限额；HLS peak allocated662.630MB，不等同RSS",
+          "current_task": "综合已结束（exit=0），无运行中构建；估算未达到200MHz。",
+          "progress": "已完成1次5ns诊断；新RTL/布局布线/板测均未执行。",
+          "completed": "dot II=1；归约各层II=5；顶层估算5.328ns / 187.71MHz；报告已归档。",
+          "elapsed": "总elapsed214.327s；csynth179.085s；CPU user114s/system13s（计时，不是核数上限）",
+          "scope": "只做HLS综合诊断，不导出IP或操作板卡",
+          "next": "下一候选优先分离归约层临时数组/固定索引，保持加法配对与舍入顺序；比较调度、资源及新CE布线。尚未启动该候选。",
+          "source": "module_14_lm_head_v2/reports/frequency_200_20261016/diagnostic_summary.json"
+        },
+        "evidence": [
+          {
+            "label": "诊断结果与旧HLS对比",
+            "href": "module_14_lm_head_v2/reports/frequency_200_20261016/diagnostic_summary.json"
+          }
+        ]
+      },
+      "rtl": {
+        "state": "planned",
+        "note": "待新候选RTL验证",
+        "detail": "待新候选RTL验证"
+      },
+      "physical": {
+        "state": "planned",
+        "note": "尚未200MHz布局布线",
+        "detail": "尚未200MHz布局布线"
+      },
+      "board": {
+        "state": "planned",
+        "note": "尚未200MHz上板",
+        "detail": "尚未200MHz上板"
+      },
+      "evaluation": {
+        "state": "planned",
+        "note": "新频率性能未测",
+        "detail": "新频率性能未测"
+      }
+    },
+    "evidence": [
+      {
+        "label": "200MHz分析",
+        "href": "module_14_lm_head_v2/reports/frequency_200_20261016/ANALYSIS.md",
+        "text": ""
+      },
+      {
+        "label": "基线身份与预算",
+        "href": "module_14_lm_head_v2/reports/frequency_200_20261016/baseline.json",
+        "text": ""
+      },
+      {
+        "label": "独立5ns诊断入口",
+        "href": "module_14_lm_head_v2/experiments/frequency_200_20261016/run_csynth_200.tcl",
+        "text": ""
+      }
+    ],
+    "design_page": "doc/design/R200.html",
+    "history": [
+      {
+        "snapshot_at": "2026-10-16T19:24:53+08:00",
+        "lifecycle": "active",
+        "currentStage": "hls",
+        "cells": {
+          "contract": {
+            "state": "verified",
+            "note": "5ns目标与基线已核对",
+            "detail": "固定路径外推差1.351ns；6.182ns中布线5.866ns，主导网扇出256。"
+          },
+          "implementation": {
+            "state": "verified",
+            "note": "隔离诊断入口已准备",
+            "detail": "只新增实验脚本；生产源码/头/驱动身份与交付基线一致。"
+          },
+          "hls": {
+            "state": "active",
+            "note": "5ns / 1.35ns 调度中",
+            "detail": "已启动2021.1 csynth，尚无完整报告；无板卡操作。",
+            "execution": {
+              "snapshot_at": "2026-10-16T19:24:53+08:00",
+              "location": "本机",
+              "host": "LAPTOP-NHABUFB2",
+              "tool": "Vitis HLS 2021.1",
+              "cpu": "分配核数未记录",
+              "memory_limit": "未设置或未记录；工具allocated memory不视为RSS/资源上限",
+              "current_task": "csynth_design：原生产源码，周期5.000ns，uncertainty1.350ns，独立工程",
+              "progress": "当前HLS已启动；报告尚未完成，不换算整项百分比",
+              "completed": "静态时序/源码/时钟及计时配套分析、候选脚本检查已完成",
+              "elapsed": "未单独记录；见vitis_hls.log起始时间",
+              "scope": "只做HLS综合诊断，不导出IP或操作板卡",
+              "next": "核对最终marker、II、时序估算、资源和warning，再决定下一候选",
+              "source": "module_14_lm_head_v2/build/frequency_200_20261016/vitis_hls.log"
+            }
+          },
+          "rtl": {
+            "state": "planned",
+            "note": "待新候选RTL验证",
+            "detail": "待新候选RTL验证"
+          },
+          "physical": {
+            "state": "planned",
+            "note": "尚未200MHz布局布线",
+            "detail": "尚未200MHz布局布线"
+          },
+          "board": {
+            "state": "planned",
+            "note": "尚未200MHz上板",
+            "detail": "尚未200MHz上板"
+          },
+          "evaluation": {
+            "state": "planned",
+            "note": "新频率性能未测",
+            "detail": "新频率性能未测"
+          }
+        },
+        "outcome": "静态基线显示CE高扇出是重点；G盘工具已恢复可见，独立HLS正在运行。没有200MHz时序/板测通过结论。"
+      },
+      {
+        "snapshot_at": "2026-10-16T19:29:38+08:00",
+        "snapshot": {
+          "id": "R200",
+          "title": "独立 M14 提升至 200 MHz",
+          "parent": "R250",
+          "lifecycle": "planned",
+          "currentStage": "implementation",
+          "scope": "独立H8/V1，目标5ns；本轮不做公共ABI/M06/整体LLM集成",
+          "goal": "先用原算法5ns诊断找出真实约束，再针对控制/布线优化并完成200MHz逐级验证。",
+          "outcome": "首次5ns HLS已完成，估算5.328ns / 187.71MHz，尚未达200MHz；dot II=1保持，归约II3→5。没有新RTL/布局布线/板测结论。",
+          "next": "下一候选优先分离归约层临时数组/固定索引，保持加法配对与舍入顺序；比较调度、资源及新CE布线。尚未启动该候选。",
+          "cells": {
+            "contract": {
+              "state": "verified",
+              "note": "5ns目标与基线已核对",
+              "detail": "固定路径外推差1.351ns；6.182ns中布线5.866ns，主导网扇出256。"
+            },
+            "implementation": {
+              "state": "planned",
+              "note": "归约候选待实现",
+              "detail": "隔离脚本已完成；下一源码候选尚未实现，生产源码未改。"
+            },
+            "hls": {
+              "state": "failed",
+              "note": "完成综合；估算未达5ns",
+              "detail": "完成生成RTL，但估算5.328ns/187.71MHz；dot II=1；归约II3→5；共3条时序估算警告。不是post-route结论。",
+              "execution": {
+                "snapshot_at": "2026-10-16T19:25:45+08:00",
+                "location": "本机",
+                "host": "LAPTOP-NHABUFB2",
+                "tool": "Vitis HLS 2021.1",
+                "cpu": "分配核数未记录",
+                "memory_limit": "未记录限额；HLS peak allocated662.630MB，不等同RSS",
+                "current_task": "综合已结束（exit=0），无运行中构建；估算未达到200MHz。",
+                "progress": "已完成1次5ns诊断；新RTL/布局布线/板测均未执行。",
+                "completed": "dot II=1；归约各层II=5；顶层估算5.328ns / 187.71MHz；报告已归档。",
+                "elapsed": "总elapsed214.327s；csynth179.085s；CPU user114s/system13s（计时，不是核数上限）",
+                "scope": "只做HLS综合诊断，不导出IP或操作板卡",
+                "next": "下一候选优先分离归约层临时数组/固定索引，保持加法配对与舍入顺序；比较调度、资源及新CE布线。尚未启动该候选。",
+                "source": "module_14_lm_head_v2/reports/frequency_200_20261016/diagnostic_summary.json"
+              },
+              "evidence": [
+                {
+                  "label": "诊断结果与旧HLS对比",
+                  "href": "module_14_lm_head_v2/reports/frequency_200_20261016/diagnostic_summary.json"
+                }
+              ]
+            },
+            "rtl": {
+              "state": "planned",
+              "note": "待新候选RTL验证",
+              "detail": "待新候选RTL验证"
+            },
+            "physical": {
+              "state": "planned",
+              "note": "尚未200MHz布局布线",
+              "detail": "尚未200MHz布局布线"
+            },
+            "board": {
+              "state": "planned",
+              "note": "尚未200MHz上板",
+              "detail": "尚未200MHz上板"
+            },
+            "evaluation": {
+              "state": "planned",
+              "note": "新频率性能未测",
+              "detail": "新频率性能未测"
+            }
+          },
+          "evidence": [
+            {
+              "label": "200MHz分析",
+              "href": "module_14_lm_head_v2/reports/frequency_200_20261016/ANALYSIS.md",
+              "text": ""
+            },
+            {
+              "label": "基线身份与预算",
+              "href": "module_14_lm_head_v2/reports/frequency_200_20261016/baseline.json",
+              "text": ""
+            },
+            {
+              "label": "独立5ns诊断入口",
+              "href": "module_14_lm_head_v2/experiments/frequency_200_20261016/run_csynth_200.tcl",
+              "text": ""
+            }
+          ],
+          "design_page": "doc/design/R200.html",
+          "design": {
+            "overview": "保持原源码的5ns诊断保住dot II=1，但归约每行100→147cycles、HLS最差估算5.328ns。先以分层临时数组/固定索引候选减少保守存取相关，再比较CE控制与布线。",
+            "status_note": "首轮5ns HLS已完成，估算未达到200MHz；下一归约候选尚未实现。没有新布局布线或实板结论。",
+            "nodes": [
+              {
+                "id": "baseline",
+                "row": 0,
+                "col": 0,
+                "title": "100MHz冻结基线",
+                "caption": "源码与交付身份一致",
+                "detail": "原H8/V1/16-slot、bit/XSA/ELF及已验收数值/性能保留。"
+              },
+              {
+                "id": "schedule",
+                "row": 0,
+                "col": 1,
+                "title": "5ns HLS诊断",
+                "caption": "已完成：估算187.71MHz",
+                "detail": "原源码/2021.1/5ns；dot II=1、pipeline depth9→16；报告归档，没有达到200MHz时序结论。"
+              },
+              {
+                "id": "control",
+                "row": 0,
+                "col": 2,
+                "title": "归约调度 / CE控制",
+                "caption": "II3→5；147 cycles/row",
+                "detail": "归约HLS最差5.328ns；下一候选分离层间数组或固定索引，保留FP32顺序。旧CE fanout256也要在新物理实现中复查。"
+              },
+              {
+                "id": "physical",
+                "row": 1,
+                "col": 2,
+                "title": "200MHz独立实现",
+                "caption": "尚未开始",
+                "detail": "PL0、HP2、SmartConnect、reset及计时身份同步；不能仅改频率字段。"
+              },
+              {
+                "id": "numeric",
+                "row": 1,
+                "col": 1,
+                "title": "严格数值回归",
+                "caption": "保持bits/CRC合同",
+                "detail": "新调度或存储改变后，CSim/RTL/实板逐级检查，不放宽归约顺序。"
+              },
+              {
+                "id": "measure",
+                "row": 1,
+                "col": 0,
+                "title": "同口径性能评估",
+                "caption": "200MHz尚未实测",
+                "detail": "112.434ms仅条件推算；比较实际PL时钟、A53 wall、IP周期与工作量。"
+              }
+            ],
+            "edges": [
+              {
+                "source": "baseline",
+                "target": "schedule",
+                "label": "原算法重调度"
+              },
+              {
+                "source": "schedule",
+                "target": "control",
+                "label": "定位报告"
+              },
+              {
+                "source": "control",
+                "target": "physical",
+                "label": "候选布局"
+              },
+              {
+                "source": "physical",
+                "target": "numeric",
+                "label": "验证身份与数值"
+              },
+              {
+                "source": "numeric",
+                "target": "measure",
+                "label": "通过门禁后采样"
+              }
+            ],
+            "steps": [
+              {
+                "title": "现状与诊断",
+                "nodes": [
+                  "baseline",
+                  "schedule",
+                  "control"
+                ],
+                "description": "先量出5ns下的真实调度与瓶颈，避免凭旧路径猜测新结果。"
+              },
+              {
+                "title": "实现与回归",
+                "nodes": [
+                  "physical",
+                  "numeric"
+                ],
+                "description": "核对单模块时钟/身份，保持数值顺序，逐级验证。"
+              },
+              {
+                "title": "性能评估",
+                "nodes": [
+                  "measure"
+                ],
+                "description": "以相同输入与计时边界比较，不保证主频翻倍就时延减半。"
+              }
+            ],
+            "contracts": [
+              "H8/V1、16-slot、FP32独立乘加舍入与相邻lane树保持。",
+              "不覆盖已验收100MHz项目或交付包。",
+              "只做独立M14，整体集成移出当前范围。"
+            ],
+            "tradeoffs": [
+              "200MHz目标需5ns约束，固定路径粗估缺1.351ns。",
+              "候选先保留算法重调度/物理优化，再按证据改控制。",
+              "若同周期数约112.434ms，要求约2.422GB/s权重平均服务；均未实测。",
+              "本次HLS LUT43280→44664、FF35124→37664、BRAM_18K95与DSP59不变；这不是post-route资源。"
+            ],
+            "evidence": [
+              {
+                "label": "本轮分析",
+                "href": "module_14_lm_head_v2/reports/frequency_200_20261016/ANALYSIS.md",
+                "text": ""
+              },
+              {
+                "label": "原关键路径",
+                "href": "module_14_lm_head_v2/reports/board_build/post_route_timing_summary.rpt",
+                "text": ""
+              },
+              {
+                "label": "首次5ns诊断",
+                "href": "module_14_lm_head_v2/reports/frequency_200_20261016/diagnostic_summary.json"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "task_refs": [
+      {
+        "id": "T01",
+        "label": "T01 完整词表基线与PL DDR迁移"
+      }
+    ]
+  },
+  "design": {
+    "overview": "保持原源码的5ns诊断保住dot II=1，但归约每行100→147cycles、HLS最差估算5.328ns。先以分层临时数组/固定索引候选减少保守存取相关，再比较CE控制与布线。",
+    "status_note": "历史首轮方案：HLS估算未达到200 MHz，后续实现/板测不属于该分支。成功的分层规约版本见R200Layers。",
+    "nodes": [
+      {
+        "id": "baseline",
+        "row": 0,
+        "col": 0,
+        "title": "100MHz冻结基线",
+        "caption": "源码与交付身份一致",
+        "detail": "原H8/V1/16-slot、bit/XSA/ELF及已验收数值/性能保留。"
+      },
+      {
+        "id": "schedule",
+        "row": 0,
+        "col": 1,
+        "title": "5ns HLS诊断",
+        "caption": "已完成：估算187.71MHz",
+        "detail": "原源码/2021.1/5ns；dot II=1、pipeline depth9→16；报告归档，没有达到200MHz时序结论。"
+      },
+      {
+        "id": "control",
+        "row": 0,
+        "col": 2,
+        "title": "归约调度 / CE控制",
+        "caption": "II3→5；147 cycles/row",
+        "detail": "归约HLS最差5.328ns；下一候选分离层间数组或固定索引，保留FP32顺序。旧CE fanout256也要在新物理实现中复查。"
+      },
+      {
+        "id": "physical",
+        "row": 1,
+        "col": 2,
+        "title": "200MHz独立实现",
+        "caption": "尚未开始",
+        "detail": "PL0、HP2、SmartConnect、reset及计时身份同步；不能仅改频率字段。"
+      },
+      {
+        "id": "numeric",
+        "row": 1,
+        "col": 1,
+        "title": "严格数值回归",
+        "caption": "保持bits/CRC合同",
+        "detail": "新调度或存储改变后，CSim/RTL/实板逐级检查，不放宽归约顺序。"
+      },
+      {
+        "id": "measure",
+        "row": 1,
+        "col": 0,
+        "title": "同口径性能评估",
+        "caption": "200MHz尚未实测",
+        "detail": "112.434ms仅条件推算；比较实际PL时钟、A53 wall、IP周期与工作量。"
+      }
+    ],
+    "edges": [
+      {
+        "source": "baseline",
+        "target": "schedule",
+        "label": "原算法重调度"
+      },
+      {
+        "source": "schedule",
+        "target": "control",
+        "label": "定位报告"
+      },
+      {
+        "source": "control",
+        "target": "physical",
+        "label": "候选布局"
+      },
+      {
+        "source": "physical",
+        "target": "numeric",
+        "label": "验证身份与数值"
+      },
+      {
+        "source": "numeric",
+        "target": "measure",
+        "label": "通过门禁后采样"
+      }
+    ],
+    "steps": [
+      {
+        "title": "现状与诊断",
+        "nodes": [
+          "baseline",
+          "schedule",
+          "control"
+        ],
+        "description": "先量出5ns下的真实调度与瓶颈，避免凭旧路径猜测新结果。"
+      },
+      {
+        "title": "实现与回归",
+        "nodes": [
+          "physical",
+          "numeric"
+        ],
+        "description": "核对单模块时钟/身份，保持数值顺序，逐级验证。"
+      },
+      {
+        "title": "性能评估",
+        "nodes": [
+          "measure"
+        ],
+        "description": "以相同输入与计时边界比较，不保证主频翻倍就时延减半。"
+      }
+    ],
+    "contracts": [
+      "H8/V1、16-slot、FP32独立乘加舍入与相邻lane树保持。",
+      "不覆盖已验收100MHz项目或交付包。",
+      "只做独立M14，整体集成移出当前范围。"
+    ],
+    "tradeoffs": [
+      "200MHz目标需5ns约束，固定路径粗估缺1.351ns。",
+      "候选先保留算法重调度/物理优化，再按证据改控制。",
+      "若同周期数约112.434ms，要求约2.422GB/s权重平均服务；均未实测。",
+      "本次HLS LUT43280→44664、FF35124→37664、BRAM_18K95与DSP59不变；这不是post-route资源。"
+    ],
+    "evidence": [
+      {
+        "label": "本轮分析",
+        "href": "module_14_lm_head_v2/reports/frequency_200_20261016/ANALYSIS.md",
+        "text": ""
+      },
+      {
+        "label": "原关键路径",
+        "href": "module_14_lm_head_v2/reports/board_build/post_route_timing_summary.rpt",
+        "text": ""
+      },
+      {
+        "label": "首次5ns诊断",
+        "href": "module_14_lm_head_v2/reports/frequency_200_20261016/diagnostic_summary.json"
+      }
+    ]
+  },
+  "stages": [
+    {
+      "id": "contract",
+      "title": "原理 / 数值合同",
+      "description": "核对接口、运算顺序与可比性边界"
+    },
+    {
+      "id": "implementation",
+      "title": "实现 / 离线检查",
+      "description": "源码实现、驱动、协议和主机回归"
+    },
+    {
+      "id": "hls",
+      "title": "HLS 综合",
+      "description": "生产尺寸资源、时钟估算与 II"
+    },
+    {
+      "id": "rtl",
+      "title": "RTL 仿真",
+      "description": "工具生成 Verilog 及 C post-check"
+    },
+    {
+      "id": "physical",
+      "title": "BD / 布局布线",
+      "description": "单模块互连、地址、真实 post-route、bit/XSA"
+    },
+    {
+      "id": "board",
+      "title": "实板正确性",
+      "description": "资产身份、DDR 校验、严格数值与错误路径"
+    },
+    {
+      "id": "evaluation",
+      "title": "性能评估",
+      "description": "独立样本、计时边界、稳定性与采用范围"
+    }
+  ],
+  "back": "../../开发日志.html#route-R200",
+  "updated": "2026-10-30T21:42:01+08:00"
+}</script><script>
+'use strict';
+(()=>{
+const data=JSON.parse(document.getElementById('design-data').textContent),r=data.route,d=data.design,$=id=>document.getElementById(id),ns='http://www.w3.org/2000/svg';
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safe=v=>{const s=String(v||'').trim();return s&&!/[\u0000-\u001f\u007f]/.test(s)&&!s.startsWith('//')&&(!/^[a-z][a-z0-9+.-]*:/i.test(s)||/^(https?:|file:)/i.test(s))?s:'';};
+const states={verified:'✓ 已验证',active:'● 进行中',waiting:'⏸ 等待条件',planned:'○ 未开始',failed:'× 未通过',na:'— 不适用',unknown:'? 未确认'};
+$('back').href=safe(data.back)||'#';$('title').textContent=r.id+' · '+r.title;document.title=r.title+' · 路线设计';$('scope').textContent=r.scope;$('goal').textContent=r.goal;
+$('snapshot').textContent='路线快照 '+data.updated;$('boundary').textContent=d.status_note||'验证范围见下方阶段；未完成的阶段仍待验证。';
+$('outcome').textContent=r.outcome;$('next').textContent='下一步：'+(r.next||'未记录');$('overview').textContent=d.overview||'设计说明尚待补充';
+$('stages').innerHTML=data.stages.map(s=>`<div class="stage-item ${esc(r.cells[s.id].state)}"><b>${esc(s.title)}</b><span>${esc(states[r.cells[s.id].state])}</span>${esc(r.cells[s.id].note)}</div>`).join('');
+for(const id of ['contracts','tradeoffs'])$(''+id).innerHTML=(d[id]||[]).map(s=>`<li>${esc(s)}</li>`).join('')||'<li>尚未记录</li>';
+const relative=h=>/^(?:[a-z][a-z0-9+.-]*:|\/|#)/i.test(h)?h:'../../'+h;
+$('evidence').innerHTML=[...(r.evidence||[]),...(d.evidence||[])].filter(e=>safe(e.href)).map(e=>`<a href="${esc(relative(e.href))}">${esc(e.label)}</a>`).join('')||'尚无附件证据';
+const svg=$('diagram'),nodes=new Map(d.nodes.map(n=>[n.id,n]));
+const width=(Math.max(...d.nodes.map(n=>n.col))+1)*260+20,height=(Math.max(...d.nodes.map(n=>n.row))+1)*160+20;
+svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
+function el(tag,attrs={}){const e=document.createElementNS(ns,tag);for(const [k,v]of Object.entries(attrs))e.setAttribute(k,v);return e;}
+for(const edge of d.edges||[]){const a=nodes.get(edge.source),b=nodes.get(edge.target),vertical=a.col===b.col,forward=vertical?b.row>a.row:b.col>a.col;
+const x1=a.col*260+(vertical?125:forward?230:20),y1=a.row*160+(vertical?(forward?120:20):70),x2=b.col*260+(vertical?125:forward?20:230),y2=b.row*160+(vertical?(forward?20:120):70);
+const path=vertical?`M${x1} ${y1} L${x2} ${y2}`:`M${x1} ${y1} C${(x1+x2)/2} ${y1},${(x1+x2)/2} ${y2},${x2} ${y2}`;
+const line=el('path',{d:path,class:'edge'});svg.append(line);const title=el('title');title.textContent=edge.label||'';line.append(title);
+const arrow=el('path',{d:vertical?`M${x2-5} ${y2+(forward?-7:7)} L${x2} ${y2} L${x2+5} ${y2+(forward?-7:7)}`:`M${x2+(forward?-7:7)} ${y2-5} L${x2} ${y2} L${x2+(forward?-7:7)} ${y2+5}`,class:'edge'});svg.append(arrow);}
+for(const n of d.nodes){const x=n.col*260+20,y=n.row*160+20,g=el('g',{class:'node',tabindex:'0',role:'button','data-node':n.id,'aria-label':n.title});g.append(el('rect',{x,y,width:210,height:100,rx:9}));
+const fo=el('foreignObject',{x,y,width:210,height:100}),box=document.createElementNS('http://www.w3.org/1999/xhtml','div');box.setAttribute('class','node-label');box.textContent=n.title;const small=document.createElementNS('http://www.w3.org/1999/xhtml','small');small.textContent=n.caption||'';box.append(small);fo.append(box);g.append(fo);svg.append(g);}
+function select(id){const n=nodes.get(id);if(!n)return;svg.querySelectorAll('[data-node]').forEach(g=>g.classList.toggle('selected',g.dataset.node===id));$('node-title').textContent=n.title;$('node-detail').textContent=n.detail||n.caption||'未记录';}
+svg.addEventListener('click',e=>{const g=e.target.closest('[data-node]');if(g)select(g.dataset.node);});
+svg.addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){const g=e.target.closest('[data-node]');if(g){e.preventDefault();select(g.dataset.node);}}});
+$('steps').innerHTML=(d.steps||[]).map((s,i)=>`<button type="button" data-step="${i}" aria-pressed="false">${esc(s.title)}</button>`).join('');
+$('steps').addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(!b)return;const s=d.steps[Number(b.dataset.step)];$('steps').querySelectorAll('button').forEach(v=>v.setAttribute('aria-pressed',String(v===b)));svg.querySelectorAll('[data-node]').forEach(g=>{g.classList.toggle('muted',!s.nodes.includes(g.dataset.node));g.classList.toggle('step-active',s.nodes.includes(g.dataset.node));});$('step-description').textContent=s.description||'';select(s.nodes[0]);});
+$('reset').addEventListener('click',()=>{svg.querySelectorAll('[data-node]').forEach(g=>g.classList.remove('muted','step-active'));$('steps').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed','false'));$('step-description').textContent='';});
+let zoom=1;$('zoom-in').addEventListener('click',()=>{zoom=Math.min(2,zoom+.2);svg.style.width=zoom*100+'%';});$('zoom-fit').addEventListener('click',()=>{zoom=1;svg.style.width='100%';svg.style.minWidth='0';});select(d.nodes[0].id);
+})();
+</script></body></html>

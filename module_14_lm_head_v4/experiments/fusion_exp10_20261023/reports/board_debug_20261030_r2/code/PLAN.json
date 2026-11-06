@@ -1,0 +1,15 @@
+{
+  "state": "FROZEN_FULL_ARRAY_DEBUG_CAPTURE",
+  "variant": "exp10",
+  "case": "code",
+  "k": 18757,
+  "expected_files": {
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\code.scores.bin": "e7e19e631e90999b424ee06e6e3998ed82cb05477e7c3166819c2fbf97c74ffe",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\code.expected.bin": "950af37e6291f26e0da564bf882204bf43bab83520bfd75db11e071cd9b5f0b9",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\code.sparse.bin": "036f1354527ed4b65e35b5b17b50cfa3a08965d2bcce10c110884bc266879d65",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\code.result.bin": "9c6ce8d3f4985614aaf42d373ba4171901324aea19780816b2b834260070acfe"
+  },
+  "script_sha256": "a7104e660b35386fbae21c7cc85633f56b8f876c7e7475bf827bad3600eaf44b",
+  "production_capture_sha256": "e950861bdd80be3091c60d5c25a660b36839251c97b42c948aae4ebaa9e559cd",
+  "scope": "Actual full preview, merged IDs, canonical candidate raw; fixed input; separately untimed; no board reinit or stale ticket; preceding same-case production campaign qualified"
+}

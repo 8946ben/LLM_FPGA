@@ -1,0 +1,12 @@
+run_case(0,"A0_debug","module_14_lm_head_v4/experiments/d64_state_fixtures_20261104_r2/cases/00_A0_debug.meta.bin",1,79068,0,32'h00004fbc,32'h41de477c,4109,32'h1c6404e7,-1,16'h0000);
+run_case(1,"B0_debug","module_14_lm_head_v4/experiments/d64_state_fixtures_20261104_r2/cases/01_B0_debug.meta.bin",1,79068,0,32'h00000185,32'h41e56abc,4110,32'he8b89618,-1,16'h0000);
+run_case(2,"A1_debug","module_14_lm_head_v4/experiments/d64_state_fixtures_20261104_r2/cases/02_A1_debug.meta.bin",1,79068,0,32'h00004fbc,32'h41de477c,4109,32'h1c6404e7,-1,16'h0000);
+run_case(3,"A_production","module_14_lm_head_v4/experiments/d64_state_fixtures_20261104_r2/cases/03_A_production.meta.bin",0,79068,0,32'h00004fbc,32'h41de477c,4109,32'h1c6404e7,-1,16'h0000);
+run_case(4,"Z0_ties","module_14_lm_head_v4/experiments/d64_state_fixtures_20261104_r2/cases/04_Z0_ties.meta.bin",1,79068,0,32'h00000000,32'h00000000,4110,32'h6522df69,-1,16'h0000);
+run_case(5,"E_capacity","module_14_lm_head_v4/experiments/d64_state_fixtures_20261104_r2/cases/05_E_capacity.meta.bin",1,79067,1,32'h00000000,32'h00000000,0,32'h00000000,-1,16'h0000);
+run_case(6,"E_flag","module_14_lm_head_v4/experiments/d64_state_fixtures_20261104_r2/cases/06_E_flag.meta.bin",2,79068,1,32'h00000000,32'h00000000,0,32'h00000000,-1,16'h0000);
+run_case(7,"E_hidden_nan","module_14_lm_head_v4/experiments/d64_state_fixtures_20261104_r2/cases/07_E_hidden_nan.meta.bin",1,79068,2,32'h00000000,32'h00000000,0,32'h00000000,-1,16'h0000);
+run_case(8,"E_rms_nan","module_14_lm_head_v4/experiments/d64_state_fixtures_20261104_r2/cases/08_E_rms_nan.meta.bin",1,79068,2,32'h00000000,32'h00000000,0,32'h00000000,-1,16'h0000);
+run_case(9,"E_rms_negative","module_14_lm_head_v4/experiments/d64_state_fixtures_20261104_r2/cases/09_E_rms_negative.meta.bin",1,79068,2,32'h00000000,32'h00000000,0,32'h00000000,-1,16'h0000);
+run_case(10,"E_preview_nan","module_14_lm_head_v4/experiments/d64_state_fixtures_20261104_r2/cases/10_E_preview_nan.meta.bin",1,79068,2,32'h00000000,32'h00000000,0,32'h00000000,1517568,16'h3cad);
+run_case(11,"A2_after_errors","module_14_lm_head_v4/experiments/d64_state_fixtures_20261104_r2/cases/11_A2_after_errors.meta.bin",1,79068,0,32'h00004fbc,32'h41de477c,4109,32'h1c6404e7,-1,16'h0000);

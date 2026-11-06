@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/economics.csv:81",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "e63348cb838750dbc662d82d6101208567ca1b82c8f56b5e59353ebc318f131f",
+  "group_sha256": "8b8b6df8c4d4f3cbb6a936b2078c1c2b838ff148bdfc719316e5d37303bbb481",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "655305954041f1abac23080d.npz",
+  "npz_sha256": "fb11ba01d4f0a8c0ebc9d49c5ef274c47cc67e9a79e572e35f5a2a6752467940",
+  "generated_ids": [
+    43288,
+    44793,
+    33872,
+    104429,
+    100146,
+    32664,
+    105114,
+    61689,
+    9370,
+    104998,
+    33108,
+    102303,
+    102054,
+    108894,
+    3837,
+    101034
+  ],
+  "input_tokens": 89,
+  "seconds": 1.4384341999539174,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

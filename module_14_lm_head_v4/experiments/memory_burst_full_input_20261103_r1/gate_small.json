@@ -1,0 +1,106 @@
+{
+  "state": "PASS_INDEPENDENT_BURST_FULL_PROJECT_SMALL_COMPARISON",
+  "utc": "2026-11-03T07:43:21.841802+00:00",
+  "actual_source_count": 145,
+  "unchanged_reused": 119,
+  "weights_bytes": 8388608,
+  "checksum": 1069547520,
+  "same_address_writes": 1000000,
+  "bulk_write_calls": 62500,
+  "bulk_elements_written": 1000000,
+  "model_sha256": "07e2f1b17f10b989bdb980cc208c463c914170c14fc598851f71aeba21e74c40",
+  "bulk_million_elements_growth_mib": 27.5859375,
+  "load_growth_mib": 101.82421875,
+  "full_read_growth_mib": 480.63671875,
+  "same_address_write_growth_mib": 76.17578125,
+  "load_rss_bytes_per_payload_byte": 12.72802734375,
+  "readpath_rss_bytes_per_returned_byte": 60.07958984375,
+  "rss_bytes_per_scalar_write_access": 79.876096,
+  "stages": {
+    "top_initial": {
+      "amount": 0,
+      "rss_kib": 103984
+    },
+    "reference_constructed": {
+      "amount": 0,
+      "rss_kib": 112036
+    },
+    "reference_run_enter": {
+      "amount": 0,
+      "rss_kib": 122780
+    },
+    "control_regions_ready": {
+      "amount": 0,
+      "rss_kib": 123464
+    },
+    "before_meta_load": {
+      "amount": 1289456,
+      "rss_kib": 123464
+    },
+    "after_meta_load": {
+      "amount": 1289456,
+      "rss_kib": 420248
+    },
+    "before_weights_load": {
+      "amount": 8388608,
+      "rss_kib": 420464
+    },
+    "stream_before_open": {
+      "amount": 8388608,
+      "rss_kib": 420464
+    },
+    "stream_page_created": {
+      "amount": 8388608,
+      "rss_kib": 420464
+    },
+    "stream_after_load": {
+      "amount": 8388608,
+      "rss_kib": 524600
+    },
+    "after_weights_load": {
+      "amount": 8388608,
+      "rss_kib": 524732
+    },
+    "small_after_full_read": {
+      "amount": 8388608,
+      "rss_kib": 1016904
+    },
+    "small_after_repeated_write": {
+      "amount": 1000000,
+      "rss_kib": 1094908
+    },
+    "small_after_bulk_write": {
+      "amount": 1000000,
+      "rss_kib": 1123156
+    }
+  },
+  "resources": {
+    "elaborate": {
+      "elapsed_s": 40.42277445597574,
+      "peak_group_rss_kib": 3563744
+    },
+    "xsim": {
+      "elapsed_s": 15.115042031742632,
+      "peak_group_rss_kib": 1579828
+    }
+  },
+  "input_tv_sha256": "4b8199ef1bc5f067c50a6fb4536b963e1706dfc7a66eac316ec12d881f9ac347",
+  "evidence_sha256": {
+    "PLAN.json": "c5a27be44e2c62a125bb4c957d4f87f746360490c957949f622fa23717d48bc7",
+    "WORKFLOW.json": "9ea11b7e7724f9f3bf6bf7dc065ab0f120b491fc800dc3af5a990c04c1ca89e6",
+    "COMPILED_SOURCES.json": "6977d8daaafd162e09c958ab0e18bdee264b551d2fb81a84f2883af0273fc19f",
+    "memory_phases.csv": "04fd75b7cf47114d99ab5113e172cfced036cf479f185afeddbb8dc5db6f676c",
+    "xsim.log": "3bc9b05c14aec2abb2ad87a84ef314bd52cfcbc2e3018fec376c6bc992fc92b9",
+    "xsim_resources.jsonl": "6d147ef769a306d5f3880773c3b4f60d4949724484c65110b6af0183b66d1441"
+  },
+  "limits": [
+    "Only eight-MiB fixed-pattern input in full project; no valid M14 compute input, no clock progress, no decode or FIFO qualification",
+    "Scalar-million-write control unchanged; bulk phase writes a sixteen-element window, not same scalar-address workload",
+    "All-byte and repeated-overwrite assertions execute in SV; host independently recomputes pattern SHA/checksum and phase differences",
+    "Readpath includes model API, output queue and all-byte checker; per-returned-byte arithmetic is not per-method-call allocation or guaranteed asymptotic slope",
+    "Module/UVM and new/factory minimal controls do not isolate every full-project compilation difference"
+  ],
+  "full_m14": "NOT_RUN",
+  "board": "NOT_RUN",
+  "automatic_next_stage": false
+}

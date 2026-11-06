@@ -1,0 +1,1907 @@
+{
+  "state": "CONTROL_SEQUENCES_PREPARED_NOT_EXECUTED",
+  "utc": "2026-11-03T16:41:32.247640+00:00",
+  "manifest_sha256": "a647d5e286001267b41cdbb35061efa331fae1f6461bc51bacc18daa99221545",
+  "control_rtl_sha256": "ba10ec60f9be55bc9e72e88d181f428bf9ed65f20d602f161acb15a2c2997f6a",
+  "registers": {
+    "ADDR_AP_CTRL": 0,
+    "ADDR_GIE": 4,
+    "ADDR_IER": 8,
+    "ADDR_ISR": 12,
+    "ADDR_META_OFFSET_DATA_0": 16,
+    "ADDR_META_OFFSET_DATA_1": 20,
+    "ADDR_META_OFFSET_CTRL": 24,
+    "ADDR_TILED_WEIGHT_DATA_0": 28,
+    "ADDR_TILED_WEIGHT_DATA_1": 32,
+    "ADDR_TILED_WEIGHT_CTRL": 36,
+    "ADDR_CANONICAL_WEIGHT_DATA_0": 40,
+    "ADDR_CANONICAL_WEIGHT_DATA_1": 44,
+    "ADDR_CANONICAL_WEIGHT_CTRL": 48,
+    "ADDR_WORKSPACE_DATA_0": 52,
+    "ADDR_WORKSPACE_DATA_1": 56,
+    "ADDR_WORKSPACE_CTRL": 60,
+    "ADDR_CAPACITY_BEATS_DATA_0": 64,
+    "ADDR_CAPACITY_BEATS_CTRL": 68,
+    "ADDR_DEBUG_DATA_0": 72,
+    "ADDR_DEBUG_CTRL": 76,
+    "ADDR_STATUS_DATA_0": 80,
+    "ADDR_STATUS_CTRL": 84,
+    "ADDR_TOKEN_DATA_0": 96,
+    "ADDR_TOKEN_CTRL": 100,
+    "ADDR_SCORE_BITS_DATA_0": 112,
+    "ADDR_SCORE_BITS_CTRL": 116,
+    "ADDR_CANDIDATE_COUNT_DATA_0": 128,
+    "ADDR_CANDIDATE_COUNT_CTRL": 132,
+    "ADDR_OUTPUT_CRC_DATA_0": 144,
+    "ADDR_OUTPUT_CRC_CTRL": 148,
+    "ADDR_PREVIEW_READ_BEATS_DATA_0": 160,
+    "ADDR_PREVIEW_READ_BEATS_DATA_1": 164,
+    "ADDR_PREVIEW_READ_BEATS_CTRL": 168
+  },
+  "sequences": [
+    {
+      "case_index": 0,
+      "label": "A0_debug",
+      "parameter_writes": [
+        {
+          "address": 16,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[0]"
+        },
+        {
+          "address": 20,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[1]"
+        },
+        {
+          "address": 28,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[0]"
+        },
+        {
+          "address": 32,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[1]"
+        },
+        {
+          "address": 40,
+          "value": 273416192,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[0]"
+        },
+        {
+          "address": 44,
+          "value": 0,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[1]"
+        },
+        {
+          "address": 52,
+          "value": 24368,
+          "strobe": 15,
+          "field": "WORKSPACE[0]"
+        },
+        {
+          "address": 56,
+          "value": 0,
+          "strobe": 15,
+          "field": "WORKSPACE[1]"
+        },
+        {
+          "address": 64,
+          "value": 79068,
+          "strobe": 15,
+          "field": "CAPACITY_BEATS"
+        },
+        {
+          "address": 72,
+          "value": 1,
+          "strobe": 15,
+          "field": "DEBUG"
+        }
+      ],
+      "parameter_readbacks": [
+        {
+          "address": 16,
+          "expected": 0
+        },
+        {
+          "address": 20,
+          "expected": 0
+        },
+        {
+          "address": 28,
+          "expected": 0
+        },
+        {
+          "address": 32,
+          "expected": 0
+        },
+        {
+          "address": 40,
+          "expected": 273416192
+        },
+        {
+          "address": 44,
+          "expected": 0
+        },
+        {
+          "address": 52,
+          "expected": 24368
+        },
+        {
+          "address": 56,
+          "expected": 0
+        },
+        {
+          "address": 64,
+          "expected": 79068
+        },
+        {
+          "address": 72,
+          "expected": 1
+        }
+      ],
+      "start_write": {
+        "address": 0,
+        "value": 1,
+        "strobe": 15
+      },
+      "output_reads": {
+        "status": [
+          80
+        ],
+        "token": [
+          96
+        ],
+        "score_bits": [
+          112
+        ],
+        "candidate_count": [
+          128
+        ],
+        "output_crc": [
+          144
+        ],
+        "preview_read_beats": [
+          160,
+          164
+        ]
+      },
+      "before_start": "Read AP_CTRL and output validity flags to clear stale state; assert start/autorestart clear and idle set. Complete all parameter write/readback handshakes first.",
+      "completion": "Require real start/busy/done for this frame, read actual outputs and then verify done clears on read. Do not accept idle done before a start.",
+      "reset_dut_before_case": false,
+      "reload_full_weights": false,
+      "workspace_persists": true,
+      "output_validity_clear_before_start": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ],
+      "output_validity_required_after_done": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ]
+    },
+    {
+      "case_index": 1,
+      "label": "B0_debug",
+      "parameter_writes": [
+        {
+          "address": 16,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[0]"
+        },
+        {
+          "address": 20,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[1]"
+        },
+        {
+          "address": 28,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[0]"
+        },
+        {
+          "address": 32,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[1]"
+        },
+        {
+          "address": 40,
+          "value": 273416192,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[0]"
+        },
+        {
+          "address": 44,
+          "value": 0,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[1]"
+        },
+        {
+          "address": 52,
+          "value": 24368,
+          "strobe": 15,
+          "field": "WORKSPACE[0]"
+        },
+        {
+          "address": 56,
+          "value": 0,
+          "strobe": 15,
+          "field": "WORKSPACE[1]"
+        },
+        {
+          "address": 64,
+          "value": 79068,
+          "strobe": 15,
+          "field": "CAPACITY_BEATS"
+        },
+        {
+          "address": 72,
+          "value": 1,
+          "strobe": 15,
+          "field": "DEBUG"
+        }
+      ],
+      "parameter_readbacks": [
+        {
+          "address": 16,
+          "expected": 0
+        },
+        {
+          "address": 20,
+          "expected": 0
+        },
+        {
+          "address": 28,
+          "expected": 0
+        },
+        {
+          "address": 32,
+          "expected": 0
+        },
+        {
+          "address": 40,
+          "expected": 273416192
+        },
+        {
+          "address": 44,
+          "expected": 0
+        },
+        {
+          "address": 52,
+          "expected": 24368
+        },
+        {
+          "address": 56,
+          "expected": 0
+        },
+        {
+          "address": 64,
+          "expected": 79068
+        },
+        {
+          "address": 72,
+          "expected": 1
+        }
+      ],
+      "start_write": {
+        "address": 0,
+        "value": 1,
+        "strobe": 15
+      },
+      "output_reads": {
+        "status": [
+          80
+        ],
+        "token": [
+          96
+        ],
+        "score_bits": [
+          112
+        ],
+        "candidate_count": [
+          128
+        ],
+        "output_crc": [
+          144
+        ],
+        "preview_read_beats": [
+          160,
+          164
+        ]
+      },
+      "before_start": "Read AP_CTRL and output validity flags to clear stale state; assert start/autorestart clear and idle set. Complete all parameter write/readback handshakes first.",
+      "completion": "Require real start/busy/done for this frame, read actual outputs and then verify done clears on read. Do not accept idle done before a start.",
+      "reset_dut_before_case": false,
+      "reload_full_weights": false,
+      "workspace_persists": true,
+      "output_validity_clear_before_start": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ],
+      "output_validity_required_after_done": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ]
+    },
+    {
+      "case_index": 2,
+      "label": "A1_debug",
+      "parameter_writes": [
+        {
+          "address": 16,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[0]"
+        },
+        {
+          "address": 20,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[1]"
+        },
+        {
+          "address": 28,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[0]"
+        },
+        {
+          "address": 32,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[1]"
+        },
+        {
+          "address": 40,
+          "value": 273416192,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[0]"
+        },
+        {
+          "address": 44,
+          "value": 0,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[1]"
+        },
+        {
+          "address": 52,
+          "value": 24368,
+          "strobe": 15,
+          "field": "WORKSPACE[0]"
+        },
+        {
+          "address": 56,
+          "value": 0,
+          "strobe": 15,
+          "field": "WORKSPACE[1]"
+        },
+        {
+          "address": 64,
+          "value": 79068,
+          "strobe": 15,
+          "field": "CAPACITY_BEATS"
+        },
+        {
+          "address": 72,
+          "value": 1,
+          "strobe": 15,
+          "field": "DEBUG"
+        }
+      ],
+      "parameter_readbacks": [
+        {
+          "address": 16,
+          "expected": 0
+        },
+        {
+          "address": 20,
+          "expected": 0
+        },
+        {
+          "address": 28,
+          "expected": 0
+        },
+        {
+          "address": 32,
+          "expected": 0
+        },
+        {
+          "address": 40,
+          "expected": 273416192
+        },
+        {
+          "address": 44,
+          "expected": 0
+        },
+        {
+          "address": 52,
+          "expected": 24368
+        },
+        {
+          "address": 56,
+          "expected": 0
+        },
+        {
+          "address": 64,
+          "expected": 79068
+        },
+        {
+          "address": 72,
+          "expected": 1
+        }
+      ],
+      "start_write": {
+        "address": 0,
+        "value": 1,
+        "strobe": 15
+      },
+      "output_reads": {
+        "status": [
+          80
+        ],
+        "token": [
+          96
+        ],
+        "score_bits": [
+          112
+        ],
+        "candidate_count": [
+          128
+        ],
+        "output_crc": [
+          144
+        ],
+        "preview_read_beats": [
+          160,
+          164
+        ]
+      },
+      "before_start": "Read AP_CTRL and output validity flags to clear stale state; assert start/autorestart clear and idle set. Complete all parameter write/readback handshakes first.",
+      "completion": "Require real start/busy/done for this frame, read actual outputs and then verify done clears on read. Do not accept idle done before a start.",
+      "reset_dut_before_case": false,
+      "reload_full_weights": false,
+      "workspace_persists": true,
+      "output_validity_clear_before_start": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ],
+      "output_validity_required_after_done": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ]
+    },
+    {
+      "case_index": 3,
+      "label": "A_production",
+      "parameter_writes": [
+        {
+          "address": 16,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[0]"
+        },
+        {
+          "address": 20,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[1]"
+        },
+        {
+          "address": 28,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[0]"
+        },
+        {
+          "address": 32,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[1]"
+        },
+        {
+          "address": 40,
+          "value": 273416192,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[0]"
+        },
+        {
+          "address": 44,
+          "value": 0,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[1]"
+        },
+        {
+          "address": 52,
+          "value": 24368,
+          "strobe": 15,
+          "field": "WORKSPACE[0]"
+        },
+        {
+          "address": 56,
+          "value": 0,
+          "strobe": 15,
+          "field": "WORKSPACE[1]"
+        },
+        {
+          "address": 64,
+          "value": 79068,
+          "strobe": 15,
+          "field": "CAPACITY_BEATS"
+        },
+        {
+          "address": 72,
+          "value": 0,
+          "strobe": 15,
+          "field": "DEBUG"
+        }
+      ],
+      "parameter_readbacks": [
+        {
+          "address": 16,
+          "expected": 0
+        },
+        {
+          "address": 20,
+          "expected": 0
+        },
+        {
+          "address": 28,
+          "expected": 0
+        },
+        {
+          "address": 32,
+          "expected": 0
+        },
+        {
+          "address": 40,
+          "expected": 273416192
+        },
+        {
+          "address": 44,
+          "expected": 0
+        },
+        {
+          "address": 52,
+          "expected": 24368
+        },
+        {
+          "address": 56,
+          "expected": 0
+        },
+        {
+          "address": 64,
+          "expected": 79068
+        },
+        {
+          "address": 72,
+          "expected": 0
+        }
+      ],
+      "start_write": {
+        "address": 0,
+        "value": 1,
+        "strobe": 15
+      },
+      "output_reads": {
+        "status": [
+          80
+        ],
+        "token": [
+          96
+        ],
+        "score_bits": [
+          112
+        ],
+        "candidate_count": [
+          128
+        ],
+        "output_crc": [
+          144
+        ],
+        "preview_read_beats": [
+          160,
+          164
+        ]
+      },
+      "before_start": "Read AP_CTRL and output validity flags to clear stale state; assert start/autorestart clear and idle set. Complete all parameter write/readback handshakes first.",
+      "completion": "Require real start/busy/done for this frame, read actual outputs and then verify done clears on read. Do not accept idle done before a start.",
+      "reset_dut_before_case": false,
+      "reload_full_weights": false,
+      "workspace_persists": true,
+      "output_validity_clear_before_start": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ],
+      "output_validity_required_after_done": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ]
+    },
+    {
+      "case_index": 4,
+      "label": "Z0_ties",
+      "parameter_writes": [
+        {
+          "address": 16,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[0]"
+        },
+        {
+          "address": 20,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[1]"
+        },
+        {
+          "address": 28,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[0]"
+        },
+        {
+          "address": 32,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[1]"
+        },
+        {
+          "address": 40,
+          "value": 273416192,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[0]"
+        },
+        {
+          "address": 44,
+          "value": 0,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[1]"
+        },
+        {
+          "address": 52,
+          "value": 24368,
+          "strobe": 15,
+          "field": "WORKSPACE[0]"
+        },
+        {
+          "address": 56,
+          "value": 0,
+          "strobe": 15,
+          "field": "WORKSPACE[1]"
+        },
+        {
+          "address": 64,
+          "value": 79068,
+          "strobe": 15,
+          "field": "CAPACITY_BEATS"
+        },
+        {
+          "address": 72,
+          "value": 1,
+          "strobe": 15,
+          "field": "DEBUG"
+        }
+      ],
+      "parameter_readbacks": [
+        {
+          "address": 16,
+          "expected": 0
+        },
+        {
+          "address": 20,
+          "expected": 0
+        },
+        {
+          "address": 28,
+          "expected": 0
+        },
+        {
+          "address": 32,
+          "expected": 0
+        },
+        {
+          "address": 40,
+          "expected": 273416192
+        },
+        {
+          "address": 44,
+          "expected": 0
+        },
+        {
+          "address": 52,
+          "expected": 24368
+        },
+        {
+          "address": 56,
+          "expected": 0
+        },
+        {
+          "address": 64,
+          "expected": 79068
+        },
+        {
+          "address": 72,
+          "expected": 1
+        }
+      ],
+      "start_write": {
+        "address": 0,
+        "value": 1,
+        "strobe": 15
+      },
+      "output_reads": {
+        "status": [
+          80
+        ],
+        "token": [
+          96
+        ],
+        "score_bits": [
+          112
+        ],
+        "candidate_count": [
+          128
+        ],
+        "output_crc": [
+          144
+        ],
+        "preview_read_beats": [
+          160,
+          164
+        ]
+      },
+      "before_start": "Read AP_CTRL and output validity flags to clear stale state; assert start/autorestart clear and idle set. Complete all parameter write/readback handshakes first.",
+      "completion": "Require real start/busy/done for this frame, read actual outputs and then verify done clears on read. Do not accept idle done before a start.",
+      "reset_dut_before_case": false,
+      "reload_full_weights": false,
+      "workspace_persists": true,
+      "output_validity_clear_before_start": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ],
+      "output_validity_required_after_done": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ]
+    },
+    {
+      "case_index": 5,
+      "label": "E_capacity",
+      "parameter_writes": [
+        {
+          "address": 16,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[0]"
+        },
+        {
+          "address": 20,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[1]"
+        },
+        {
+          "address": 28,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[0]"
+        },
+        {
+          "address": 32,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[1]"
+        },
+        {
+          "address": 40,
+          "value": 273416192,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[0]"
+        },
+        {
+          "address": 44,
+          "value": 0,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[1]"
+        },
+        {
+          "address": 52,
+          "value": 24368,
+          "strobe": 15,
+          "field": "WORKSPACE[0]"
+        },
+        {
+          "address": 56,
+          "value": 0,
+          "strobe": 15,
+          "field": "WORKSPACE[1]"
+        },
+        {
+          "address": 64,
+          "value": 79067,
+          "strobe": 15,
+          "field": "CAPACITY_BEATS"
+        },
+        {
+          "address": 72,
+          "value": 1,
+          "strobe": 15,
+          "field": "DEBUG"
+        }
+      ],
+      "parameter_readbacks": [
+        {
+          "address": 16,
+          "expected": 0
+        },
+        {
+          "address": 20,
+          "expected": 0
+        },
+        {
+          "address": 28,
+          "expected": 0
+        },
+        {
+          "address": 32,
+          "expected": 0
+        },
+        {
+          "address": 40,
+          "expected": 273416192
+        },
+        {
+          "address": 44,
+          "expected": 0
+        },
+        {
+          "address": 52,
+          "expected": 24368
+        },
+        {
+          "address": 56,
+          "expected": 0
+        },
+        {
+          "address": 64,
+          "expected": 79067
+        },
+        {
+          "address": 72,
+          "expected": 1
+        }
+      ],
+      "start_write": {
+        "address": 0,
+        "value": 1,
+        "strobe": 15
+      },
+      "output_reads": {
+        "status": [
+          80
+        ],
+        "token": [
+          96
+        ],
+        "score_bits": [
+          112
+        ],
+        "candidate_count": [
+          128
+        ],
+        "output_crc": [
+          144
+        ],
+        "preview_read_beats": [
+          160,
+          164
+        ]
+      },
+      "before_start": "Read AP_CTRL and output validity flags to clear stale state; assert start/autorestart clear and idle set. Complete all parameter write/readback handshakes first.",
+      "completion": "Require real start/busy/done for this frame, read actual outputs and then verify done clears on read. Do not accept idle done before a start.",
+      "reset_dut_before_case": false,
+      "reload_full_weights": false,
+      "workspace_persists": true,
+      "output_validity_clear_before_start": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ],
+      "output_validity_required_after_done": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ]
+    },
+    {
+      "case_index": 6,
+      "label": "E_flag",
+      "parameter_writes": [
+        {
+          "address": 16,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[0]"
+        },
+        {
+          "address": 20,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[1]"
+        },
+        {
+          "address": 28,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[0]"
+        },
+        {
+          "address": 32,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[1]"
+        },
+        {
+          "address": 40,
+          "value": 273416192,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[0]"
+        },
+        {
+          "address": 44,
+          "value": 0,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[1]"
+        },
+        {
+          "address": 52,
+          "value": 24368,
+          "strobe": 15,
+          "field": "WORKSPACE[0]"
+        },
+        {
+          "address": 56,
+          "value": 0,
+          "strobe": 15,
+          "field": "WORKSPACE[1]"
+        },
+        {
+          "address": 64,
+          "value": 79068,
+          "strobe": 15,
+          "field": "CAPACITY_BEATS"
+        },
+        {
+          "address": 72,
+          "value": 2,
+          "strobe": 15,
+          "field": "DEBUG"
+        }
+      ],
+      "parameter_readbacks": [
+        {
+          "address": 16,
+          "expected": 0
+        },
+        {
+          "address": 20,
+          "expected": 0
+        },
+        {
+          "address": 28,
+          "expected": 0
+        },
+        {
+          "address": 32,
+          "expected": 0
+        },
+        {
+          "address": 40,
+          "expected": 273416192
+        },
+        {
+          "address": 44,
+          "expected": 0
+        },
+        {
+          "address": 52,
+          "expected": 24368
+        },
+        {
+          "address": 56,
+          "expected": 0
+        },
+        {
+          "address": 64,
+          "expected": 79068
+        },
+        {
+          "address": 72,
+          "expected": 2
+        }
+      ],
+      "start_write": {
+        "address": 0,
+        "value": 1,
+        "strobe": 15
+      },
+      "output_reads": {
+        "status": [
+          80
+        ],
+        "token": [
+          96
+        ],
+        "score_bits": [
+          112
+        ],
+        "candidate_count": [
+          128
+        ],
+        "output_crc": [
+          144
+        ],
+        "preview_read_beats": [
+          160,
+          164
+        ]
+      },
+      "before_start": "Read AP_CTRL and output validity flags to clear stale state; assert start/autorestart clear and idle set. Complete all parameter write/readback handshakes first.",
+      "completion": "Require real start/busy/done for this frame, read actual outputs and then verify done clears on read. Do not accept idle done before a start.",
+      "reset_dut_before_case": false,
+      "reload_full_weights": false,
+      "workspace_persists": true,
+      "output_validity_clear_before_start": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ],
+      "output_validity_required_after_done": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ]
+    },
+    {
+      "case_index": 7,
+      "label": "E_hidden_nan",
+      "parameter_writes": [
+        {
+          "address": 16,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[0]"
+        },
+        {
+          "address": 20,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[1]"
+        },
+        {
+          "address": 28,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[0]"
+        },
+        {
+          "address": 32,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[1]"
+        },
+        {
+          "address": 40,
+          "value": 273416192,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[0]"
+        },
+        {
+          "address": 44,
+          "value": 0,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[1]"
+        },
+        {
+          "address": 52,
+          "value": 24368,
+          "strobe": 15,
+          "field": "WORKSPACE[0]"
+        },
+        {
+          "address": 56,
+          "value": 0,
+          "strobe": 15,
+          "field": "WORKSPACE[1]"
+        },
+        {
+          "address": 64,
+          "value": 79068,
+          "strobe": 15,
+          "field": "CAPACITY_BEATS"
+        },
+        {
+          "address": 72,
+          "value": 1,
+          "strobe": 15,
+          "field": "DEBUG"
+        }
+      ],
+      "parameter_readbacks": [
+        {
+          "address": 16,
+          "expected": 0
+        },
+        {
+          "address": 20,
+          "expected": 0
+        },
+        {
+          "address": 28,
+          "expected": 0
+        },
+        {
+          "address": 32,
+          "expected": 0
+        },
+        {
+          "address": 40,
+          "expected": 273416192
+        },
+        {
+          "address": 44,
+          "expected": 0
+        },
+        {
+          "address": 52,
+          "expected": 24368
+        },
+        {
+          "address": 56,
+          "expected": 0
+        },
+        {
+          "address": 64,
+          "expected": 79068
+        },
+        {
+          "address": 72,
+          "expected": 1
+        }
+      ],
+      "start_write": {
+        "address": 0,
+        "value": 1,
+        "strobe": 15
+      },
+      "output_reads": {
+        "status": [
+          80
+        ],
+        "token": [
+          96
+        ],
+        "score_bits": [
+          112
+        ],
+        "candidate_count": [
+          128
+        ],
+        "output_crc": [
+          144
+        ],
+        "preview_read_beats": [
+          160,
+          164
+        ]
+      },
+      "before_start": "Read AP_CTRL and output validity flags to clear stale state; assert start/autorestart clear and idle set. Complete all parameter write/readback handshakes first.",
+      "completion": "Require real start/busy/done for this frame, read actual outputs and then verify done clears on read. Do not accept idle done before a start.",
+      "reset_dut_before_case": false,
+      "reload_full_weights": false,
+      "workspace_persists": true,
+      "output_validity_clear_before_start": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ],
+      "output_validity_required_after_done": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ]
+    },
+    {
+      "case_index": 8,
+      "label": "E_rms_nan",
+      "parameter_writes": [
+        {
+          "address": 16,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[0]"
+        },
+        {
+          "address": 20,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[1]"
+        },
+        {
+          "address": 28,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[0]"
+        },
+        {
+          "address": 32,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[1]"
+        },
+        {
+          "address": 40,
+          "value": 273416192,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[0]"
+        },
+        {
+          "address": 44,
+          "value": 0,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[1]"
+        },
+        {
+          "address": 52,
+          "value": 24368,
+          "strobe": 15,
+          "field": "WORKSPACE[0]"
+        },
+        {
+          "address": 56,
+          "value": 0,
+          "strobe": 15,
+          "field": "WORKSPACE[1]"
+        },
+        {
+          "address": 64,
+          "value": 79068,
+          "strobe": 15,
+          "field": "CAPACITY_BEATS"
+        },
+        {
+          "address": 72,
+          "value": 1,
+          "strobe": 15,
+          "field": "DEBUG"
+        }
+      ],
+      "parameter_readbacks": [
+        {
+          "address": 16,
+          "expected": 0
+        },
+        {
+          "address": 20,
+          "expected": 0
+        },
+        {
+          "address": 28,
+          "expected": 0
+        },
+        {
+          "address": 32,
+          "expected": 0
+        },
+        {
+          "address": 40,
+          "expected": 273416192
+        },
+        {
+          "address": 44,
+          "expected": 0
+        },
+        {
+          "address": 52,
+          "expected": 24368
+        },
+        {
+          "address": 56,
+          "expected": 0
+        },
+        {
+          "address": 64,
+          "expected": 79068
+        },
+        {
+          "address": 72,
+          "expected": 1
+        }
+      ],
+      "start_write": {
+        "address": 0,
+        "value": 1,
+        "strobe": 15
+      },
+      "output_reads": {
+        "status": [
+          80
+        ],
+        "token": [
+          96
+        ],
+        "score_bits": [
+          112
+        ],
+        "candidate_count": [
+          128
+        ],
+        "output_crc": [
+          144
+        ],
+        "preview_read_beats": [
+          160,
+          164
+        ]
+      },
+      "before_start": "Read AP_CTRL and output validity flags to clear stale state; assert start/autorestart clear and idle set. Complete all parameter write/readback handshakes first.",
+      "completion": "Require real start/busy/done for this frame, read actual outputs and then verify done clears on read. Do not accept idle done before a start.",
+      "reset_dut_before_case": false,
+      "reload_full_weights": false,
+      "workspace_persists": true,
+      "output_validity_clear_before_start": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ],
+      "output_validity_required_after_done": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ]
+    },
+    {
+      "case_index": 9,
+      "label": "E_rms_negative",
+      "parameter_writes": [
+        {
+          "address": 16,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[0]"
+        },
+        {
+          "address": 20,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[1]"
+        },
+        {
+          "address": 28,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[0]"
+        },
+        {
+          "address": 32,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[1]"
+        },
+        {
+          "address": 40,
+          "value": 273416192,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[0]"
+        },
+        {
+          "address": 44,
+          "value": 0,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[1]"
+        },
+        {
+          "address": 52,
+          "value": 24368,
+          "strobe": 15,
+          "field": "WORKSPACE[0]"
+        },
+        {
+          "address": 56,
+          "value": 0,
+          "strobe": 15,
+          "field": "WORKSPACE[1]"
+        },
+        {
+          "address": 64,
+          "value": 79068,
+          "strobe": 15,
+          "field": "CAPACITY_BEATS"
+        },
+        {
+          "address": 72,
+          "value": 1,
+          "strobe": 15,
+          "field": "DEBUG"
+        }
+      ],
+      "parameter_readbacks": [
+        {
+          "address": 16,
+          "expected": 0
+        },
+        {
+          "address": 20,
+          "expected": 0
+        },
+        {
+          "address": 28,
+          "expected": 0
+        },
+        {
+          "address": 32,
+          "expected": 0
+        },
+        {
+          "address": 40,
+          "expected": 273416192
+        },
+        {
+          "address": 44,
+          "expected": 0
+        },
+        {
+          "address": 52,
+          "expected": 24368
+        },
+        {
+          "address": 56,
+          "expected": 0
+        },
+        {
+          "address": 64,
+          "expected": 79068
+        },
+        {
+          "address": 72,
+          "expected": 1
+        }
+      ],
+      "start_write": {
+        "address": 0,
+        "value": 1,
+        "strobe": 15
+      },
+      "output_reads": {
+        "status": [
+          80
+        ],
+        "token": [
+          96
+        ],
+        "score_bits": [
+          112
+        ],
+        "candidate_count": [
+          128
+        ],
+        "output_crc": [
+          144
+        ],
+        "preview_read_beats": [
+          160,
+          164
+        ]
+      },
+      "before_start": "Read AP_CTRL and output validity flags to clear stale state; assert start/autorestart clear and idle set. Complete all parameter write/readback handshakes first.",
+      "completion": "Require real start/busy/done for this frame, read actual outputs and then verify done clears on read. Do not accept idle done before a start.",
+      "reset_dut_before_case": false,
+      "reload_full_weights": false,
+      "workspace_persists": true,
+      "output_validity_clear_before_start": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ],
+      "output_validity_required_after_done": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ]
+    },
+    {
+      "case_index": 10,
+      "label": "E_preview_nan",
+      "parameter_writes": [
+        {
+          "address": 16,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[0]"
+        },
+        {
+          "address": 20,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[1]"
+        },
+        {
+          "address": 28,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[0]"
+        },
+        {
+          "address": 32,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[1]"
+        },
+        {
+          "address": 40,
+          "value": 273416192,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[0]"
+        },
+        {
+          "address": 44,
+          "value": 0,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[1]"
+        },
+        {
+          "address": 52,
+          "value": 24368,
+          "strobe": 15,
+          "field": "WORKSPACE[0]"
+        },
+        {
+          "address": 56,
+          "value": 0,
+          "strobe": 15,
+          "field": "WORKSPACE[1]"
+        },
+        {
+          "address": 64,
+          "value": 79068,
+          "strobe": 15,
+          "field": "CAPACITY_BEATS"
+        },
+        {
+          "address": 72,
+          "value": 1,
+          "strobe": 15,
+          "field": "DEBUG"
+        }
+      ],
+      "parameter_readbacks": [
+        {
+          "address": 16,
+          "expected": 0
+        },
+        {
+          "address": 20,
+          "expected": 0
+        },
+        {
+          "address": 28,
+          "expected": 0
+        },
+        {
+          "address": 32,
+          "expected": 0
+        },
+        {
+          "address": 40,
+          "expected": 273416192
+        },
+        {
+          "address": 44,
+          "expected": 0
+        },
+        {
+          "address": 52,
+          "expected": 24368
+        },
+        {
+          "address": 56,
+          "expected": 0
+        },
+        {
+          "address": 64,
+          "expected": 79068
+        },
+        {
+          "address": 72,
+          "expected": 1
+        }
+      ],
+      "start_write": {
+        "address": 0,
+        "value": 1,
+        "strobe": 15
+      },
+      "output_reads": {
+        "status": [
+          80
+        ],
+        "token": [
+          96
+        ],
+        "score_bits": [
+          112
+        ],
+        "candidate_count": [
+          128
+        ],
+        "output_crc": [
+          144
+        ],
+        "preview_read_beats": [
+          160,
+          164
+        ]
+      },
+      "before_start": "Read AP_CTRL and output validity flags to clear stale state; assert start/autorestart clear and idle set. Complete all parameter write/readback handshakes first.",
+      "completion": "Require real start/busy/done for this frame, read actual outputs and then verify done clears on read. Do not accept idle done before a start.",
+      "reset_dut_before_case": false,
+      "reload_full_weights": false,
+      "workspace_persists": true,
+      "output_validity_clear_before_start": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ],
+      "output_validity_required_after_done": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ]
+    },
+    {
+      "case_index": 11,
+      "label": "A2_after_errors",
+      "parameter_writes": [
+        {
+          "address": 16,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[0]"
+        },
+        {
+          "address": 20,
+          "value": 0,
+          "strobe": 15,
+          "field": "META_OFFSET[1]"
+        },
+        {
+          "address": 28,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[0]"
+        },
+        {
+          "address": 32,
+          "value": 0,
+          "strobe": 15,
+          "field": "TILED_WEIGHT[1]"
+        },
+        {
+          "address": 40,
+          "value": 273416192,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[0]"
+        },
+        {
+          "address": 44,
+          "value": 0,
+          "strobe": 15,
+          "field": "CANONICAL_WEIGHT[1]"
+        },
+        {
+          "address": 52,
+          "value": 24368,
+          "strobe": 15,
+          "field": "WORKSPACE[0]"
+        },
+        {
+          "address": 56,
+          "value": 0,
+          "strobe": 15,
+          "field": "WORKSPACE[1]"
+        },
+        {
+          "address": 64,
+          "value": 79068,
+          "strobe": 15,
+          "field": "CAPACITY_BEATS"
+        },
+        {
+          "address": 72,
+          "value": 1,
+          "strobe": 15,
+          "field": "DEBUG"
+        }
+      ],
+      "parameter_readbacks": [
+        {
+          "address": 16,
+          "expected": 0
+        },
+        {
+          "address": 20,
+          "expected": 0
+        },
+        {
+          "address": 28,
+          "expected": 0
+        },
+        {
+          "address": 32,
+          "expected": 0
+        },
+        {
+          "address": 40,
+          "expected": 273416192
+        },
+        {
+          "address": 44,
+          "expected": 0
+        },
+        {
+          "address": 52,
+          "expected": 24368
+        },
+        {
+          "address": 56,
+          "expected": 0
+        },
+        {
+          "address": 64,
+          "expected": 79068
+        },
+        {
+          "address": 72,
+          "expected": 1
+        }
+      ],
+      "start_write": {
+        "address": 0,
+        "value": 1,
+        "strobe": 15
+      },
+      "output_reads": {
+        "status": [
+          80
+        ],
+        "token": [
+          96
+        ],
+        "score_bits": [
+          112
+        ],
+        "candidate_count": [
+          128
+        ],
+        "output_crc": [
+          144
+        ],
+        "preview_read_beats": [
+          160,
+          164
+        ]
+      },
+      "before_start": "Read AP_CTRL and output validity flags to clear stale state; assert start/autorestart clear and idle set. Complete all parameter write/readback handshakes first.",
+      "completion": "Require real start/busy/done for this frame, read actual outputs and then verify done clears on read. Do not accept idle done before a start.",
+      "reset_dut_before_case": false,
+      "reload_full_weights": false,
+      "workspace_persists": true,
+      "output_validity_clear_before_start": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ],
+      "output_validity_required_after_done": [
+        84,
+        100,
+        116,
+        132,
+        148,
+        168
+      ]
+    }
+  ],
+  "normal_response_condition": "Separate draft model exists, NOT_COMPILED_OR_QUALIFIED. No execution authorized by this preparation.",
+  "eda": "NOT_RUN",
+  "board": "NOT_RUN",
+  "automatic_next_stage": false
+}

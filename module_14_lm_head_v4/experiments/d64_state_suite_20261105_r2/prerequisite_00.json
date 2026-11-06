@@ -1,0 +1,283 @@
+{
+  "state": "PASS_ONE_FULL_GENERATED_RTL_NUMERIC_AND_FINITE_FIFO_CALL",
+  "utc": "2026-11-04T19:39:12.311498+00:00",
+  "numeric_review_sha256": "a1a2e8853bbff04f7976575dff0d5f408d87e6b9499c91f97d756e32582b3c63",
+  "compiled_sources_sha256": "18e3f9a383fb4b681b13d196b95a8b3539ef4df10e0b7faf687d811c30a5a7f9",
+  "reviewer_sha256": "2804a23c70e43beee19b1bc0cbb114c3f6bb83b74386d7492a358655f14d6fb5",
+  "stream_log_scanner_sha256": "ea73e1480658ee9ccf5f63392f3396dba4f2267b811e6aab4ab382add8ae9da3",
+  "fifos": {
+    "weights_1_U": {
+      "capacity": 128,
+      "max_occupancy": 32,
+      "pushes": 460208,
+      "pops": 460208,
+      "end_depth": 0,
+      "clamped_reads": 0,
+      "depth": {
+        "samples": 83823299,
+        "counts": {
+          "0": 83078218,
+          "1": 274092,
+          "2": 185720,
+          "3": 260058,
+          "4": 6303,
+          "5": 5126,
+          "6": 3949,
+          "7": 2756,
+          "8": 1659,
+          "9": 1432,
+          "10": 1094,
+          "11": 758,
+          "12": 427,
+          "13": 406,
+          "14": 218,
+          "15": 282,
+          "16": 241,
+          "17": 82,
+          "18": 113,
+          "19": 66,
+          "20": 77,
+          "21": 35,
+          "22": 64,
+          "23": 28,
+          "24": 20,
+          "25": 18,
+          "26": 24,
+          "27": 16,
+          "28": 4,
+          "29": 4,
+          "30": 4,
+          "31": 4,
+          "32": 1
+        },
+        "min": 0,
+        "max": 32,
+        "records": 545179,
+        "sha256": "e397be5d4591e53b782a9e1c56d7239967b23d0834a1477d9c687bd7c3ab31ec"
+      },
+      "blocking": {
+        "samples": 83823299,
+        "counts": {
+          "0": 83823299
+        },
+        "min": 0,
+        "max": 0,
+        "records": 1,
+        "sha256": "8c828ec45bb9444ae14e5d7472de96d1ad7fcec0d4ff097a807f6d368b519fa3"
+      },
+      "source_sha256": "186fa98044440a6a31886138a546b1827338133104aac1f42d56996741914c94"
+    },
+    "ids_U": {
+      "capacity": 32,
+      "max_occupancy": 2,
+      "pushes": 4109,
+      "pops": 4109,
+      "end_depth": 0,
+      "clamped_reads": 0,
+      "depth": {
+        "samples": 83823299,
+        "counts": {
+          "0": 63502708,
+          "1": 19852286,
+          "2": 468305
+        },
+        "min": 0,
+        "max": 2,
+        "records": 8219,
+        "sha256": "d03f169a4fa14b11ccbdbbf042ef5359e66d22d4dd4ee75869f96aa8c4a9b466"
+      },
+      "blocking": {
+        "samples": 83823299,
+        "counts": {
+          "0": 83823299
+        },
+        "min": 0,
+        "max": 0,
+        "records": 1,
+        "sha256": "8c828ec45bb9444ae14e5d7472de96d1ad7fcec0d4ff097a807f6d368b519fa3"
+      },
+      "source_sha256": "c38e0019e755a3388afda0a3ff41c55f8ec5bad0e22a6c1d128558f0274178cd"
+    },
+    "contexts_U": {
+      "capacity": 32,
+      "max_occupancy": 3,
+      "pushes": 65744,
+      "pops": 65744,
+      "end_depth": 0,
+      "clamped_reads": 0,
+      "depth": {
+        "samples": 83823299,
+        "counts": {
+          "0": 83749337,
+          "1": 8218,
+          "2": 8218,
+          "3": 57526
+        },
+        "min": 0,
+        "max": 3,
+        "records": 24655,
+        "sha256": "0eb1fdc077e44b5a3f52c0ad704be080e44d88b591acb8d86292671b689b269c"
+      },
+      "blocking": {
+        "samples": 83823299,
+        "counts": {
+          "0": 83823299
+        },
+        "min": 0,
+        "max": 0,
+        "records": 1,
+        "sha256": "8c828ec45bb9444ae14e5d7472de96d1ad7fcec0d4ff097a807f6d368b519fa3"
+      },
+      "source_sha256": "f407636b9935c7bde1708cd3b2f08d45c9b2bf5af0b36e1be8672e082e6ee417"
+    },
+    "count_c_U": {
+      "capacity": 2,
+      "max_occupancy": 1,
+      "pushes": 1,
+      "pops": 1,
+      "end_depth": 0,
+      "clamped_reads": 0,
+      "depth": {
+        "samples": 83823299,
+        "counts": {
+          "0": 83823298,
+          "1": 1
+        },
+        "min": 0,
+        "max": 1,
+        "records": 3,
+        "sha256": "958b7aad1790edf6cc53b73a782c367b822022eef5f646a72976764390076feb"
+      },
+      "blocking": {
+        "samples": 83823299,
+        "counts": {
+          "0": 83823299
+        },
+        "min": 0,
+        "max": 0,
+        "records": 1,
+        "sha256": "8c828ec45bb9444ae14e5d7472de96d1ad7fcec0d4ff097a807f6d368b519fa3"
+      },
+      "source_sha256": "2b97f1b1fd65cf89c3ede78c0fd435d4ba3822501f626a1a09d715acfecbe8b5"
+    },
+    "raw_U": {
+      "capacity": 32,
+      "max_occupancy": 1,
+      "pushes": 4109,
+      "pops": 4109,
+      "end_depth": 0,
+      "clamped_reads": 0,
+      "depth": {
+        "samples": 83823299,
+        "counts": {
+          "0": 83819190,
+          "1": 4109
+        },
+        "min": 0,
+        "max": 1,
+        "records": 8219,
+        "sha256": "465ac217813a68f8f7c22890a1ffee4277b0b21979dbdb8c48ea99b343f5edae"
+      },
+      "blocking": {
+        "samples": 83823299,
+        "counts": {
+          "0": 63510925,
+          "2": 20312374
+        },
+        "min": 0,
+        "max": 2,
+        "records": 8219,
+        "sha256": "46a5755d05a320ecc763ef2e742d6eff651f06d42a8ec77ec0cb5efca681a273"
+      },
+      "source_sha256": "c38e0019e755a3388afda0a3ff41c55f8ec5bad0e22a6c1d128558f0274178cd"
+    }
+  },
+  "dsp_warning_lines": [
+    "Warning: OPMODE Input Warning : The OPMODE 0110X0X with CARRYINSEL  000 to DSP48E1 instance is invalid."
+  ],
+  "dsp_warning_count": 160251,
+  "log_scan": {
+    "bytes": 103262839,
+    "lines": 321127,
+    "sha256": "60016f7f9c60a03b47b943259811c879ee43d902ffd349672f4fb5aea299b2fe",
+    "error_count": 0,
+    "error_examples": [],
+    "sentinel_pass_count": 1,
+    "range_guard_count": 1,
+    "range_guard_rows": [
+      [
+        "342",
+        "78034",
+        "15187"
+      ]
+    ],
+    "fifo_summary_count": 5,
+    "fifo_summary_rows": [
+      [
+        "./depth1.csv",
+        "83823299",
+        "83823299",
+        "0",
+        "32",
+        "460208",
+        "460208",
+        "0"
+      ],
+      [
+        "./depth2.csv",
+        "83823299",
+        "83823299",
+        "0",
+        "2",
+        "4109",
+        "4109",
+        "0"
+      ],
+      [
+        "./depth3.csv",
+        "83823299",
+        "83823299",
+        "0",
+        "3",
+        "65744",
+        "65744",
+        "0"
+      ],
+      [
+        "./depth4.csv",
+        "83823299",
+        "83823299",
+        "0",
+        "1",
+        "1",
+        "1",
+        "0"
+      ],
+      [
+        "./depth5.csv",
+        "83823299",
+        "83823299",
+        "0",
+        "1",
+        "4109",
+        "4109",
+        "0"
+      ]
+    ],
+    "dsp_warning_count": 160251,
+    "dsp_warning_examples": [
+      "Warning: OPMODE Input Warning : The OPMODE 0110X0X with CARRYINSEL  000 to DSP48E1 instance is invalid."
+    ],
+    "normalized_warning_lines_sha256": "3c9ffd687da8a2ba91c81e16d364bc63a8c920750f8ea2c81bf465a6a0711179",
+    "warning_scope": "All warning lines counted/hashed in order; at most8 distinct examples retained. Numeric effect is decided only by bitwise outputs."
+  },
+  "profile_status_scope": "Passive status sampled without validity; X preserved as null. Returned status TV still required exact known zero; no numeric comparison relaxed.",
+  "warning_scope": "Used preview/exact outputs checked bit-for-bit for this call; no general claim that all DSP warnings are harmless",
+  "limits": [
+    "One original fixed old_chinese input/debug1 only; continuous A/B/A and other modes remain separate gates",
+    "Generated XSIM and C postcheck; official cosim_design formatter NOT_RUN",
+    "Strong random delays; stage cycles are not normal-response or physical FPGA decode performance"
+  ],
+  "board": "NOT_RUN",
+  "automatic_next_stage": false
+}

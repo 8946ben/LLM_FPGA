@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/construction_project_management.csv:91",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "2bb8b92dbc60d578d5be629e2fe12fe7f3a39a3f18b1414b9c8c0c39af100fe8",
+  "group_sha256": "cd66dae2512db263c068737f93048fa3e36c615241f554dae8844bb0691e1825",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "f29f0f5a1e6751ceaa68c236.npz",
+  "npz_sha256": "54e91a3c8b138dfdf6b08728c6af62a4c1edac6485e1d0548e8d39a7a21d46aa",
+  "generated_ids": [
+    114193,
+    107824,
+    115778,
+    26381,
+    104442,
+    100647,
+    99912,
+    99251,
+    106651,
+    57218,
+    104517,
+    100142,
+    106651,
+    53930,
+    56006,
+    3407
+  ],
+  "input_tokens": 116,
+  "seconds": 1.2953413000213914,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

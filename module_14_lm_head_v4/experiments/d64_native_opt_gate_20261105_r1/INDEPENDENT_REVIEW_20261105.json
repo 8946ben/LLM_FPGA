@@ -1,0 +1,239 @@
+{
+  "state": "PASS_NATIVE_MODEL_21_GATES_WIRE_AND_RESOURCE_REVIEW",
+  "utc": "2026-11-04T19:53:06.468520+00:00",
+  "model_sha256": "48153808aa8c001a9174fa45d161e9a03867df0b6ba6d9f47b758cde3973db38",
+  "cases": 21,
+  "negative_cases": 20,
+  "positive_wire": {
+    "counters": {
+      "AR": 1038,
+      "R": 131108,
+      "AW": 11,
+      "W": 152,
+      "B": 10
+    },
+    "reset_canceled_reads": 1,
+    "reset_canceled_b": 1,
+    "epochs": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "four_state_unwritten_reads": 2,
+    "consecutive_r_handshakes": 118036,
+    "source_trace_sha256": "5e1e5c5ba425d85f958b1ac3c15f043b181be581b8e840e38f24565303b5c461"
+  },
+  "phases": {
+    "elaborate": {
+      "expected_fatal": null,
+      "samples": 20,
+      "peak_gib": 0.9047279357910156,
+      "elapsed_s": 12.709045725874603,
+      "last_sample_members": 0,
+      "log_sha256": "d71e81f35f90c0ddaa1ea50387d90c59105ab4018fe2149fc267c4c0e6304501",
+      "resources_sha256": "4e2b5e05eee4494be8d5ae5fc057f40f2d4da316a441da24b9429df65f946770"
+    },
+    "positive": {
+      "expected_fatal": null,
+      "samples": 10,
+      "peak_gib": 0.6398162841796875,
+      "elapsed_s": 6.0195744330994785,
+      "last_sample_members": 3,
+      "log_sha256": "fc0235fb86a752764be09411c508c8cabd10cfc395b994a82c8029805379b051",
+      "resources_sha256": "30c31e0dedbd347a8d0053e997697c10c370c8aabfe8ee1b9db7ba17ddc808d3"
+    },
+    "readonly": {
+      "expected_fatal": "NATIVE_MODEL_READ_ONLY_WRITE",
+      "samples": 9,
+      "peak_gib": 0.6394195556640625,
+      "elapsed_s": 5.351665357127786,
+      "last_sample_members": 0,
+      "log_sha256": "a7cb13b1948ad6faf6ada7f6687894c97470a5169add38a463da4225063e00d7",
+      "resources_sha256": "0200ba1b52f779afc576ef9806448af825f1f8c25989101e587454ee037a8d96"
+    },
+    "wlast": {
+      "expected_fatal": "WLAST mismatch",
+      "samples": 9,
+      "peak_gib": 0.5702590942382812,
+      "elapsed_s": 5.391680906061083,
+      "last_sample_members": 0,
+      "log_sha256": "70812751b1344c1270c539b5178f780ef88e765ca805d6ba0147cd0250996266",
+      "resources_sha256": "9cbc48b154528018e609e62584c3ed41e795dc0c67c9369188baaacb49bf1a87"
+    },
+    "xstrobe": {
+      "expected_fatal": "NATIVE_MODEL_UNKNOWN_WSTRB",
+      "samples": 9,
+      "peak_gib": 0.5554466247558594,
+      "elapsed_s": 5.386532104108483,
+      "last_sample_members": 0,
+      "log_sha256": "46b5c5b7852698edb0869558e9d2b9d8a7022a9f7be4d6ba644959da1a01eabf",
+      "resources_sha256": "7e8f159c1c0ab91cbc6818ee2ec36906e600a6317ccebef7782de557ac6ce153"
+    },
+    "ar_stability": {
+      "expected_fatal": "AR unstable during stall",
+      "samples": 9,
+      "peak_gib": 0.6393775939941406,
+      "elapsed_s": 5.19342388631776,
+      "last_sample_members": 0,
+      "log_sha256": "265ea8f46e55eda1c9755e1e63bc3d8e8bd7f2fb5a6f06e3c59c88898269a151",
+      "resources_sha256": "504093de5c4955353d3c17fe109eddc6df942b1a5fa61ed098bbd5bf017ef870"
+    },
+    "aw_stability": {
+      "expected_fatal": "AW unstable during stall",
+      "samples": 9,
+      "peak_gib": 0.639617919921875,
+      "elapsed_s": 5.377565450966358,
+      "last_sample_members": 0,
+      "log_sha256": "4e8f9c3e8d4b836469870f6b38605684e0a846f548b192761edf1be699433e93",
+      "resources_sha256": "465cbe945e55e0430a1c95d2bb230002eb00d2bc2f6bf81372b2d748d42e531d"
+    },
+    "w_stability": {
+      "expected_fatal": "W unstable during stall",
+      "samples": 9,
+      "peak_gib": 0.6379356384277344,
+      "elapsed_s": 5.394659176003188,
+      "last_sample_members": 0,
+      "log_sha256": "694c832fdf8faf128eea909db4b4636d008dee06f632658d213455016126d1e7",
+      "resources_sha256": "9535bbf7860ab0a694ba4807facba8100c5195a9f06d106e1c627b64e36f7ba1"
+    },
+    "below": {
+      "expected_fatal": "NATIVE_MODEL_RANGE_REJECT",
+      "samples": 9,
+      "peak_gib": 0.5702743530273438,
+      "elapsed_s": 5.371972071006894,
+      "last_sample_members": 0,
+      "log_sha256": "facb2f2378cb6d231aa719313b1502ede352a326ddd76470c9dd4ecf5b74b299",
+      "resources_sha256": "81c67f36df565fb440df432b92af814992ec62c4f5f32fb16f9f76073152385b"
+    },
+    "end": {
+      "expected_fatal": "NATIVE_MODEL_RANGE_REJECT",
+      "samples": 8,
+      "peak_gib": 0.5633430480957031,
+      "elapsed_s": 4.712625733111054,
+      "last_sample_members": 3,
+      "log_sha256": "696310759b21a47b5726c2b51ce01bc8d50bbeb5c22c872bdb96007a93a597c3",
+      "resources_sha256": "cc54268ad7b427c3203a99af77962238cf0c73ec05b5999efae8c97958ef56de"
+    },
+    "over_end": {
+      "expected_fatal": "NATIVE_MODEL_RANGE_REJECT",
+      "samples": 9,
+      "peak_gib": 0.644927978515625,
+      "elapsed_s": 5.389161950908601,
+      "last_sample_members": 0,
+      "log_sha256": "4b83899b5d8b362901ad807c6b9d2e89b6a354fd609e5f46bae1a32ef7e0c211",
+      "resources_sha256": "1a24128711f93aab2fef0c2b4bad66b809ade072cd4511b963db3566e0ab5aa5"
+    },
+    "high": {
+      "expected_fatal": "NATIVE_MODEL_RANGE_REJECT",
+      "samples": 9,
+      "peak_gib": 0.5211105346679688,
+      "elapsed_s": 5.363247097935528,
+      "last_sample_members": 0,
+      "log_sha256": "2093b381b646d493513be4a20a9df16856dc761faf4aedfc331be79b29d46cbf",
+      "resources_sha256": "2888acb2e5ab60765ba2d0ab0182f3e218d0a73788ace5d8bd568d31b5efe934"
+    },
+    "alignment": {
+      "expected_fatal": "NATIVE_MODEL_RANGE_REJECT",
+      "samples": 9,
+      "peak_gib": 0.6165084838867188,
+      "elapsed_s": 5.410964583978057,
+      "last_sample_members": 0,
+      "log_sha256": "1606182fd27feecd597c1ae8fbb6518ceb71c4400b963a8c3f2529e58899bc3b",
+      "resources_sha256": "f5061f0b97a5341c38ddc634b14e45a5fa13e4039c44c5f209681d82e69a9195"
+    },
+    "size": {
+      "expected_fatal": "NATIVE_MODEL_RANGE_REJECT",
+      "samples": 9,
+      "peak_gib": 0.6389122009277344,
+      "elapsed_s": 5.369748952332884,
+      "last_sample_members": 0,
+      "log_sha256": "b46607c2392f31dc1dc75e84519d110c4dfe9bf83f1b27d5170a8c6a32711bfd",
+      "resources_sha256": "fac8aff71fa57c5113b2c52a76357a777866f6c2fe879bff15bb3ca089544233"
+    },
+    "burst": {
+      "expected_fatal": "NATIVE_MODEL_RANGE_REJECT",
+      "samples": 9,
+      "peak_gib": 0.5694236755371094,
+      "elapsed_s": 5.3658312750048935,
+      "last_sample_members": 0,
+      "log_sha256": "1d6feab465447996198cfcaa3ae9fb0d6d30616b4ba0567419545bd2baa1119a",
+      "resources_sha256": "7f1c32c1aa2ebf16914ce2f9aa945af0cf2090298525dfeec1743a7c2a3f3e4e"
+    },
+    "length": {
+      "expected_fatal": "NATIVE_MODEL_RANGE_REJECT",
+      "samples": 9,
+      "peak_gib": 0.56988525390625,
+      "elapsed_s": 5.379293475765735,
+      "last_sample_members": 0,
+      "log_sha256": "080b4dbc299f0e9e27af1a2d9f41fa9f0d6312ba127bec28e3c66daa5fbb67eb",
+      "resources_sha256": "2af735dd10df2cec09aea7fa3511bc06a1f50b370d0a844a414f611d5642a6e6"
+    },
+    "4k": {
+      "expected_fatal": "AXI crossed4KiB",
+      "samples": 8,
+      "peak_gib": 0.568817138671875,
+      "elapsed_s": 4.75233624316752,
+      "last_sample_members": 3,
+      "log_sha256": "f1a38ce5361e4ca245bbad51c98e1ee1e2f03504b8eea92a89ad54d80cd7f006",
+      "resources_sha256": "b27f3e2a3e446c171d27d2d6eb5739160ec2cc4c4704847afe3a9c8115534026"
+    },
+    "xaddr": {
+      "expected_fatal": "NATIVE_MODEL_UNKNOWN_ADDRESS_CONTROL",
+      "samples": 9,
+      "peak_gib": 0.5520133972167969,
+      "elapsed_s": 5.363690339028835,
+      "last_sample_members": 0,
+      "log_sha256": "68d1dab738f9ed349ef3f8e1f82eb5dd576eb6d1267fe62fa16c909680f28dc2",
+      "resources_sha256": "df3ad77786851ab6dcedc3238925706bbe76db2f94646d861754b8d00c6fb54c"
+    },
+    "xlen": {
+      "expected_fatal": "NATIVE_MODEL_UNKNOWN_ADDRESS_CONTROL",
+      "samples": 9,
+      "peak_gib": 0.5693435668945312,
+      "elapsed_s": 5.380883258767426,
+      "last_sample_members": 0,
+      "log_sha256": "d3ea0c144a5a7cb9e2b4ef0452c343b307bb11eacf4ddcf88e3844527f49aaec",
+      "resources_sha256": "41aa0103a6490721ec048f1a22a51afe8b8428936d07d04eba7c21fdd3d0b839"
+    },
+    "xsize": {
+      "expected_fatal": "NATIVE_MODEL_UNKNOWN_ADDRESS_CONTROL",
+      "samples": 9,
+      "peak_gib": 0.6379127502441406,
+      "elapsed_s": 5.231031276285648,
+      "last_sample_members": 0,
+      "log_sha256": "c53a10846ad36e7f18b013c3e797f09e42d5433c3cd5c4b6082dc5d655f623f7",
+      "resources_sha256": "053fa5411fa8fed1e776229460a9b14d00c0ee1df9c59401a275aff2c848a0d6"
+    },
+    "xburst": {
+      "expected_fatal": "NATIVE_MODEL_UNKNOWN_ADDRESS_CONTROL",
+      "samples": 9,
+      "peak_gib": 0.5657691955566406,
+      "elapsed_s": 5.174333733040839,
+      "last_sample_members": 0,
+      "log_sha256": "e1e35f92e64e809d18e957ae4a11526475b4374b007e0c943afa6e2b48955fa6",
+      "resources_sha256": "ab7bfb47776d9ec6263e3648739a295ae84b07d3c02252fe364bfbebdad98f78"
+    },
+    "xid": {
+      "expected_fatal": "NATIVE_MODEL_UNKNOWN_ARID",
+      "samples": 9,
+      "peak_gib": 0.5221672058105469,
+      "elapsed_s": 5.32623083004728,
+      "last_sample_members": 0,
+      "log_sha256": "38c873c73e32452d0fc96e8a2752277e47e7b0545118687670d789914a2875b2",
+      "resources_sha256": "45b91861c6a1567c33aa7011e7f551500441643b8978c049edf79da9813c1188"
+    }
+  },
+  "peak_group_gib": 0.9047279357910156,
+  "compiled_sources_sha256": "fc6dd88ab6b125d3224bafedcf9167ac6f74b33100e2cb5451f5302843065c6b",
+  "workflow_sha256": "60147f2dc1b5c35c017a4201c77f49d67a831ecc6266b7d0b4f076954397da6b",
+  "collection_sha256": "7b2c756dd61f18adfbfd259c75ee45c0929fb8d7acc74feba6a140ba28023845",
+  "all_observed_processes_after_sha256": "870ddcec4fea19fed2aa0a68b4660357db8ef470fb66268ed2bb45d056f26907",
+  "replay_auditor_sha256": "c5083291006c2e4a6858c91d2dd94322fa1bf7174bb3e71d2dc3df2427c81b51",
+  "initial_audit_rejection_preserved": "INDEPENDENT_REVIEW_INITIAL_REJECTION_20261105.json",
+  "scope": "Qualified isolated native memory model/testbench only. No M14 continuous-call/mode/performance/board qualification. Last resource sample is pre-poll, actual terminal proof separately checks all89 observed PID creation identities absent. No numeric/resource bound relaxed.",
+  "full_m14": "NOT_RUN",
+  "board": "NOT_RUN",
+  "automatic_next_stage": false
+}

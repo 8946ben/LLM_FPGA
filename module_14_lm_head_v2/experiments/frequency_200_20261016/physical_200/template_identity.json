@@ -1,0 +1,21 @@
+{
+  "template": "board\\create_m14_v2_single_bd.tcl",
+  "template_sha256": "b269eb52e4574334e7ce535b7924fe6c515c6702878b0a9adbd65a2f6a67bd02",
+  "generated_sha256": "6c12cfa0c34fd10220a7e565e7d318c7086ff7073c0ad4a174def8ea4409c728",
+  "project": "D:\\program\\LLM_FPGA\\module_14_lm_head_v2\\board\\build\\m14_v2_200_layers",
+  "ip": "D:\\program\\LLM_FPGA\\module_14_lm_head_v2\\build\\frequency_200_20261016\\reduce_layers\\csynth\\solution1\\impl\\ip",
+  "board_usable": false,
+  "changes": [
+    "new paths/names",
+    "PL0 requested 200MHz and divisor0=2",
+    "reset name",
+    "refuse overwrite",
+    "verify actual PL0 frequency"
+  ],
+  "unchanged": [
+    "DDR settings",
+    "AXI topology",
+    "address mapping",
+    "PS peripherals"
+  ]
+}

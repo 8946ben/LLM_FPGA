@@ -1,0 +1,32 @@
+{
+  "id": "gsm8k:train:5273",
+  "category": "math",
+  "split": "holdout",
+  "prompt_sha256": "b0f7cbcb0c140146198ab9e3f13932bc99958409a34a34552e5cff9aee665b28",
+  "group_sha256": "b0f7cbcb0c140146198ab9e3f13932bc99958409a34a34552e5cff9aee665b28",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "bda312fba9018320667d02f9.npz",
+  "npz_sha256": "bca465ee13312d1500ad9f78851f1e2aab8cf3c22d35704946b5def44b6338a9",
+  "generated_ids": [
+    1249,
+    8253,
+    1246,
+    1657,
+    6816,
+    20445,
+    686,
+    2975,
+    11,
+    582,
+    1184,
+    311,
+    1795,
+    1493,
+    7354,
+    1447
+  ],
+  "input_tokens": 70,
+  "seconds": 1.2121660999837331,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

@@ -1,0 +1,22 @@
+{
+  "version": "v4b",
+  "status": "OFFLINE_STAGE_COMPLETE",
+  "updated": "2026-10-23T17:34:36.851862+08:00",
+  "page": "doc/design/V4bValidation.html",
+  "papers": 16,
+  "experiments": 12,
+  "baseline_hash_check": "PASS",
+  "numerical": "PASS",
+  "gpu": "PASS_PACKED_GPU_REFERENCE",
+  "csim": "NOT_RUN",
+  "hls": "NOT_RUN",
+  "rtl": "NOT_RUN",
+  "implementation": "NOT_RUN",
+  "board": "NOT_RUN",
+  "next": "Assess qualified candidates for separate hardware development; no automatic EDA/board stage or retuning",
+  "rtn_points": 32,
+  "methods_points": 8,
+  "current_report": "reports/quantization_20261023_r1",
+  "stage": "FINAL_QUALITY_COMPLETE",
+  "final_quality": "PASS_FINAL_POINT_GATES_NOT_RELEASED"
+}

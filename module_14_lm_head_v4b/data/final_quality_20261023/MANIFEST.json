@@ -1,0 +1,49 @@
+{
+  "state": "PASS_FRESH_PROMPTS_ONLY_NO_LABELS",
+  "created": "2026-10-23",
+  "counts": {
+    "chinese": 400,
+    "english": 250,
+    "code": 100,
+    "math": 250
+  },
+  "available_unused": {
+    "chinese": 10031,
+    "english": 12345,
+    "code": 381,
+    "math": 7276
+  },
+  "seed": "m14-v4b-final-prompts-20261023-v1",
+  "corpus_sha256": "7debd5ddff9d46187fcc60755df87c7557fa71cb9c6694c806912888368a0c22",
+  "script_sha256": "f66750ea7bc3444533255dbb5f49d779a4e72fedcabd714215d77411e05d2c06",
+  "prior_prompt_files_sha256": {
+    "module_14_lm_head_v4/data/fixed_quality_20261022/holdout.jsonl": "d5abe50d10bedb022e42398b2174f9aa177932494b0c7b79f40416b26eb0302c",
+    "module_14_lm_head_v4/data/fresh_holdout_r2_20261021/holdout.jsonl": "7c7f39105ce8c1eb21e4bdf6d1272e2f24af8ea15ca3b7649bc087d2d06e6e02",
+    "module_14_lm_head_v4/data/fresh_holdout_r2b_20261021/holdout.jsonl": "1c00326f372201a8b2ea8a696b59c87e6a257422e49bb3bb15c36412376521d8",
+    "module_14_lm_head_v4/data/fusion10_quality_20261023/holdout.jsonl": "ec4dc512ee373e61e585321cd6fe79f3f6113663ebd4aa0198de3b21658dfb54",
+    "module_14_lm_head_v4/data/public_corpus_v1/calibration.jsonl": "9f262652057dbb9b294a6cb64499d9f2e8290900b59e6be0f5bf5f69735220ab",
+    "module_14_lm_head_v4/data/public_corpus_v1/holdout.jsonl": "b9a9a223bcd8474398263a96d437bcfad5f8277f3d1f2bbba82d3a5405d5fb6c",
+    "module_14_lm_head_v4/data/public_corpus_v1/snapshots/holdout_initial_998_groups.jsonl": "f0841df58f6b97f19c6597e9300c0b5122805e6e2acf61f3861c1daf20bb81c4",
+    "module_14_lm_head_v4/data/public_corpus_v1/train.jsonl": "2220a391047c981aa78e8fde866687901bafa803ce90a68c3000daf1a39fc521"
+  },
+  "public_sources_lock_sha256": "fb35c86d74262ec215ccbcaa824eeb2f673b99df553466a4055afba78fa3e6e1",
+  "ds1000_sources_lock_sha256": "aecc89de411d4299f4e14d614017a472ee6a84381155f95f5a337ac560a84395",
+  "source_change": "MBPP has only10 unused non-fewshot tasks; replace code quota100 with official DS-1000 at pinned revision before labels.",
+  "math_source": "Unused normalized groups from official GSM8K train/test, excluding all actual prior reserved groups; official train split does not mean used for this head fitting.",
+  "ds1000_origin_family_grouping": true,
+  "code_prior_trigram_jaccard_rejection_threshold": 0.5,
+  "code_prior_near_rejections": 0,
+  "exact_normalized_group_overlap": 0,
+  "exact_normalized_prompt_overlap": 0,
+  "near_duplicate_limit": "Origin families and exact/trigram checks only; semantic equivalence and model pretraining contamination remain unknown.",
+  "answers": "Only prompt field; no reference_code/code_context/solutions executed or supplied as prompt",
+  "final_labels_opened": false,
+  "model_or_head_labels_collected": false,
+  "selection_lock_required": true,
+  "generation": {
+    "max_new_tokens": 16,
+    "max_input_tokens": 2048,
+    "penalty": 1.1
+  },
+  "byte_limit": 1536
+}

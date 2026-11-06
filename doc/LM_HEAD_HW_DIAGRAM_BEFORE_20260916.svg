@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="910" viewBox="0 0 1280 910" font-family="Segoe UI, Microsoft YaHei, PingFang SC, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#546e7a"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="910" fill="#ffffff"/>
+
+  <!-- ===== 标题 ===== -->
+  <text x="40" y="44" font-size="26" font-weight="bold" fill="#263238">LM Head 优化前硬件计算示意（历史基线）</text>
+  <text x="40" y="72" font-size="15" fill="#37474f">Qwen2.5-0.5B Module 16 · AXU9EG PL0 @ 100 MHz · 综合最大 1,097,890,446 拍 ≈ 10.979 s；实测 run_seconds 11.090 s</text>
+  <text x="40" y="94" font-size="12" fill="#78909c">依据 doc/LM_HEAD_PERFORMANCE_ANALYSIS_20260916.md（§1–§5）绘制，仅基于该文档</text>
+
+  <!-- ===== PS DDR ===== -->
+  <rect x="40" y="140" width="250" height="400" rx="10" fill="#eceff4" stroke="#78909c" stroke-width="1.5"/>
+  <text x="165" y="170" font-size="16" font-weight="bold" text-anchor="middle" fill="#263238">PS DDR</text>
+  <line x1="60" y1="182" x2="270" y2="182" stroke="#b0bec5"/>
+  <text x="60" y="206" font-size="12.5" fill="#37474f">权重 W [151,936 × 896] FP16</text>
+  <text x="60" y="226" font-size="12.5" fill="#37474f">272,269,312 B ≈ 259.66 MiB</text>
+  <text x="60" y="252" font-size="12.5" fill="#37474f">hidden [896] FP16 = 1,792 B</text>
+  <text x="60" y="272" font-size="12.5" fill="#37474f">history bitmap 18,992 B</text>
+  <text x="60" y="292" font-size="12.5" fill="#37474f">raw logits 303,872 B（调试回传）</text>
+  <line x1="60" y1="312" x2="270" y2="312" stroke="#b0bec5" stroke-dasharray="4 3"/>
+  <text x="60" y="336" font-size="12" fill="#546e7a">权重上传 = 一次性冷启动</text>
+  <text x="60" y="354" font-size="12" fill="#546e7a">（历史 ≈ 7.692 s，--load-weight）</text>
+  <text x="60" y="382" font-size="12" fill="#546e7a">每次 token hidden 变化，</text>
+  <text x="60" y="400" font-size="12" fill="#546e7a">权重仍需全量重扫一遍</text>
+  <text x="60" y="516" font-size="11" fill="#78909c">远大于片上容量，不能整体放入 BRAM</text>
+
+  <!-- ===== DDR -> 内核（HP0） ===== -->
+  <line x1="290" y1="228" x2="460" y2="228" stroke="#546e7a" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="302" y="204" font-size="11" font-weight="bold" fill="#37474f">HP0 128-bit</text>
+  <text x="302" y="220" font-size="11" fill="#37474f">@100 MHz 峰值 1.6 GB/s</text>
+  <text x="302" y="252" font-size="11" fill="#ef6c00">4 个 gmem bundle</text>
+  <text x="302" y="268" font-size="11" fill="#ef6c00">汇入同一 HP0，</text>
+  <text x="302" y="284" font-size="11" fill="#ef6c00">并非 4 条独立通道</text>
+
+  <!-- ===== HLS 内核外框 ===== -->
+  <rect x="460" y="130" width="580" height="650" rx="12" fill="#f8fafc" stroke="#4a6fa5" stroke-width="1.5"/>
+  <text x="480" y="160" font-size="16" font-weight="bold" fill="#263238">HLS 内核 lm_head_argmax（现状调度）</text>
+  <rect x="880" y="142" width="140" height="26" rx="6" fill="#c62828"/>
+  <text x="950" y="160" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#ffffff">DSP 仅 5 / 2520</text>
+
+  <!-- 权重通路 -->
+  <rect x="480" y="185" width="520" height="86" rx="8" fill="#ffffff" stroke="#90a4ae" stroke-width="1.5"/>
+  <rect x="480" y="185" width="6" height="86" fill="#ef6c00"/>
+  <text x="500" y="211" font-size="13.5" font-weight="bold" fill="#263238">权重通路：AXI-C gmem（32-bit 外部 / FP16 内部）</text>
+  <text x="500" y="232" font-size="12" font-weight="bold" fill="#ef6c00">外部 DATA_WIDTH=32 → 按单个 FP16（USER_DW=16）逐元素取数</text>
+  <text x="500" y="252" font-size="12" fill="#546e7a">已有 burst（16-bit 变长 ≤256 · outstanding=16），实际事务待总线测量</text>
+
+  <!-- hidden 缓存 -->
+  <rect x="480" y="291" width="250" height="66" rx="8" fill="#fff5f3" stroke="#c62828" stroke-width="1.8" stroke-dasharray="6 4"/>
+  <text x="496" y="315" font-size="13" font-weight="bold" fill="#263238">片上缓存 hidden_cache</text>
+  <text x="496" y="335" font-size="12" fill="#c62828">单端口 BRAM：每拍仅 1 次读</text>
+  <rect x="630" y="282" width="86" height="20" rx="6" fill="#c62828"/>
+  <text x="673" y="296" font-size="11" font-weight="bold" text-anchor="middle" fill="#ffffff">瓶颈 ③</text>
+
+  <!-- 每迭代读数说明 -->
+  <rect x="750" y="291" width="250" height="66" rx="8" fill="#ffffff" stroke="#90a4ae" stroke-width="1.5"/>
+  <text x="766" y="315" font-size="13" font-weight="bold" fill="#263238">每迭代读取 2 个 FP16</text>
+  <text x="766" y="335" font-size="12" fill="#546e7a">hidden[i] 与 w[row][i] 各 1 项</text>
+
+  <!-- 点积循环 -->
+  <rect x="480" y="377" width="520" height="140" rx="8" fill="#fff5f3" stroke="#c62828" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="500" y="403" font-size="14" font-weight="bold" fill="#263238">点积循环 dot_product —— 每行 896 项</text>
+  <text x="500" y="427" font-size="12.5" font-family="Consolas, monospace" fill="#37474f">acc += (float)hidden[i] * (float)w[row][i];  // 读改写同一 acc</text>
+  <text x="500" y="451" font-size="12" fill="#546e7a">循环携带依赖（HLS 200-880）→ target II=1，achieved II=8，迭代延迟 18 拍</text>
+  <text x="500" y="475" font-size="12.5" font-weight="bold" fill="#c62828">每 8 拍才完成 1 次 MAC：12.5 MMAC/s 吞吐上限</text>
+  <text x="500" y="497" font-size="11.5" fill="#8d6e63">仅加 PIPELINE II=1 不能消除真实依赖；禁止用假 DEPENDENCE 掩盖</text>
+  <rect x="880" y="368" width="86" height="20" rx="6" fill="#c62828"/>
+  <text x="923" y="382" font-size="11" font-weight="bold" text-anchor="middle" fill="#ffffff">瓶颈 ①</text>
+
+  <!-- vocab_loop -->
+  <rect x="480" y="537" width="520" height="104" rx="8" fill="#fff5f3" stroke="#c62828" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="500" y="563" font-size="14" font-weight="bold" fill="#263238">外层 vocab_loop —— 151,936 行顺序执行</text>
+  <text x="500" y="585" font-size="12" fill="#546e7a">未流水：无多词元点积并行；每行 ≈ 7,226 拍</text>
+  <text x="500" y="607" font-size="12.5" font-weight="bold" fill="#c62828">II=8 × 顺序行循环 → 最大 1,097,890,446 拍 ≈ 10.979 s</text>
+  <text x="500" y="627" font-size="11.5" fill="#8d6e63">每次调用全量重扫 259.66 MiB 权重</text>
+  <rect x="880" y="528" width="86" height="20" rx="6" fill="#c62828"/>
+  <text x="923" y="542" font-size="11" font-weight="bold" text-anchor="middle" fill="#ffffff">瓶颈 ②</text>
+
+  <!-- 行尾处理 -->
+  <rect x="480" y="661" width="520" height="88" rx="8" fill="#ffffff" stroke="#90a4ae" stroke-width="1.5"/>
+  <text x="500" y="687" font-size="13.5" font-weight="bold" fill="#263238">行尾处理</text>
+  <text x="500" y="708" font-size="12" fill="#37474f">FP32 acc → FP16 raw logit →（可选 penalty）→ argmax → token / score</text>
+  <text x="500" y="728" font-size="12" fill="#78909c">调试模式：回传完整 raw logits（303,872 B）</text>
+
+  <!-- 内部箭头 -->
+  <line x1="740" y1="271" x2="740" y2="377" stroke="#546e7a" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="605" y1="357" x2="605" y2="377" stroke="#546e7a" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="875" y1="357" x2="875" y2="377" stroke="#546e7a" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="740" y1="517" x2="740" y2="537" stroke="#546e7a" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="740" y1="641" x2="740" y2="661" stroke="#546e7a" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- 逐行回环 -->
+  <polyline points="480,600 425,600 425,240 480,240" fill="none" stroke="#ef6c00" stroke-width="2" stroke-dasharray="7 4" marker-end="url(#arr)"/>
+  <text transform="rotate(-90 413 420)" x="413" y="420" font-size="11" font-weight="bold" text-anchor="middle" fill="#ef6c00">逐行循环 × 151,936</text>
+
+  <!-- 输出 -->
+  <line x1="1040" y1="480" x2="1080" y2="480" stroke="#546e7a" stroke-width="2" marker-end="url(#arr)"/>
+  <rect x="1080" y="420" width="170" height="140" rx="10" fill="#eceff4" stroke="#78909c" stroke-width="1.5"/>
+  <text x="1165" y="450" font-size="13.5" font-weight="bold" text-anchor="middle" fill="#263238">PS / lwIP → 主机</text>
+  <text x="1165" y="474" font-size="12" text-anchor="middle" fill="#37474f">token + score</text>
+  <text x="1165" y="494" font-size="12" text-anchor="middle" fill="#37474f">raw logits（调试）</text>
+  <text x="1165" y="520" font-size="11" text-anchor="middle" fill="#78909c">板端 hw_us 串口输出</text>
+  <text x="1165" y="538" font-size="11" text-anchor="middle" fill="#78909c">未回传至响应字段</text>
+
+  <!-- ===== 底部小结 ===== -->
+  <rect x="40" y="815" width="1200" height="66" rx="8" fill="#f5f5f5" stroke="#cfd8dc"/>
+  <text x="60" y="842" font-size="13" font-weight="bold" fill="#37474f">实测有效吞吐 ≈ 12.28 MMAC/s（0.02455 GFLOP/s · 权重 24.55 MB/s）—— 与单累加器 II=8 理论值 12.5 MMAC/s @ 100 MHz 吻合</text>
+  <text x="60" y="866" font-size="12" fill="#78909c">红色虚线框 = 三大瓶颈：① FP32 累加器循环依赖（II=8）　② vocab_loop 顺序执行　③ 单端口缓存 / 32-bit 逐元素权重通路</text>
+</svg>

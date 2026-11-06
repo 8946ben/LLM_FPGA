@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/human_sexuality.csv:112",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "9d498f3c7cf862ed1323dcedb6fe13998b95807f1e33a4790694be6d7487fa7f",
+  "group_sha256": "cd6526f5c33cba05e94099e7793369fef12cec556abc10ebebcf90775d7a8745",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "0cba90899fb423136e96ba9f.npz",
+  "npz_sha256": "261e935fcb5ed273a43054092e485e0df48a74f2ce1f6b1638657fa163a9a507",
+  "generated_ids": [
+    102349,
+    20412,
+    33,
+    3837,
+    33071,
+    18158,
+    69041,
+    102544,
+    3407,
+    33071,
+    18158,
+    69041,
+    104442,
+    106269,
+    32664,
+    33071
+  ],
+  "input_tokens": 78,
+  "seconds": 1.4570281999767758,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

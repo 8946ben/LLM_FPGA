@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>路线设计</title>
+<style>
+:root{--bg:#f4f6fa;--ink:#1b2c42;--muted:#596a7e;--line:#dce3ec;--blue:#215fd0}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.75 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1280px;margin:auto;padding:28px;min-width:0}a{color:var(--blue)}h1{font-size:30px;line-height:1.4;margin:12px 0}h2{font-size:20px;margin:0 0 12px}h3{margin:0}p{overflow-wrap:anywhere}button{font:inherit;cursor:pointer;border:1px solid #bccce0;border-radius:7px;background:#fff;color:#295487;padding:6px 12px}button:focus-visible,a:focus-visible,[data-node]:focus-visible{outline:3px solid #4c8ae3;outline-offset:3px}.panel{min-width:0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin:16px 0}.muted{color:var(--muted);font-size:13px}.tag{display:inline-block;background:#edf3fc;border-radius:5px;padding:3px 9px;font-size:12px}.layout>*{min-width:0}.layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px}.diagram-scroll{overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fafcff}.diagram-scroll svg{display:block;width:100%;min-width:650px}.toolbar,.steps{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.steps button[aria-pressed=true]{background:#e5efff;border-color:#4984d6}.node rect{fill:#f0f5ff;stroke:#8eaacf;stroke-width:1.5}.node.selected rect{fill:#e0edff;stroke:#215fd0;stroke-width:3}.node.muted{opacity:.3}.node.step-active rect{fill:#e7f5ee;stroke:#428a70}.node{cursor:pointer}.node-label{font:600 15px/1.45 system-ui,"Microsoft YaHei",sans-serif;padding:12px;overflow:hidden;height:100%;overflow-wrap:anywhere}.node-label small{display:block;font-size:11px;font-weight:400;color:#5e7087;margin-top:5px}.edge{stroke:#8da4c3;stroke-width:2;fill:none}.stage-strip{display:flex;overflow:auto;gap:8px;padding:4px 0}.stage-item{flex:1 0 130px;padding:10px;border:1px solid var(--line);border-radius:7px;font-size:12px}.stage-item b,.stage-item span{display:block}.active{background:#e7efff;border-color:#215fd0}.verified{background:#e9f6ef}.waiting{background:#fff4de}.failed{background:#ffedf0}.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}li{overflow-wrap:anywhere}.proof a{display:inline-block;margin:0 14px 7px 0}.node-detail{white-space:pre-wrap;overflow-wrap:anywhere}.proposal{border-left:4px solid #c49a45;padding-left:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere}summary{cursor:pointer;color:var(--blue)}@media(max-width:800px){main{padding:16px}.layout,.cards{grid-template-columns:1fr}.panel{padding:15px}h1{font-size:25px}.diagram-scroll svg{min-width:700px}}[hidden]{display:none!important}
+</style></head><body><main>
+<a id="back" href="#">返回开发日志路线图</a><div class="muted" id="snapshot"></div>
+<h1 id="title"></h1><span id="scope" class="tag"></span><p id="goal"></p>
+<p id="boundary" class="proposal"></p>
+<section class="panel"><h2>验证进度</h2><div id="stages" class="stage-strip"></div><p id="outcome"></p><p id="next" class="muted"></p></section>
+<section class="panel"><h2>设计原理与数据流</h2><p id="overview"></p>
+ <div class="toolbar"><button id="zoom-in" type="button">放大</button><button id="zoom-fit" type="button">适合窗口</button><button id="reset" type="button">重置步骤</button></div>
+ <div class="layout"><div><div class="diagram-scroll" tabindex="0" aria-label="设计结构，可横向滚动"><svg id="diagram" role="group" aria-label="设计模块，点击或聚焦查看说明"></svg></div><div id="steps" class="steps"></div><p id="step-description" class="muted"></p></div><aside class="panel"><h3 id="node-title">模块说明</h3><p id="node-detail" class="node-detail"></p></aside></div>
+</section>
+<div class="cards"><section class="panel"><h2>实现边界与接口</h2><ul id="contracts"></ul></section><section class="panel"><h2>资源、性能与取舍</h2><ul id="tradeoffs"></ul></section></div>
+<section class="panel"><h2>实现与证据</h2><div id="evidence" class="proof"></div><p class="muted">图展示逻辑设计；验证结论以对应阶段和证据为准。离线页面不查询任务状态。</p></section>
+</main><script id="design-data" type="application/json">{
+  "route": {
+    "id": "RNumeric",
+    "title": "Python 归约顺序与 golden 修正",
+    "parent": "R2021",
+    "lifecycle": "completed",
+    "scope": "reference / golden 修正，原 HLS/bit 不变",
+    "goal": "解释 token 相同却 score bits/CRC 不同，恢复严格数值门禁。",
+    "outcome": "相邻 lane tree 与已有 RTL 一致，反例、完整 logits 和后续实板均支持。",
+    "next": "保持运算顺序；新频率/实现仍需回归。",
+    "cells": {
+      "contract": {
+        "state": "verified",
+        "note": "逐层核对树顺序",
+        "detail": "逐层核对树顺序"
+      },
+      "implementation": {
+        "state": "verified",
+        "note": "修正 reference/golden",
+        "detail": "修正 reference/golden"
+      },
+      "hls": {
+        "state": "na",
+        "note": "生产 HLS 未改",
+        "detail": "生产 HLS 未改"
+      },
+      "rtl": {
+        "state": "verified",
+        "note": "反例 +7/7",
+        "detail": "反例 +7/7"
+      },
+      "physical": {
+        "state": "na",
+        "note": "bit 保持原哈希",
+        "detail": "bit 保持原哈希"
+      },
+      "board": {
+        "state": "verified",
+        "note": "8 步严格回归",
+        "detail": "8 步严格回归"
+      },
+      "evaluation": {
+        "state": "na",
+        "note": "非性能优化路线",
+        "detail": "非性能优化路线"
+      }
+    },
+    "evidence": [
+      {
+        "label": "数值合同与逐位要求",
+        "href": "module_14_lm_head_v2/NUMERIC_CONTRACT.md",
+        "text": ""
+      }
+    ],
+    "design_page": "doc/design/RNumeric.html",
+    "task_refs": [
+      {
+        "id": "T01",
+        "label": "T01 完整词表基线与PL DDR迁移"
+      }
+    ]
+  },
+  "design": {
+    "overview": "浮点加法的结合顺序会改变 bits。先用反例区分两个 lane tree，再从原始 BF16 输入重算 golden，不拷贝板上输出充当 reference。",
+    "status_note": "修复已验证；不改变原生产硬件。",
+    "nodes": [
+      {
+        "id": "old",
+        "row": 0,
+        "col": 0,
+        "title": "旧 Python tree",
+        "caption": "距离 4 / 2 / 1",
+        "detail": "旧算法数学等价，但 FP32 舍入不同。"
+      },
+      {
+        "id": "rtl",
+        "row": 1,
+        "col": 0,
+        "title": "已有 C++ / RTL",
+        "caption": "相邻 pair",
+        "detail": "sum01、sum23、sum45、sum67 再合并。"
+      },
+      {
+        "id": "counter",
+        "row": 0,
+        "col": 1,
+        "title": "Cancellation 反例",
+        "caption": "旧=2 / 正确=1",
+        "detail": "[2^24,1,-2^24,1,0,0,0,0] 与候选 1.5 可改变 top1。"
+      },
+      {
+        "id": "ref",
+        "row": 1,
+        "col": 1,
+        "title": "修正 reference",
+        "caption": "不改变输入 bits",
+        "detail": "固定运算顺序并重算所有 8-step golden。"
+      },
+      {
+        "id": "check",
+        "row": 1,
+        "col": 2,
+        "title": "严格验证",
+        "caption": "score bits / CRC / SHA",
+        "detail": "CSim、7/7 RTL、8 步生产/debug 全量 exact。"
+      }
+    ],
+    "edges": [
+      {
+        "source": "old",
+        "target": "counter",
+        "label": "区分树"
+      },
+      {
+        "source": "rtl",
+        "target": "ref",
+        "label": "匹配顺序"
+      },
+      {
+        "source": "counter",
+        "target": "ref",
+        "label": "回归用例"
+      },
+      {
+        "source": "ref",
+        "target": "check",
+        "label": "独立重算/比较"
+      }
+    ],
+    "steps": [
+      {
+        "title": "定位",
+        "nodes": [
+          "old",
+          "rtl",
+          "counter"
+        ],
+        "description": "用原始位模式反证“数学等价即可逐位相同”。"
+      },
+      {
+        "title": "修复与验证",
+        "nodes": [
+          "ref",
+          "check"
+        ],
+        "description": "保留旧 golden，原硬件不变。"
+      }
+    ],
+    "contracts": [
+      "不得放宽 CRC 或直接把板上 logits 复制成 golden。",
+      "有限 trace 的逐位承诺不外推极端/subnormal 测试。"
+    ],
+    "tradeoffs": [
+      "修复准确度门禁，不把它当作吞吐提速。"
+    ],
+    "evidence": [
+      {
+        "label": "数值合同与逐位要求",
+        "href": "module_14_lm_head_v2/NUMERIC_CONTRACT.md",
+        "text": ""
+      },
+      {
+        "label": "差异诊断",
+        "href": "module_14_lm_head_v2/reports/numeric_20261009/reduction_diagnosis.json",
+        "text": ""
+      }
+    ]
+  },
+  "stages": [
+    {
+      "id": "contract",
+      "title": "原理 / 数值合同",
+      "description": "核对接口、运算顺序与可比性边界"
+    },
+    {
+      "id": "implementation",
+      "title": "实现 / 离线检查",
+      "description": "源码实现、驱动、协议和主机回归"
+    },
+    {
+      "id": "hls",
+      "title": "HLS 综合",
+      "description": "生产尺寸资源、时钟估算与 II"
+    },
+    {
+      "id": "rtl",
+      "title": "RTL 仿真",
+      "description": "工具生成 Verilog 及 C post-check"
+    },
+    {
+      "id": "physical",
+      "title": "BD / 布局布线",
+      "description": "单模块互连、地址、真实 post-route、bit/XSA"
+    },
+    {
+      "id": "board",
+      "title": "实板正确性",
+      "description": "资产身份、DDR 校验、严格数值与错误路径"
+    },
+    {
+      "id": "evaluation",
+      "title": "性能评估",
+      "description": "独立样本、计时边界、稳定性与采用范围"
+    }
+  ],
+  "back": "../../开发日志.html#route-RNumeric",
+  "updated": "2026-10-30T21:42:01+08:00"
+}</script><script>
+'use strict';
+(()=>{
+const data=JSON.parse(document.getElementById('design-data').textContent),r=data.route,d=data.design,$=id=>document.getElementById(id),ns='http://www.w3.org/2000/svg';
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safe=v=>{const s=String(v||'').trim();return s&&!/[\u0000-\u001f\u007f]/.test(s)&&!s.startsWith('//')&&(!/^[a-z][a-z0-9+.-]*:/i.test(s)||/^(https?:|file:)/i.test(s))?s:'';};
+const states={verified:'✓ 已验证',active:'● 进行中',waiting:'⏸ 等待条件',planned:'○ 未开始',failed:'× 未通过',na:'— 不适用',unknown:'? 未确认'};
+$('back').href=safe(data.back)||'#';$('title').textContent=r.id+' · '+r.title;document.title=r.title+' · 路线设计';$('scope').textContent=r.scope;$('goal').textContent=r.goal;
+$('snapshot').textContent='路线快照 '+data.updated;$('boundary').textContent=d.status_note||'验证范围见下方阶段；未完成的阶段仍待验证。';
+$('outcome').textContent=r.outcome;$('next').textContent='下一步：'+(r.next||'未记录');$('overview').textContent=d.overview||'设计说明尚待补充';
+$('stages').innerHTML=data.stages.map(s=>`<div class="stage-item ${esc(r.cells[s.id].state)}"><b>${esc(s.title)}</b><span>${esc(states[r.cells[s.id].state])}</span>${esc(r.cells[s.id].note)}</div>`).join('');
+for(const id of ['contracts','tradeoffs'])$(''+id).innerHTML=(d[id]||[]).map(s=>`<li>${esc(s)}</li>`).join('')||'<li>尚未记录</li>';
+const relative=h=>/^(?:[a-z][a-z0-9+.-]*:|\/|#)/i.test(h)?h:'../../'+h;
+$('evidence').innerHTML=[...(r.evidence||[]),...(d.evidence||[])].filter(e=>safe(e.href)).map(e=>`<a href="${esc(relative(e.href))}">${esc(e.label)}</a>`).join('')||'尚无附件证据';
+const svg=$('diagram'),nodes=new Map(d.nodes.map(n=>[n.id,n]));
+const width=(Math.max(...d.nodes.map(n=>n.col))+1)*260+20,height=(Math.max(...d.nodes.map(n=>n.row))+1)*160+20;
+svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
+function el(tag,attrs={}){const e=document.createElementNS(ns,tag);for(const [k,v]of Object.entries(attrs))e.setAttribute(k,v);return e;}
+for(const edge of d.edges||[]){const a=nodes.get(edge.source),b=nodes.get(edge.target),vertical=a.col===b.col,forward=vertical?b.row>a.row:b.col>a.col;
+const x1=a.col*260+(vertical?125:forward?230:20),y1=a.row*160+(vertical?(forward?120:20):70),x2=b.col*260+(vertical?125:forward?20:230),y2=b.row*160+(vertical?(forward?20:120):70);
+const path=vertical?`M${x1} ${y1} L${x2} ${y2}`:`M${x1} ${y1} C${(x1+x2)/2} ${y1},${(x1+x2)/2} ${y2},${x2} ${y2}`;
+const line=el('path',{d:path,class:'edge'});svg.append(line);const title=el('title');title.textContent=edge.label||'';line.append(title);
+const arrow=el('path',{d:vertical?`M${x2-5} ${y2+(forward?-7:7)} L${x2} ${y2} L${x2+5} ${y2+(forward?-7:7)}`:`M${x2+(forward?-7:7)} ${y2-5} L${x2} ${y2} L${x2+(forward?-7:7)} ${y2+5}`,class:'edge'});svg.append(arrow);}
+for(const n of d.nodes){const x=n.col*260+20,y=n.row*160+20,g=el('g',{class:'node',tabindex:'0',role:'button','data-node':n.id,'aria-label':n.title});g.append(el('rect',{x,y,width:210,height:100,rx:9}));
+const fo=el('foreignObject',{x,y,width:210,height:100}),box=document.createElementNS('http://www.w3.org/1999/xhtml','div');box.setAttribute('class','node-label');box.textContent=n.title;const small=document.createElementNS('http://www.w3.org/1999/xhtml','small');small.textContent=n.caption||'';box.append(small);fo.append(box);g.append(fo);svg.append(g);}
+function select(id){const n=nodes.get(id);if(!n)return;svg.querySelectorAll('[data-node]').forEach(g=>g.classList.toggle('selected',g.dataset.node===id));$('node-title').textContent=n.title;$('node-detail').textContent=n.detail||n.caption||'未记录';}
+svg.addEventListener('click',e=>{const g=e.target.closest('[data-node]');if(g)select(g.dataset.node);});
+svg.addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){const g=e.target.closest('[data-node]');if(g){e.preventDefault();select(g.dataset.node);}}});
+$('steps').innerHTML=(d.steps||[]).map((s,i)=>`<button type="button" data-step="${i}" aria-pressed="false">${esc(s.title)}</button>`).join('');
+$('steps').addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(!b)return;const s=d.steps[Number(b.dataset.step)];$('steps').querySelectorAll('button').forEach(v=>v.setAttribute('aria-pressed',String(v===b)));svg.querySelectorAll('[data-node]').forEach(g=>{g.classList.toggle('muted',!s.nodes.includes(g.dataset.node));g.classList.toggle('step-active',s.nodes.includes(g.dataset.node));});$('step-description').textContent=s.description||'';select(s.nodes[0]);});
+$('reset').addEventListener('click',()=>{svg.querySelectorAll('[data-node]').forEach(g=>g.classList.remove('muted','step-active'));$('steps').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed','false'));$('step-description').textContent='';});
+let zoom=1;$('zoom-in').addEventListener('click',()=>{zoom=Math.min(2,zoom+.2);svg.style.width=zoom*100+'%';});$('zoom-fit').addEventListener('click',()=>{zoom=1;svg.style.width='100%';svg.style.minWidth='0';});select(d.nodes[0].id);
+})();
+</script></body></html>

@@ -1,0 +1,14 @@
+{
+  "state": "PASS_HOST_FAKE_MMIO_AND_SYNTHETIC_MAILBOX",
+  "fake_mmio_cases": 25,
+  "synthetic_mailbox_tests": 8,
+  "source_sha256": {
+    "standalone/selector_control.c": "a4305720bc4378837e33ffc06a7caf34c170102fdc89f22d624ed874f108b65c",
+    "standalone/selector_control.h": "c5e87cf88a279d779d6916864106c9d290081a395d7adfb6e6ba464400159a55",
+    "tests/selector_control_test.c": "3a8cf3246f84ea7f2ec50649f8e0df485efcfcec2844a8a5b7348c82cc71aaff",
+    "tests/test_selector_ps_mailbox.py": "d636e80f008fca570e20047c5848b8dc99540869efa1f641781fd4cf43d6d1a6",
+    "standalone/selector_ps_mailbox.py": "c538be4b1bec07e2419be9876a05eb28d19b7afb546c718d6f8c1a944fa1329f",
+    "standalone/scripts/private_board_common.tcl": "7bca7a4f1b1b1775edf3554bc4dc052ef40f3f254e7d5085908cb59942937f4b"
+  },
+  "board": "NOT_RUN"
+}

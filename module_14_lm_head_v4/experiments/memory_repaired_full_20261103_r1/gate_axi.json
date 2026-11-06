@@ -1,0 +1,88 @@
+{
+  "state": "PASS_INDEPENDENT_REAL_AXI_MONITOR_SCOPE_WIRE_EQUIVALENCE",
+  "monitor_sha256": "ca682e3dce0c5b0e2a659867da5d8e2f151c3c3926f8637380d0e7ff23ea0651",
+  "reversible_original_source": true,
+  "wire_exact_equal_original_r1_through_r5": true,
+  "wire_sha256": "2dfa61574cd666356f1ec32a49b6744736248a4e83f3ad9ded8edd61771c967e",
+  "traffic": {
+    "counts": {
+      "AW": 2,
+      "W": 32,
+      "B": 2,
+      "AR": 1026,
+      "R": 131104
+    },
+    "final_cycle": 5776721,
+    "max_outstanding_reads": 4
+  },
+  "epoch_samples": [
+    [
+      0,
+      17,
+      37024,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1454715,
+      529716,
+      258,
+      32800,
+      2,
+      32,
+      2,
+      0
+    ],
+    [
+      2,
+      2908389,
+      1019820,
+      514,
+      65568,
+      2,
+      32,
+      2,
+      0
+    ],
+    [
+      3,
+      4339016,
+      1510520,
+      770,
+      98336,
+      2,
+      32,
+      2,
+      0
+    ],
+    [
+      4,
+      5776725,
+      2001128,
+      1026,
+      131104,
+      2,
+      32,
+      2,
+      0
+    ]
+  ],
+  "kernel_growth_mib": 1918.0703125,
+  "reference_growth_mib": 7292.65625,
+  "growth_reduction_percent": 73.69860518929573,
+  "mode_metrics": {
+    "elapsed_s": 47.481910437811166,
+    "peak_group_rss_kib": 2550476
+  },
+  "limits": [
+    "Loop lifetime change causal; simulator internals not proven",
+    "Runtime growth reduced, not eliminated",
+    "No full M14 or actual finite FIFO qualification"
+  ],
+  "automatic_next_stage": false
+}

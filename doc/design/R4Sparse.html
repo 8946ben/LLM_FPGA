@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>路线设计</title>
+<style>
+:root{--bg:#f4f6fa;--ink:#1b2c42;--muted:#596a7e;--line:#dce3ec;--blue:#215fd0}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.75 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1280px;margin:auto;padding:28px;min-width:0}a{color:var(--blue)}h1{font-size:30px;line-height:1.4;margin:12px 0}h2{font-size:20px;margin:0 0 12px}h3{margin:0}p{overflow-wrap:anywhere}button{font:inherit;cursor:pointer;border:1px solid #bccce0;border-radius:7px;background:#fff;color:#295487;padding:6px 12px}button:focus-visible,a:focus-visible,[data-node]:focus-visible{outline:3px solid #4c8ae3;outline-offset:3px}.panel{min-width:0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin:16px 0}.muted{color:var(--muted);font-size:13px}.tag{display:inline-block;background:#edf3fc;border-radius:5px;padding:3px 9px;font-size:12px}.layout>*{min-width:0}.layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px}.diagram-scroll{overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fafcff}.diagram-scroll svg{display:block;width:100%;min-width:650px}.toolbar,.steps{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.steps button[aria-pressed=true]{background:#e5efff;border-color:#4984d6}.node rect{fill:#f0f5ff;stroke:#8eaacf;stroke-width:1.5}.node.selected rect{fill:#e0edff;stroke:#215fd0;stroke-width:3}.node.muted{opacity:.3}.node.step-active rect{fill:#e7f5ee;stroke:#428a70}.node{cursor:pointer}.node-label{font:600 15px/1.45 system-ui,"Microsoft YaHei",sans-serif;padding:12px;overflow:hidden;height:100%;overflow-wrap:anywhere}.node-label small{display:block;font-size:11px;font-weight:400;color:#5e7087;margin-top:5px}.edge{stroke:#8da4c3;stroke-width:2;fill:none}.stage-strip{display:flex;overflow:auto;gap:8px;padding:4px 0}.stage-item{flex:1 0 130px;padding:10px;border:1px solid var(--line);border-radius:7px;font-size:12px}.stage-item b,.stage-item span{display:block}.active{background:#e7efff;border-color:#215fd0}.verified{background:#e9f6ef}.waiting{background:#fff4de}.failed{background:#ffedf0}.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}li{overflow-wrap:anywhere}.proof a{display:inline-block;margin:0 14px 7px 0}.node-detail{white-space:pre-wrap;overflow-wrap:anywhere}.proposal{border-left:4px solid #c49a45;padding-left:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere}summary{cursor:pointer;color:var(--blue)}@media(max-width:800px){main{padding:16px}.layout,.cards{grid-template-columns:1fr}.panel{padding:15px}h1{font-size:25px}.diagram-scroll svg{min-width:700px}}[hidden]{display:none!important}
+</style></head><body><main>
+<a id="back" href="#">返回开发日志路线图</a><div class="muted" id="snapshot"></div>
+<h1 id="title"></h1><span id="scope" class="tag"></span><p id="goal"></p>
+<p id="boundary" class="proposal"></p>
+<section class="panel"><h2>验证进度</h2><div id="stages" class="stage-strip"></div><p id="outcome"></p><p id="next" class="muted"></p></section>
+<section class="panel"><h2>设计原理与数据流</h2><p id="overview"></p>
+ <div class="toolbar"><button id="zoom-in" type="button">放大</button><button id="zoom-fit" type="button">适合窗口</button><button id="reset" type="button">重置步骤</button></div>
+ <div class="layout"><div><div class="diagram-scroll" tabindex="0" aria-label="设计结构，可横向滚动"><svg id="diagram" role="group" aria-label="设计模块，点击或聚焦查看说明"></svg></div><div id="steps" class="steps"></div><p id="step-description" class="muted"></p></div><aside class="panel"><h3 id="node-title">模块说明</h3><p id="node-detail" class="node-detail"></p></aside></div>
+</section>
+<div class="cards"><section class="panel"><h2>实现边界与接口</h2><ul id="contracts"></ul></section><section class="panel"><h2>资源、性能与取舍</h2><ul id="tradeoffs"></ul></section></div>
+<section class="panel"><h2>实现与证据</h2><div id="evidence" class="proof"></div><p class="muted">图展示逻辑设计；验证结论以对应阶段和证据为准。离线页面不查询任务状态。</p></section>
+</main><script id="design-data" type="application/json">{
+  "route": {
+    "id": "R4Sparse",
+    "title": "L2聚类128中心＋rank128低秩预筛＋BF16候选精算",
+    "parent": "R31PLDDR",
+    "lifecycle": "completed",
+    "currentStage": "evaluation",
+    "scope": "早期v4 C128/R4/L16384＋rank128/Top16384；固定四类输入实板范围",
+    "goal": "用聚类路由与 rank128 低秩预筛缩小精确计算行集合；候选仍指向原词表 ID/原始 BF16 权重行。",
+    "outcome": "四类固定输入、全数组、8000总稳定调用中的4000次、ABA与有限预检通过。",
+    "next": "真实自回归history与正式发布资格另验。",
+    "cells": {
+      "contract": {
+        "state": "verified",
+        "note": "固定算术/布局/质量冻结",
+        "detail": "H896/V151936；混合route4+rank128/top16384。独立质量为新1000问题，不重用旧测试组调参。",
+        "evidence": [
+          {
+            "label": "当前证据",
+            "href": "module_14_lm_head_v4/data/fixed_quality_20261022/IMPLEMENTATION_FREEZE.json"
+          }
+        ]
+      },
+      "implementation": {
+        "state": "verified",
+        "note": "整链与匹配软件完成（离线）",
+        "detail": "完整selector、PL DDR布局、BSP/两ELF及内部包通过离线检查；新K绑定/多步runner仍待扩展。",
+        "evidence": [
+          {
+            "label": "当前证据",
+            "href": "module_14_lm_head_v4/reports/resume_20261022/PRIVATE_PACKAGE_VALIDATION.json"
+          }
+        ]
+      },
+      "hls": {
+        "state": "verified",
+        "note": "统一selector综合完成",
+        "detail": "HLS估计3.650ns、153 BRAM18K/247 DSP；最终系统200MHz已另做实现审计，不用HLS估时充当板测。",
+        "evidence": [
+          {
+            "label": "当前证据",
+            "href": "module_14_lm_head_v4/reports/SELECTOR_INTEGRATION_RESULT_20261021.json"
+          }
+        ]
+      },
+      "rtl": {
+        "state": "verified",
+        "note": "整链中文+重叠拒绝资格通过",
+        "detail": "修复生成包装路径，41943040内存值/18标量与原C postcheck通过；原官方包装FAIL保留。新K/多步/错误扩展未运行。",
+        "evidence": [
+          {
+            "label": "当前证据",
+            "href": "module_14_lm_head_v4/reports/SELECTOR_INTEGRATION_RESULT_20261021.json"
+          }
+        ]
+      },
+      "physical": {
+        "state": "verified",
+        "note": "完整200MHz系统实现通过",
+        "detail": "WNS+0.652ns/WHS+0.010ns；CDC Critical0；仍有816 Warning/211 Advisory，非零警告。",
+        "evidence": [
+          {
+            "label": "当前证据",
+            "href": "module_14_lm_head_v4/reports/board_v4_20261021/hardware_audit_r2.json"
+          }
+        ]
+      },
+      "board": {
+        "state": "verified",
+        "note": "四类实板验证通过",
+        "detail": "每类30计时/1000稳定，完整预览/ID/raw、ABA与有限预检；A53完整调用边界。",
+        "evidence": [
+          {
+            "label": "两版真实板测及计时边界",
+            "href": "module_14_lm_head_v4/reports/dual_board_20261030_r1/RESULT.md"
+          },
+          {
+            "label": "板测独立复核",
+            "href": "module_14_lm_head_v4/reports/dual_board_20261030_r1/FINAL_INDEPENDENT_REVIEW.json"
+          }
+        ],
+        "execution": {
+          "snapshot_at": "2026-10-30T20:00:21.2337523+08:00",
+          "location": "本机 / AXU9EGB",
+          "tool": "XSCT/Vivado/Vitis2021.1；已退出",
+          "progress": "4/4固定输入，每类30计时＋1000稳定",
+          "completed": "全数组、ABA、有限预检通过；当前A53/GEM停止、IP空闲",
+          "scope": "不包括真实自回归history或整网TTFT",
+          "next": "本轮完成，无自动后续",
+          "source": "module_14_lm_head_v4/reports/dual_board_20261030_r1/FINAL_INDEPENDENT_REVIEW.json"
+        }
+      },
+      "evaluation": {
+        "state": "verified",
+        "note": "四类实板验证通过",
+        "detail": "每类30计时/1000稳定，完整预览/ID/raw、ABA与有限预检；A53完整调用边界。",
+        "evidence": [
+          {
+            "label": "两版真实板测及计时边界",
+            "href": "module_14_lm_head_v4/reports/dual_board_20261030_r1/RESULT.md"
+          },
+          {
+            "label": "板测独立复核",
+            "href": "module_14_lm_head_v4/reports/dual_board_20261030_r1/FINAL_INDEPENDENT_REVIEW.json"
+          }
+        ]
+      }
+    },
+    "evidence": [
+      {
+        "label": "两版真实板测及计时边界",
+        "href": "module_14_lm_head_v4/reports/dual_board_20261030_r1/RESULT.md"
+      },
+      {
+        "label": "板测独立复核",
+        "href": "module_14_lm_head_v4/reports/dual_board_20261030_r1/FINAL_INDEPENDENT_REVIEW.json"
+      },
+      {
+        "label": "新旧各557配置GPU图",
+        "href": "doc/design/V4Validation.html#gpu-summary"
+      }
+    ],
+    "design_page": "doc/design/R4Sparse.html",
+    "task_refs": [
+      {
+        "id": "T03",
+        "label": "T03 两套混合筛选方案上板"
+      }
+    ]
+  },
+  "design": {
+    "overview": "聚类：128个L2中心，取最近4簇，每簇最多16384个ID；低秩：rank128，稳定Top16384；两路升序去重并入14个特殊ID，读取原始BF16权重，按固定FP32合同精算候选行。 固定四类输入实板验证通过；真实自回归history/整网decode/TTFT未测。",
+    "status_note": "固定四类输入实板验证通过；真实自回归history/整网decode/TTFT未测。",
+    "nodes": [
+      {
+        "id": "hidden",
+        "row": 0,
+        "col": 1,
+        "title": "① hidden + history",
+        "caption": "BF16[896] / 全局历史位图",
+        "detail": "输入一个decode步的hidden。hidden 1792B，history位图18992B；计算数据走PL DDR。history只按原始global ID索引。完整模型前级与TTFT未纳入当前测量。"
+      },
+      {
+        "id": "router",
+        "row": 1,
+        "col": 0,
+        "title": "② 聚类路由",
+        "caption": "128中心 → 最近4簇",
+        "detail": "路由独立HLS/3事务RTL及完整selector中文整链资格已通过。新固定算术独立decode仅聚类80/14958漏选；该质量模型不是全新RTL回放。"
+      },
+      {
+        "id": "lowrank",
+        "row": 1,
+        "col": 2,
+        "title": "③ 低秩补充",
+        "caption": "rank128 → 全词表preview",
+        "detail": "采用固定FP32算术：B投影H8/16槽，A每beat相邻8路树再16路归约；独立HLS/RTL和中文整链资格通过。新质量仅低秩356/14958漏选。"
+      },
+      {
+        "id": "topk",
+        "row": 2,
+        "col": 2,
+        "title": "④ 稳定 Top-K",
+        "caption": "4轮radix + 1轮ID扫描",
+        "detail": "输入已做policy的FP32 preview，151936项。4轮8-bit radix直方图找到第16384大阈值，再按global ID扫描，优先大分数、同分小ID，恰好选16384行。统一±0；拒绝NaN/Inf。5遍score逻辑读取3038720B，另加上游写607744B。此子模块已通过CSim/HLS/3事务RTL CoSim，低秩乘法不在此核中。"
+      },
+      {
+        "id": "union",
+        "row": 2,
+        "col": 0,
+        "title": "⑤ 并集 / 去重",
+        "caption": "route IDs ∪ Top-K IDs",
+        "detail": "完整selector将路由与Top-K/特殊token取并集，按global ID升序输出。新独立decode实际K均值29300.93，中位28183，P9541630，max56075，非未扣重叠上界。"
+      },
+      {
+        "id": "weights",
+        "row": 4,
+        "col": 0,
+        "title": "原始 canonical W",
+        "caption": "PL DDR · BF16 259.656MiB",
+        "detail": "保留完整151936×896 BF16矩阵272269312B。稀疏化减少每步读取的行数，不删除原矩阵，也不拿低秩近似权重替代最终精算权重。上游直接供权重尚待负责人框架，不在当前方案内。"
+      },
+      {
+        "id": "validate",
+        "row": 3,
+        "col": 0,
+        "title": "⑥ 候选表校验",
+        "caption": "M4ID / K / 容量 / 顺序",
+        "detail": "先检查M4ID头、版本、K/V和地址容量，再验证所有global ID范围、升序唯一。非法输入在读hidden/weights前返回错误。候选表调用中必须不可变；两遍ID扫描的逻辑读取为1+2×ceil(K/4)个128-bit beat。"
+      },
+      {
+        "id": "gather",
+        "row": 3,
+        "col": 1,
+        "title": "⑦ 原始行 gather",
+        "caption": "W_base + ID × 1792",
+        "detail": "每行896个BF16共1792B=112个128-bit beat。按global ID读原始行。当前candidate读行约190–191拍，点积循环约159拍；二者是不同流水段，端到端不能简单以V/K当加速倍数。"
+      },
+      {
+        "id": "exact",
+        "row": 3,
+        "col": 2,
+        "title": "⑧ FP32 精确点积",
+        "caption": "8 lanes / 16 slots / 原归约树",
+        "detail": "BF16展开后沿原接受合同做分开的FP32乘、加，8路16槽，再按原相邻树规约；保持舍入和加法结合顺序。产出每个入选行的raw logit。candidate核CSim17精确+13非法+4特殊PASS，独立OOC 200MHz内部WNS/WHS +0.808/+0.010ns；不覆盖完整系统I/O/CDC。"
+      },
+      {
+        "id": "policy",
+        "row": 4,
+        "col": 2,
+        "title": "⑨ penalty / argmax",
+        "caption": "全局ID / score / token",
+        "detail": "对精算raw logits按global history重新应用penalty1.1；这不是在已penalty preview上重复惩罚。最后同分选较小global ID，输出token、score/CRC。debug只输出候选ID+raw FP32=8B/行，不能伪造完整logits。"
+      },
+      {
+        "id": "quality",
+        "row": 4,
+        "col": 1,
+        "title": "⑩ 与 dense 对照",
+        "caption": "覆盖率 ≠ 自由生成效果",
+        "detail": "固定算术独立1000题14958 decode：聚类80、低秩356、混合1漏选。10月30日四固定输入实板完整数组/稳定性通过；质量覆盖与实板数值是不同验证，整网TTFT未测。"
+      }
+    ],
+    "edges": [
+      {
+        "source": "hidden",
+        "target": "router",
+        "label": "hidden"
+      },
+      {
+        "source": "hidden",
+        "target": "lowrank",
+        "label": "hidden / history"
+      },
+      {
+        "source": "router",
+        "target": "union",
+        "label": "routed global IDs"
+      },
+      {
+        "source": "lowrank",
+        "target": "topk",
+        "label": "policy preview"
+      },
+      {
+        "source": "topk",
+        "target": "union",
+        "label": "stable Top-K IDs"
+      },
+      {
+        "source": "union",
+        "target": "validate",
+        "label": "排序唯一候选表"
+      },
+      {
+        "source": "validate",
+        "target": "gather",
+        "label": "校验通过"
+      },
+      {
+        "source": "weights",
+        "target": "gather",
+        "label": "canonical BF16原行"
+      },
+      {
+        "source": "gather",
+        "target": "exact",
+        "label": "入选行"
+      },
+      {
+        "source": "exact",
+        "target": "policy",
+        "label": "raw logits"
+      },
+      {
+        "source": "policy",
+        "target": "quality",
+        "label": "token / score"
+      }
+    ],
+    "steps": [
+      {
+        "title": "0 冻结参数",
+        "nodes": [
+          "router",
+          "lowrank",
+          "weights"
+        ],
+        "description": "先训练并冻结，运行时不依赖dense标签。",
+        "input": "公开语料train1500用于路由训练，calibration320用于选型；低秩分解仅使用canonical BF16 W。",
+        "operation": "聚类用train hidden及训练标签形成128个中心/每簇排名列表；低秩仅对WᵀW做特征分解取前128主方向B，令A=W×B并量化为BF16。在校准集选配置，锁定后才打开独立holdout。",
+        "output": "只读中心/列表/A/B、参数SHA与选择锁。",
+        "status": "当前：固定算术C/组件RTL和中文整链限定范围已验证；新K/多步/异常扩展未运行，实板全部未测。具体参数见验证场景页。",
+        "source": "module_14_lm_head_v4/reference/routing.py"
+      },
+      {
+        "title": "1 输入",
+        "nodes": [
+          "hidden"
+        ],
+        "description": "每次调用处理一个hidden；候选集合随hidden变化。",
+        "input": "BF16 hidden[896]；全局history位图；W与参数地址。",
+        "operation": "检查输入尺寸与地址；将历史token映射到global ID位图。",
+        "output": "1792B hidden + 18992B history。",
+        "status": "当前：固定算术C/组件RTL和中文整链限定范围已验证；新K/多步/异常扩展未运行，实板全部未测。具体参数见验证场景页。",
+        "source": "module_14_lm_head_v4/include/lm_head_v4_candidate.hpp"
+      },
+      {
+        "title": "2 路由",
+        "nodes": [
+          "hidden",
+          "router",
+          "union"
+        ],
+        "description": "聚类分支先找相近hidden簇，再读取训练好的候选ID。",
+        "input": "hidden与128×896 BF16中心。",
+        "operation": "L2(h,c)=||h||²+||c||²−2h·c；稳定选最近4簇；读取每簇至多16384条，加入14个特殊token并去重。",
+        "output": "路由候选global ID集合；空簇显式dense fallback。",
+        "status": "当前：固定算术C/组件RTL和中文整链限定范围已验证；新K/多步/异常扩展未运行，实板全部未测。具体参数见验证场景页。",
+        "source": "module_14_lm_head_v4/reference/routing.py"
+      },
+      {
+        "title": "3 低秩",
+        "nodes": [
+          "hidden",
+          "lowrank"
+        ],
+        "description": "低秩分支以较少乘法近似扫描整个词表，为聚类补充候选。",
+        "input": "h[896]；B[896,128]；A[151936,128]；history。",
+        "operation": "z=hB；preview=zAᵀ；按history和1.1惩罚近似分数。",
+        "output": "151936个FP32 policy preview，607744B。",
+        "status": "当前：固定算术C/组件RTL和中文整链限定范围已验证；新K/多步/异常扩展未运行，实板全部未测。具体参数见验证场景页。",
+        "source": "module_14_lm_head_v4/reference/hybrid_selector.py"
+      },
+      {
+        "title": "4 Top-K",
+        "nodes": [
+          "lowrank",
+          "topk"
+        ],
+        "description": "不用对全词表完整排序；逐字节确定第K大阈值，再处理同分。",
+        "input": "penalty后preview，K=16384。",
+        "operation": "4轮radix每轮扫描全表，选中阈值前缀；第5遍按global ID选大于阈值及阈值同分的小ID。",
+        "output": "恰好16384个global ID；5遍score读3038720B。",
+        "status": "当前：固定算术C/组件RTL和中文整链限定范围已验证；新K/多步/异常扩展未运行，实板全部未测。具体参数见验证场景页。",
+        "source": "module_14_lm_head_v4/src/lm_head_v4_topk.cpp"
+      },
+      {
+        "title": "5 合并",
+        "nodes": [
+          "router",
+          "topk",
+          "union"
+        ],
+        "description": "两条分支可能提出相同token，必须去重后再精算。",
+        "input": "路由ID（已含特殊token）与低秩Top-K ID。",
+        "operation": "置位、去重、按global ID升序输出；写payload/K/header完毕后再启动候选精算。",
+        "output": "唯一候选表M4ID；实际K≤路由K+16384。",
+        "status": "当前：固定算术C/组件RTL和中文整链限定范围已验证；新K/多步/异常扩展未运行，实板全部未测。具体参数见验证场景页。",
+        "source": "module_14_lm_head_v4/src/lm_head_v4_topk.cpp"
+      },
+      {
+        "title": "6 校验",
+        "nodes": [
+          "union",
+          "validate"
+        ],
+        "description": "ID校验先于权重访问，防止越界或变更后的表破坏计算。",
+        "input": "M4ID头、K/V、候选表容量、全局ID。",
+        "operation": "逐项检查格式、版本、K、地址边界、ID范围与升序唯一；全程保持候选表不可变。",
+        "output": "合法ID流，或错误码且不读hidden/weights。",
+        "status": "当前：固定算术C/组件RTL和中文整链限定范围已验证；新K/多步/异常扩展未运行，实板全部未测。具体参数见验证场景页。",
+        "source": "module_14_lm_head_v4/src/lm_head_v4_candidate.cpp"
+      },
+      {
+        "title": "7 取原行",
+        "nodes": [
+          "validate",
+          "weights",
+          "gather"
+        ],
+        "description": "ID对应原词表行，最终不使用低秩重建行。",
+        "input": "global ID；canonical BF16 W_base。",
+        "operation": "地址=W_base+ID×896×2；每行112个128-bit beat。",
+        "output": "入选的原始BF16权重行。",
+        "status": "当前：固定算术C/组件RTL和中文整链限定范围已验证；新K/多步/异常扩展未运行，实板全部未测。具体参数见验证场景页。",
+        "source": "module_14_lm_head_v4/src/lm_head_v4_candidate.cpp"
+      },
+      {
+        "title": "8 精算 / 选token",
+        "nodes": [
+          "gather",
+          "exact",
+          "policy"
+        ],
+        "description": "筛选只决定算哪些行；入选行保留原始数学语义。",
+        "input": "原始行与hidden；global history。",
+        "operation": "8路/16槽点积，原FP32归约顺序；对raw logits应用penalty，按分数及global ID选赢家。",
+        "output": "token/global ID + score/CRC；可选稀疏debug ID/raw logit。",
+        "status": "当前：固定算术C/组件RTL和中文整链限定范围已验证；新K/多步/异常扩展未运行，实板全部未测。具体参数见验证场景页。",
+        "source": "module_14_lm_head_v4/reference/candidate_head.py"
+      },
+      {
+        "title": "9 质量 / 性能",
+        "nodes": [
+          "policy",
+          "quality"
+        ],
+        "description": "dense结果只作为对照，缺失的赢家无法在精算阶段补回来。",
+        "input": "固定dense轨迹的hidden/history与dense winner。",
+        "operation": "统计每步赢家是否入选；另测整prompt、自由生成；后续计时须覆盖route+lowrank+Top-K+union+exact+policy+schedule。",
+        "output": "校准对比/独立holdout召回；未来完整ms/token与token/s。",
+        "status": "当前：固定算术C/组件RTL和中文整链限定范围已验证；新K/多步/异常扩展未运行，实板全部未测。具体参数见验证场景页。",
+        "source": "module_14_lm_head_v4/reports/conservative_r2b_20261021/HOLDOUT.json"
+      }
+    ],
+    "contracts": [
+      "full vocabulary V=151936、hidden H=896及原始BF16权重保持不变；候选仅筛行，不重映射global ID。",
+      "低秩preview只决定候选集合；被选中行用原始canonical BF16权重与接受的FP32计算顺序精算。",
+      "全局history、penalty及同分较小global ID规则必须一致。",
+      "HLS子模块估时与OOC route均不能替代完整系统实现；离线recall不能作为任意输入无损证明。"
+    ],
+    "tradeoffs": [
+      "新独立decode实际K均值29300.93、中位28183/P9541630/max56075；单例RTL K21529偏小，不能代表总体吞吐。",
+      "rank128 preview另需19562496 MAC/step；筛选、topK、union及内存事务成本未折算成decode speedup。",
+      "候选row gather约190–191 cycles/row，dot约159 cycles/row；稀疏减少计算量不保证端到端更快。",
+      "原v3.1 PL DDR dense实现仍是最新实测基线；v4 decode token/s/TTFT未测。",
+      "同校准集：仅4路聚类15/4775漏选，仅rank128低秩84/4775，当前混合0/4775；单一/混合尚无完整硬件时延对照。",
+      "Top-K真实英文用例732898拍（200MHz AXI模型3.66449ms）；±0重复同分563274拍；错误退出单独记录。不能取代整核decode或统计P95。"
+    ],
+    "evidence": [
+      {
+        "label": "两版真实板测及计时边界",
+        "href": "module_14_lm_head_v4/reports/dual_board_20261030_r1/RESULT.md"
+      },
+      {
+        "label": "新旧各557配置GPU图",
+        "href": "doc/design/V4Validation.html#gpu-summary"
+      }
+    ],
+    "comparison": {
+      "title": "单一方案和混合方案：已经测过什么？",
+      "context": "历史同校准集4775 decode的计算项/效果对照，保持原数值，不是新质量集或三方案硬件计时。新1000问题结果及场景参数见独立验证页。",
+      "manifest_sha256": "016648f6c8b93d076ffecb5f8b037c314f677ddaecc137dd11118c57b981cbba",
+      "train_manifest_sha256": "5dc64278a30e1084df53aa6003ad46b86a009c450e64e28abdd627c821ee8383",
+      "rows": [
+        {
+          "id": "route",
+          "label": "仅聚类路由",
+          "configuration": "route_R128_routes4_K16384",
+          "decode": {
+            "steps": 4775,
+            "misses": 15,
+            "recall": 0.9968586387434555,
+            "by_category": {
+              "chinese": {
+                "steps": 1200,
+                "misses": 8,
+                "recall": 0.9933333333333333
+              },
+              "code": {
+                "steps": 1200,
+                "misses": 0,
+                "recall": 1.0
+              },
+              "english": {
+                "steps": 1175,
+                "misses": 6,
+                "recall": 0.9948936170212765
+              },
+              "math": {
+                "steps": 1200,
+                "misses": 1,
+                "recall": 0.9991666666666666
+              }
+            }
+          },
+          "mean_k": 18898.384502617802,
+          "p95_k": 29920,
+          "max_k": 46351,
+          "count_scope": "实际路由并集（含特殊 token）",
+          "route_terms": 114688,
+          "lowrank_terms": 0,
+          "exact_terms": 16932952.51434555,
+          "total_terms": 17047640.51434555,
+          "mean_logical_bytes": 34170874.56670157,
+          "source": "module_14_lm_head_v4/reports/selector_hybrid_p2_20261021/CALIBRATION.json",
+          "source_sha256": "99c985771c06c121c2102c0ceee27da85f603d0989af4cc05e22370bab5eaf90"
+        },
+        {
+          "id": "lowrank",
+          "label": "仅低秩预筛",
+          "configuration": "lowrank_r128_K16384",
+          "decode": {
+            "steps": 4775,
+            "misses": 84,
+            "recall": 0.9824083769633508,
+            "by_category": {
+              "chinese": {
+                "steps": 1200,
+                "misses": 40,
+                "recall": 0.9666666666666667
+              },
+              "code": {
+                "steps": 1200,
+                "misses": 5,
+                "recall": 0.9958333333333333
+              },
+              "english": {
+                "steps": 1175,
+                "misses": 29,
+                "recall": 0.9753191489361702
+              },
+              "math": {
+                "steps": 1200,
+                "misses": 10,
+                "recall": 0.9916666666666667
+              }
+            }
+          },
+          "mean_k": 16398.0,
+          "p95_k": 16398,
+          "max_k": 16398,
+          "count_scope": "K+14 特殊 token 上界；未扣重叠",
+          "route_terms": 0,
+          "lowrank_terms": 19562496,
+          "exact_terms": 14692608.0,
+          "total_terms": 34255104.0,
+          "mean_logical_bytes": 68575800.0,
+          "source": "module_14_lm_head_v4/reports/selector_p2_20261021/CALIBRATION.json",
+          "source_sha256": "14959f6272fc65604162f542aa26f8fe1ba44a46c630bd5ad8cde6a273aebd29"
+        },
+        {
+          "id": "hybrid",
+          "label": "聚类 + 低秩",
+          "configuration": "route4_K16384_UNION_lr128_K16384",
+          "decode": {
+            "steps": 4775,
+            "misses": 0,
+            "recall": 1.0,
+            "by_category": {
+              "chinese": {
+                "steps": 1200,
+                "misses": 0,
+                "recall": 1.0
+              },
+              "code": {
+                "steps": 1200,
+                "misses": 0,
+                "recall": 1.0
+              },
+              "english": {
+                "steps": 1175,
+                "misses": 0,
+                "recall": 1.0
+              },
+              "math": {
+                "steps": 1200,
+                "misses": 0,
+                "recall": 1.0
+              }
+            }
+          },
+          "mean_k": 35282.3845026178,
+          "p95_k": 46304,
+          "max_k": 62735,
+          "count_scope": "路由实际 K + 16384 上界；未扣两分支重叠",
+          "route_terms": 114688,
+          "lowrank_terms": 19562496,
+          "exact_terms": 31613016.51434555,
+          "total_terms": 51290200.51434555,
+          "mean_logical_bytes": 102721530.56670158,
+          "source": "module_14_lm_head_v4/reports/selector_hybrid_p2_20261021/CALIBRATION.json",
+          "source_sha256": "99c985771c06c121c2102c0ceee27da85f603d0989af4cc05e22370bab5eaf90"
+        }
+      ],
+      "dense_terms": 136134656,
+      "dense_weight_bytes": 272269312,
+      "formulas": [
+        "dense = V×H = 151936×896 = 136134656 个乘加项/步。",
+        "聚类 dot 项 = C×H = 128×896 = 114688；另有范数、距离和选4个中心的开销。",
+        "低秩项 = r×(H+V) = 128×(896+151936) = 19562496。",
+        "候选精算项 = 平均K×896；合计 = 启用分支的dot/低秩项 + 候选精算项。",
+        "逻辑字节 = BF16中心/因子 + 候选K×(1792B原行+4B ID)。这是原报告的部分成本估算。"
+      ],
+      "caveats": [
+        "这里的计算量是乘加项数，不是周期、实测FLOPs或FMA指令数；路由范数/选簇、penalty、Top-K、并集、索引验证、控制开销未折算。",
+        "路由K是实际去重数；单一低秩K+14与混合routeK+lowrankK是上界，不是三者实际候选数均已物化后的公平计时。",
+        "逻辑字节未计路由列表读取、preview写/5遍读、合并表写回、history、额外ID验证、总线padding/burst或调度；不是AXI实测总流量。",
+        "36组单一扫描（24聚类+12低秩）与42组后续扫描（6聚类+36混合）已完成。没有三方案的完整在线CPU/FPGA延迟对比；报告内fit/quality_seconds不能当推理耗时。",
+        "混合校准0/4775漏选是选型集结果，不能宣称100%泛化或无损。r2b新holdout只有混合评估，不能与这里单一方案的校准结果混表排名。",
+        "当前保守方案优先验证覆盖率，并非校准集中唯一合格或成本最低的组合；更小预算也有校准零漏选配置，不能据此认定它们在独立新数据上同样可靠。"
+      ],
+      "conclusion": "混合通过互补提高覆盖率，付出额外低秩扫描和更大的候选精算开销。现有数据支持质量/计算量取舍，不支持它是实际decode最快的结论。",
+      "holdout": {
+        "label": "独立新holdout · 当前混合",
+        "groups": 1000,
+        "decode": 14969,
+        "misses": 1,
+        "recall": 0.9999331952702252,
+        "source": "module_14_lm_head_v4/reports/conservative_r2b_20261021/HOLDOUT.json",
+        "note": "单一聚类/单一低秩未在这个新holdout测试；当前1次中文漏选。禁止用已打开的holdout继续调参。"
+      }
+    },
+    "toy": {
+      "label": "操作示例（人为构造的12词小词表，不是测量样本）",
+      "route": [
+        2,
+        5,
+        9,
+        12
+      ],
+      "lowrank": [
+        5,
+        7,
+        11,
+        12
+      ],
+      "special": [
+        12
+      ],
+      "winner": 7,
+      "miss_winner": 8,
+      "explanation": "12代表强制特殊token。例中聚类遗漏7而低秩补到7，混合后精算6行；切换“两分支都漏选”后，精算仍找不回8。这里不模拟真实权重或延迟。"
+    }
+  },
+  "stages": [
+    {
+      "id": "contract",
+      "title": "原理 / 数值合同",
+      "description": "核对接口、运算顺序与可比性边界"
+    },
+    {
+      "id": "implementation",
+      "title": "实现 / 离线检查",
+      "description": "源码实现、驱动、协议和主机回归"
+    },
+    {
+      "id": "hls",
+      "title": "HLS 综合",
+      "description": "生产尺寸资源、时钟估算与 II"
+    },
+    {
+      "id": "rtl",
+      "title": "RTL 仿真",
+      "description": "工具生成 Verilog 及 C post-check"
+    },
+    {
+      "id": "physical",
+      "title": "BD / 布局布线",
+      "description": "单模块互连、地址、真实 post-route、bit/XSA"
+    },
+    {
+      "id": "board",
+      "title": "实板正确性",
+      "description": "资产身份、DDR 校验、严格数值与错误路径"
+    },
+    {
+      "id": "evaluation",
+      "title": "性能评估",
+      "description": "独立样本、计时边界、稳定性与采用范围"
+    }
+  ],
+  "back": "../../开发日志.html#route-R4Sparse",
+  "updated": "2026-10-30T21:42:01+08:00"
+}</script><script>
+'use strict';
+(()=>{
+const data=JSON.parse(document.getElementById('design-data').textContent),r=data.route,d=data.design,$=id=>document.getElementById(id),ns='http://www.w3.org/2000/svg';
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safe=v=>{const s=String(v||'').trim();return s&&!/[\u0000-\u001f\u007f]/.test(s)&&!s.startsWith('//')&&(!/^[a-z][a-z0-9+.-]*:/i.test(s)||/^(https?:|file:)/i.test(s))?s:'';};
+const states={verified:'✓ 已验证',active:'● 进行中',waiting:'⏸ 等待条件',planned:'○ 未开始',failed:'× 未通过',na:'— 不适用',unknown:'? 未确认'};
+$('back').href=safe(data.back)||'#';$('title').textContent=r.id+' · '+r.title;document.title=r.title+' · 路线设计';$('scope').textContent=r.scope;$('goal').textContent=r.goal;
+$('snapshot').textContent='路线快照 '+data.updated;$('boundary').textContent=d.status_note||'验证范围见下方阶段；未完成的阶段仍待验证。';
+$('outcome').textContent=r.outcome;$('next').textContent='下一步：'+(r.next||'未记录');$('overview').textContent=d.overview||'设计说明尚待补充';
+$('stages').innerHTML=data.stages.map(s=>`<div class="stage-item ${esc(r.cells[s.id].state)}"><b>${esc(s.title)}</b><span>${esc(states[r.cells[s.id].state])}</span>${esc(r.cells[s.id].note)}</div>`).join('');
+for(const id of ['contracts','tradeoffs'])$(''+id).innerHTML=(d[id]||[]).map(s=>`<li>${esc(s)}</li>`).join('')||'<li>尚未记录</li>';
+const relative=h=>/^(?:[a-z][a-z0-9+.-]*:|\/|#)/i.test(h)?h:'../../'+h;
+$('evidence').innerHTML=[...(r.evidence||[]),...(d.evidence||[])].filter(e=>safe(e.href)).map(e=>`<a href="${esc(relative(e.href))}">${esc(e.label)}</a>`).join('')||'尚无附件证据';
+const svg=$('diagram'),nodes=new Map(d.nodes.map(n=>[n.id,n]));
+const width=(Math.max(...d.nodes.map(n=>n.col))+1)*260+20,height=(Math.max(...d.nodes.map(n=>n.row))+1)*160+20;
+svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
+function el(tag,attrs={}){const e=document.createElementNS(ns,tag);for(const [k,v]of Object.entries(attrs))e.setAttribute(k,v);return e;}
+for(const edge of d.edges||[]){const a=nodes.get(edge.source),b=nodes.get(edge.target),vertical=a.col===b.col,forward=vertical?b.row>a.row:b.col>a.col;
+const x1=a.col*260+(vertical?125:forward?230:20),y1=a.row*160+(vertical?(forward?120:20):70),x2=b.col*260+(vertical?125:forward?20:230),y2=b.row*160+(vertical?(forward?20:120):70);
+const path=vertical?`M${x1} ${y1} L${x2} ${y2}`:`M${x1} ${y1} C${(x1+x2)/2} ${y1},${(x1+x2)/2} ${y2},${x2} ${y2}`;
+const line=el('path',{d:path,class:'edge'});svg.append(line);const title=el('title');title.textContent=edge.label||'';line.append(title);
+const arrow=el('path',{d:vertical?`M${x2-5} ${y2+(forward?-7:7)} L${x2} ${y2} L${x2+5} ${y2+(forward?-7:7)}`:`M${x2+(forward?-7:7)} ${y2-5} L${x2} ${y2} L${x2+(forward?-7:7)} ${y2+5}`,class:'edge'});svg.append(arrow);}
+for(const n of d.nodes){const x=n.col*260+20,y=n.row*160+20,g=el('g',{class:'node',tabindex:'0',role:'button','data-node':n.id,'aria-label':n.title});g.append(el('rect',{x,y,width:210,height:100,rx:9}));
+const fo=el('foreignObject',{x,y,width:210,height:100}),box=document.createElementNS('http://www.w3.org/1999/xhtml','div');box.setAttribute('class','node-label');box.textContent=n.title;const small=document.createElementNS('http://www.w3.org/1999/xhtml','small');small.textContent=n.caption||'';box.append(small);fo.append(box);g.append(fo);svg.append(g);}
+function select(id){const n=nodes.get(id);if(!n)return;svg.querySelectorAll('[data-node]').forEach(g=>g.classList.toggle('selected',g.dataset.node===id));$('node-title').textContent=n.title;$('node-detail').textContent=n.detail||n.caption||'未记录';}
+svg.addEventListener('click',e=>{const g=e.target.closest('[data-node]');if(g)select(g.dataset.node);});
+svg.addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){const g=e.target.closest('[data-node]');if(g){e.preventDefault();select(g.dataset.node);}}});
+$('steps').innerHTML=(d.steps||[]).map((s,i)=>`<button type="button" data-step="${i}" aria-pressed="false">${esc(s.title)}</button>`).join('');
+$('steps').addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(!b)return;const s=d.steps[Number(b.dataset.step)];$('steps').querySelectorAll('button').forEach(v=>v.setAttribute('aria-pressed',String(v===b)));svg.querySelectorAll('[data-node]').forEach(g=>{g.classList.toggle('muted',!s.nodes.includes(g.dataset.node));g.classList.toggle('step-active',s.nodes.includes(g.dataset.node));});$('step-description').textContent=s.description||'';select(s.nodes[0]);});
+$('reset').addEventListener('click',()=>{svg.querySelectorAll('[data-node]').forEach(g=>g.classList.remove('muted','step-active'));$('steps').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed','false'));$('step-description').textContent='';});
+let zoom=1;$('zoom-in').addEventListener('click',()=>{zoom=Math.min(2,zoom+.2);svg.style.width=zoom*100+'%';});$('zoom-fit').addEventListener('click',()=>{zoom=1;svg.style.width='100%';svg.style.minWidth='0';});select(d.nodes[0].id);
+})();
+</script></body></html>

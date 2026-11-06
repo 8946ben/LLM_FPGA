@@ -1,0 +1,1324 @@
+--- PAGE 1 ---
+HiRE: High Recall Approximate Top-k Estimation for Efficient LLM Inference
+Yashas Samaga B L* 1 Varun Yerram* 1 Chong You2 Srinadh Bhojanapalli 2 Sanjiv Kumar 2 Prateek Jain † 1
+Praneeth Netrapalli † 1
+Abstract
+Autoregressive decoding with generative Large
+Language Models (LLMs) on accelerators
+(GPUs/TPUs) is often memory-bound where most
+of the time is spent on transferring model param-
+eters from high bandwidth memory (HBM) to
+cache. On the other hand, recent works show
+that LLMs can maintain quality with significant
+sparsity/redundancy in the feedforward (FFN) lay-
+ers by appropriately training the model to oper-
+ate on a top- k fraction of rows/columns (where
+k ≈ 0.05), there by suggesting a way to reduce
+the transfer of model parameters, and hence la-
+tency. However, exploiting this sparsity for im-
+proving latency is hindered by the fact that iden-
+tifying top rows/columns is data-dependent and
+is usually performed using full matrix operations,
+severely limiting potential gains. To address these
+issues, we introduce HiRE (High Recall Approxi-
+mate Top-k Estimation). HiRE comprises of two
+novel components: (i) a compression scheme to
+cheaply predict top- k rows/columns with high
+recall, followed by full computation restricted
+to the predicted subset, and (ii) DA-TOP-k: an
+efficient multi-device approximate top-k opera-
+tor. We demonstrate that on a one billion param-
+eter model, HiRE applied to both the softmax
+as well as feedforward layers, achieves almost
+matching pretraining and downstream accuracy,
+and speeds up inference latency by 1.47× on a
+single TPUv5e device (Cloud).
+1. Introduction
+Deploying large language models (LLMs) is almost pro-
+hibitively expensive due to cost of running inference on
+accelerators and also has significant environmental costs.
+*Equal contribution, †Equal contribution 1Google Research,
+India 2Google Research, New York City. Correspondence
+to: Yashas Samaga <syashas@google.com>, Varun Yer-
+ram <vyerram@google.com>, Praneeth Netrapalli <pnetra-
+palli@google.com>.
+For example, (Patterson et al., 2021) attribute 80 − 90% of
+the total carbon emissions during the life cycle of an LLM
+to running inference.
+Latency/cost of generative LLMs is dominated by the au-
+toregressive next-token generation which in-turn is memory-
+bound on standard accelerators (GPU/TPUs) due to shuttling
+large matrices from high-bandwidth memory (HBM) to the
+accelerator cache. Several recent approaches seek to ad-
+dress this challenge by using block parallel decoding (Stern
+et al., 2018), speculative decoding (Leviathan et al., 2023),
+mixture of experts (Du et al., 2022), more efficient archi-
+tectures (Gu & Dao, 2023) as well as by using classical
+methods such as distillation (Liang et al., 2021).
+Despite these techniques, generative LLM inference is still
+primarily memory-bound, indicating significant room for
+latency/cost reduction. Furthermore, for typical input length
+(e.g. ⪅ 2000), and even for models with up to one billion
+parameters, softmax and feedforwad (FFN) layers account
+for ≥ 90% of the latency. So in this work, we primarily
+focus on these two components 1. Multiple recent works
+show that LLMs have inherent “sparsity” or redundancy
+which seem to actually grow with larger models. For exam-
+ple, (Li et al., 2022; Mirzadeh et al., 2023) show that the
+feedforward (FFN) layers activations – with ReLU based
+activation functions – are very sparse. More concretely,
+for a 1-hidden layer FFN: − →x out =Pm
+j=1 ϕ(⟨− →u j, − →x ⟩)− →v j
+with input − →x in, output − →x out, ϕ(·) a ReLU based activation
+function and − →u j and − →v j being the first and second layer
+weights of the FFN respectively, for any input − →x in, only a
+small fraction of weight vectors − →u j have ϕ(⟨− →u j, − →x ⟩) ̸= 0.
+In fact, the sparsity level can be further enhanced ( ⪅ 5%
+non-zeros) by using explicit top- k procedure in the FFN
+layer computation during training. Similarly, softmax layers
+usually need to focus only on tokens corresponding to the
+highest magnitude outputs (logits).
+This raises the following question that we seek to answer:
+can we compute top elements of softmax output and/or FFN
+activations efficiently (on accelerators) and accurately?
+Challenges with top-k computation in softmax/FFN :
+1while our ideas are applicable to the attention layer as well,
+we leave a more detailed investigation of that to future work.
+1
+arXiv:2402.09360v1  [cs.LG]  14 Feb 2024
+
+--- PAGE 2 ---
+HiRE: High Recall Approximate Top-k Estimation for Efficient LLM Inference
+Firstly, the top-k elements can be input dependent, so the
+challenge is to estimate top elements without fully evaluat-
+ing the softmax/FFN layer. Second, even after estimating the
+top elements’ coordinates, it is challenging to gather the top
+elements efficiently on standard accelerators (GPUs/TPUs).
+Contributions: In this work, we propose ideas to overcome
+these challenges and show that they substantially improve
+the inference latency of autoregressive LLMs.
+Estimating top-k elements efficiently: We propose using
+an approximate but high recall procedure to estimate the
+indices of top-k outputs of FFN/softmax layers. In particu-
+lar, we employ a smaller dimensional/low rank projection as
+well as aggressive quantization for doing this approximate
+estimation, but the framework is more general. While there
+are a few recent works (Liu et al., 2023; Csord´as et al., 2023;
+Alizadeh et al., 2023) which employ an approximate top-k
+estimation procedure, they suffer a loss in performance due
+to the approximation. One of our key ideas is to identify that
+if this approximate procedure has high recall, then follow-
+ing it by exact computation on the predicted set can regain
+the lost performance. We call this approach HiRE, standing
+for High Recall Approximate Top-k Estimation.
+Distributed approximate top-k (DA-TOP-k): Due to the
+size of LLMs, even during inference, the models are sharded
+onto multiple devices (say ℓ devices), and similarly compu-
+tations (and outputs/activations) in each of the softmax/FFN
+layers are also distributed across the devices. In this context,
+a vanilla application of the top- k operator turns out to be
+very expensive since parameters stored on all the different
+devices are collected into a central location before perform-
+ing the top- k operation. To overcome this, we propose a
+distributed, approximate top-k operator which performs the
+top- k
+ℓ operation on each of the ℓ devices, and then uses a
+union of these to approximate the overall top-k operator.
+HiRE-Softmax: In the softmax layer, we are interested only
+in the top few ( k ⪅ 32) outputs from a very large output
+space with hundreds of thousands of tokens. On a model
+with about one billion parameters, our implementation of
+HiRE gives an end-to-end latency improvement of about
+1.22x without any quality drop.
+HiRE-FFN: While LLMs trained with a top- k operation
+have relatively sparse activations, k ⪆ 5% is usually re-
+quired to ensure that there is no loss in accuracy (in con-
+trast to the softmax layer, where the effective sparsity is
+⪅ 0.3%). Now, the amount of time taken to gather the
+relevant top-k columns of the weight matrix from HBM to
+cache turns out to be substantially more than that required
+to bring an equivalently sized dense matrix. To overcome
+this hardware limitation, we propose a group sparse top-k
+operation, where columns of the weight matrix are grouped
+into groups of small sizes (8 in our experiments) which sig-
+nificantly improves the efficiency of memory transfers. Sec-
+ond, motivated by the observation that there is substantial
+overlap in non-zero activations across tokens, we propose
+two approaches to further enhance sparsity levels. For ex-
+ploiting static overlap (i.e., activations that are common to
+most tokens), we propose to use a hybrid FFN layer which
+combines a standard/dense (but small) FFN, together with a
+sparse/top-k FFN layer. For exploiting dynamic overlap (i.e.,
+activations that are common to related responses), while do-
+ing inference with a larger batch size or generating multiple
+parallel responses for the same query, we propose to select
+sparsity depending on the size of union of non-zero activa-
+tion indices for each of the tokens, instead of using a fixed
+level of sparsity. On the same model as above, HiRE-FFN
+gives an end-to-end latency improvement of about 1.16x,
+again without any quality drop.
+Putting together: A combination of all the ideas discussed
+above give an end-to-end latency improvement of about
+1.47x compared to the fully dense model.
+We note that concurrent to our work, (Alizadeh et al., 2023)
+also proposes an efficient, approximate procedure to esti-
+mate non-zero activations. While this approach is similar to
+our “estimating top activations cheaply” contribution, we
+note that emphasis of the two works is quite different. In
+particular, we demonstrate that along with estimation of top
+activations, we also need to adjust thresholds for high recall,
+implement DA-TOP-k style operator, and promote group
+sparsity+overlap to provide compelling end-to-end latency
+reduction on accelerators.
+Outline: In Section 2, we describe some closely related
+works. In Section 3, we explain the key ideas. In Section 4
+we present the experiment setting and our main results, and
+provide additional results in appendix.
+Notation: We use non-bold letters a, A etc. for scalars,
+− →a , − →b etc. for vectors and A, B etc. for matrices. Given a
+set S of coordinates, we also use − →x |S to denote the restric-
+tion of − →x to the coordinates in S.
+2. Related Work
+Sparsity of activations : As mentioned earlier, recent
+works (Li et al., 2022) have demonstrated that large lan-
+guage models have highly sparse activation patterns with
+ReLU based activation functions. (Mirzadeh et al., 2023)
+show that using ReLU activation indeed achieves compa-
+rable performance to and argue for reinstating the ReLU
+activation function instead of more popular alternatives such
+as GeLU. There have been several recent attempts to ex-
+ploit activation sparsity for faster inference such as (Liu
+et al., 2023; Grimaldi et al., 2023; Pi´orczy´nski et al., 2023;
+Csord´as et al., 2023; Alizadeh et al., 2023), but all of them
+suffer some loss in quality since the activation pattern can-
+2
+
+--- PAGE 3 ---
+HiRE: High Recall Approximate Top-k Estimation for Efficient LLM Inference
+not be predicted exactly. In contrast, one of our key insights
+is that estimating activation sparsity with high recall can
+ensure matching quality, since exact computation can be
+performed on all of the activations that are estimated to be
+non-zero, and even if some of them later turn out to be zero,
+it doesn’t affect the actual output. We also note that we
+introduce several new ideas such as group sparsity with very
+small group sizes, using a common dense path, exploiting
+activation overlap across tokens, and distributed gathering
+of weights, which are critical to improving efficiency with-
+out loss in accuracy and in extending this approach to larger
+batch sizes, larger number of samples and larger models
+with model partitioning.
+Sparse attention: There have also been several approaches
+to enforce and exploit sparsity in the attention layers (Wang
+et al., 2021; Madaan et al., 2023). In particular, they directly
+approximate full all-to-all attention with sparse attention
+and we believe that similar to what we do for activation spar-
+sity in this paper, estimating a high recall set of non-zero
+attention weights and performing exact attention computa-
+tion on them can ensure that there is no loss in quality with
+sparse attention.
+Structured sparsity and hardware support : From the
+hardware/systems point of view, there have been several
+works developing efficient sparse operations on GPUs and
+TPUs such as (Gale et al., 2020). Since unstructured spar-
+sity is not supported with efficient execution on GPUs, there
+have been works that try either different forms of structured
+sparsity such as 1 in 4 sparsity (Jaszczur et al., 2021), group
+sparsity with large group sizes (Dong et al., 2023) or ex-
+plore the efficiency of sparse transformers on CPUs (Song
+et al., 2023; Zeng et al., 2023). In this work, we show that
+while fully unstructured sparsity is not efficiently supported
+on TPUs, surprisingly, group structured sparsity with even
+small group sizes like 8, is efficiently supported on TPUs
+(see Figure 3), while not losing in terms of pretraining or
+downstream quality.
+Mixture of experts (MoE) : MoE (Du et al., 2022) can
+be thought of as an extreme version of structured sparsity,
+where the group size is very large, and have been explored
+both for training (Li et al., 2022) as well as inference (Yi
+et al., 2023) efficiency. However, MoE models are usually
+harder to train, since one needs to both learn a gating mech-
+anism, as well as ensure that tokens are roughly equally
+distributed across experts. In contrast, small group sizes (or
+experts) are much easier to train, particularly with the Top-k
+operation.
+Complementary approaches for inference efficiency :
+There have been several complementary approaches for
+speeding up LLM inference such as model compres-
+sion (Han et al., 2015; Jaiswal et al., 2023; Xia et al.,
+2023), quantization (Li et al., 2023; Ahmadian et al., 2023;
+Lin et al., 2023; Zhao et al., 2023), speculative decod-
+ing (Leviathan et al., 2023; He et al., 2023), early exit
+and parallel decoding (Bae et al., 2023), structured ma-
+trices in FFN layers (Baykal et al., 2023), other systems
+aspects such as effective partitioning of the model (Pope
+et al., 2023), communication protocols across multiple de-
+vices (Aminabadi et al., 2022; Sheng et al., 2023) etc.
+3. Main Ideas
+In this section, we will introduce the precise setting and
+present the main ideas behind HiRE more rigorously.
+3.1. Problem Setup
+A transformer begins with an embedding layer which pro-
+duces the representation for the input tokens, then processes
+them through a sequence of alternating attention and feed
+forward layers, and finally ends with a softmax layer that
+produces the output probabilities (Vaswani et al., 2017). In
+this work, we will be primarily concerned with the softmax
+and feed forward (FFN) layers, which we now describe.
+The softmax layer takes an input − →x ∈ Rd and outputs:
+Softmax
+ − →x
+
+:= exp(W− →x )exp(W− →x )
+
+1
+∈ Rc, (1)
+where W ∈ Rd×c, d is called the model dimension and
+c is the number of output classes. In almost all of the ap-
+plications, we only care about accurately estimating the
+conditional distribution on the top-k output probabilities for
+some k i.e.,
+Softmaxk
+ − →x
+
+:= Topk
+ 
+Softmax
+ − →x
+
+Topk
+ 
+Softmax
+ − →x
+
+1
+∈ Rc, (2)
+where Topk (·) operation takes a vector as input, retains the
+values of the top-k entries and sets the remaining to zero. In
+particular, we only care about estimating the location and
+values of the top-k entries of Softmax
+ − →x
+
+.
+The FFN layer takes an input − →x ∈ Rd and outputs:
+FF
+ − →x
+
+:=
+mX
+j=1
+ϕ(⟨− →u j, − →x ⟩)− →v j, (3)
+where ϕ(·) is an activation function, m is the number of
+hidden units and − →u j ∈ Rd and − →v j ∈ Rd are the first and
+second layer weights respectively. We refer to equation 3 as
+the standard or dense FFN layer. It turns out that for specific
+activation functions like (powers of) ReLU, for any given x,
+the number of j for which the activations i.e., ϕ(⟨− →u j, − →x ⟩)
+is non-zero in a trained LLM is small ( ⪅ 10%) (Li et al.,
+2022; Mirzadeh et al., 2023). If we explicitly do a top- k
+3
+
+--- PAGE 4 ---
+HiRE: High Recall Approximate Top-k Estimation for Efficient LLM Inference
+step in the feedforward evaluation i.e.,
+FFk
+ − →x
+
+:=
+X
+j∈S(− →x )
+ϕ(⟨− →u j, − →x ⟩)− →v j, (4)
+where S(− →x ) := TopIndk
+ 
+ϕ(U⊤− →x )
+
+, where U is the ma-
+trix whose jth column is − →u j and TopIndk
+ − →z
+
+denotes the
+set of indices where the top-k entries occur in − →z , then the
+number of non-zeros reduces even further without drop in
+quality for k ≈ 5% (Li et al., 2022). We refer to equation 4
+as the sparse or top-k FFN layer.
+We now abstract out the key component that can speed up
+both top-k based softmax equation 2 as well as top-k based
+FFN equation 4 as follows. Given a matrix Z ∈ Rd×ℓ and a
+vector − →x ∈ Rd, we wish to compute:
+S = {(i, ϕ(⟨− →z i, − →x ⟩)) : i ∈ TopIndk
+ 
+ϕ(Z⊤− →x )
+
+}, (5)
+where − →z i is the ith column of Z and ϕ(·) is any given acti-
+vation function (could be identity for softmax equation 2),
+and d ≪ ℓ. Our goal is to design an efficient mechanism to
+compute S in equation 5 compared to the baseline approach
+of computing ϕ(Z⊤− →x ) followed by a top-k operation.
+Theoretical proxy for quantifying efficiency : Autore-
+gressive decoding for small batch sizes is memory bound
+i.e., the time taken for transferring model parameters across
+different hierarchies of memory (e.g., HBM/RAM to cache)
+of the accelerator device (GPU/TPU) is the largest compo-
+nent of the total inference latency (Leviathan et al., 2023).
+To quantify this intuition, and get a sense of how much we
+are improving inference latency, only in the current section,
+we use the number of effective parameters (measured in
+terms of bytes taken to store them) used by a given algo-
+rithm A for the computation in equation 5 as a proxy for its
+latency, and refer to it as PS (A). For example, the Baseline
+which first computes ϕ(Z⊤− →x ), followed by a top- k oper-
+ation has PS (Baseline) = 2 dℓ since Z is a d × ℓ matrix,
+which is stored in 16-bit floating point (bf16) format.
+3.2. HiRE: Overall Approach
+In this section, we present the key ideas behind HiRE, along
+with its application to the softmax and FFN layers.
+3.2.1. S OLVING EQUATION 5 ACCURATELY AND
+EFFICIENTLY
+The key idea behind HiRE is that given an approximate,
+and smaller version of the matrix Z, denoted by Zapprox,
+we first approximate ϕ(Z⊤− →x ) with ϕ(Zapprox
+⊤− →x ), use it
+to compute the set of top-k′ elements S′ for some k′ > k ,
+compute ϕ(Z|⊤
+S′
+− →x ) for only indices restricted to S′, and
+then perform the top- k operation on the resulting vector.
+A pseudocode of HiRE is presented in Algorithm 1 and
+Algorithm 1 Pseudocode for HiRE
+input − →x , Z, Zapprox, k, k′
+1: S′ ← TopIndk′
+
+ϕ
+
+Zapprox
+⊤− →x
+
+{Top-k′ indices of
+ϕ
+
+Zapprox
+⊤− →x
+
+}
+2: − →y ← Topk
+ 
+Z|⊤
+S′
+− →x
+
+output − →y
+Figure 1. HiRE schematic: To compute the top- k elements of
+ϕ(Z⊤− →x ), we first compute an approximate top- k′ index set S′
+by using a low rank approximation Zapprox = Z1Z⊤
+2 . We then
+compute ϕ(Z|⊤
+S′
+− →x ) for Z restricted to S′ and then perform top-k
+operation on that vector.
+a schematic diagram is presented in Figure 1. It is easy
+to see that as long as TopIndk
+ 
+ϕ(Z⊤− →x )
+
+⊆ S′, we have
+that Topk
+ 
+ϕ(Z⊤− →x )
+
+= Topk
+ 
+ϕ(Z|⊤
+S′
+− →x )
+
+. If the size of
+Zapprox is chosen to be substantially smaller than that of Z,
+and if k′ ≪ ℓ, then HiRE executes much faster than the
+naive version of implementing equation 5. In this paper, we
+consider two ways of choosing Zapprox.
+HiRE-LR : In this case, we chooseZapprox to be a low rank
+matrix factorized as Z1 ∗ Z⊤
+2 , where Z1 ∈ Rd×r and Z2 ∈
+Rℓ×r for some r ≪ d. In this case, PS (HiRE − LR) =
+2(dr+ rℓ+ dk′), which will be much smaller than2dℓ since
+r ≪ d ≪ ℓ and k′ ≪ ℓ. Note that this requires us to train
+Zapprox either in an end to end manner, or by performing low
+rank decomposition on Z. However, there is a high potential
+for latency gains here since r could potentially be chosen to
+be very small.
+HiRE-Q : In this case, we choose Zapprox to be a aggres-
+sively quantized version of Z for example in 4-bit integer
+format (int4). In this case, PS (HiRE − Q) = dℓ
+2 + 2dk′,
+which will be much smaller than 2dℓ since k′ ≪ ℓ. Note
+that this does not require any training since we can just
+apply a standard quantization routine to Z to obtain Zapprox.
+However, the potential gains are limited due to inherent
+limits on quantization. Note that we can also combine both
+4
+
+--- PAGE 5 ---
+HiRE: High Recall Approximate Top-k Estimation for Efficient LLM Inference
+HiRE-LR and HiRE-Q to obtain further inference latency
+improvements.
+3.2.2. DA-TOP- k: M ULTI-DEVICE SERVING WITH
+APPROXIMATE DISTRIBUTED TOP -k OPERATION
+Algorithm 2 Pseudocode for HiRE with DA-TOP-k
+input − →x , Z, Zapprox, k, k′ with Z and Zapprox distributed
+across s machines.
+1: On machine i ∈ [s]: S′
+i ←
+TopIndk′
+s
+
+ϕ
+
+Zapprox
+⊤
+i
+− →x
+
+{Top-k′
+s indices of
+ϕ
+
+Zapprox
+⊤
+i
+− →x
+
+on machine i.}
+2: − →y i ← Topk
+s
+ 
+Z|⊤
+S′
+− →x
+
+3: y ← Concat(yi : i ∈ [s]).
+output − →y
+Very large models do not fit on the RAM of a single
+GPU/TPU, so for serving such models, the parameters of
+the model are usually distributed on a cluster of multiple de-
+vices. In this case, using HiRE (Algorithm 1) as is leads to
+large costs in communication. To mitigate the communica-
+tion costs, we modify HiRE to use distributed, approximate
+top-k computation. The pseudocode for the resulting al-
+gorithm is given in Algorithm 2. We will now present the
+application of Algorithms 1 and 2 to make softmax and FFN
+layers more efficient.
+3.3. HiRE-SoftMax: Efficient Softmax using HiRE
+Since we usually care only about the top-k logits of the soft-
+max layer equation 4, we can directly apply Algorithms 1
+and 2 to solve equation 2 more efficiently. We note that
+while obtaining Wapprox, an approximate version of W, is
+straightforward with quantization, obtaining a low rank ap-
+proximation of Wapprox is also relatively cheap since we can
+distill the inputs and outputs of W to obtain Wapprox.
+3.4. HiRE-FFN: Efficient FFN using HiRE
+Recalling equation 4, we note that we can compute
+S(− →x ) := TopIndk
+ 
+ϕ(U⊤− →x )
+
+using HiRE.
+While HiRE-FFN is indeed theoretically more efficient com-
+pared to a naive computation of equation 4, it turns out that
+for the relative values of k′ and m that are needed to ensure
+that there is no accuracy drop ( k′
+m ≈ 0.05), the transfer of
+parameters across different hierarchies of memory is too
+inefficient to give any gains2. Our key insight is that group
+sparse structure substantially improves the efficiency of pa-
+rameter transfer across different hierarchies of memory. For
+2In contrast, the corresponding factor in the softmax layer is
+much smaller, around 10−4, which gives us inference latency
+improvements, despite this inefficiency in memory transfer.
+example, Figure 3 in Appendix B shows that the efficiency
+of the transfer operation of columns of a matrix across dif-
+ferent hierarchies of memory improves substantially when
+we transfer groups of adjacent columns instead of single
+columns. More concretely, we first divide the entire set ofm
+hidden units into m/g groups with g hidden units each (in
+all our experiments, we use g = 8). Given an approximate
+group activation computation procedure Φ : Rd → R
+m
+g ,
+i.e., Φ(− →x ) ≈
+Pg−1
+k=0
+ϕ(⟨− →u jg+k, − →x ⟩)
+ : j ∈ [m/g]
+
+let
+us denote S′
+g := TopIndk′
+ 
+Φ(− →x )
+
+, and use:
+fFFg, k′
+g
+ − →x
+
+:=
+X
+j∈ eSg
+gX
+ℓ=0
+ϕ(⟨− →u g∗j+ℓ, − →x ⟩)− →v g∗j+ℓ, (6)
+whereeSg ⊆ [m/g] is a subset of groups selected aseSg :=
+GroupTopIndg,k/g
+
+ϕ(U|⊤
+S′ g
+− →x )
+
+, where S′g is an estimate
+of the groups of neurons that will actually be activated. We
+can again use Algorithm 1 (resp. Algorithm 2) to compute
+eSg in the single (resp. multiple) device settings.
+3.4.1. ENHANCING SPARSITY FURTHER BY EXPLOITING
+STATIC AND DYNAMIC ACTIVATION OVERLAP
+Motivated by the observation that there is substantial over-
+lap in non-zero activations across tokens, we also propose
+the following approaches to exploit static and dynamic acti-
+vation overlap.
+Static overlap : The first idea is to augment the sparse
+FFN layer with a dense common path of neurons that are
+activated for all tokens, so that the number of non-zeros
+in the sparse part can be reduced further. More concretely,
+the feedforward layer comprises of two sets of m1 and m2
+hidden units respectively, where the first set of neurons is
+used in a dense manner equation 3, while the second set is
+used in a group sparse manner equation 6. We have:
+fFFCommonPath
+ − →x
+
+=
+m1X
+j=1
+ϕ(⟨− →u d
+j , − →x ⟩)− →v d
+j
++
+X
+j∈ eSg(− →x )
+gX
+ℓ=0
+ϕ(⟨− →u gs
+g∗j+ℓ, − →x ⟩)− →v gs
+g∗j+ℓ, (7)
+where − →u d, − →v d denote the first set of hidden units used in
+a dense manner, while − →u gs, − →v gs denote the second set of
+neurons used in a sparse manner.
+Dynamic overlap : In order to further improve effi-
+ciency while producing a larger number of samples for
+the same query (e.g., to rank these responses and out-
+put the best one (Mudgal et al., 2023)), we first compute
+eSg(− →x 1), · · · ,eSg(− →x s) for the latest token from each of the
+s samples and use their union ∪u∈[s]eSg(− →x u) on line 1 of
+Algorithm 1 and 2.
+5
+
+--- PAGE 6 ---
+HiRE: High Recall Approximate Top-k Estimation for Efficient LLM Inference
+Table 1. Evaluation of HiRE-Softmax with the baseline dense model Mbase on a single TPUv5e device. For HiRE-Softmax, we use three
+different kinds of approximation: HiRE-LR with low rank approximation, HiRE-Q with int4 quantization and then finally HiRE-LRQ
+with both low rank and int4 quantization. We notice similar speedups with both HiRE-Q and HiRE-LR as both of them reduce the size of
+parameters that are used for computation by 25%.
+Msm
+Mbase
+HiRE-LR
+(r = 25%, k′ = 384)
+HiRE-Q
+(int4, k′ = 128)
+HiRE-LR
+(r = 25%, k′ = 384)
++ HiRE-Q (int4)
+Pre-training
+Performance
+Top1 Accuracy 57.15% 57.07% 57.12% 57.07%
+Top32 Intersection 32.0 29.26 31.48 29.03
+Downstream
+Performance
+Machine Translation 47.92 47.73 47.9 47.77
+SuperGLUE Benchmark 62.0 61.39 61.56 61.02
+Question Answering 29.65 29.58 29.54 29.58
+Discriminative Tasks 51.69 50.51 50.92 50.40
+Speedup 1.0x 1.16x 1.16x 1.22x
+4. Experiments
+In this section, we present experimental evaluation of HERD
+and demonstrate its efficacy in reducing inference latency.
+4.1. Training details
+We mostly follow the training setup described in (Anil et al.,
+2023) including the training dataset and optimizer. Most
+experiments were conducted on a model with about1 billion
+parameters – we denote it by 1B model. dm denotes its
+model dimensions, i.e., dimension of representations.
+HiRE-FFN: After pretraining 1B for a large number of
+steps ( M), we continue to pretrain it for a similar num-
+ber of additional steps with group sparse top- k operation
+(equation 6) on odd FFN layers to obtain Mffn i.e., if the
+model has ℓ layers, then we modify only the 1st, 3rd, ...,(2 ∗
+⌊ ℓ
+2 ⌋ −1)th layers to be group sparse. For fair comparison we
+continue to pretrain M for the same number of additional
+steps as Mffn, but without the top- k operation to obtain
+the baseline model Mbase. While the exact computations
+are all performed in bf16 (i.e., 16 bit floating point), the
+approximate computations in HiRE are performed in int4.
+HiRE-Softmax: We apply HiRE-Softmax toMbase or Mffn
+with different choices for approximate computation.
+1. For approximate computation with low rank, we train
+Wapprox using cross entropy (CE) loss with respect to
+ground truth labels, with rank r chosen to be r = dm
+4 .
+2. For approximate computation with quantization, we per-
+form the softmax computation in int4.
+We also present results combining both low rank and quanti-
+zation approximation. We refer to the model with HiRE on
+both Softmax and FFN layers asMfull, while HiRE-Softmax
+applied to Mbase is referred to as Msm.
+4.2. Evaluation
+We evaluate the performance of different models both in
+terms of quality as well as inference latency. We measure
+quality using evaluation on pre-training dataset as well evalu-
+ations on multiple downstream datasets. Following standard
+works in the domain, we compute downstream performance
+of the model by applying it to multiple tasks, each focusing
+on a specific capability of LLMs. Collectively these datasets
+provide us a thorough assessment framework. To facilitate
+evaluation of our pretrained base models we perform 1-shot
+evaluations on all datasets.
+1. Machine Translation: We use English-French tasks
+from WMT14 (Bojar et al., 2014) and German-French
+tasks from WMT22 (Zerva et al., 2022).
+2. SuperGLUE Benchmark : We use multiple Super-
+GLUE (Wang et al., 2019) tasks such as BoolQ (Clark
+et al., 2019) etc. See appendix for the full list of datasets.
+3. Question Answering: We use SQuADv2 (Rajpurkar
+et al., 2018), TriviaQA (Joshi et al., 2017), NaturalQues-
+tions (Kwiatkowski et al., 2019), WebQuestions (Berant
+et al., 2013) and TyDiQA-English (Clark et al., 2020).
+4. Discriminative Tasks: We use additional tasks to evalu-
+ate commonsense reasoning, ranking and textual entail-
+ment. See appendix for the full list of datasets.
+For Question Answering evaluations we use Exact Match as
+our metric (Except F1-score for TyDiQA),Accuracy for Dis-
+criminative tasks and Character n-gram F-score (Popovi´c,
+2015) for machine translation. For each task group, we re-
+port the Macro-Average of task metrics in our downstream
+evaluations.
+For evaluating inference latency, we use a single TPUv5e
+device with batch size of one, and for generating one full
+response per query. We also demonstrate the importance
+6
+
+--- PAGE 7 ---
+HiRE: High Recall Approximate Top-k Estimation for Efficient LLM Inference
+Table 2. Evaluation of HiRE-FFN, as well as a combination of HiRE-Softmax + HiRE-FFN with the baseline dense model Mbase on a
+single TPUv5e device. For HiRE-FFN, we use quantization based HiRE, while for HiRE-Softmax, we use HiRE-LRQ. Note that the
+combination of HiRE-Softmax + HiRE-FFN is 1.47× faster than baseline despite almost matching accuracy.
+Baseline Mffn (HiRE-Q) Mffn (HiRE-Q)
++ Msm (HiRE-Q + HiRE-LR)
+Pre-training
+Performance
+Top1 Accuracy 57.15% 57.03% 56.93%
+Perplexity 2.045 2.056 NA
+Downstream
+Performance
+Machine Translation 47.92 46.95 46.94
+SuperGLUE Benchmark 62.0 62.49 61.74
+Question Answering 29.65 30.88 30.86
+Discriminative Tasks 51.69 51.14 50.08
+Speedup 1.0x 1.16× 1.47×
+Table 3. DA-TOP-k (Algorithm 2): Quality and latency evaluations for the HiRE-FFN model deployed on a 2 × 2 slice of Google Cloud
+TPUv5e. Clearly performing distributed, approximate top-k computation is critical to obtain speedups during deployment on multiple
+machines, while not losing any quality on average.
+Mffn (HiRE-Q) Mffn + HiRE-Q
++ (DA-TOP-k)
+Pre-training
+Performance
+Top1 Accuracy 57.03% 56.82%
+Perplexity 2.056 2.064
+Downstream
+Performance
+Machine Translation 46.95 47.03
+SuperGLUE Benchmark 62.49 61.37
+Question Answering 30.88 30.11
+Discriminative Tasks 51.14 50.33
+Speedup 1.0× 2.27×
+of DA-TOP-k in scaling to multiple devices, by presenting
+results for a slice of 4 TPUv5e devices. We report Speedups
+by measuring number of response tokens generated per unit
+time step.
+4.3. Results
+HiRE-Softmax: Table 1 presents a comparison of Msm
+(i.e., HiRE applied to the softmax layer of Mbase) with the
+baseline dense model (Mbase). Note that both HiRE-Q and
+HiRE-LR provide about 1.16× speedup over baseline while
+providing almost the same next-token prediction accuracy
+on the pretraining dataset. Downstream accuracy is also
+within 0.2% of the baseline. We observe that combining
+HiRE − Q and HiRE − LR improves the latency speedup
+to 1.22× with less than 0.5% overall drop in accuracy.
+HiRE-FFN: Table 2 presents a comparison of both HiRE-
+FFN (Mffn) as well as the full HiRE approach applied to
+both the Softmax and FFN layers ( Mfull), with respect to
+the original model (Mbase). Similar to softmax layer, here
+again combining HiRE-LR and HiRE-Q leads to as much as
+1.47× latency reduction while maintaining almost similar
+pre-training and downstream evaluation accuracy.
+Multiple devices: In latency critical applications, LLMs are
+served on multiple accelerator devices, with their weights
+distributed across them. Implementing HiRE as is on mul-
+tiple devices in this fashion turns out to be suboptimal due
+to the cost of identifying top-k activations jointly across all
+the devices. To overcome this, we proposed a distributed
+version of the top-k′ operation DA-TOP-k, which first per-
+forms top- k′
+d operation on each of the d devices and then
+takes a union of those activations to approximate top- k′
+(Algorithm 2). As we can see from Table 3 improves the
+latency by 2.27×, compared to the vanilla implementation
+of HiRE (Algorithm 1), with comparable quality on average
+across downstream tasks.
+Why high recall estimation?
+Consider Algorithm 1 and equation 5. We define Recall as
+the intersection between the set of elements, S′ computed
+using Zapprox matrix and S using Z matrix. In case of Soft-
+max, we compute the intersection between S′ and S for
+both HiRE-LR and HiRE-Q in Table 4. We see a systematic
+increase of recall with increase in k′ of the algorithm. In
+case of Mffn, we evaluate models with different (k′, k) pairs
+to study the importance of high recall in pretraining metrics.
+From Table 6, we observe that, as we increase k′, the model
+shows an improvement, further signifying the importance
+7
+
+--- PAGE 8 ---
+HiRE: High Recall Approximate Top-k Estimation for Efficient LLM Inference
+Table 4. Importance of High Recall for HiRE-Softmax. This table presents the pretraining top-1 accuracy as well as the size of intersection
+with the top- k tokens of the original model, when we use different values of k′ in the approximate computation step and k = 32 .
+k′ = None refers to the setting where we do not follow the approximate computation by an exact computation. As we can see, (i) not
+doing the exact computation (i.e., k′ = None) leads to large drop in top-1 accuracy. Similarly, using a k′ that is much larger than k is
+critical in obtaining the top-k tokens correctly.
+HiRE-LR for Softmax (r=25%) k′ = None k′ = 32 k′ = 64 k′ = 128 k′ = 256 k′ = 384 k′ = 512
+Pre-training
+Performance
+Top1 Accuracy 51.87% 56.43% 56.63% 56.77% 56.86% 56.89% 56.92%
+Top32 Intersection 19.24 19.24 24.13 26.94 28.72 29.26 29.93
+HiRE-Q for Softmax (int4) k′ = None k′ = 2 k′ = 4 k′ = 8 k′ = 32 k′ = 64 k′ = 128
+Pre-training
+Performance
+Top1 Accuracy 55.94% 56.76% 56.94% 56.98% 56.99% 56.99% 56.99%
+Top32 Intersection 27.68 1.98 3.96 7.90 27.68 30.86 31.30
+of high recall.
+Importance of learned projections in HiRE-LR: While
+HiRE-Q is much easier to implement since it does not re-
+quire any training, the potential for gains is limited due
+to the inherent nature of quantization. On the other hand,
+HiRE-LR has the potential to deliver larger latency improve-
+ments, but requires retraining as discussed in Section 4.1.
+In this section, we explore whether random projections can
+be directly used instead of learning them. Table 7 in Ap-
+pendix B demonstrates that random projections can lead
+to as much as 10% reduction in downstream evaluation ac-
+curacy at similar rank justifying our approach of learned
+low-rank projections.
+Location of sparse layers: In all the results so far, we have
+modified only the odd FFN layers to be sparse (equation 6),
+while the remaining were dense (equation 3). In Table 8,
+we present results for different choices of sparse layers,
+which demonstrate that modifying all the layers to be sparse
+leads to substantial drop in accuracy, and the location of
+sparse layers makes an effect on the overall accuracy. It is
+interesting to identify the optimal selection of sparse layers.
+Table 5. Commonpath Experimental Results: Static sparsity de-
+notes the percentage of feedforward neurons used by all tokens i.e.
+commonpath while Adaptive Sparsity denotes the percentage of
+neurons activated by feedforward neurons not in commonpath.
+Baseline Sparse CommonPath
+Sparsity
+Static Sparsity 100% 0% 16.66%
+Adaptive SparsityNA 5.55% 3.33%
+Pre-training
+Performance
+Top1 Accuracy57.15% 57.03% 57.03%
+Perplexity 2.045 2.056 2.055
+Downstream
+Performance
+MT 47.92 46.95 46.93
+SuperGLUE 62.07 62.49 61.66
+Q & A 29.65 30.88 29.94
+Disc. Tasks 51.69 51.14 51.14
+Speedup 1.0× 1.16× 1.22×
+Common path for increasing sparsity further: We now
+Figure 2. Dynamic overlap of top-k activations across related re-
+sponses while generating 4 parallel samples for the same query.
+On x-axis is the size of union of top-k activations across 4 genera-
+tions divided by 4k, for k = (0.05) ∗ m. As we can see, there is
+substantial fraction of mass away from 1, suggesting that the top-k
+activations of related responses have high overlap, which can yield
+further latency improvements with HiRE.
+present results demonstrating the utility of a common path,
+to further enhance activation sparsity as described in Sec-
+tion 3.4.1, equation 7. The results, presented in Table 5 show
+that our commonpath technique is indeed able to improve
+dynamic sparsity by 2% while still maintaining accuracy,
+which leads to about 6% lower latency.
+Exploiting activation overlap for larger num samples
+with adaptive sparsity : It has been shown that gener-
+ating multiple diverse responses for a single query, and
+subsequent ranking aids in selecting the most suitable out-
+put (Mudgal et al., 2023). We hypothesize that such re-
+sponses share significant overlap in their non-zero neural
+activations, offering potential for enhancing effective spar-
+sity in FFN layers. This is supported empirically (Figure 2),
+where the union of non-zero activations across multiple re-
+sponses is consistently smaller than the sum of number of
+individual response activations.
+8
+
+--- PAGE 9 ---
+HiRE: High Recall Approximate Top-k Estimation for Efficient LLM Inference
+Broader Impact Statement
+We expect utilizing HiRE can lead to more energy efficient
+large model inference. Beyond that there are potential so-
+cietal consequences of helping large models become more
+accessible, none which we feel must be specifically high-
+lighted here.
+References
+Ahmadian, A., Dash, S., Chen, H., Venkitesh, B., Gou, S.,
+Blunsom, P., Ustun, A., and Hooker, S. Intriguing prop-
+erties of quantization at scale. ArXiv, abs/2305.19268,
+2023. URL https://api.semanticscholar.
+org/CorpusID:258967189.
+Alizadeh, K., Mirzadeh, I., Belenko, D., Khatamifard, K.,
+Cho, M., Del Mundo, C. C., Rastegari, M., and Fara-
+jtabar, M. Llm in a flash: Efficient large language
+model inference with limited memory. arXiv preprint
+arXiv:2312.11514, 2023.
+Aminabadi, R. Y ., Rajbhandari, S., Awan, A. A., Li, C.,
+Li, D., Zheng, E., Ruwase, O., Smith, S., Zhang, M.,
+Rasley, J., et al. Deepspeed-inference: enabling efficient
+inference of transformer models at unprecedented scale.
+In SC22: International Conference for High Performance
+Computing, Networking, Storage and Analysis, pp. 1–15.
+IEEE, 2022.
+Anil, R., Dai, A. M., Firat, O., Johnson, M., Lepikhin, D.,
+Passos, A., Shakeri, S., Taropa, E., Bailey, P., Chen, Z.,
+Chu, E., Clark, J. H., Shafey, L. E., Huang, Y ., Meier-
+Hellstern, K., Mishra, G., Moreira, E., Omernick, M.,
+Robinson, K., Ruder, S., Tay, Y ., Xiao, K., Xu, Y .,
+Zhang, Y ., ´Abrego, G. H., Ahn, J., Austin, J., Barham,
+P., Botha, J. A., Bradbury, J., Brahma, S., Brooks, K.,
+Catasta, M., Cheng, Y ., Cherry, C., Choquette-Choo,
+C. A., Chowdhery, A., Crepy, C., Dave, S., Dehghani,
+M., Dev, S., Devlin, J., D ´ıaz, M., Du, N., Dyer, E.,
+Feinberg, V ., Feng, F., Fienber, V ., Freitag, M., Gar-
+cia, X., Gehrmann, S., Gonzalez, L., and et al. Palm
+2 technical report. CoRR, abs/2305.10403, 2023. doi:
+10.48550/ARXIV .2305.10403. URL https://doi.
+org/10.48550/arXiv.2305.10403.
+Bae, S., Ko, J., Song, H., and Yun, S.-Y . Fast and robust
+early-exiting framework for autoregressive language mod-
+els with synchronized parallel decoding. arXiv preprint
+arXiv:2310.05424, 2023.
+Baykal, C., Cutler, D., Dikkala, N., Ghosh, N., Panigrahy,
+R., and Wang, X. Alternating updates for efficient trans-
+formers. arXiv preprint arXiv:2301.13310, 2023.
+Berant, J., Chou, A., Frostig, R., and Liang, P. Seman-
+tic parsing on freebase from question-answer pairs. In
+Proceedings of the 2013 Conference on Empirical Meth-
+ods in Natural Language Processing, EMNLP 2013, 18-
+21 October 2013, Grand Hyatt Seattle, Seattle, Wash-
+ington, USA, A meeting of SIGDAT, a Special Interest
+Group of the ACL , pp. 1533–1544. ACL, 2013. URL
+https://aclanthology.org/D13-1160/.
+Bisk, Y ., Zellers, R., Bras, R. L., Gao, J., and Choi, Y .
+PIQA: reasoning about physical commonsense in nat-
+ural language. In The Thirty-Fourth AAAI Conference
+on Artificial Intelligence, AAAI 2020, The Thirty-Second
+Innovative Applications of Artificial Intelligence Confer-
+ence, IAAI 2020, The Tenth AAAI Symposium on Educa-
+tional Advances in Artificial Intelligence, EAAI 2020,
+New York, NY, USA, February 7-12, 2020 , pp. 7432–
+7439. AAAI Press, 2020. doi: 10.1609/AAAI.V34I05.
+6239. URL https://doi.org/10.1609/aaai.
+v34i05.6239.
+Bojar, O., Buck, C., Federmann, C., Haddow, B., Koehn,
+P., Leveling, J., Monz, C., Pecina, P., Post, M., Saint-
+Amand, H., et al. Findings of the 2014 workshop on
+statistical machine translation. In Proceedings of the
+ninth workshop on statistical machine translation , pp.
+12–58, 2014.
+Clark, C., Lee, K., Chang, M., Kwiatkowski, T., Collins,
+M., and Toutanova, K. Boolq: Exploring the surpris-
+ing difficulty of natural yes/no questions. In Burstein,
+J., Doran, C., and Solorio, T. (eds.), Proceedings of the
+2019 Conference of the North American Chapter of the
+Association for Computational Linguistics: Human Lan-
+guage Technologies, NAACL-HLT 2019, Minneapolis,
+MN, USA, June 2-7, 2019, Volume 1 (Long and Short
+Papers), pp. 2924–2936. Association for Computational
+Linguistics, 2019. doi: 10.18653/V1/N19-1300. URL
+https://doi.org/10.18653/v1/n19-1300.
+Clark, J. H., Choi, E., Collins, M., Garrette, D.,
+Kwiatkowski, T., Nikolaev, V ., and Palomaki, J. Tydi qa:
+A benchmark for information-seeking question answering
+in ty pologically di verse languages. Transactions of the
+Association for Computational Linguistics , 8:454–470,
+2020.
+Clark, P., Cowhey, I., Etzioni, O., Khot, T., Sabharwal, A.,
+Schoenick, C., and Tafjord, O. Think you have solved
+question answering? try arc, the AI2 reasoning challenge.
+CoRR, abs/1803.05457, 2018. URL http://arxiv.
+org/abs/1803.05457.
+Cloud, G. Cloud tpu v5e inference. URL
+https://cloud.google.com/tpu/docs/
+v5e-inference. Accessed on Feb 1, 2024.
+9
+
+--- PAGE 10 ---
+HiRE: High Recall Approximate Top-k Estimation for Efficient LLM Inference
+Csord´as, R., Irie, K., and Schmidhuber, J. Approximating
+two-layer feedforward networks for efficient transformers.
+arXiv preprint arXiv:2310.10837, 2023.
+de Marneffe, M.-C., Simons, M., and Tonhauser, J.
+The commitmentbank: Investigating projection in
+naturally occurring discourse. 2019. URL https:
+//api.semanticscholar.org/CorpusID:
+203595067.
+Dong, H., Chen, B., and Chi, Y . Towards structured sparsity
+in transformers for efficient inference. In Workshop on
+Efficient Systems for Foundation Models, at ICML2023,
+2023.
+Du, N., Huang, Y ., Dai, A. M., Tong, S., Lepikhin, D., Xu,
+Y ., Krikun, M., Zhou, Y ., Yu, A. W., Firat, O., et al. Glam:
+Efficient scaling of language models with mixture-of-
+experts. In International Conference on Machine Learn-
+ing, pp. 5547–5569. PMLR, 2022.
+Gale, T., Zaharia, M., Young, C., and Elsen, E. Sparse gpu
+kernels for deep learning. In SC20: International Con-
+ference for High Performance Computing, Networking,
+Storage and Analysis, pp. 1–14. IEEE, 2020.
+Grimaldi, M., Ganji, D. C., Lazarevich, I., and Sah, S. Ac-
+celerating deep neural networks via semi-structured acti-
+vation sparsity. In Proceedings of the IEEE/CVF Interna-
+tional Conference on Computer Vision, pp. 1179–1188,
+2023.
+Gu, A. and Dao, T. Mamba: Linear-time sequence
+modeling with selective state spaces. arXiv preprint
+arXiv:2312.00752, 2023.
+Han, S., Mao, H., and Dally, W. J. Deep compres-
+sion: Compressing deep neural networks with pruning,
+trained quantization and huffman coding. arXiv preprint
+arXiv:1510.00149, 2015.
+He, Z., Zhong, Z., Cai, T., Lee, J. D., and He, D. Rest:
+Retrieval-based speculative decoding. arXiv preprint
+arXiv:2311.08252, 2023.
+Jaiswal, A., Gan, Z., Du, X., Zhang, B., Wang, Z., and Yang,
+Y . Compressing llms: The truth is rarely pure and never
+simple. arXiv preprint arXiv:2310.01382, 2023.
+Jaszczur, S., Chowdhery, A., Mohiuddin, A., Kaiser, L.,
+Gajewski, W., Michalewski, H., and Kanerva, J. Sparse
+is enough in scaling transformers. Advances in Neural
+Information Processing Systems, 34:9895–9907, 2021.
+Joshi, M., Choi, E., Weld, D. S., and Zettlemoyer, L.
+Triviaqa: A large scale distantly supervised challenge
+dataset for reading comprehension. arXiv preprint
+arXiv:1705.03551, 2017.
+Khashabi, D., Chaturvedi, S., Roth, M., Upadhyay, S., and
+Roth, D. Looking beyond the surface: A challenge set for
+reading comprehension over multiple sentences. In Pro-
+ceedings of the 2018 Conference of the North American
+Chapter of the Association for Computational Linguistics:
+Human Language Technologies, Volume 1 (Long Papers),
+pp. 252–262, 2018.
+Kwiatkowski, T., Palomaki, J., Redfield, O., Collins, M.,
+Parikh, A., Alberti, C., Epstein, D., Polosukhin, I., Devlin,
+J., Lee, K., et al. Natural questions: a benchmark for ques-
+tion answering research. Transactions of the Association
+for Computational Linguistics, 7:453–466, 2019.
+Lai, G., Xie, Q., Liu, H., Yang, Y ., and Hovy, E. H.
+RACE: large-scale reading comprehension dataset from
+examinations. In Palmer, M., Hwa, R., and Riedel, S.
+(eds.), Proceedings of the 2017 Conference on Empiri-
+cal Methods in Natural Language Processing, EMNLP
+2017, Copenhagen, Denmark, September 9-11, 2017 ,
+pp. 785–794. Association for Computational Linguis-
+tics, 2017. doi: 10.18653/V1/D17-1082. URL https:
+//doi.org/10.18653/v1/d17-1082.
+Levesque, H., Davis, E., and Morgenstern, L. The winograd
+schema challenge. In Thirteenth international confer-
+ence on the principles of knowledge representation and
+reasoning, 2012.
+Leviathan, Y ., Kalman, M., and Matias, Y . Fast inference
+from transformers via speculative decoding. In Inter-
+national Conference on Machine Learning, pp. 19274–
+19286. PMLR, 2023.
+Li, L., Li, Q., Zhang, B., and Chu, X. Norm tweaking:
+High-performance low-bit quantization of large language
+models. arXiv preprint arXiv:2309.02784, 2023.
+Li, Z., You, C., Bhojanapalli, S., Li, D., Rawat, A. S., Reddi,
+S. J., Ye, K., Chern, F., Yu, F., Guo, R., et al. The
+lazy neuron phenomenon: On emergence of activation
+sparsity in transformers. In The Eleventh International
+Conference on Learning Representations, 2022.
+Liang, K. J., Hao, W., Shen, D., Zhou, Y ., Chen, W., Chen,
+C., and Carin, L. Mixkd: Towards efficient distillation
+of large-scale language models. In 9th International
+Conference on Learning Representations, ICLR 2021,
+Virtual Event, Austria, May 3-7, 2021. OpenReview.net,
+2021. URL https://openreview.net/forum?
+id=UFGEelJkLu5.
+Lin, J., Tang, J., Tang, H., Yang, S., Dang, X., and
+Han, S. Awq: Activation-aware weight quantization
+for llm compression and acceleration. arXiv preprint
+arXiv:2306.00978, 2023.
+10
+
+--- PAGE 11 ---
+HiRE: High Recall Approximate Top-k Estimation for Efficient LLM Inference
+Liu, Z., Wang, J., Dao, T., Zhou, T., Yuan, B., Song, Z.,
+Shrivastava, A., Zhang, C., Tian, Y ., Re, C., et al. Deja
+vu: Contextual sparsity for efficient llms at inference time.
+In International Conference on Machine Learning , pp.
+22137–22176. PMLR, 2023.
+Madaan, L., Bhojanapalli, S., Jain, H., and Jain, P.
+Treeformer: Dense gradient trees for efficient atten-
+tion computation. In The Eleventh International
+Conference on Learning Representations, ICLR 2023,
+Kigali, Rwanda, May 1-5, 2023 . OpenReview.net,
+2023. URL https://openreview.net/pdf?
+id=DWn1TEb2fK.
+Mihaylov, T., Clark, P., Khot, T., and Sabharwal, A. Can a
+suit of armor conduct electricity? A new dataset for open
+book question answering. In Riloff, E., Chiang, D., Hock-
+enmaier, J., and Tsujii, J. (eds.), Proceedings of the 2018
+Conference on Empirical Methods in Natural Language
+Processing, Brussels, Belgium, October 31 - November
+4, 2018, pp. 2381–2391. Association for Computational
+Linguistics, 2018. doi: 10.18653/V1/D18-1260. URL
+https://doi.org/10.18653/v1/d18-1260.
+Mirzadeh, I., Alizadeh, K., Mehta, S., Del Mundo, C. C.,
+Tuzel, O., Samei, G., Rastegari, M., and Farajtabar,
+M. Relu strikes back: Exploiting activation sparsity in
+large language models. arXiv preprint arXiv:2310.04564,
+2023.
+Mostafazadeh, N., Chambers, N., He, X., Parikh, D., Batra,
+D., Vanderwende, L., Kohli, P., and Allen, J. F. A cor-
+pus and evaluation framework for deeper understanding
+of commonsense stories. CoRR, abs/1604.01696, 2016.
+URL http://arxiv.org/abs/1604.01696.
+Mudgal, S., Lee, J., Ganapathy, H., Li, Y ., Wang, T., Huang,
+Y ., Chen, Z., Cheng, H., Collins, M., Strohman, T., Chen,
+J., Beutel, A., and Beirami, A. Controlled decoding from
+language models. CoRR, abs/2310.17022, 2023. doi:
+10.48550/ARXIV .2310.17022. URL https://doi.
+org/10.48550/arXiv.2310.17022.
+Nie, Y ., Williams, A., Dinan, E., Bansal, M., Weston,
+J., and Kiela, D. Adversarial NLI: A new benchmark
+for natural language understanding. In Jurafsky, D.,
+Chai, J., Schluter, N., and Tetreault, J. R. (eds.), Pro-
+ceedings of the 58th Annual Meeting of the Associ-
+ation for Computational Linguistics, ACL 2020, On-
+line, July 5-10, 2020 , pp. 4885–4901. Association for
+Computational Linguistics, 2020. doi: 10.18653/V1/
+2020.ACL-MAIN.441. URL https://doi.org/10.
+18653/v1/2020.acl-main.441.
+Patterson, D., Gonzalez, J., Le, Q., Liang, C., Munguia, L.-
+M., Rothchild, D., So, D., Texier, M., and Dean, J. Car-
+bon emissions and large neural network training. arXiv
+preprint arXiv:2104.10350, 2021.
+Pilehvar, M. T. and Camacho-Collados, J. Wic: the word-in-
+context dataset for evaluating context-sensitive meaning
+representations. In Burstein, J., Doran, C., and Solorio,
+T. (eds.), Proceedings of the 2019 Conference of the
+North American Chapter of the Association for Com-
+putational Linguistics: Human Language Technologies,
+NAACL-HLT 2019, Minneapolis, MN, USA, June 2-7,
+2019, Volume 1 (Long and Short Papers), pp. 1267–1273.
+Association for Computational Linguistics, 2019. doi:
+10.18653/V1/N19-1128. URL https://doi.org/
+10.18653/v1/n19-1128.
+Pi´orczy´nski, M., Szatkowski, F., Bałazy, K., and W´ojcik, B.
+Exploiting transformer activation sparsity with dynamic
+inference. arXiv preprint arXiv:2310.04361, 2023.
+Pope, R., Douglas, S., Chowdhery, A., Devlin, J., Bradbury,
+J., Heek, J., Xiao, K., Agrawal, S., and Dean, J. Efficiently
+scaling transformer inference. Proceedings of Machine
+Learning and Systems, 5, 2023.
+Popovi´c, M. chrf: character n-gram f-score for automatic
+mt evaluation. In Proceedings of the tenth workshop on
+statistical machine translation, pp. 392–395, 2015.
+Rajpurkar, P., Jia, R., and Liang, P. Know what you don’t
+know: Unanswerable questions for squad. In Gurevych,
+I. and Miyao, Y . (eds.),Proceedings of the 56th Annual
+Meeting of the Association for Computational Linguis-
+tics, ACL 2018, Melbourne, Australia, July 15-20, 2018,
+Volume 2: Short Papers, pp. 784–789. Association for
+Computational Linguistics, 2018. doi: 10.18653/V1/
+P18-2124. URL https://aclanthology.org/
+P18-2124/.
+Roemmele, M., Bejan, C. A., and Gordon, A. S. Choice
+of plausible alternatives: An evaluation of common-
+sense causal reasoning. In Logical Formalizations of
+Commonsense Reasoning, Papers from the 2011 AAAI
+Spring Symposium, Technical Report SS-11-06, Stan-
+ford, California, USA, March 21-23, 2011. AAAI, 2011.
+URL http://www.aaai.org/ocs/index.php/
+SSS/SSS11/paper/view/2418.
+Sakaguchi, K., Bras, R. L., Bhagavatula, C., and Choi, Y .
+Winogrande: An adversarial winograd schema challenge
+at scale. Communications of the ACM , 64(9):99–106,
+2021.
+Sheng, Y ., Zheng, L., Yuan, B., Li, Z., Ryabinin, M., Chen,
+B., Liang, P., R´e, C., Stoica, I., and Zhang, C. Flexgen:
+High-throughput generative inference of large language
+models with a single gpu. In International Conference
+on Machine Learning, pp. 31094–31116. PMLR, 2023.
+11
+
+--- PAGE 12 ---
+HiRE: High Recall Approximate Top-k Estimation for Efficient LLM Inference
+Song, Y ., Mi, Z., Xie, H., and Chen, H. Powerinfer: Fast
+large language model serving with a consumer-grade gpu.
+arXiv preprint arXiv:2312.12456, 2023.
+Stern, M., Shazeer, N., and Uszkoreit, J. Blockwise parallel
+decoding for deep autoregressive models. Advances in
+Neural Information Processing Systems, 31, 2018.
+Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones,
+L., Gomez, A. N., Kaiser, Ł., and Polosukhin, I. At-
+tention is all you need. Advances in neural information
+processing systems, 30, 2017.
+Wang, A., Pruksachatkun, Y ., Nangia, N., Singh, A.,
+Michael, J., Hill, F., Levy, O., and Bowman, S. R. Super-
+glue: A stickier benchmark for general-purpose language
+understanding systems. In Wallach, H. M., Larochelle,
+H., Beygelzimer, A., d’Alch´e-Buc, F., Fox, E. B., and
+Garnett, R. (eds.), Advances in Neural Information
+Processing Systems 32: Annual Conference on Neural
+Information Processing Systems 2019, NeurIPS 2019,
+December 8-14, 2019, Vancouver, BC, Canada, pp. 3261–
+3275, 2019. URL https://proceedings.
+neurips.cc/paper/2019/hash/
+4496bf24afe7fab6f046bf4923da8de6-Abstract.
+html.
+Wang, H., Zhang, Z., and Han, S. Spatten: Efficient sparse
+attention architecture with cascade token and head prun-
+ing. In 2021 IEEE International Symposium on High-
+Performance Computer Architecture (HPCA), pp. 97–110.
+IEEE, 2021.
+Xia, H., Zheng, Z., Li, Y ., Zhuang, D., Zhou, Z., Qiu,
+X., Li, Y ., Lin, W., and Song, S. L. Flash-llm: En-
+abling cost-effective and highly-efficient large genera-
+tive model inference with unstructured sparsity. arXiv
+preprint arXiv:2309.10285, 2023.
+Yi, R., Guo, L., Wei, S., Zhou, A., Wang, S., and Xu,
+M. Edgemoe: Fast on-device inference of moe-based
+large language models. arXiv preprint arXiv:2308.14352,
+2023.
+Zellers, R., Holtzman, A., Bisk, Y ., Farhadi, A., and Choi,
+Y . Hellaswag: Can a machine really finish your sentence?
+In Korhonen, A., Traum, D. R., and M`arquez, L. (eds.),
+Proceedings of the 57th Conference of the Association
+for Computational Linguistics, ACL 2019, Florence, Italy,
+July 28- August 2, 2019, Volume 1: Long Papers , pp.
+4791–4800. Association for Computational Linguistics,
+2019. doi: 10.18653/V1/P19-1472. URL https://
+doi.org/10.18653/v1/p19-1472.
+Zeng, Z., Davies, M., Pulijala, P., Sankaralingam, K., and
+Singh, V . Lookupffn: making transformers compute-
+lite for cpu inference. In International Conference on
+Machine Learning, pp. 40707–40718. PMLR, 2023.
+Zerva, C., Blain, F., Rei, R., Lertvittayakumjorn, P.,
+de Souza, J. G. C., Eger, S., Kanojia, D., Alves, D. M.,
+Orasan, C., Fomicheva, M., Martins, A. F. T., and Spe-
+cia, L. Findings of the WMT 2022 shared task on qual-
+ity estimation. In Koehn, P., Barrault, L., Bojar, O.,
+Bougares, F., Chatterjee, R., Costa-juss`a, M. R., Feder-
+mann, C., Fishel, M., Fraser, A., Freitag, M., Graham, Y .,
+Grundkiewicz, R., Guzman, P., Haddow, B., Huck, M.,
+Jimeno-Yepes, A., Kocmi, T., Martins, A., Morishita, M.,
+Monz, C., Nagata, M., Nakazawa, T., Negri, M., N´ev´eol,
+A., Neves, M., Popel, M., Turchi, M., and Zampieri, M.
+(eds.), Proceedings of the Seventh Conference on Machine
+Translation, WMT 2022, Abu Dhabi, United Arab Emi-
+rates (Hybrid), December 7-8, 2022, pp. 69–99. Associa-
+tion for Computational Linguistics, 2022. URL https:
+//aclanthology.org/2022.wmt-1.3.
+Zhang, S., Liu, X., Liu, J., Gao, J., Duh, K., and Durme,
+B. V . Record: Bridging the gap between human and
+machine commonsense reading comprehension. CoRR,
+abs/1810.12885, 2018. URL http://arxiv.org/
+abs/1810.12885.
+Zhao, Y ., Lin, C.-Y ., Zhu, K., Ye, Z., Chen, L., Zheng, S.,
+Ceze, L., Krishnamurthy, A., Chen, T., and Kasikci, B.
+Atom: Low-bit quantization for efficient and accurate llm
+serving. arXiv preprint arXiv:2310.19102, 2023.
+12
+
+--- PAGE 13 ---
+HiRE: High Recall Approximate Top-k Estimation for Efficient LLM Inference
+A. Dataset details
+1. Machine Translation: We use English-French tasks from WMT14 (Bojar et al., 2014) and German-French tasks from
+WMT22 (Zerva et al., 2022)
+2. SuperGLUE Benchmark: We use multiple SuperGLUE (Wang et al., 2019) tasks such as BoolQ (Clark et al., 2019),
+CommitmentBank (de Marneffe et al., 2019), Choice of Plausible Alternatives (Roemmele et al., 2011), Multi Sentence
+Reading Comprehension (Khashabi et al., 2018), Recognizing Textual Entailment, Words in Context (Pilehvar &
+Camacho-Collados, 2019), Winograd Schema Challenge (Levesque et al., 2012) and Reading Comprehension with
+Commonsense Reasoning (ReCoRD) (Zhang et al., 2018).
+3. Question Answering: We use SQuADv2 (Rajpurkar et al., 2018), TriviaQA (Joshi et al., 2017), NaturalQuestions
+(Kwiatkowski et al., 2019), WebQuestions (Berant et al., 2013) and TyDiQA-English (Clark et al., 2020).
+4. Discriminative Tasks: We use additional tasks to evaluatecommonsense reasoning (ARC (Clark et al., 2018), HellaSwag
+(Zellers et al., 2019), WinoGrande (Sakaguchi et al., 2021), PIQA (Bisk et al., 2020) and Story Cloze (Mostafazadeh
+et al., 2016)), question answering (RACE, (Lai et al., 2017) and OpenBookQA (Mihaylov et al., 2018)) and Textual
+Entailment (ANLI (Nie et al., 2020)).
+B. Additional Results
+Figure 3. Efficiency of memory transfer vs group sizes: For a tensor of dimension n × g × d, which we consider as n groups, each with g
+vectors of dimension d, we plot the efficiency of transferring a random (non-contiguous) subset of groups from HBM to cache as we vary
+the group size g on the x-axis. Efficiency is defined as the time taken by the sparse operation divided by the time taken by an equivalent
+dense operation moving the same number of bytes. The numbers are computed for Cloud TPUv5e. As is clear from the figure, even small
+group sizes such as 8 lead to very high efficiency, motivating the group sparse structure in our feedforward layers.
+Table 6. Do we need to recall more elements than k in HiRE-FFN?: Each column contains pretraining metrics for the HiRE-FFN model
+by using various values of k′ and k (indicated in the table as (k′, k)), in comparison with the dense baseline model Mbase. Full denotes
+k′=m where m is the total number of hidden units. Baseline refers to dense model trained without the top-k operation. As we can see
+from the results, using a larger k′ compared to k is critical for bridging the quality gap between the dense and top-k models.
+(128, 128) (192, 128) (256, 128) (Full, 128) Baseline
+Pre-training
+Performance
+Top1 Accuracy 56.81% 56.96% 57.03% 57.05% 57.15%
+Perplexity 2.071 2.06 2.056 2.054 2.045
+13
+
+--- PAGE 14 ---
+HiRE: High Recall Approximate Top-k Estimation for Efficient LLM Inference
+Table 7. Importance of learned low rank matrix. This table presents the pretraining metrics by using random vs learned low rank projection.
+As we can see, learning the projection matrix is crucial for maintaining quality.
+Baseline Trained, k=384 Random, k=384
+r=25% r=25% r=33% r=50% r=66%
+Pre-training
+Performance
+Top1 Accuracy 57.40% 57.29% 46.78% 49.26% 54.02% 55.81%
+Top32 Intersection 32.0 29.26 15.53 18.42 24.21 26.89
+Table 8. Ablation on architectures: We train models with multiple sparse FFN layer configurations and evaluate with approximate k′
+= 256 and k = 128 for all models. L, D and S denote the number of layers in the model, dense layer (equation 3) and sparse layer
+(equation 6) respectively. (D, S) means alternating dense and sparse layers, while LastL/2 refers to the final L/2 layers being sparse and
+the remaining being dense.
+Baseline (D S ) x L/2 Last L/2 (D S S ) x L/3 Last 2L/3 L layers
+Pre-training
+Performance
+Top1 Accuracy 57.15% 57.03% 57.03% 56.84% 56.83% 56.24%
+Perplexity 2.045 2.056 2.058 2.069 2.071 2.108
+Downstream
+Performance
+Machine Translation 47.92 46.95 46.35 46.17 45.83 44.35
+SuperGLUE Benchmark 62.07 62.49 60.43 59.37 60.74 59.3
+Question Answering 29.65 30.88 29.86 28.88 29.09 27.51
+Discriminative Tasks 51.69 51.14 50.99 50.37 50.8 49.65
+Speedup 1.0x 1.16x 1.18x 1.17x 1.18x 1.44x
+14

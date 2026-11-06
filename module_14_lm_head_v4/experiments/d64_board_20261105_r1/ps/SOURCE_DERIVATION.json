@@ -1,0 +1,17 @@
+{
+  "original_loader_sha256": {
+    "main.c": "a2bc6dd118af372af6675dff3453a590faa56cc8c0dbca528da7ebd31abe66a5",
+    "loader_core.c": "a43aea9271cef619e3c35ae73c739a44fdb1e95af277a5a134cb5d553f0e3e34",
+    "loader_core.h": "61907a292cbd988ec3a4540b54cfafeaeba7ba828894b99009c692c8448f5b53",
+    "arena_layout.h": "726f5b4b60f19f74706272d30867397c1613c2207e9c23518e9acb3745f91184",
+    "platform.h": "eedc36a81e043f665d58dd9a26671a0442d9a22677be313cdbb3e1956740b840",
+    "platform_config.h": "e94e88388bc5a10891b50179af8ac8dc976c397677354eb0436c97ffeee3d3fd",
+    "platform_zynqmp.c": "a8eebce719d3f9ae4b4cf28788449aaf1aa8aea7ff3831128fc60229c5c9a1f5"
+  },
+  "changes": [
+    "NewD64A magic0x41343644/port1416/576MiB/signature0x4D344401",
+    "ExplicitREAD_ONLY attach permitspost-runreadbackwithoutreloading;doesNOTsetready orcertifyinitialCRC",
+    "Originalsequentialchunk/fulltargetCRC/bounds/ack andPHYplatform unchanged"
+  ],
+  "runtime": "NOT_RUN;requiresnewmatchingBSPandELF"
+}

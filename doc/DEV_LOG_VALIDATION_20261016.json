@@ -1,0 +1,67 @@
+{
+  "state": "PASS",
+  "source_markdown_unchanged": true,
+  "source_sha256": "0f73a84b5776de6e24c7704ecf0f01d0de300579cae50db8b65efaddfb2bbcce",
+  "legacy_entries_preserved": 46,
+  "entries": 51,
+  "routes": 9,
+  "all_local_evidence_links_exist": true,
+  "main_and_design_snapshots_match": true,
+  "external_auto_loads": 0,
+  "unmeasured_candidate_values_are_null": true,
+  "visual_preview": {
+    "state": "NOT_PERFORMED",
+    "reason": "Browser policy blocked file://; no workaround or alternate browser attempted"
+  },
+  "timezone": "Asia/Shanghai",
+  "date": "2026-10-16",
+  "javascript_syntax": {
+    "state": "PASS",
+    "scripts": 12
+  },
+  "offline_dom_simulation": {
+    "state": "PASS",
+    "method": "offline Node VM with minimal DOM simulation; no browser launch, pixel render or network",
+    "checks": 24,
+    "passed": [
+      "all 51 entries render",
+      "default measured values",
+      "candidate renders four unmeasured fields",
+      "no-match search and reset",
+      "combined search/status/importance",
+      "date select and clear",
+      "cross-year calendar navigation",
+      "leap day and empty month",
+      "latest logs",
+      "related jump clears blockers and opens ancestors",
+      "route archival and current state",
+      "route stage detail and filter",
+      "empty log hides optional areas",
+      "unknown values and markup remain inert text",
+      "execution panel focus/click/Escape on synthetic fixture only",
+      "design R2017 snapshot/node/keyboard/step/zoom",
+      "design R2021 snapshot/node/keyboard/step/zoom",
+      "design RNumeric snapshot/node/keyboard/step/zoom",
+      "design RJTAG snapshot/node/keyboard/step/zoom",
+      "design RTCPInitial snapshot/node/keyboard/step/zoom",
+      "design RTCP snapshot/node/keyboard/step/zoom",
+      "design RDelivery snapshot/node/keyboard/step/zoom",
+      "design R250 snapshot/node/keyboard/step/zoom",
+      "design RSystem snapshot/node/keyboard/step/zoom"
+    ],
+    "visual_preview": "NOT_PERFORMED"
+  },
+  "main_journal": "开发日志.html",
+  "design_pages": [
+    "doc/design/R2017.html",
+    "doc/design/R2021.html",
+    "doc/design/RNumeric.html",
+    "doc/design/RJTAG.html",
+    "doc/design/RTCPInitial.html",
+    "doc/design/RTCP.html",
+    "doc/design/RDelivery.html",
+    "doc/design/R250.html",
+    "doc/design/RSystem.html"
+  ],
+  "entry_status_note": "迁移条目已验证只指日志结构和离线逻辑；不表示真实浏览器视觉、250MHz或整机验证完成。"
+}

@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/ethnology.csv:123",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "3a283a05c739cc93d317ad3fea6cb390b5d3701de2a58d16d58ded9201a92bf3",
+  "group_sha256": "10eaedea6d8f345fc9e084bb91eaa9c7543a559ec1ef7ea9578560a13b497358",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "8ac990c1b277696075dba832.npz",
+  "npz_sha256": "71238cd9bfbe892ac8613906a9390fed20b0ea2f2edb43ee3c26998c3f678cc5",
+  "generated_ids": [
+    102349,
+    20412,
+    425,
+    3837,
+    100742,
+    99474,
+    3407,
+    102401,
+    5122,
+    100345,
+    26940,
+    105492,
+    104773,
+    100742,
+    101065,
+    93034
+  ],
+  "input_tokens": 90,
+  "seconds": 0.4214885999681428,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

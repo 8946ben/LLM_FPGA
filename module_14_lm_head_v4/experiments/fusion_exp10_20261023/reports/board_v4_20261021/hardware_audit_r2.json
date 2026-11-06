@@ -1,0 +1,84 @@
+{
+  "state": "PASS_OFFLINE_SYSTEM",
+  "board": "NOT_RUN",
+  "bd_sha256": "4d8acf19af80a7300097493a8c71316f4b9fb792569eb179de3e227e721d399b",
+  "pin_sha256": "367f7d50dabf21dc5bffead334e14f26338fb487ffe9ead46e382c73c6bd7e15",
+  "masters": 2,
+  "address_width": 64,
+  "compute_route": "MIG_PL_DDR_ONLY",
+  "pl_ddr_base": "0x400000000",
+  "clock_target_mhz": 200,
+  "generated_ps_pll_actual_mhz": 199.998001,
+  "clock_scope": "Vivado generated configuration, not physical board measurement",
+  "signature": "0x4D345A0A private GPIO2, not public ABI/build",
+  "note": "Complete offline system implementation; not RTL functional, software package, board or release acceptance",
+  "wns_ns": 0.761,
+  "whs_ns": 0.01,
+  "wpws_ns": 0.143,
+  "setup_failing_endpoints": 0,
+  "hold_failing_endpoints": 0,
+  "pulse_width_failing_endpoints": 0,
+  "timing_checks": {
+    "no_clock": 0,
+    "constant_clock": 0,
+    "unconstrained_internal_endpoints": 0,
+    "multiple_clock": 0,
+    "generated_clocks": 0,
+    "loops": 0,
+    "latch_loops": 0
+  },
+  "cdc_rules": {
+    "CDC-3": {
+      "severity": "Info",
+      "count": 174
+    },
+    "CDC-9": {
+      "severity": "Info",
+      "count": 12
+    },
+    "CDC-15": {
+      "severity": "Warning",
+      "count": 4
+    }
+  },
+  "cdc_critical": 0,
+  "cdc_unknown_warnings": [],
+  "drc_severity_counts": {
+    "Error": 0,
+    "Critical Warning": 0,
+    "Warning": 752,
+    "Advisory": 203
+  },
+  "mig_warnings": [],
+  "bus_skew_min_slack_ns": 4.316,
+  "reset_io": {
+    "reset_pin": "AM5",
+    "reset_iostandard": "LVCMOS12",
+    "reset_drive": "8"
+  },
+  "untimed_output_ports": [
+    "c0_ddr4_reset_n_0"
+  ],
+  "untimed_output_note": "Vendor asynchronous MIG reset only; not timed DDR data/control lane",
+  "sta_clock_period_ns": 5.0,
+  "resources": {
+    "lut": 68005.0,
+    "ff": 106593.0,
+    "bram_tile": 78.5,
+    "dsp": 234.0
+  },
+  "bit_sha256": "7ffb24362b8aaaab5db90d65121e57d724301404663674882d72b4f12845fc71",
+  "xsa_sha256": "4d4501cf23d8d9edf9794bec7473a4e5ce67cd4a3b1656e2d40943c15566721b",
+  "xsa_bit_matches": true,
+  "evidence_sha256": {
+    "bus_skew.rpt": "c2d4d1f228a42b688fc7470c86957da98499cabce5b3e317364ba0ad8728022d",
+    "cdc.rpt": "5b24687c5d2ef35d1b486bc3d872a1bf49da7da432d69237f6ca7c234c52b581",
+    "check_timing.rpt": "d0d68340f2f5e24d8309bea69f23531d99b5c406060b9b75d6311244a206364c",
+    "clocks.rpt": "0077c05390a1a68f1b30919a50822f870a0e47b30b0018c96f4aa75505dba58c",
+    "drc.rpt": "89434542e1e114096c618306c9df3cd7ae2bdaaa34b6de4952ae59444dbcc86d",
+    "io.rpt": "e221ee67724996f43404f5387ccb715b8034a03e81a45ccf8ca288c3eba17cb6",
+    "io_contract.txt": "87dd593b91f6e23793eac86b6791698df7c838eaa0b82855d47feeee489b804a",
+    "timing.rpt": "945aa4d43c63947d47f254e1715f82a263e1d365c8f14f105d607aaa90fa3af7",
+    "utilization.rpt": "1dcc0c2dd050103b218b69f7eef0d79ca4c6066c1c89d865d1961509d0832252"
+  }
+}

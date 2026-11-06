@@ -1,0 +1,12 @@
+#-----------------------------------------------------------
+# Vivado v2021.1 (64-bit)
+# SW Build 3247384 on Thu Jun 10 19:36:33 MDT 2021
+# IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
+# Start of session at: Fri Oct 23 08:45:58 2026
+# Process ID: 16772
+# Current directory: D:/program/LLM_FPGA
+# Command line: vivado.exe -mode batch -source D:\program\LLM_FPGA\module_14_lm_head_v4\experiments\fusion_exp10_20261023\experiments\board_v4_20261021\create_bd.tcl -notrace -log D:\program\LLM_FPGA\module_14_lm_head_v4\experiments\fusion_exp10_20261023\reports\selector_bd_create_r1_20261021.log.vivado.log -journal D:\program\LLM_FPGA\module_14_lm_head_v4\experiments\fusion_exp10_20261023\reports\selector_bd_create_r1_20261021.log.jou
+# Log file: D:/program/LLM_FPGA/module_14_lm_head_v4/experiments/fusion_exp10_20261023/reports/selector_bd_create_r1_20261021.log.vivado.log
+# Journal file: D:\program\LLM_FPGA\module_14_lm_head_v4\experiments\fusion_exp10_20261023\reports\selector_bd_create_r1_20261021.log.jou
+#-----------------------------------------------------------
+source {D:\program\LLM_FPGA\module_14_lm_head_v4\experiments\fusion_exp10_20261023\experiments\board_v4_20261021\create_bd.tcl} -notrace

@@ -1,0 +1,33 @@
+{
+  "state": "PASS_TARGET_FULL_PREVIEW_IDS_CANONICAL_RAW_AND_13_GUARDS",
+  "variant": "exp10",
+  "case": "chinese",
+  "preview_values": 151936,
+  "candidate_ids": 17764,
+  "candidate_raw": 17764,
+  "guards": 13,
+  "files_sha256": {
+    "descriptor_before.bin": "6e8c548466113436076955b8c89b942bfc00f7bd2769df5a0bd79d5eb071e930",
+    "descriptor_debug.bin": "16515dd87af1964b6bdf6389a38f716af98c266dd15f826d4b1c02405fcfcc92",
+    "descriptor_restored.bin": "6e8c548466113436076955b8c89b942bfc00f7bd2769df5a0bd79d5eb071e930",
+    "guard_a.bin": "a56b321622353517bab31ab7505ecd24982dbdaa752326c6c9d30fe028d3c9ba",
+    "guard_bt.bin": "a56b321622353517bab31ab7505ecd24982dbdaa752326c6c9d30fe028d3c9ba",
+    "guard_centers.bin": "a56b321622353517bab31ab7505ecd24982dbdaa752326c6c9d30fe028d3c9ba",
+    "guard_counts.bin": "a56b321622353517bab31ab7505ecd24982dbdaa752326c6c9d30fe028d3c9ba",
+    "guard_hidden.bin": "a56b321622353517bab31ab7505ecd24982dbdaa752326c6c9d30fe028d3c9ba",
+    "guard_history.bin": "a56b321622353517bab31ab7505ecd24982dbdaa752326c6c9d30fe028d3c9ba",
+    "guard_merged.bin": "a56b321622353517bab31ab7505ecd24982dbdaa752326c6c9d30fe028d3c9ba",
+    "guard_norms.bin": "a56b321622353517bab31ab7505ecd24982dbdaa752326c6c9d30fe028d3c9ba",
+    "guard_preview.bin": "a56b321622353517bab31ab7505ecd24982dbdaa752326c6c9d30fe028d3c9ba",
+    "guard_ranked.bin": "a56b321622353517bab31ab7505ecd24982dbdaa752326c6c9d30fe028d3c9ba",
+    "guard_routed.bin": "a56b321622353517bab31ab7505ecd24982dbdaa752326c6c9d30fe028d3c9ba",
+    "guard_sparse.bin": "a56b321622353517bab31ab7505ecd24982dbdaa752326c6c9d30fe028d3c9ba",
+    "guard_weight.bin": "a56b321622353517bab31ab7505ecd24982dbdaa752326c6c9d30fe028d3c9ba",
+    "merged.bin": "6cb34cbbe4946097e08dba42ab1aa25f383e9cf38f297042da256f5210340212",
+    "preview.bin": "e5440ae74000b812170ec22b0f53b72ef3471c54a57060dab251eb1b56d30454",
+    "sparse.bin": "c68ab6ad20117387e26e4fe1707e39e4835d32c812d2937c692a44d57254cefb"
+  },
+  "numerical_tolerance": "EXACT_BITS",
+  "timing": "NOT_A_PRODUCTION_MEASUREMENT",
+  "multistep": "NOT_RUN"
+}

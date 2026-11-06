@@ -1,0 +1,113 @@
+{
+  "format": "M14_LM_HEAD_V2_ASSETS",
+  "hidden_size": 896,
+  "vocab_size": 151936,
+  "dtype": "BF16_RNE_BITS_LE",
+  "weight_layout": "VOCAB_VH_V2_ROW_MAJOR_HIDDEN_GROUP32",
+  "weight_bytes": 272269312,
+  "weight_sha256": "4e96b0df6d274768cbb7e72404011853d23349999b658dc2f4dfb3c431ea223f",
+  "numeric_impl": "bf16_rne_h8_interleave16_fp32_adjacent_tree_v2",
+  "source": "D:\\program\\LLM_FPGA\\artifacts\\Qwen2.5-0.5B-Instruct\\model.safetensors",
+  "source_tensor": "model.embed_tokens.weight",
+  "source_dtype": "BF16",
+  "exact_original_bf16": true,
+  "trace": [
+    {
+      "step": "step_00",
+      "hidden_sha256": "57a5f4efccde9041e43206b69871471f121127a294df77d7a3a81198a9a11f5e",
+      "history_sha256": "f364f5e37109d19c35f42f2fb9b1ae8f6d210b437bc228b3c3f88c9c49c30ef4",
+      "raw_logits_sha256": "d7ada7553c6ff9bc48899776732e8269ca791874363cf64cc17a4aebe1245acc",
+      "processed_scores_sha256": "c66c5c065f0988ff44e8350ea35550f8f1e2d0df5e0e12aebd02453004103fec",
+      "selected_token": 104198,
+      "selected_score": 20.015451431274414,
+      "output_crc": 2154663276,
+      "numeric_impl": "bf16_rne_h8_interleave16_fp32_adjacent_tree_v2",
+      "selected_score_bits": 1101012901
+    },
+    {
+      "step": "step_01",
+      "hidden_sha256": "2679b72ad152cca68e01711670e1e233f1f5451373aa173cec050d8d37769a95",
+      "history_sha256": "fefce5f4fc3d1bffac8f4257468a7832eff5edd0974b021d26da1723309e7384",
+      "raw_logits_sha256": "e71d522a73719e8dc475c565f35311e28df18696556cff1c969975285333fd94",
+      "processed_scores_sha256": "527e6e76b0528612c89e6e6a070b30aa8db6bf1674e970d5abb8931e2da42770",
+      "selected_token": 48,
+      "selected_score": 18.44417953491211,
+      "output_crc": 4278305326,
+      "numeric_impl": "bf16_rne_h8_interleave16_fp32_adjacent_tree_v2",
+      "selected_score_bits": 1100189102
+    },
+    {
+      "step": "step_02",
+      "hidden_sha256": "b490178a117cef74f3ccfa370972fdba4a75e02e2a47970a8e2ab25da28a9631",
+      "history_sha256": "9ad57adaa5b264f20cc7febb716c3e05a4eb48774a20c116a42a447b0173f7ad",
+      "raw_logits_sha256": "8abb08cccaec5101e0ae950dd440dd7b9779f0866e67bfb07ded07f0c629d5a6",
+      "processed_scores_sha256": "043ce6ac69422ba6d58e792d44af06d02f61648bb9811043007d8e8759c6f984",
+      "selected_token": 16948,
+      "selected_score": 27.309345245361328,
+      "output_crc": 351911853,
+      "numeric_impl": "bf16_rne_h8_interleave16_fp32_adjacent_tree_v2",
+      "selected_score_bits": 1104837002
+    },
+    {
+      "step": "step_03",
+      "hidden_sha256": "e763dfbb53f29f946fe7bbfaa9c22d7ab0b227b984a9ade3d92d71bd115e4e9d",
+      "history_sha256": "9ad57adaa5b264f20cc7febb716c3e05a4eb48774a20c116a42a447b0173f7ad",
+      "raw_logits_sha256": "8c290f4a31567de780a186bf7de0805e3adac156bc1541410b78ca99f57a05c0",
+      "processed_scores_sha256": "5fd3173515f09e1a5e9b60c57899c5db616bab54de0a3a10ca5744a95d93f866",
+      "selected_token": 3837,
+      "selected_score": 22.745037078857422,
+      "output_crc": 2032851242,
+      "numeric_impl": "bf16_rne_h8_interleave16_fp32_adjacent_tree_v2",
+      "selected_score_bits": 1102443990
+    },
+    {
+      "step": "step_04",
+      "hidden_sha256": "6fb1398bf93df79025b1dd88c9b076bfcdcd5ede0cb2f67012c3f57cc8660db3",
+      "history_sha256": "2e0f1609a92c605e923cf682dba39dcf1f9339c7e277bb93c714ad536616407f",
+      "raw_logits_sha256": "6879fc0787757dd2a65ab7254af702de0ae71824d5d155f15cf507aac0b48383",
+      "processed_scores_sha256": "43420311e8b0107095f7fd763ab6ebf1597ea5bf4339170fcc78a806103f6f37",
+      "selected_token": 67071,
+      "selected_score": 18.857770919799805,
+      "output_crc": 4177249120,
+      "numeric_impl": "bf16_rne_h8_interleave16_fp32_adjacent_tree_v2",
+      "selected_score_bits": 1100405943
+    },
+    {
+      "step": "step_05",
+      "hidden_sha256": "4ce4bcbdc2dec2ea8590889e48681afa8a0cf0f2412f9f6398086e15669a1855",
+      "history_sha256": "a6e79382d33df725cbe64306da1e1812e3cada9bcce0a6a040cd6560501d72af",
+      "raw_logits_sha256": "557377f1483fecd8feaa238872982641abd2e2edaf58049d632c132b5093284f",
+      "processed_scores_sha256": "65d5d3d7412cd48162a67589368c54f58d4decb5fc7c37a969409258772be08d",
+      "selected_token": 102661,
+      "selected_score": 22.067066192626953,
+      "output_crc": 7040855,
+      "numeric_impl": "bf16_rne_h8_interleave16_fp32_adjacent_tree_v2",
+      "selected_score_bits": 1102088538
+    },
+    {
+      "step": "step_06",
+      "hidden_sha256": "027579f5b68d51796bf7ecf144d9359e7600760fe57d58753828e8091c2e6986",
+      "history_sha256": "63615da8956e21375d3d80be75f7199b0e67a540304bbbdb382acca023734fcb",
+      "raw_logits_sha256": "5b6625f620dbc28ffddac16740bac888b9ef44cdc5e13dfc8417a037944ea51a",
+      "processed_scores_sha256": "f88d18117540394d6929a5d7e8b31bab95ad26aa59d5c3915554adaec13c7214",
+      "selected_token": 99718,
+      "selected_score": 25.15229034423828,
+      "output_crc": 2195619263,
+      "numeric_impl": "bf16_rne_h8_interleave16_fp32_adjacent_tree_v2",
+      "selected_score_bits": 1103706084
+    },
+    {
+      "step": "step_07",
+      "hidden_sha256": "3d46454a1638f8d01780870cab5444076a0b4f0fd54f594635c6ba6603bd60e6",
+      "history_sha256": "51f2d9788118c88e1dd7f6d736770c125367df24cd356ed61b9d22752fe7fc8f",
+      "raw_logits_sha256": "1412ec2f71089b30d4939b2c4fb851c4eead869c644c9c5072fb9a1c60f407fc",
+      "processed_scores_sha256": "fcd674dda06ca79f87d2697a8182345e9be82e470e430a6319e34725ad8069a1",
+      "selected_token": 100048,
+      "selected_score": 20.205995559692383,
+      "output_crc": 1142087776,
+      "numeric_impl": "bf16_rne_h8_interleave16_fp32_adjacent_tree_v2",
+      "selected_score_bits": 1101112801
+    }
+  ],
+  "numeric_contract": "module_14_lm_head_v2/NUMERIC_CONTRACT.md"
+}

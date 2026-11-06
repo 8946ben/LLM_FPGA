@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/chinese_civil_service_exam.csv:70",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "ff6a062296170cac55753c7785b83309e8ab5807eef6724e216b69546ab287ad",
+  "group_sha256": "fb1c212f269fce5af317f05258cd66e3b28f9fe38b19cc03e0454237a3721d50",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "85f157aac568e428d1fa8e97.npz",
+  "npz_sha256": "65ef86151fd2a891f5d78259a15e837723c8cabe9b176eb5a3232bbaf7194659",
+  "generated_ids": [
+    43288,
+    44793,
+    33872,
+    104429,
+    100146,
+    32664,
+    2073,
+    101380,
+    99891,
+    854,
+    33108,
+    2073,
+    100070,
+    99891,
+    97907,
+    101128
+  ],
+  "input_tokens": 174,
+  "seconds": 0.4020390000077896,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

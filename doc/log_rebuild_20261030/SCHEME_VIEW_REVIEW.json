@@ -1,0 +1,20 @@
+{
+  "state": "PASS_METHOD_NAMES_RAW_TIMING_AGGREGATES_AND_OFFLINE_INTERACTION_MODEL",
+  "schemes": 2,
+  "evaluations": 5,
+  "bars_per_evaluation": 2,
+  "measurement_records": 240,
+  "default": "four_class_equal_weight_aggregate",
+  "checks": [
+    "real method names",
+    "primary method description",
+    "five evaluation switches",
+    "two method bars",
+    "bar click/keyboard selects method",
+    "historical timing boundary",
+    "resize handler",
+    "independent Node raw tick recomputation"
+  ],
+  "real_browser_visual": "NOT_RUN_FILE_POLICY",
+  "real_touch": "NOT_RUN"
+}

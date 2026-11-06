@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/genetics.csv:163",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "2060cd6aa8381fd4cbb60cbcdb980827935a46edca6102a119fe0796c08a0516",
+  "group_sha256": "ace4760bd5e4e93c24b1655ccde932192cd4d8718bff2c887ad6c7078a2da4fc",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "db018a568ba61f11da9e17f9.npz",
+  "npz_sha256": "52160d5b000e4bdacaf7e4533e003cca1a968520e9a55dafd54ad074d8ae8209",
+  "generated_ids": [
+    102349,
+    20412,
+    5122,
+    34,
+    13,
+    220,
+    101946,
+    99702,
+    38035,
+    31914,
+    99726,
+    113822,
+    3837,
+    57218,
+    40916,
+    101946
+  ],
+  "input_tokens": 129,
+  "seconds": 1.5637181000201963,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

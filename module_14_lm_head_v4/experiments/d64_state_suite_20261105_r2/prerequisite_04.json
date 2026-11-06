@@ -1,0 +1,19 @@
+{
+  "state": "PASS_FULL_WEIGHT_LOAD_AND_SENTINELS_ZERO_DUT_CALLS",
+  "utc": "2026-11-05T00:11:14.386802+00:00",
+  "bytes": 545685504,
+  "words": 34105344,
+  "sentinels": 1522,
+  "starts": 0,
+  "dones": 0,
+  "elapsed_s": 99.48630786081776,
+  "peak_group_gib": 4.690151214599609,
+  "actual_resources": 154,
+  "observed_identities_absent": 5,
+  "tv_sha256": "c877e6e9c370fba405e215c6e1281ea5d10c74a670aefd8ba2a68424befa74e1",
+  "cached_sources_match": true,
+  "scope": "Full input loader and1522sentinels only, not host full-array memory export/recompare or M14 execution/state/mode/timing qualification.16GiB guard satisfied for this initialization only.",
+  "predecessor_failure_preserved": "d64_state_init_20261105_r1 failed artifact copy due missing shutil;real SV PASS retained, workflow never rewritten",
+  "full_m14": "NOT_RUN",
+  "automatic_next_stage": false
+}

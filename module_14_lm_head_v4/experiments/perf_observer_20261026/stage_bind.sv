@@ -1,0 +1,23 @@
+bind lm_head_v4_partial_proto lmh_stage_observer lmh_observer(
+ .clk(ap_clk),
+ .rst_n(ap_rst_n),
+ .top_start(ap_start),
+ .top_done(ap_done),
+ .top_idle(ap_idle),
+ .st_start({grp_lm_head_v4_candidate_1_fu_369_ap_start,grp_p_anonymous_namespace_radix_candidates_fu_362_ap_start,grp_p_anonymous_namespace_partial_preview_fu_338_ap_start,grp_lm_head_v4_partial_proto_Pipeline_write_dims_fu_329_ap_start,grp_p_anonymous_namespace_select_channels_fu_308_ap_start}),
+ .st_done({grp_lm_head_v4_candidate_1_fu_369_ap_done,grp_p_anonymous_namespace_radix_candidates_fu_362_ap_done,grp_p_anonymous_namespace_partial_preview_fu_338_ap_done,grp_lm_head_v4_partial_proto_Pipeline_write_dims_fu_329_ap_done,grp_p_anonymous_namespace_select_channels_fu_308_ap_done}),
+ .st_idle({grp_lm_head_v4_candidate_1_fu_369_ap_idle,grp_p_anonymous_namespace_radix_candidates_fu_362_ap_idle,grp_p_anonymous_namespace_partial_preview_fu_338_ap_idle,grp_lm_head_v4_partial_proto_Pipeline_write_dims_fu_329_ap_idle,grp_p_anonymous_namespace_select_channels_fu_308_ap_idle}),
+ .status(status),
+ .w_arvalid(m_axi_weights_ARVALID),
+ .w_arready(m_axi_weights_ARREADY),
+ .w_rvalid(m_axi_weights_RVALID),
+ .w_rready(m_axi_weights_RREADY),
+ .m_arvalid(m_axi_meta_ARVALID),
+ .m_arready(m_axi_meta_ARREADY),
+ .m_rvalid(m_axi_meta_RVALID),
+ .m_rready(m_axi_meta_RREADY),
+ .m_awvalid(m_axi_meta_AWVALID),
+ .m_awready(m_axi_meta_AWREADY),
+ .m_wvalid(m_axi_meta_WVALID),
+ .m_wready(m_axi_meta_WREADY)
+);

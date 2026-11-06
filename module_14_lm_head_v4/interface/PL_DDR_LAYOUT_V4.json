@@ -1,0 +1,148 @@
+{
+  "state": "PRIVATE_OFFLINE_LAYOUT_NOT_RELEASED",
+  "physical_base": "0x400000000",
+  "arena_bytes": 335544320,
+  "physical_ddr_total_bytes": 2147483648,
+  "descriptor_offset": 1048576,
+  "descriptor_bytes": 240,
+  "scope": "Standalone M14 reserves320MiB inside2GiB PL DDR; no system-wide allocator or board verification",
+  "alignment": 64,
+  "regions": [
+    {
+      "name": "weight",
+      "offset": 1048832,
+      "capacity": 272269312,
+      "physical_address": "0x400100100",
+      "access": "read"
+    },
+    {
+      "name": "hidden",
+      "offset": 273318208,
+      "capacity": 1792,
+      "physical_address": "0x4104a8140",
+      "access": "read"
+    },
+    {
+      "name": "history",
+      "offset": 273320064,
+      "capacity": 18992,
+      "physical_address": "0x4104a8880",
+      "access": "read"
+    },
+    {
+      "name": "a",
+      "offset": 273339136,
+      "capacity": 38895616,
+      "physical_address": "0x4104ad300",
+      "access": "read"
+    },
+    {
+      "name": "bt",
+      "offset": 312234816,
+      "capacity": 229376,
+      "physical_address": "0x4129c5340",
+      "access": "read"
+    },
+    {
+      "name": "centers",
+      "offset": 312464256,
+      "capacity": 229376,
+      "physical_address": "0x4129fd380",
+      "access": "read"
+    },
+    {
+      "name": "norms",
+      "offset": 312693696,
+      "capacity": 512,
+      "physical_address": "0x412a353c0",
+      "access": "read"
+    },
+    {
+      "name": "ranked",
+      "offset": 312694272,
+      "capacity": 8388608,
+      "physical_address": "0x412a35600",
+      "access": "read"
+    },
+    {
+      "name": "counts",
+      "offset": 321082944,
+      "capacity": 512,
+      "physical_address": "0x413235640",
+      "access": "read"
+    },
+    {
+      "name": "preview",
+      "offset": 321083520,
+      "capacity": 607744,
+      "physical_address": "0x413235880",
+      "access": "scratch_write"
+    },
+    {
+      "name": "routed",
+      "offset": 321691328,
+      "capacity": 607760,
+      "physical_address": "0x4132c9ec0",
+      "access": "scratch_write"
+    },
+    {
+      "name": "merged",
+      "offset": 322299200,
+      "capacity": 607760,
+      "physical_address": "0x41335e540",
+      "access": "scratch_write"
+    },
+    {
+      "name": "sparse",
+      "offset": 322907072,
+      "capacity": 1215488,
+      "physical_address": "0x4133f2bc0",
+      "access": "scratch_write"
+    }
+  ],
+  "allocated_end": 324122624,
+  "source_files": {
+    "weight": {
+      "path": "artifacts/module14_v2_assets/shared_vocab_weight.bf16.bin",
+      "sha256": "4e96b0df6d274768cbb7e72404011853d23349999b658dc2f4dfb3c431ea223f",
+      "bytes": 272269312
+    },
+    "a": {
+      "path": "module_14_lm_head_v4/reports/lowrank_fixture_20261021/a.bf16.bin",
+      "sha256": "a5dcbb89648529cde07c460aeda243f3f0751cbeab6231f0488ddf9e5a7df63b",
+      "bytes": 38895616
+    },
+    "bt": {
+      "path": "module_14_lm_head_v4/reports/lowrank_fixture_20261021/bt.bf16.bin",
+      "sha256": "2f732a7ac57ee0b05fd040740feec7807abbdedc4eced5cc8a306d3e04f45d59",
+      "bytes": 229376
+    },
+    "centers": {
+      "path": "module_14_lm_head_v4/reports/router_fixture_20261021/router.centers.bin",
+      "sha256": "061ae2fda2409fcd46481a0fff516f22bc14621ffe056789de06b5f086609dac",
+      "bytes": 229376
+    },
+    "norms": {
+      "path": "module_14_lm_head_v4/reports/router_fixture_20261021/router.norms.bin",
+      "sha256": "dbb6da2855d34cff272842e318313f2557b9660944a2965d13811aba02cb17f1",
+      "bytes": 512
+    },
+    "ranked": {
+      "path": "module_14_lm_head_v4/reports/router_fixture_20261021/router.ranked.bin",
+      "sha256": "ec551b88a3f3c805ed2e1cc762038637485e167714b860286e46725ac4e1196e",
+      "bytes": 8388608
+    },
+    "counts": {
+      "path": "module_14_lm_head_v4/reports/router_fixture_20261021/router.counts.bin",
+      "sha256": "e3dffd8984972c1c0e63790ed9948b2a52b3ee872dcb9c449deb613979f96838",
+      "bytes": 512
+    }
+  },
+  "requirements": [
+    "m_axi pl_ddr actual base must be0x400000000, topology must exclude PS DDR",
+    "m_axi history_bitmap pointer must equal arena_base+HISTORY.offset; host validates/readbacks both64bit registers, both masters map exclusively to MIG",
+    "Inputs/descriptor immutable throughout call; all active region capacities disjoint",
+    "RUN requires status0 and stageDONE before publishing token; VALIDATE_ONLY never computes",
+    "On-board loader must verify target PL DDR readback; host file hashes alone are not loading acceptance"
+  ]
+}

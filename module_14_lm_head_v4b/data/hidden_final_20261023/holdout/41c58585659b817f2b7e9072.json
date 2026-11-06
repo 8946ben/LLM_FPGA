@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/electrical_engineering.csv:135",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "a03b21de0e3c4c3f4a49bc3efb933f6bad8e5c7e3c8e93ae581866a174369383",
+  "group_sha256": "32f7142daa7a7f1cbaa96d25ec5d48d05d4bf0d4292452cb801b48e5f1f5dfbc",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "41c58585659b817f2b7e9072.npz",
+  "npz_sha256": "ab39c720d25f0025de7c1348dd64581640d7f20aaad55e12cd5198a551d09224",
+  "generated_ids": [
+    109487,
+    32,
+    3837,
+    104747,
+    101910,
+    74040,
+    64952,
+    101159,
+    3837,
+    99519,
+    74040,
+    64952,
+    101159,
+    73670,
+    99553,
+    33126
+  ],
+  "input_tokens": 124,
+  "seconds": 0.4476639999775216,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

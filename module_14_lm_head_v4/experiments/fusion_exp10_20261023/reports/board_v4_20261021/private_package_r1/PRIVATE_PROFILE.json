@@ -1,0 +1,78 @@
+{
+  "state": "OFFLINE_RESEARCH_ONLY_QUALITY_FAILED_NOT_RELEASE",
+  "parameters": {
+    "C": 256,
+    "R": 4,
+    "L": 8192,
+    "r": 64,
+    "T": 16384
+  },
+  "gpio_signature": "0x4D345A0A",
+  "descriptor_version": 2,
+  "config_tag": "0x8507826e",
+  "public_abi_build": "NOT_ASSIGNED",
+  "board_acceptance": "NOT_RUN",
+  "arithmetic_quality": "QUALITY_FAIL_NO_RELEASE_NO_RETUNE",
+  "hardware_xsa_sha256": "4d4501cf23d8d9edf9794bec7473a4e5ce67cd4a3b1656e2d40943c15566721b",
+  "bit_sha256": "7ffb24362b8aaaab5db90d65121e57d724301404663674882d72b4f12845fc71",
+  "ethernet_base": "0xff0e0000",
+  "phy_patch_sha256": "4ad6f6537c3f9c648ea84435714b282c9b82ab7e36d45eb46db94ab0865bedf5",
+  "workspace_arena_fixtures": {
+    "chinese": {
+      "manifest": "reports/selector_arena_chinese_20261021/MANIFEST.json",
+      "manifest_sha256": "c0467c1df1aa211c3c2f630927a213502fc0c84e9e3dac6464397f154af36473",
+      "image_sha256": "996a47f2b0ccccc334d3a205e5976bf0355bd557a537745256cae18a8da192b6",
+      "expected": {
+        "token": 20412,
+        "score_bits": "0x41de477c",
+        "crc32": "1c6404e7"
+      },
+      "target": "NOT_RUN",
+      "scope": "Full C fixture, Chinese additionally RTL; not corpus-wide RTL"
+    },
+    "english": {
+      "manifest": "reports/selector_arena_english_20261021/MANIFEST.json",
+      "manifest_sha256": "dc6413e85f4aa0a224d37b379791789b1975c7e8e357d5a9788d2c28d2fe2fee",
+      "image_sha256": "062fde4c8b7a908fe40cd45be61d3f9c3b528b8049e95085d0f2cda5444f103b",
+      "expected": {
+        "token": 389,
+        "score_bits": "0x41e56abc",
+        "crc32": "e8b89618"
+      },
+      "target": "NOT_RUN",
+      "scope": "Full C fixture, Chinese additionally RTL; not corpus-wide RTL"
+    },
+    "code": {
+      "manifest": "reports/selector_arena_code_20261021/MANIFEST.json",
+      "manifest_sha256": "880ee45d7227b148035b216b471e646cb4bae06761cd9e9fc54ee3f0d47a2d66",
+      "image_sha256": "586a5330678c0c8a46c687efbaf33cbbc2752e3086c8946720267784e83f1826",
+      "expected": {
+        "token": 1477,
+        "score_bits": "0x41c72f92",
+        "crc32": "a464a1e0"
+      },
+      "target": "NOT_RUN",
+      "scope": "Full C fixture, Chinese additionally RTL; not corpus-wide RTL"
+    },
+    "math": {
+      "manifest": "reports/selector_arena_math_20261021/MANIFEST.json",
+      "manifest_sha256": "d00c41288c5310ae90816621e143e2982b3246e1ab37324c2c97be6be61d210c",
+      "image_sha256": "508476891ae551c351b30508f972f2437d48ba51728739c9b63e0bf16c79b025",
+      "expected": {
+        "token": 8253,
+        "score_bits": "0x41e10384",
+        "crc32": "92948cc7"
+      },
+      "target": "NOT_RUN",
+      "scope": "Full C fixture, Chinese additionally RTL; not corpus-wide RTL"
+    }
+  },
+  "board_ip": "192.168.0.190",
+  "loader_protocol": "M4AR/v1/port1415",
+  "pl_ddr_base": "0x400000000",
+  "arena_bytes": 335544320,
+  "canonical_bf16_sha256": "4e96b0df6d274768cbb7e72404011853d23349999b658dc2f4dfb3c431ea223f",
+  "clock_target_mhz": 200,
+  "timing_scope": "AXI-model RTL and offline STA; no physical FPGA decode/TTFT",
+  "scope": "Workspace research bundle; no release qualification; no portable ZIP, no board operation"
+}

@@ -1,0 +1,44 @@
+{
+  "state": "PASS_SELECTED_CONFIG_ASSET_BINDING",
+  "files": {
+    "descriptor_debug.bin": "16515dd87af1964b6bdf6389a38f716af98c266dd15f826d4b1c02405fcfcc92",
+    "descriptor_production.bin": "6e8c548466113436076955b8c89b942bfc00f7bd2769df5a0bd79d5eb071e930"
+  },
+  "binding": {
+    "weight": {
+      "path": "D:/program/LLM_FPGA/artifacts/module14_v2_assets/shared_vocab_weight.bf16.bin",
+      "sha256": "4e96b0df6d274768cbb7e72404011853d23349999b658dc2f4dfb3c431ea223f",
+      "bytes": 272269312
+    },
+    "a": {
+      "path": "D:/program/LLM_FPGA/module_14_lm_head_v4/experiments/fusion_exp10_20261023/fixture/a.bf16.bin",
+      "sha256": "8ab9df8904da4a9abb05f9410004a93ad077ff9a911c8cf0aec012eeb469021b",
+      "bytes": 19447808
+    },
+    "bt": {
+      "path": "D:/program/LLM_FPGA/module_14_lm_head_v4/experiments/fusion_exp10_20261023/fixture/bt.bf16.bin",
+      "sha256": "a57969ac9e95c9d7d665ca74fecc988058535bbfc11a1f6e4ef0537e494c3212",
+      "bytes": 114688
+    },
+    "centers": {
+      "path": "D:/program/LLM_FPGA/module_14_lm_head_v4/experiments/fusion_exp10_20261023/fixture/router.centers.bin",
+      "sha256": "5d5e7699b44bc9cacb2a5d380b5e23ed747d8c9a6ddcee73cc3fb5c87637238a",
+      "bytes": 458752
+    },
+    "norms": {
+      "path": "D:/program/LLM_FPGA/module_14_lm_head_v4/experiments/fusion_exp10_20261023/fixture/router.norms.bin",
+      "sha256": "eb82396ff67514c435c442d5a596fe1e82da23951d315f612d25332261dddd41",
+      "bytes": 1024
+    },
+    "ranked": {
+      "path": "D:/program/LLM_FPGA/module_14_lm_head_v4/experiments/fusion_exp10_20261023/fixture/router.ranked.bin",
+      "sha256": "3b24d90328d3ec0e81e7c94f7f3d51d1e7c8379d9d1eb7a1847c6cb6ae790d51",
+      "bytes": 8388608
+    },
+    "counts": {
+      "path": "D:/program/LLM_FPGA/module_14_lm_head_v4/experiments/fusion_exp10_20261023/fixture/router.counts.bin",
+      "sha256": "344aec57997501e2ab66a520fdcba3a9c9cea7500c87dc1e915e95365d1414ee",
+      "bytes": 1024
+    }
+  }
+}

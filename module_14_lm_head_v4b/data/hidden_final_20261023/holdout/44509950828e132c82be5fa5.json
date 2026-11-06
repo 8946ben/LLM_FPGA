@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/virology.csv:71",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "ec39b4d0b9ee05f190702f1bd89f5f847e1b8bb32b0145849786869b0b16a2f1",
+  "group_sha256": "f681b5e25e4efc4320b82ce6a3f2a005e02fb1c537fb64a6ee5236662bcae8bb",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "44509950828e132c82be5fa5.npz",
+  "npz_sha256": "89ac76ef70a9887675e5bacc65f38b04fb3382f43692a237c75cecfa633d90ac",
+  "generated_ids": [
+    101320,
+    107151,
+    18493,
+    87752,
+    109487,
+    15946,
+    57218,
+    102778,
+    52129,
+    33071,
+    107173,
+    48443,
+    33,
+    13,
+    38433,
+    116
+  ],
+  "input_tokens": 80,
+  "seconds": 1.5295513999881223,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

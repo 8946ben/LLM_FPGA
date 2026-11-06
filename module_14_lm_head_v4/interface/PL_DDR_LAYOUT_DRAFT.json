@@ -1,0 +1,83 @@
+{
+  "state": "DRAFT_NOT_DEPLOYED",
+  "date": "2026-10-21",
+  "purpose": "Independent M14 P2/P3 planning; not a whole-LLM allocator or deployed RUN_PROFILE",
+  "window_base": "0x400000000",
+  "window_bytes": 2147483648,
+  "baseline_dense_build": "0x30c08011",
+  "v4_build_config": "NOT_ASSIGNED",
+  "ps_ddr_compute_fallback": false,
+  "regions": [
+    {
+      "name": "weight",
+      "base": "0x400100000",
+      "bytes": 272269312,
+      "end_exclusive": "0x4104a8000",
+      "notes": "canonical BF16 immutable; baseline address retained"
+    },
+    {
+      "name": "hidden",
+      "base": "0x4104a8000",
+      "bytes": 1792,
+      "end_exclusive": "0x4104a8700",
+      "notes": "BF16"
+    },
+    {
+      "name": "history",
+      "base": "0x4104a8700",
+      "bytes": 18992,
+      "end_exclusive": "0x4104ad130",
+      "notes": "global token bitmap"
+    },
+    {
+      "name": "dense_logits",
+      "base": "0x4104ad140",
+      "bytes": 607744,
+      "end_exclusive": "0x410541740",
+      "notes": "dense debug only"
+    },
+    {
+      "name": "candidate_table_reservation",
+      "base": "0x411000000",
+      "bytes": 4194304,
+      "end_exclusive": "0x411400000",
+      "notes": "experimental software candidate table plus future alignment/header"
+    },
+    {
+      "name": "sparse_scores_reservation",
+      "base": "0x411400000",
+      "bytes": 4194304,
+      "end_exclusive": "0x411800000",
+      "notes": "global_id/raw_FP32 records; never complete-logit semantics"
+    },
+    {
+      "name": "selector_parameters_reservation",
+      "base": "0x412000000",
+      "bytes": 134217728,
+      "end_exclusive": "0x41a000000",
+      "notes": "route centers/tables or low-rank factors; final packing selected after quality"
+    },
+    {
+      "name": "selector_scratch_reservation",
+      "base": "0x41a000000",
+      "bytes": 67108864,
+      "end_exclusive": "0x41e000000",
+      "notes": "PL-side working data; final need TBD"
+    }
+  ],
+  "software_ps_allowed": [
+    "program",
+    "stack",
+    "heap",
+    "TCP receive/CRC scratch",
+    "mailbox"
+  ],
+  "controller_interface": "TBD after candidate and selector contracts reviewed; no bit/XSA/register map has been generated",
+  "budget_checks": {
+    "max_candidate_table_bytes": 607760,
+    "max_sparse_records_bytes": 1215488,
+    "route512_ranking16k_bytes": 33554432,
+    "route512_centers_bf16_bytes": 917504,
+    "lowrank128_bf16_bytes": 39124992
+  }
+}

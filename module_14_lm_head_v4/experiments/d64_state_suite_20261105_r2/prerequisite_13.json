@@ -1,0 +1,71 @@
+{
+  "state": "SOURCE_DERIVED_WORKLOAD_REVIEW_NOT_MEASURED_RUNTIME",
+  "utc": "2026-11-05T03:17:30.176831+00:00",
+  "sources": {
+    "module_14_lm_head_v4/reports/d64_state_fixtures_20261104_r2/MANIFEST.json": "a647d5e286001267b41cdbb35061efa331fae1f6461bc51bacc18daa99221545",
+    "module_14_lm_head_v4/experiments/d64_state_tb_20261104_r1/state_schedule.svh": "3c452e5cb0baabe15a8d1567260189feeb5feae512e2f0bc1f01c29666495d7f",
+    "module_14_lm_head_v4/reports/d64_state_suite_20261105_r1/EXECUTION_PLAN.json": "6bf14650d4c5aecbd807f568b3ff3120ebba206a2ae22deada6e2f628d0adeb1"
+  },
+  "cases": 12,
+  "full_calls": [
+    "A0_debug",
+    "B0_debug",
+    "A1_debug",
+    "A_production",
+    "Z0_ties",
+    "A2_after_errors"
+  ],
+  "preview_only_error_calls": [
+    "E_preview_nan"
+  ],
+  "early_error_calls": [
+    "E_capacity",
+    "E_flag",
+    "E_hidden_nan",
+    "E_rms_nan",
+    "E_rms_negative"
+  ],
+  "successful_candidate_rows_total": 24656,
+  "preview_rows_total": 1063552,
+  "expected_logical_weight_read_beats": {
+    "preview": 8544256,
+    "canonical_exact": 2761472,
+    "total": 11305728,
+    "previous_one_A_call": 1680816,
+    "ratio_to_previous_one_A": 6.7263329240083385
+  },
+  "count_scope": "Source/fixture-derived expected128bit read work;NOT actual bus acceptance counts,elapsed-time ratio,FPGA speedup or completed RTL proof.",
+  "memory_dumps": {
+    "before_after_images": 24,
+    "beats128_per_image": 80592,
+    "binary_equivalent_bytes": 30947328,
+    "expected_hex_text_bytes_LF": 63828864
+  },
+  "budget": {
+    "formula": "Tcompile + Tload + sum(Tfull_i for6calls) + Tpreview_error + sum(Tearly_i for5calls) +24*Tdump + Tdrain + Tmargin",
+    "rough_simplification": "6*Tfull_normal +Tpreview_normal +overheads+margin",
+    "measurements_missing": [
+      "Actual complete normal-memory full call duration",
+      "Actual normal-memory preview completion duration",
+      "Different-case duration variability"
+    ],
+    "six_hour_assessment": "Insufficient empirical basis;not a justified whole-suite estimate",
+    "current_frozen_guard_seconds": 21600,
+    "current_memory_guard_gib": 16,
+    "current_spare_guard_gib": 32,
+    "guard_change": "NOT_AUTHORIZED_BY_THIS_REVIEW_NO_LIVE_CHANGE",
+    "term_definitions": {
+      "Tfull_i": "DUT start-to-done host walltime for stages0-4; excludes memory-image exports",
+      "Tpreview_error": "DUT start-to-done walltime for full preview/error path;excludes exports",
+      "Tearly_i": "DUT early-error start-to-done walltime;excludes exports",
+      "Tdump": "Mean host walltime to export one complete80592beat memory image",
+      "alternative": "If measuring end-to-end case walltime including exports, sum those12case durations and do not add24*Tdump again. None of these unknown durations is inferred from physical200MHz."
+    }
+  },
+  "terminal_classification": {
+    "timeout_only": "TIME_BUDGET_EXCEEDED_VALIDATION_INCOMPLETE; preserve actual workflow failure andstop_evidence",
+    "numeric_failure": "Only actual assertion/mismatch or independent array/control/address rejection proves numeric/protocol failure;inspect cause",
+    "success": "Tool return alone is not independent12case acceptance"
+  },
+  "scope_unchanged": "All12persistent cases retained;no subset substituted;no EDA/restart/STOP/guard change/timer restoration"
+}

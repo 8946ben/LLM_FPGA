@@ -1,0 +1,2 @@
+D:/program/LLM_FPGA/module_14_lm_head_v4/reports/layout_topk_20261024_r1/assets/tiled_W_B1024.bin
+D:/program/LLM_FPGA/artifacts/module14_v2_assets/shared_vocab_weight.bf16.bin

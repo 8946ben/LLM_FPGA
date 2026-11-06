@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/traditional_chinese_medicine.csv:119",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "66043c1ea1682220c67df7121ffa67c3ad4c4d39e9c4417d37008cc572de78f4",
+  "group_sha256": "adb510225b4bd8a862d03bbcda4972c79bc22553fa929cd353cb5b249c7e9d8b",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "836ca19d6a47b45365e22e92.npz",
+  "npz_sha256": "8a03cca4d79ca0ac682ce7099aa6687cd8c1e706c6fddbedce53636df609e353",
+  "generated_ids": [
+    102349,
+    20412,
+    33,
+    3837,
+    99662,
+    121859,
+    99855,
+    3407,
+    99662,
+    121859,
+    99855,
+    104625,
+    99662,
+    121859,
+    5373,
+    99243
+  ],
+  "input_tokens": 78,
+  "seconds": 1.3074573000194505,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

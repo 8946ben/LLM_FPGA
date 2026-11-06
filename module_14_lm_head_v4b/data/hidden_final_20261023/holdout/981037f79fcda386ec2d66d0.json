@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/college_engineering_hydrology.csv:27",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "aee6368cf891586d55a951ef27c3e6e6d12167754071ef41583e68c3671cb679",
+  "group_sha256": "becb87553fdb095b7f45897aff6a0b37803ec48937cbe93c5c05ee75dfb926ca",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "981037f79fcda386ec2d66d0.npz",
+  "npz_sha256": "e8222290f9fe35d5e1a22ede35107186b449d7d3a7f14c69e5393e5e92f9d990",
+  "generated_ids": [
+    88991,
+    102349,
+    20412,
+    5122,
+    33,
+    13,
+    4891,
+    252,
+    224,
+    73145,
+    34204,
+    49567,
+    99451,
+    43268,
+    102403,
+    3407
+  ],
+  "input_tokens": 101,
+  "seconds": 0.45597400004044175,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

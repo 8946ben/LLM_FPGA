@@ -1,0 +1,639 @@
+{
+  "state": "QUALITY_FAIL_NO_RELEASE_NO_RETUNE",
+  "selected": {
+    "parameters": {
+      "C": 256,
+      "R": 4,
+      "L": 8192,
+      "r": 64,
+      "T": 16384
+    },
+    "report": {
+      "all": {
+        "steps": 15986,
+        "misses": 19,
+        "recall": 0.9988114600275241,
+        "by_category": {
+          "chinese": {
+            "steps": 6400,
+            "misses": 11,
+            "recall": 0.99828125
+          },
+          "code": {
+            "steps": 1024,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "english": {
+            "steps": 3986,
+            "misses": 7,
+            "recall": 0.9982438534872052
+          },
+          "math": {
+            "steps": 4576,
+            "misses": 1,
+            "recall": 0.9997814685314685
+          }
+        }
+      },
+      "decode": {
+        "steps": 14986,
+        "misses": 19,
+        "recall": 0.9987321500066729,
+        "by_category": {
+          "chinese": {
+            "steps": 6000,
+            "misses": 11,
+            "recall": 0.9981666666666666
+          },
+          "code": {
+            "steps": 960,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "english": {
+            "steps": 3736,
+            "misses": 7,
+            "recall": 0.9981263383297645
+          },
+          "math": {
+            "steps": 4290,
+            "misses": 1,
+            "recall": 0.9997668997668998
+          }
+        }
+      },
+      "prefill": {
+        "steps": 1000,
+        "misses": 0,
+        "recall": 1.0,
+        "by_category": {
+          "chinese": {
+            "steps": 400,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "code": {
+            "steps": 64,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "english": {
+            "steps": 250,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "math": {
+            "steps": 286,
+            "misses": 0,
+            "recall": 1.0
+          }
+        }
+      },
+      "decode_prompt_bootstrap_interval95": [
+        0.9981312495085861,
+        0.9993676797625859
+      ],
+      "complete_prompt_decode_match": {
+        "prompts": 1000,
+        "all_steps_match_prompts": 982,
+        "rate": 0.982,
+        "wilson_interval95": [
+          0.9717267448294926,
+          0.9885842599904322
+        ]
+      },
+      "uncertainty_note": "Prompt bootstrap describes this sample; with zero misses it degenerates to [1,1] and is not a zero-risk certificate. Wilson interval is for whole-prompt exact-match events assuming independent prompt groups; semantic/template correlation and pretraining contamination remain unmeasured.",
+      "prompt_groups": 1000
+    },
+    "route": {
+      "all": {
+        "steps": 15986,
+        "misses": 121,
+        "recall": 0.9924308770173902,
+        "by_category": {
+          "chinese": {
+            "steps": 6400,
+            "misses": 60,
+            "recall": 0.990625
+          },
+          "code": {
+            "steps": 1024,
+            "misses": 10,
+            "recall": 0.990234375
+          },
+          "english": {
+            "steps": 3986,
+            "misses": 37,
+            "recall": 0.9907175112895132
+          },
+          "math": {
+            "steps": 4576,
+            "misses": 14,
+            "recall": 0.9969405594405595
+          }
+        }
+      },
+      "decode": {
+        "steps": 14986,
+        "misses": 117,
+        "recall": 0.9921927131989857,
+        "by_category": {
+          "chinese": {
+            "steps": 6000,
+            "misses": 58,
+            "recall": 0.9903333333333333
+          },
+          "code": {
+            "steps": 960,
+            "misses": 10,
+            "recall": 0.9895833333333334
+          },
+          "english": {
+            "steps": 3736,
+            "misses": 35,
+            "recall": 0.9906316916488223
+          },
+          "math": {
+            "steps": 4290,
+            "misses": 14,
+            "recall": 0.9967365967365968
+          }
+        }
+      },
+      "prefill": {
+        "steps": 1000,
+        "misses": 4,
+        "recall": 0.996,
+        "by_category": {
+          "chinese": {
+            "steps": 400,
+            "misses": 2,
+            "recall": 0.995
+          },
+          "code": {
+            "steps": 64,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "english": {
+            "steps": 250,
+            "misses": 2,
+            "recall": 0.992
+          },
+          "math": {
+            "steps": 286,
+            "misses": 0,
+            "recall": 1.0
+          }
+        }
+      },
+      "decode_prompt_bootstrap_interval95": [
+        0.9907277699953305,
+        0.9938611519280053
+      ],
+      "complete_prompt_decode_match": {
+        "prompts": 1000,
+        "all_steps_match_prompts": 902,
+        "rate": 0.902,
+        "wilson_interval95": [
+          0.882005297700964,
+          0.9189179884766496
+        ]
+      },
+      "uncertainty_note": "Prompt bootstrap describes this sample; with zero misses it degenerates to [1,1] and is not a zero-risk certificate. Wilson interval is for whole-prompt exact-match events assuming independent prompt groups; semantic/template correlation and pretraining contamination remain unmeasured.",
+      "prompt_groups": 1000
+    },
+    "lowrank": {
+      "all": {
+        "steps": 15986,
+        "misses": 948,
+        "recall": 0.9406981108469911,
+        "by_category": {
+          "chinese": {
+            "steps": 6400,
+            "misses": 453,
+            "recall": 0.92921875
+          },
+          "code": {
+            "steps": 1024,
+            "misses": 68,
+            "recall": 0.93359375
+          },
+          "english": {
+            "steps": 3986,
+            "misses": 310,
+            "recall": 0.9222277972905168
+          },
+          "math": {
+            "steps": 4576,
+            "misses": 117,
+            "recall": 0.9744318181818182
+          }
+        }
+      },
+      "decode": {
+        "steps": 14986,
+        "misses": 739,
+        "recall": 0.9506873081542774,
+        "by_category": {
+          "chinese": {
+            "steps": 6000,
+            "misses": 404,
+            "recall": 0.9326666666666666
+          },
+          "code": {
+            "steps": 960,
+            "misses": 68,
+            "recall": 0.9291666666666667
+          },
+          "english": {
+            "steps": 3736,
+            "misses": 175,
+            "recall": 0.9531584582441114
+          },
+          "math": {
+            "steps": 4290,
+            "misses": 92,
+            "recall": 0.9785547785547786
+          }
+        }
+      },
+      "prefill": {
+        "steps": 1000,
+        "misses": 209,
+        "recall": 0.791,
+        "by_category": {
+          "chinese": {
+            "steps": 400,
+            "misses": 49,
+            "recall": 0.8775
+          },
+          "code": {
+            "steps": 64,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "english": {
+            "steps": 250,
+            "misses": 135,
+            "recall": 0.46
+          },
+          "math": {
+            "steps": 286,
+            "misses": 25,
+            "recall": 0.9125874125874126
+          }
+        }
+      },
+      "decode_prompt_bootstrap_interval95": [
+        0.946479634328933,
+        0.9546910637420393
+      ],
+      "complete_prompt_decode_match": {
+        "prompts": 1000,
+        "all_steps_match_prompts": 525,
+        "rate": 0.525,
+        "wilson_interval95": [
+          0.49401247046123636,
+          0.555796191614486
+        ]
+      },
+      "uncertainty_note": "Prompt bootstrap describes this sample; with zero misses it degenerates to [1,1] and is not a zero-risk certificate. Wilson interval is for whole-prompt exact-match events assuming independent prompt groups; semantic/template correlation and pretraining contamination remain unmeasured.",
+      "prompt_groups": 1000
+    },
+    "candidate_decode": {
+      "mean": 23464.209528893633,
+      "median": 22786.0,
+      "p95": 31170,
+      "max": 38919,
+      "min": 16812
+    },
+    "fallback_calls": 0,
+    "proposed_point_gate": false,
+    "arrays": "final_selected.npz",
+    "sha256": "2182fdcf6143528c08c9527b7f88430b87b3c9be485c2bf9715b6867575fa92e"
+  },
+  "frozen_baseline": {
+    "parameters": {
+      "C": 128,
+      "R": 4,
+      "L": 16384,
+      "r": 128,
+      "T": 16384
+    },
+    "report": {
+      "all": {
+        "steps": 15986,
+        "misses": 2,
+        "recall": 0.9998748905292131,
+        "by_category": {
+          "chinese": {
+            "steps": 6400,
+            "misses": 1,
+            "recall": 0.99984375
+          },
+          "code": {
+            "steps": 1024,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "english": {
+            "steps": 3986,
+            "misses": 1,
+            "recall": 0.9997491219267436
+          },
+          "math": {
+            "steps": 4576,
+            "misses": 0,
+            "recall": 1.0
+          }
+        }
+      },
+      "decode": {
+        "steps": 14986,
+        "misses": 2,
+        "recall": 0.9998665421059656,
+        "by_category": {
+          "chinese": {
+            "steps": 6000,
+            "misses": 1,
+            "recall": 0.9998333333333334
+          },
+          "code": {
+            "steps": 960,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "english": {
+            "steps": 3736,
+            "misses": 1,
+            "recall": 0.9997323340471093
+          },
+          "math": {
+            "steps": 4290,
+            "misses": 0,
+            "recall": 1.0
+          }
+        }
+      },
+      "prefill": {
+        "steps": 1000,
+        "misses": 0,
+        "recall": 1.0,
+        "by_category": {
+          "chinese": {
+            "steps": 400,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "code": {
+            "steps": 64,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "english": {
+            "steps": 250,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "math": {
+            "steps": 286,
+            "misses": 0,
+            "recall": 1.0
+          }
+        }
+      },
+      "decode_prompt_bootstrap_interval95": [
+        0.99966626618609,
+        1.0
+      ],
+      "complete_prompt_decode_match": {
+        "prompts": 1000,
+        "all_steps_match_prompts": 998,
+        "rate": 0.998,
+        "wilson_interval95": [
+          0.9927371921365079,
+          0.9994513564118793
+        ]
+      },
+      "uncertainty_note": "Prompt bootstrap describes this sample; with zero misses it degenerates to [1,1] and is not a zero-risk certificate. Wilson interval is for whole-prompt exact-match events assuming independent prompt groups; semantic/template correlation and pretraining contamination remain unmeasured.",
+      "prompt_groups": 1000
+    },
+    "route": {
+      "all": {
+        "steps": 15986,
+        "misses": 75,
+        "recall": 0.9953083948454898,
+        "by_category": {
+          "chinese": {
+            "steps": 6400,
+            "misses": 41,
+            "recall": 0.99359375
+          },
+          "code": {
+            "steps": 1024,
+            "misses": 8,
+            "recall": 0.9921875
+          },
+          "english": {
+            "steps": 3986,
+            "misses": 23,
+            "recall": 0.9942298043151029
+          },
+          "math": {
+            "steps": 4576,
+            "misses": 3,
+            "recall": 0.9993444055944056
+          }
+        }
+      },
+      "decode": {
+        "steps": 14986,
+        "misses": 73,
+        "recall": 0.9951287868677432,
+        "by_category": {
+          "chinese": {
+            "steps": 6000,
+            "misses": 40,
+            "recall": 0.9933333333333333
+          },
+          "code": {
+            "steps": 960,
+            "misses": 8,
+            "recall": 0.9916666666666667
+          },
+          "english": {
+            "steps": 3736,
+            "misses": 22,
+            "recall": 0.9941113490364025
+          },
+          "math": {
+            "steps": 4290,
+            "misses": 3,
+            "recall": 0.9993006993006993
+          }
+        }
+      },
+      "prefill": {
+        "steps": 1000,
+        "misses": 2,
+        "recall": 0.998,
+        "by_category": {
+          "chinese": {
+            "steps": 400,
+            "misses": 1,
+            "recall": 0.9975
+          },
+          "code": {
+            "steps": 64,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "english": {
+            "steps": 250,
+            "misses": 1,
+            "recall": 0.996
+          },
+          "math": {
+            "steps": 286,
+            "misses": 0,
+            "recall": 1.0
+          }
+        }
+      },
+      "decode_prompt_bootstrap_interval95": [
+        0.9936944800605056,
+        0.9963310522714457
+      ],
+      "complete_prompt_decode_match": {
+        "prompts": 1000,
+        "all_steps_match_prompts": 937,
+        "rate": 0.937,
+        "wilson_interval95": [
+          0.920205076295354,
+          0.9504503367882711
+        ]
+      },
+      "uncertainty_note": "Prompt bootstrap describes this sample; with zero misses it degenerates to [1,1] and is not a zero-risk certificate. Wilson interval is for whole-prompt exact-match events assuming independent prompt groups; semantic/template correlation and pretraining contamination remain unmeasured.",
+      "prompt_groups": 1000
+    },
+    "lowrank": {
+      "all": {
+        "steps": 15986,
+        "misses": 439,
+        "recall": 0.972538471162267,
+        "by_category": {
+          "chinese": {
+            "steps": 6400,
+            "misses": 192,
+            "recall": 0.97
+          },
+          "code": {
+            "steps": 1024,
+            "misses": 46,
+            "recall": 0.955078125
+          },
+          "english": {
+            "steps": 3986,
+            "misses": 165,
+            "recall": 0.9586051179126944
+          },
+          "math": {
+            "steps": 4576,
+            "misses": 36,
+            "recall": 0.9921328671328671
+          }
+        }
+      },
+      "decode": {
+        "steps": 14986,
+        "misses": 312,
+        "recall": 0.9791805685306286,
+        "by_category": {
+          "chinese": {
+            "steps": 6000,
+            "misses": 164,
+            "recall": 0.9726666666666667
+          },
+          "code": {
+            "steps": 960,
+            "misses": 46,
+            "recall": 0.9520833333333333
+          },
+          "english": {
+            "steps": 3736,
+            "misses": 70,
+            "recall": 0.9812633832976445
+          },
+          "math": {
+            "steps": 4290,
+            "misses": 32,
+            "recall": 0.9925407925407925
+          }
+        }
+      },
+      "prefill": {
+        "steps": 1000,
+        "misses": 127,
+        "recall": 0.873,
+        "by_category": {
+          "chinese": {
+            "steps": 400,
+            "misses": 28,
+            "recall": 0.93
+          },
+          "code": {
+            "steps": 64,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "english": {
+            "steps": 250,
+            "misses": 95,
+            "recall": 0.62
+          },
+          "math": {
+            "steps": 286,
+            "misses": 4,
+            "recall": 0.986013986013986
+          }
+        }
+      },
+      "decode_prompt_bootstrap_interval95": [
+        0.9765459946638654,
+        0.9814879718738919
+      ],
+      "complete_prompt_decode_match": {
+        "prompts": 1000,
+        "all_steps_match_prompts": 740,
+        "rate": 0.74,
+        "wilson_interval95": [
+          0.7119317744345645,
+          0.766231381492369
+        ]
+      },
+      "uncertainty_note": "Prompt bootstrap describes this sample; with zero misses it degenerates to [1,1] and is not a zero-risk certificate. Wilson interval is for whole-prompt exact-match events assuming independent prompt groups; semantic/template correlation and pretraining contamination remain unmeasured.",
+      "prompt_groups": 1000
+    },
+    "candidate_decode": {
+      "mean": 29292.633457894033,
+      "median": 28450.5,
+      "p95": 40399,
+      "max": 56748,
+      "min": 17146
+    },
+    "fallback_calls": 0,
+    "proposed_point_gate": true,
+    "arrays": "final_frozen_baseline.npz",
+    "sha256": "45b3a843767a1ea5cd2c1bb4a3cf385900eca24e0b0cafd9e12365f7e8bf929b"
+  },
+  "prompt_groups": 1000,
+  "decode_steps": 14986,
+  "exclusions": 0,
+  "entry_lock_sha256": "ad1a62041eeca1d48fb6f0a1a42283c31d6be54e88ca645982e202eec1a340ae",
+  "collection_manifest_sha256": "372e58429d4f3945eaa41db04aca2efcdaca14dca09f923a58d7db5de1092a54",
+  "selection_lock_sha256": "8d0d19442fef483c0aa309ff51fd3f1e1eb32ff2d8a5ebc8f4985207d633a8e1",
+  "scope": "Conditional canonical-dense trajectory coverage; not free generation/lossless/full RTL replay/FPGA acceptance. Original baseline is a predeclared same-new-cohort control; no old holdout was reopened.",
+  "board": "NOT_RUN"
+}

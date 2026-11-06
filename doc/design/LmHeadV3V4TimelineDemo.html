@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>lm_head v3 vs v4 · 访存/计算时间线演示</title>
+<style>
+:root{
+  --bg:#0f1216; --panel:#161b21; --panel2:#1b2129; --ink:#e8eaed; --mut:#98a2ad;
+  --line:#2a323c; --accent:#4f8ef7;
+  --c-sel:#8b93a3; --c-prev:#4f8ef7; --c-radix:#f0a635; --c-exact:#46c78a; --c-out:#6b7280;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font:14px/1.6 "Segoe UI","Microsoft YaHei",system-ui,sans-serif;}
+.num{font-variant-numeric:tabular-nums}
+a{color:var(--accent)}
+.wrap{max-width:1280px;margin:0 auto;padding:20px 22px 60px}
+header h1{font-size:20px;margin:0 0 4px}
+header .sub{color:var(--mut);font-size:13px;margin:0 0 10px}
+.banner{border:1px solid #4a4233;background:#241f14;color:#e5cf9a;border-radius:8px;
+  padding:9px 14px;font-size:12.5px;margin:0 0 14px}
+.banner b{color:#f0d898}
+.badge{display:inline-block;border:1px solid var(--line);border-radius:20px;padding:1px 10px;
+  font-size:12px;color:var(--mut);margin-right:6px;vertical-align:1px}
+.badge.ok{border-color:#2f5c42;color:#7ed8a5}
+.badge.est{border-color:#6b5426;color:#e5c069}
+nav.tabs{display:flex;gap:8px;margin:0 0 16px;flex-wrap:wrap}
+nav.tabs button{background:var(--panel);border:1px solid var(--line);color:var(--ink);
+  border-radius:8px;padding:7px 14px;font-size:13.5px;cursor:pointer}
+nav.tabs button.active{border-color:var(--accent);color:#fff;background:#1c2a41}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 16px;margin:0 0 14px}
+.panel h2{font-size:15px;margin:0 0 10px;font-weight:600}
+.panel h2 .en{color:var(--mut);font-weight:400;font-size:12px;margin-left:8px}
+.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.controls button{background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+  border-radius:7px;padding:5px 14px;font-size:13px;cursor:pointer}
+.controls button:hover{border-color:var(--accent)}
+.controls select{background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+  border-radius:6px;padding:4px 8px;font-size:13px}
+.controls input[type=range]{flex:1;min-width:160px;accent-color:var(--accent)}
+.gantt{width:100%;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px}
+.legend .it{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--mut);
+  cursor:pointer;border:1px solid transparent;border-radius:6px;padding:2px 8px}
+.legend .it:hover{border-color:var(--line)}
+.legend .it.on{border-color:var(--accent);color:var(--ink)}
+.legend .sw{width:11px;height:11px;border-radius:3px;flex:none}
+.counters{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.counters .cell{background:var(--panel2);border-radius:8px;padding:7px 10px}
+.counters .k{font-size:11.5px;color:var(--mut)}
+.counters .v{font-size:15px;font-weight:600}
+.counters .v small{font-size:11px;color:var(--mut);font-weight:400}
+.chartStack{position:relative}
+.chartStack svg{width:100%;display:block}
+.playhead{position:absolute;top:0;bottom:0;width:1px;background:#ff6b6b;pointer-events:none}
+.playhead::after{content:"";position:absolute;top:-1px;left:-3px;width:7px;height:7px;
+  border-radius:50%;background:#ff6b6b}
+.maps label{display:block;font-size:12px;color:var(--mut);margin:8px 0 3px}
+.maps canvas{width:100%;display:block;border:1px solid var(--line);border-radius:6px}
+.maps .ptr{font-size:12px;color:var(--mut);height:18px;margin-top:2px}
+.detail{border-top:1px dashed var(--line);margin-top:12px;padding-top:10px;font-size:13px}
+.detail h3{margin:0 0 4px;font-size:14px}
+.detail .meta{color:var(--mut);font-size:12.5px;margin-bottom:6px}
+.detail ul{margin:6px 0 0;padding-left:20px}
+.detail li{margin-bottom:4px}
+.tag{display:inline-block;border-radius:4px;padding:0 7px;font-size:11.5px;margin-left:8px;vertical-align:1px}
+.tag.mem{background:#3d2f14;color:#f0b45c}
+.tag.onchip{background:#3a2f16;color:#e8c46a}
+.tag.bal{background:#173a2b;color:#6fd8a0}
+.tag.zero{background:#22262c;color:#8b93a3}
+.arch{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;font-size:12px}
+.arch .box{background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+  padding:6px 10px;flex:1;min-width:130px}
+.arch .box b{display:block;font-size:12.5px;color:var(--ink)}
+.arch .box span{color:var(--mut);font-size:11.5px}
+.arch .arr{align-self:center;color:var(--mut);flex:none}
+table.cmp{border-collapse:collapse;width:100%;font-size:13px}
+table.cmp th,table.cmp td{border-bottom:1px solid var(--line);padding:6px 10px;text-align:right}
+table.cmp th:first-child,table.cmp td:first-child{text-align:left;color:var(--mut)}
+table.cmp td.hl{color:#7ed8a5;font-weight:600}
+.bars .row{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:12.5px}
+.bars .lbl{width:150px;color:var(--mut);flex:none;text-align:right}
+.bars .track{flex:1;background:var(--panel2);border-radius:5px;height:18px;position:relative;overflow:hidden}
+.bars .fill{height:100%;border-radius:5px}
+.bars .seg{height:100%;float:left}
+.bars .val{width:190px;flex:none;font-size:12px}
+.stack .row{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:12.5px}
+.stack .lbl{width:110px;color:var(--mut);flex:none;text-align:right}
+.stack .track{flex:1;height:22px;background:var(--panel2);border-radius:5px;overflow:hidden;display:flex}
+.stack .val{width:230px;flex:none;font-size:12px}
+.note{font-size:12.5px;color:var(--mut);border-left:3px solid var(--line);padding:2px 12px;margin:10px 0}
+.note b{color:var(--ink);font-weight:600}
+footer{color:var(--mut);font-size:12px;border-top:1px solid var(--line);margin-top:22px;padding-top:14px}
+footer code{background:var(--panel2);border-radius:4px;padding:0 5px;font-size:11.5px}
+footer p{margin:5px 0}
+.sensGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin:10px 0}
+.sensGrid .cell{background:var(--panel2);border-radius:8px;padding:7px 10px}
+.sensGrid .k{font-size:11.5px;color:var(--mut)}
+.sensGrid .v{font-size:15px;font-weight:600}
+.hints li{margin-bottom:5px}
+kbd{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:0 6px;font-size:11.5px}
+#trTip{position:absolute;pointer-events:none;background:#1d242d;border:1px solid var(--line);border-radius:8px;
+  padding:8px 11px;font-size:12px;max-width:340px;display:none;z-index:5;box-shadow:0 4px 14px rgba(0,0,0,.45);line-height:1.55}
+#trTip b{font-size:12.5px}
+#trCv{width:100%;display:block;border:1px solid var(--line);border-radius:8px;cursor:grab;
+  user-select:none;-webkit-user-select:none;touch-action:none}
+#trCv.dragging{cursor:grabbing}
+.tbtn.active{border-color:var(--accent);color:#fff;background:#1c2a41}
+@media (max-width:760px){.bars .lbl{width:100px}.bars .val{width:130px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>M14 lm_head · v3（全词表 dense）vs v4（动态部分通道稀疏）访存/计算时间线演示</h1>
+  <p class="sub">ZCU106 class · xczu9eg · 200 MHz · vocab 151,936 × hidden 896（BF16 权重 / FP32 算术）· 页面生成 2026-10-26 · 零外部依赖，可离线打开</p>
+  <span class="badge ok">v3：板测实测（2026-10-19）</span>
+  <span class="badge est">v4：Vitis HLS 2022.2 综合估计（最坏情况）· RTL 联合 CoSim 进行中 · 未上板</span>
+</header>
+
+<div class="banner">
+  <b>口径提醒：</b>v3 全部数字来自真实板测；v4 各阶段周期来自 r3 HLS 综合报告，按最坏情况线性串行拼接（73,077 + 1,312,244 + 1,560,505 + 697,018 + 35 = 3,642,879 拍 = 18.214 ms），<b>不是实测时序</b>；动画中的逐拍纹理、通道列位置与精算行分布为确定性示意图。本页只做优化分析用途，不构成任何质量或验收结论。
+</div>
+
+<nav class="tabs" id="tabs">
+  <button data-v="v3" class="active">v3 · 全词表 dense（实测）</button>
+  <button data-v="v4">v4 · 动态部分通道 d64 / Top-4096（HLS 估计）</button>
+  <button data-v="trace">Nsight 式踪迹时间线（可缩放）</button>
+  <button data-v="cmp">对比 · 瓶颈与参数敏感性</button>
+</nav>
+
+<section id="view-v3"></section>
+<section id="view-v4" hidden></section>
+
+<section id="view-trace" hidden>
+  <div class="panel">
+    <h2>踪迹时间线（Nsight 式）<span class="en">滚轮缩放（以光标为锚） · 拖动平移 · 双击聚焦色块 · 悬停查看 · 深度放大可见逐拍节奏模型</span></h2>
+    <div class="controls">
+      <button id="trV3" class="tbtn active">v3 trace（实测）</button>
+      <button id="trV4" class="tbtn">v4 trace（HLS 估计）</button>
+      <button id="trFit">⤢ 适配全览</button>
+      <button id="trGap">⇢ 跳到读空闲</button>
+      <label id="trGhostWrap" style="display:none;margin:0 2px 0 10px;font-size:12.5px;color:var(--mut);cursor:pointer">
+        <input type="checkbox" id="trGhost" style="vertical-align:-2px;margin-right:4px">叠加下一步假想（流水化）
+      </label>
+      <span id="trRead" class="num" style="color:var(--mut);font-size:12px"></span>
+    </div>
+    <div id="trWrap" style="position:relative">
+      <canvas id="trCv"></canvas>
+      <div id="trTip"></div>
+    </div>
+    <div class="detail" id="trDetail" style="display:none"></div>
+    <div class="note">读法：第一行是<b>阶段串行链</b>——五个阶段首尾相接、Σ = 总时长（0 拍跨阶段重叠），菱形是阶段边界（<b>悬停看依赖原因，双击放大到边界</b>）；中间每行是一条并行资源（两个 AXI master + 片上计算），色块 = 占用区间，空白 = 空闲；勾选"叠加下一步假想"后，蓝色虚框表示双缓冲 key 缓存后<b>下一步预览可整体填入 radix 空闲窗</b>（18.21 → 10.41 ms 的理想流水收益）。下方条带为该时刻 DDR 读带宽，最底部为全范围缩略图（可拖动定位）。阶段内部读算并发（预览拍级流水、精算 DATAFLOW 行级流水），阶段之间因数据依赖严格串行。口径：阶段边界来自 HLS 最坏情况拼接；纹理是按阶段总量平均折算的<b>节奏模型</b>（155 拍/行、8,807 拍/tile、159 拍/精算行、II=2），非逐拍 RTL trace；两个 master 的阶段归属按端口命名推断，r3 报告未逐阶段标注。</div>
+  </div>
+</section>
+
+<section id="view-cmp" hidden>
+  <div class="panel">
+    <h2>总览对比<span class="en">@200 MHz，每 decode 一步（单次 lm_head 调用）</span></h2>
+    <table class="cmp num" id="cmpTable"></table>
+    <div class="bars" id="cmpBars" style="margin-top:14px"></div>
+  </div>
+
+  <div class="panel">
+    <h2>阶段分解（ms，线性同尺度）</h2>
+    <div class="stack" id="stackBars"></div>
+    <div class="note">v4 的 radix 阶段（7.80 ms，43% 时长）<b>完全不占 DDR 读通道</b>；预览 + 精算合计读忙碌仅 8.40 ms / 18.21 ms ≈ 46%。这两点是步间流水化与双 master 并发的直接优化空间（见下）。</div>
+  </div>
+
+  <div class="panel">
+    <h2>v4 参数敏感性（解析模型，实时重算）</h2>
+    <div class="controls" style="margin-bottom:6px">
+      <label>预览通道数 d
+        <select id="selD">
+          <option value="32">32</option>
+          <option value="64" selected>64</option>
+          <option value="96">96</option>
+          <option value="128">128</option>
+        </select>
+      </label>
+      <label>Top-T
+        <select id="selT">
+          <option value="1024">1024</option>
+          <option value="2048">2048</option>
+          <option value="4096" selected>4096</option>
+          <option value="8192">8192</option>
+          <option value="16384">16384</option>
+          <option value="32768">32768</option>
+        </select>
+      </label>
+      <span style="color:var(--mut);font-size:12px" id="qualNote"></span>
+    </div>
+    <div class="sensGrid" id="sensGrid"></div>
+    <div class="stack" id="sensStack"></div>
+    <div class="note">模型：<b>预览拍 = 149×d×128</b>，预览周期按 r3 实测比例 93.0% 拍占用折算；<b>K = T + 13</b>（特殊 ID；d64/T4096 该 fixture 实测并列≈0，其余 T 未验证并列数），精算 dataflow 按 653,494 × K/4109 线性缩放 + 固定预取/policy 43,524 拍；radix 扫描量与 d/T 无关（全 151,936 key），保持 1,560,505 拍。质量结论与周期估计相互独立：<b>换 d/T 必须重新做质量验证</b>。</div>
+  </div>
+
+  <div class="panel">
+    <h2>优化要点（由上面数字直接推出）</h2>
+    <h3 style="font-size:13.5px;margin:8px 0 4px">v4（当前方向）</h3>
+    <ul class="hints" style="margin:0;padding-left:20px;font-size:13px">
+      <li><b>步间流水（收益最大）：</b>radix 7.80 ms 期间 DDR 读通道空闲，且与 d/T 无关。给 key 缓存做双缓冲后，第 N 步的 radix 可与第 N+1 步的预览并发，单步周期理想降至 3,642,879 − 1,560,505 ≈ <b>2.08 M 拍 ≈ 10.41 ms</b>（对 v3 约 11.3×）。</li>
+      <li><b>双 master 并发预览：</b>meta master 在预览期闲置。两 master 各读一半 tile，预览 6.56 ms → ~3.3 ms，单步约 15.0 ms。</li>
+      <li><b>radix II 2 → 1：</b>每 key II=2（303,872 拍/趟），II=1 可省约 0.6 M 拍（~3 ms），但需解决 banked BRAM 读写冲突。</li>
+      <li><b>精算行分散：</b>4,109 行 × 1,792 B 随机地址破坏 DDR 行缓冲；候选 ID 排序后顺序发出 + 更深 outstanding 可把读拍占用从 66% 推向 ~93%（精算 3.49 ms → ~2.5 ms）。点积当前 128 拍/行（7 MAC/拍），加宽乘法前先解决读效率，否则读成为新瓶颈。</li>
+      <li><b>提频：</b>HLS 时序估计 3.650 ns（274 MHz），若实现达成再 ×1.37；与上述手段正交。</li>
+    </ul>
+    <h3 style="font-size:13.5px;margin:12px 0 4px">v3（dense 基线）</h3>
+    <ul class="hints" style="margin:0;padding-left:20px;font-size:13px">
+      <li><b>纯带宽下限：</b>W = 17,016,832 拍 = 85.08 ms（128 bit @200 MHz 连续流）。实测 117.75 ms → 拍占用 72.3%，加深 AXI outstanding / 行预取的理论上限约 <b>1.38×</b>。</li>
+      <li><b>计算不是瓶颈：</b>5.78 MAC/拍（DSP 59），加宽乘法器不改变时延；dense 的根治手段只有减字节 —— 即 v4 路线（本例字节 9.9%、周期 15.5%）。</li>
+      <li>200 MHz 实现已收敛（WNS +0.943 ns）；提频受 AXI/SmartConnect 与 PS DDR 时序约束，v3.1 迁 PL DDR 后 IP 耗时持平（117.75 ms），说明瓶颈在结构而非 DDR 位置。</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <h2>相关但不可直接比较的数字</h2>
+    <div class="note"><b>压力 AXI 模型：</b>full_r3 联合 CoSim 对 AR/R/AW/W/B 每次回调注入 0~256 拍随机延迟。该抽象模型下仅读通道传输+间隔期望 ≈ 366.98 ms —— 这说明真实 DDR 延迟/停顿对 v4 这种多 burst 结构影响巨大（预览 9,536 个 2 KiB 列读 + 精算 4,109 个行 burst），<b>不是正常 decode 时序</b>，但提示 outstanding 深度与 burst 合并是 RTL 优化重点。</div>
+    <div class="note"><b>融合实验 exp10 RTL debug 单例：</b>6,826,306 拍（34.13 ms）为另一配置（聚类 C256/R4/L8192 + r64/T16384，K=21,529）在 debug 路径 + AXI 仿真模型下的单例，与本页 d64/T4096 原型不可直接比较。</div>
+  </div>
+</section>
+
+<footer>
+  <p><b>数据来源（全部为只读引用，未改动任何报告）：</b></p>
+  <p>v3 实测：<code>module_14_lm_head_v2/reports/board200_20261019/RESULT.md</code> —— IP median 117.751805 ms，周期 23,550,361..98，资源 LUT 23,148 / FF 40,194 / BRAM tile 22 / DSP 59，WNS +0.943 ns；W = 272,269,312 B canonical BF16；生产模式经 mailbox 返回 top1/score/CRC（写完整 logits 为调试模式，607,744 B/步）。hidden 读 112 拍、A53 wall 独立计时交叉验证同报告。</p>
+  <p>v4 HLS 估计：<code>module_14_lm_head_v4/reports/partial_hw_20261024_r1/r3/HLS_QUALIFICATION.json</code> —— top 最坏 3,642,879 拍 / 18.214 ms，时序估计 3.650 ns（273.97 MHz），BRAM18K 444 / DSP 179 / FF 129,572 / LUT 52,680，两个 AXI master 均 64 bit 地址 / 128 bit 数据；各阶段 select_channels 73,077、partial_preview 1,312,244、radix_candidates 1,560,505、lm_head_v4_candidate_1 697,018（内含 dataflow 最坏 653,494、候选 ID 预取 4,114、history 预取 1,190、policy 8,244）。</p>
+  <p>读拍计数：<code>module_14_lm_head_v4/reports/partial_rtl_20261024_r1/PRESSURE_SCALE_MODEL.json</code> —— 预览 149 tile × 64 通道列 × 128 拍 = 1,220,608 拍；精算 4,109 行 × 112 拍 = 460,208 拍（fixture old_chinese）。质量：<code>module_14_lm_head_v4/reports/sparse_quality_20261024_r1</code>（d64/T4096 新 1000 题整体 99.9465%）。通道选择语义：<code>module_14_lm_head_v4/experiments/partial_hw_20261024/r3/partial_proto.cpp</code>（按 |h[ch]|·RMS 选 top-64 维度）。</p>
+  <p>状态：v4 联合 CoSim（full_r3）仍在执行，无 RTL PASS / 板测数据；本页所有 v4 时间为 HLS 估计 + 解析模型。另有 meta/hidden/history/候选 ID 读 ≈ 60 KB 未计入 v4 主读量。浏览器视觉检查状态见交付说明。</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+var F = 200e6, V = 151936, H = 896, TILES = 149, PAD = 640, AXI_GBPS = 3.2;
+function $(s){ return document.querySelector(s); }
+function el(tag, cls, html){
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html !== undefined) e.innerHTML = html;
+  return e;
+}
+function fmtInt(n){ return Math.round(n).toLocaleString('en-US'); }
+function fmtMs(cyc){ var ms = cyc / F * 1000; return ms >= 100 ? ms.toFixed(2) : (ms >= 10 ? ms.toFixed(3) : ms.toFixed(4)); }
+function fmtMiB(b){ return (b / 1048576).toFixed(2); }
+function pct(x){ return (x * 100).toFixed(1) + '%'; }
+function mulberry32(seed){
+  var a = seed >>> 0;
+  return function(){
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    var t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/* ================= 数据模型（来源见页脚） ================= */
+
+var V3CFG = {
+  key: 'v3', totalCycles: 23550361,
+  beatBytesTotal: 272271104,
+  noteTop: '生产模式经 mailbox 返回 top1/score/CRC（写完整 151,936×FP32 logits = 607,744 B 为调试模式）。',
+  phases: [
+    { id:'v3p0', name:'读 hidden', color:'#7aa2f7', cycles:112, beats:112, macs:0,
+      bound:'zero', boundTxt:'启动', ii:'112 拍一次读入',
+      desc:'hidden 896×BF16 = 1,792 B = 112 拍（128 bit/拍）。占总周期 &lt;0.001%，线性时间轴上不可见（左端红色标记）。',
+      hints:['hidden 可与 W 首行预取重叠，非瓶颈。'] },
+    { id:'v3p1', name:'全词表流式扫描 + 点积', color:'#4f8ef7', cycles:23550249, beats:17016832, macs:136134656,
+      bound:'mem', boundTxt:'访存受限', ii:'≈155 拍/行（行流水）',
+      desc:'151,936 行 × ≈155.0 拍/行：每行读 112 拍（1,792 B BF16）并完成 896 次 FP32 点积。平均读拍占用 72.3%（11.56 B/拍 = 2.313 GB/s），5.78 MAC/拍（DSP 59）。',
+      hints:[
+        '纯带宽下限 = 17,016,832 拍 = 85.08 ms；实测拍占用 72.3% → 加深 outstanding / 行预取上限约 1.38×。',
+        '计算仅 5.78 MAC/拍，远低于 DSP 能力，加宽乘法不改变瓶颈。',
+        '根治手段 = 减少读取字节：v4 列式 + 稀疏预筛（本例字节降到 9.9%）。'
+      ] }
+  ],
+  mapDesc: '行式 W 259.66 MiB 从头到尾顺序读一遍（每行 1,792 B 连续）。',
+  counter2: { label:'已扫词表行', div:151936, fmt:function(n){ return fmtInt(n) + ' / 151,936'; } }
+};
+
+var V4CFG = {
+  key: 'v4', totalCycles: 3642879,
+  beatBytesTotal: 26893056 + 24576,
+  noteTop: '另有 meta/hidden/history/候选 ID 读 ≈60 KB（通道选择 ≈1,523 拍、候选预取 ≈2,217 拍），未计入主读量。',
+  phases: [
+    { id:'p1', name:'通道选择 select_channels', color:'#8b93a3', cycles:73077, beats:1523, macs:896,
+      bound:'onchip', boundTxt:'串行排序为主', ii:'896 通道插入网络',
+      desc:'读 meta（每通道 RMS 表 224 拍 + hidden 112 拍 + history 1,187 拍 ≈ 1,523 拍），按 |h[ch]|·RMS 对 896 个通道打分，插入排序网络选出 top-64 维度（预览只用这 64 维的部分点积）。读量仅占本阶段 2%。',
+      hints:['排序网络串行为主（~80 拍/通道），可与上一步输出重叠或改并行归并，可省至 ~5 万拍（占比 2%，非首要）。'] },
+    { id:'p2', name:'预览扫描 partial_preview', color:'#4f8ef7', cycles:1312244, beats:1220608, macs:(V + PAD) * 64,
+      bound:'mem', boundTxt:'读受限', ii:'II=1（每拍 1 数据拍）',
+      desc:'列式 W 副本按 149 个 tile（每 tile 1,024 token）扫描：每个 tile 只读 64 条选中通道列（每列 2 KiB = 128 拍连续 burst，896 列中跳读 64 列）。每拍 8 个 BF16 → 8 MAC/拍，边累加部分点积边生成 32 bit 组合 key 写入片上缓存。读拍占用 93.0% = 2.98 GB/s，接近单个 128 bit master @200 MHz 的 3.2 GB/s 上限。',
+      hints:[
+        '单 master 已近饱和：meta master 此阶段闲置 → 双 master 各读一半 tile，6.56 ms → ~3.3 ms。',
+        '降 d（32 列）字节减半，但质量必须重验（已有结论仅 d64/T4096、d128/T1024、d128/T4096）。',
+        '与相邻步骤的 radix 重叠（双缓冲 key 缓存）可整体隐藏对方阶段。'
+      ] },
+    { id:'p3', name:'radix 选 Top-4096 radix_candidates', color:'#f0a635', cycles:1560505, beats:0, macs:0,
+      bound:'onchip', boundTxt:'片上扫描·DDR 空闲', ii:'每 key II=2（303,872 拍/趟）',
+      desc:'预览写好的片上 key 缓存（151,936×32 bit，297 个 BRAM18K）做多趟基数直方图 + 桶扫描选出 preview-Top-4096，写出候选 ID（写通道 ~1 k 拍）。本阶段 DDR 读通道完全空闲，占全时长 43%。',
+      hints:[
+        'II 2→1 省约 0.6 M 拍（~3 ms），需解决 banked BRAM 读写冲突。',
+        '更大收益：与下一步预览重叠（步间流水），可整体隐藏 7.80 ms。',
+        '扫描量与 d/T 无关（恒为全词表 151,936 key）。'
+      ] },
+    { id:'p4', name:'候选精算 lm_head_v4_candidate_1', color:'#46c78a', cycles:697018, beats:460208, macs:4109 * H,
+      bound:'bal', boundTxt:'读/算接近平衡', ii:'点积 128 拍/行（7 MAC/拍）',
+      desc:'预取候选 ID（4,109×32 bit）与 history → 按行读行式 W：4,109 行 × 1,792 B（112 拍）分散 burst → 全 896 维精确点积（dot_word_loop 128 拍/行）→ 归约 / policy / CRC。读 460,208 拍 vs 计算 ≈526,000 拍，互相重叠后阶段读拍占用 66%（2.11 GB/s）。',
+      hints:[
+        '行地址分散破坏 DDR 行缓冲：候选 ID 排序 + 更深 outstanding 可把读占用推向 93%（3.49 ms → ~2.5 ms）。',
+        '先提读效率再考虑加宽乘法（当前 7 MAC/拍），否则读成为新瓶颈。',
+        'K 随输入波动（tie 数），时延上界按 worst-case 线性缩放。'
+      ] },
+    { id:'p5', name:'写 dims / 顶层胶合 write_dims', color:'#6b7280', cycles:35, beats:0, macs:0,
+      bound:'zero', boundTxt:'可忽略', ii:'35 拍',
+      desc:'写出维度元数据与顶层胶合，35 拍，线性时间轴上不可见（右端红色标记）。',
+      hints:['无需优化。'] }
+  ],
+  mapDesc: '列式副本（259.66 MiB，149 tile × 896 通道列 × 2 KiB）：每 tile 只读 64/896 列；行式 W（259.66 MiB）：精算阶段读 4,109 个分散行。',
+  counter2: { label:'预览 tile / 精算行', div:0, fmt:null }
+};
+
+/* ================= 视图构建 ================= */
+
+function buildView(cfg, mount){
+  mount.innerHTML = '';
+
+  /* 架构条 */
+  var arch = el('div','panel');
+  arch.appendChild(el('h2',null,'数据通路' + (cfg.key==='v3'?'':'')));
+  var archRow = el('div','arch');
+  function box(b, s){ return '<div class="box"><b>'+b+'</b><span>'+s+'</span></div>'; }
+  function arrow(t){ return '<div class="arr">'+t+'→</div>'; }
+  if (cfg.key === 'v3'){
+    archRow.innerHTML =
+      box('DDR：行式 W 259.66 MiB','151,936 行 × 1,792 B，BF16') + arrow('AXI 128 bit') +
+      box('全词表行流水点积','每行 112 拍读 + 896 MAC<br>≈155 拍/行 · DSP 59') + arrow('') +
+      box('top1 / score / CRC','mailbox 返回（写 logits 为调试模式）');
+  } else {
+    archRow.innerHTML =
+      box('PL DDR：列式 W 副本 259.66 MiB','149 tile × 896 通道列 × 2 KiB<br>每步只读 64 列/tile = 18.63 MiB') +
+      box('PL DDR：行式 W 259.66 MiB','精算按候选行读 4,109 × 1,792 B') +
+      arrow('AXI master ×2<br>64b 地址 / 128b 数据') +
+      box('选通道 → 预览 → radix → 精算','DSP 179 · BRAM18K 444<br>key 缓存 297 个 BRAM18K 片上') +
+      arrow('') + box('token / score / CRC','候选 policy 后输出');
+  }
+  arch.appendChild(archRow);
+  mount.appendChild(arch);
+
+  /* 播放控制 */
+  var ctl = el('div','panel');
+  ctl.innerHTML = '<h2>时间线回放<span class="en">拖动进度条可逐拍检查；点击阶段名或图块查看详情</span></h2>';
+  var controls = el('div','controls');
+  var btnPlay = el('button',null,'▶ 播放');
+  var btnReset = el('button',null,'↺ 复位');
+  var selSpeed = el('select');
+  var speeds = cfg.key==='v3' ? [[5e5,'慢速'],[2.5e6,'中速'],[1e7,'快速']] : [[1e5,'慢速'],[4e5,'中速'],[2e6,'快速']];
+  speeds.forEach(function(s){ var o=document.createElement('option'); o.value=s[0]; o.textContent=s[1]+'（'+s[0]/1e6+'M 拍/秒）'; selSpeed.appendChild(o); });
+  selSpeed.selectedIndex = 1;
+  var slider = el('input'); slider.type='range'; slider.min=0; slider.max=10000; slider.value=0; slider.step=1;
+  var timeLbl = el('span','num','0 拍 / 0.000 ms'); timeLbl.style.color='var(--mut)'; timeLbl.style.fontSize='12.5px';
+  controls.appendChild(btnPlay); controls.appendChild(btnReset);
+  controls.appendChild(el('span',null,'速度')).style.cssText='color:var(--mut);font-size:12.5px';
+  controls.appendChild(selSpeed);
+  controls.appendChild(slider); controls.appendChild(timeLbl);
+  ctl.appendChild(controls);
+
+  /* Gantt + 图例 */
+  var NS='http://www.w3.org/2000/svg';
+  var gantt = document.createElementNS(NS,'svg');
+  gantt.setAttribute('class','gantt'); gantt.setAttribute('viewBox','0 0 1000 56');
+  gantt.setAttribute('preserveAspectRatio','none');
+  var legend = el('div','legend');
+  var cum = 0, total = cfg.totalCycles;
+  cfg.phases.forEach(function(p){
+    var x0 = cum/total*1000, w = Math.max(p.cycles/total*1000, 0.8);
+    var r = document.createElementNS(NS,'rect');
+    r.setAttribute('x',x0.toFixed(2)); r.setAttribute('y',14); r.setAttribute('width',w.toFixed(2)); r.setAttribute('height',28);
+    r.setAttribute('rx',2); r.setAttribute('fill',p.color); r.setAttribute('fill-opacity','0.75');
+    if (p.cycles/total < 0.004) r.setAttribute('fill','#ff6b6b'); /* 微阶段用红标记 */
+    gantt.appendChild(r);
+    if (p.cycles/total >= 0.06){
+      var t = document.createElementNS(NS,'text');
+      t.setAttribute('x',(x0+w/2).toFixed(1)); t.setAttribute('y',52); t.setAttribute('text-anchor','middle');
+      t.setAttribute('fill','#98a2ad'); t.setAttribute('font-size','11');
+      t.textContent = fmtMs(p.cycles)+' ms';
+      gantt.appendChild(t);
+    }
+    cum += p.cycles;
+    var it = el('div','it');
+    it.innerHTML = '<span class="sw" style="background:'+p.color+'"></span>'+p.name+
+      ' <span class="num">'+fmtInt(p.cycles)+' 拍</span>';
+    it.addEventListener('click',function(){ showDetail(p); });
+    legend.appendChild(it);
+    p._el = it;
+  });
+  var gh = document.createElementNS(NS,'line');
+  gh.setAttribute('x1',0); gh.setAttribute('x2',0); gh.setAttribute('y1',8); gh.setAttribute('y2',46);
+  gh.setAttribute('stroke','#ff6b6b'); gh.setAttribute('stroke-width','1.5');
+  gantt.appendChild(gh);
+  ctl.appendChild(gantt); ctl.appendChild(legend);
+  mount.appendChild(ctl);
+
+  /* 计数器 */
+  var cntPanel = el('div','panel');
+  cntPanel.appendChild(el('h2',null,'实时计数'));
+  var grid = el('div','counters');
+  var cells = {};
+  [['phase','当前阶段'],['cyc','累计周期'],['t','时间 @200MHz'],['bytes','已读字节'],
+   ['util','读拍占用（累计）'],['gbps','瞬时读带宽'],['macs','已完成 MAC'],['mpc','累计 MAC/拍'],['extra','—']
+  ].forEach(function(k){
+    var c = el('div','cell'); c.innerHTML = '<div class="k">'+k[1]+'</div><div class="v num">—</div>';
+    grid.appendChild(c); cells[k[0]] = c;
+  });
+  cntPanel.appendChild(grid);
+  var detail = el('div','detail'); cntPanel.appendChild(detail);
+  mount.appendChild(cntPanel);
+
+  /* 曲线（带宽 / 计算吞吐） */
+  var chartPanel = el('div','panel');
+  chartPanel.innerHTML = '<h2>随时间变化：DDR 读吞吐与计算吞吐<span class="en">分段常数为阶段平均值；红色虚线 = 单个 128 bit AXI master @200 MHz 上限 3.2 GB/s</span></h2>';
+  var stack = el('div','chartStack');
+  var svg1 = document.createElementNS(NS,'svg'); svg1.setAttribute('viewBox','0 0 1000 130');
+  var svg2 = document.createElementNS(NS,'svg'); svg2.setAttribute('viewBox','0 0 1000 130');
+  var ph1 = el('div','playhead');
+  stack.appendChild(el('div',null,'<span style="font-size:12px;color:var(--mut)">DDR 读吞吐（GB/s）</span>'));
+  stack.appendChild(svg1);
+  stack.appendChild(el('div',null,'<span style="font-size:12px;color:var(--mut)">计算吞吐（MAC/拍）</span>'));
+  stack.appendChild(svg2);
+  stack.appendChild(ph1);
+  chartPanel.appendChild(stack);
+  mount.appendChild(chartPanel);
+
+  /* DDR 访存图 */
+  var mapPanel = el('div','panel maps');
+  mapPanel.innerHTML = '<h2>DDR 地址空间访问图<span class="en">'+cfg.mapDesc+'</span></h2>';
+  var mapA = document.createElement('canvas'); var mapB = null; var mapZoom = null;
+  mapPanel.appendChild(el('label',null, cfg.key==='v3' ? '行式 W 区（259.66 MiB，顺序扫描）' : '列式 W 副本区（259.66 MiB，149 tile；每格亮度∝该 tile 已读比例，实际只读 7.1% 列）'));
+  mapPanel.appendChild(mapA);
+  var ptrA = el('div','ptr','—');
+  mapPanel.appendChild(ptrA);
+  if (cfg.key === 'v4'){
+    mapZoom = document.createElement('canvas');
+    mapPanel.appendChild(el('label',null,'当前 tile 放大：896 条通道列（每列 2 KiB 连续），点亮 = 本步选中的 64 列'));
+    mapPanel.appendChild(mapZoom);
+    mapB = document.createElement('canvas');
+    mapPanel.appendChild(el('label',null,'行式 W 区（259.66 MiB）：精算阶段 4,109 行 × 1,792 B 分散读（示意分布，行宽画为 2 px）'));
+    mapPanel.appendChild(mapB);
+  }
+  var ptrB = el('div','ptr','—');
+  mapPanel.appendChild(ptrB);
+  mapPanel.appendChild(el('div','note', cfg.noteTop));
+  mount.appendChild(mapPanel);
+
+  /* 详情 */
+  function showDetail(p){
+    var macsTxt = p.macs ? fmtInt(p.macs)+' MAC' : '0 MAC';
+    var beatsTxt = p.beats === null ? '小量（未单列）' : (p.beats === 0 ? '0 拍（不读 W）' : fmtInt(p.beats)+' 拍 = '+fmtMiB(p.beats*16)+' MiB');
+    detail.innerHTML = '<h3>'+p.name+' <span class="tag '+p.bound+'">'+p.boundTxt+'</span></h3>'+
+      '<div class="meta">'+fmtInt(p.cycles)+' 拍 · '+fmtMs(p.cycles)+' ms · 读 '+beatsTxt+' · '+macsTxt+' · '+p.ii+'</div>'+
+      '<div>'+p.desc+'</div><ul>'+p.hints.map(function(h){return '<li>'+h+'</li>';}).join('')+'</ul>';
+    cfg.phases.forEach(function(q){ q._el.classList.toggle('on', q===p); });
+  }
+
+  /* 预计算：PRNG 分布 */
+  var tileDots = [], tileCols = [], rowPos = [];
+  if (cfg.key === 'v4'){
+    for (var tI=0; tI<TILES; tI++){
+      var rnd = mulberry32(1234 + tI*77);
+      var ds = [], cols = new Array(896).fill(false);
+      for (var kI=0; kI<64; kI++){
+        ds.push(rnd());
+        var ci = Math.floor(rnd()*896); if (cols[ci]) ci = (ci+1)%896; cols[ci]=true;
+      }
+      tileDots.push(ds); tileCols.push(cols);
+    }
+    var rr = mulberry32(4109);
+    for (var rI=0; rI<4109; rI++) rowPos.push(rr());
+  }
+
+  /* 采样序列 */
+  function phaseAt(c){
+    var acc = 0;
+    for (var i=0;i<cfg.phases.length;i++){
+      acc += cfg.phases[i].cycles;
+      if (c < acc) return { p: cfg.phases[i], idx:i, within: c-(acc-cfg.phases[i].cycles) };
+    }
+    return { p: cfg.phases[cfg.phases.length-1], idx:cfg.phases.length-1, within:cfg.phases[cfg.phases.length-1].cycles };
+  }
+  function rateOf(p){ return p.beats && p.cycles ? p.beats/p.cycles : 0; }
+  function macRateOf(p){ return p.cycles ? p.macs/p.cycles : 0; }
+
+  /* 画曲线 */
+  function drawCharts(){
+    function draw(svg, valFn, yMax, yLabelFmt, refLine){
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      var mL=46, mR=8, mT=8, mB=20, W=1000, Hh=130;
+      var totalMs = cfg.totalCycles/F*1000;
+      var x = function(ms){ return mL + ms/totalMs*(W-mL-mR); };
+      var y = function(v){ return mT + (1-v/yMax)*(Hh-mT-mB); };
+      /* 阶段底色 */
+      var acc=0;
+      cfg.phases.forEach(function(p,i){
+        var x0=x(acc/F*1000), x1=x((acc+p.cycles)/F*1000);
+        var r=document.createElementNS(NS,'rect');
+        r.setAttribute('x',x0); r.setAttribute('y',mT); r.setAttribute('width',Math.max(x1-x0,0.5)); r.setAttribute('height',Hh-mT-mB);
+        r.setAttribute('fill',p.color); r.setAttribute('fill-opacity', i%2 ? '0.05' : '0.11');
+        svg.appendChild(r);
+        acc+=p.cycles;
+      });
+      /* 网格与轴 */
+      [0,0.25,0.5,0.75,1].forEach(function(f){
+        var yy=y(f*yMax);
+        var ln=document.createElementNS(NS,'line');
+        ln.setAttribute('x1',mL); ln.setAttribute('x2',W-mR); ln.setAttribute('y1',yy); ln.setAttribute('y2',yy);
+        ln.setAttribute('stroke','#2a323c'); ln.setAttribute('stroke-width','1');
+        svg.appendChild(ln);
+        var tx=document.createElementNS(NS,'text');
+        tx.setAttribute('x',mL-6); tx.setAttribute('y',yy+4); tx.setAttribute('text-anchor','end');
+        tx.setAttribute('fill','#98a2ad'); tx.setAttribute('font-size','11');
+        tx.textContent = yLabelFmt(f*yMax);
+        svg.appendChild(tx);
+      });
+      if (refLine){
+        var rl=document.createElementNS(NS,'line');
+        rl.setAttribute('x1',mL); rl.setAttribute('x2',W-mR); rl.setAttribute('y1',y(refLine)); rl.setAttribute('y2',y(refLine));
+        rl.setAttribute('stroke','#ff9d5c'); rl.setAttribute('stroke-width','1'); rl.setAttribute('stroke-dasharray','5 4');
+        svg.appendChild(rl);
+        var rt=document.createElementNS(NS,'text');
+        rt.setAttribute('x',W-mR-4); rt.setAttribute('y',y(refLine)-4); rt.setAttribute('text-anchor','end');
+        rt.setAttribute('fill','#ff9d5c'); rt.setAttribute('font-size','10.5');
+        rt.textContent='单 master 上限 3.2 GB/s';
+        svg.appendChild(rt);
+      }
+      /* 分段常数阶梯面积 */
+      var acc2=0, d='M '+x(0)+' '+y(0);
+      cfg.phases.forEach(function(p){
+        var x1=x(acc2/F*1000), x2=x((acc2+p.cycles)/F*1000), yy=y(Math.min(valFn(p),yMax));
+        d += ' L '+x1+' '+yy+' L '+x2+' '+yy;
+        acc2+=p.cycles;
+      });
+      d += ' L '+x(totalMs)+' '+y(0)+' Z';
+      var area=document.createElementNS(NS,'path');
+      area.setAttribute('d',d); area.setAttribute('fill','#4f8ef7'); area.setAttribute('fill-opacity','0.28');
+      svg.appendChild(area);
+      var line=document.createElementNS(NS,'path');
+      line.setAttribute('d',d.replace(/ Z$/,'')); line.setAttribute('fill','none');
+      line.setAttribute('stroke','#7fb1ff'); line.setAttribute('stroke-width','1.6');
+      svg.appendChild(line);
+      /* x 轴刻度 */
+      for (var i=0;i<=4;i++){
+        var ms=totalMs*i/4, xx=x(ms);
+        var ln2=document.createElementNS(NS,'line');
+        ln2.setAttribute('x1',xx); ln2.setAttribute('x2',xx); ln2.setAttribute('y1',Hh-mB); ln2.setAttribute('y2',Hh-mB+4);
+        ln2.setAttribute('stroke','#2a323c'); svg.appendChild(ln2);
+        var tx2=document.createElementNS(NS,'text');
+        tx2.setAttribute('x',xx); tx2.setAttribute('y',Hh-4); tx2.setAttribute('text-anchor', i===0?'start':(i===4?'end':'middle'));
+        tx2.setAttribute('fill','#98a2ad'); tx2.setAttribute('font-size','11');
+        tx2.textContent=ms.toFixed(1);
+        svg.appendChild(tx2);
+      }
+      var xt=document.createElementNS(NS,'text');
+      xt.setAttribute('x',W-mR); xt.setAttribute('y',mT+2); xt.setAttribute('text-anchor','end');
+      xt.setAttribute('fill','#98a2ad'); xt.setAttribute('font-size','10.5');
+      xt.textContent='ms'; svg.appendChild(xt);
+    }
+    draw(svg1, function(p){ return rateOf(p)*16*F/1e9; }, 3.6, function(v){return v.toFixed(1);}, AXI_GBPS);
+    draw(svg2, function(p){ return macRateOf(p); }, 8, function(v){return v.toFixed(1);}, null);
+  }
+  drawCharts();
+
+  /* 画 DDR 图 */
+  function prepCanvas(cv, hPx){
+    var w = cv.parentNode ? cv.clientWidth || 900 : 900;
+    var dpr = window.devicePixelRatio || 1;
+    cv.width = Math.round(w*dpr); cv.height = Math.round(hPx*dpr);
+    cv.style.height = hPx+'px';
+    var ctx = cv.getContext('2d');
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,w,hPx);
+    return { ctx:ctx, w:w, h:hPx };
+  }
+  function drawMaps(cyc){
+    var at = phaseAt(cyc);
+    if (cfg.key === 'v3'){
+      var A = prepCanvas(mapA, 30);
+      A.ctx.fillStyle = '#1b2129'; A.ctx.fillRect(0,0,A.w,A.h);
+      var frac = Math.min(1, cyc/cfg.totalCycles);
+      var pw = A.w*frac;
+      A.ctx.fillStyle = 'rgba(79,142,247,0.55)'; A.ctx.fillRect(0,3,pw,A.h-6);
+      A.ctx.fillStyle = '#dbe6ff'; A.ctx.fillRect(Math.max(pw-2,0),1,2,A.h-2);
+      var rowsDone = Math.floor(151936*frac);
+      ptrA.textContent = '已扫 ' + fmtInt(rowsDone) + ' 行 / 151,936 · ' + fmtMiB(272269312*frac) + ' / 259.66 MiB';
+      ptrB.textContent = '输出：top1 / score / CRC（mailbox，字节量可忽略）';
+    } else {
+      /* 列式副本 overview */
+      var Av = prepCanvas(mapA, 30);
+      Av.ctx.fillStyle = '#1b2129'; Av.ctx.fillRect(0,0,Av.w,Av.h);
+      var prevP = cfg.phases[1];
+      var prevProg = (at.idx===1) ? at.within/prevP.cycles : (at.idx>1 ? 1 : 0);
+      var tilesDone = Math.floor(prevProg*TILES);
+      var cw = Av.w/TILES;
+      for (var t2=0; t2<tilesDone; t2++) drawTile(Av, t2, cw, 1);
+      if (prevProg>0 && tilesDone<TILES) drawTile(Av, tilesDone, cw, (prevProg*TILES)-tilesDone);
+      function drawTile(C, ti, cwv, f){
+        C.ctx.fillStyle = 'rgba(79,142,247,0.13)';
+        C.ctx.fillRect(ti*cwv, 3, Math.max(cwv*f,0.5), C.h-6);
+        var dots = tileDots[ti], n = Math.floor(dots.length*Math.min(f,1));
+        C.ctx.fillStyle = 'rgba(150,190,255,0.85)';
+        for (var dj=0; dj<n; dj++)
+          C.ctx.fillRect(ti*cwv + dots[dj]*(cwv-1), 3+((dj*7)%(C.h-8)), 1, 1.6);
+      }
+      ptrA.textContent = '预览 tile：' + fmtInt(Math.floor(prevProg*TILES)) + ' / 149 · 已读 ' +
+        fmtMiB(1220608*16*prevProg) + ' / 18.63 MiB（列式区每 tile 实读 7.1%）';
+      /* 当前 tile 放大 */
+      var Z = prepCanvas(mapZoom, 26);
+      Z.ctx.fillStyle = '#1b2129'; Z.ctx.fillRect(0,0,Z.w,Z.h);
+      var curTile = Math.min(TILES-1, Math.floor(prevProg*TILES));
+      var colW = Z.w/896;
+      Z.ctx.fillStyle = 'rgba(139,147,163,0.35)';
+      Z.ctx.fillRect(0,3,Z.w,Z.h-6);
+      var sel = tileCols[curTile] || [];
+      Z.ctx.fillStyle = '#9ecbff';
+      for (var c2=0; c2<896; c2++) if (sel[c2]) Z.ctx.fillRect(c2*colW, 2, Math.max(colW*0.8,1), Z.h-4);
+      /* 行式 W 散点 */
+      var B = prepCanvas(mapB, 30);
+      B.ctx.fillStyle = '#1b2129'; B.ctx.fillRect(0,0,B.w,B.h);
+      var exP = cfg.phases[3];
+      var exProg = (at.idx===3) ? at.within/exP.cycles : (at.idx>3 ? 1 : 0);
+      var rowsD = Math.floor(exProg*4109);
+      B.ctx.fillStyle = 'rgba(70,199,138,0.9)';
+      for (var r2=0; r2<rowsD; r2++)
+        B.ctx.fillRect(rowPos[r2]*(B.w-2), 6, 2, B.h-12);
+      ptrB.textContent = '精算行：' + fmtInt(rowsD) + ' / 4,109（每行 1,792 B 分散 burst）· 已读 ' +
+        fmtMiB(460208*16*exProg) + ' / 7.02 MiB';
+    }
+  }
+
+  /* 计数刷新 */
+  function refresh(cyc){
+    cyc = Math.max(0, Math.min(cyc, cfg.totalCycles));
+    var at = phaseAt(cyc), p = at.p;
+    var accB=0, accM=0, cum2=0;
+    cfg.phases.forEach(function(q){
+      var c = Math.min(Math.max(cyc-cum2,0), q.cycles);
+      var f = q.cycles ? c/q.cycles : 0;
+      accB += (q.beats||0)*f; accM += q.macs*f;
+      cum2 += q.cycles;
+    });
+    cells.phase.querySelector('.v').innerHTML = p.name;
+    cells.phase.querySelector('.v').style.color = p.color;
+    cells.cyc.querySelector('.v').textContent = fmtInt(cyc);
+    cells.t.querySelector('.v').textContent = fmtMs(cyc)+' ms';
+    cells.bytes.querySelector('.v').innerHTML = fmtMiB(accB*16)+' <small>MiB</small>';
+    cells.util.querySelector('.v').textContent = cyc ? pct(accB/cyc) : '—';
+    cells.gbps.querySelector('.v').textContent = (rateOf(p)*16*F/1e9).toFixed(2)+' GB/s';
+    cells.macs.querySelector('.v').textContent = accM>=1e6 ? (accM/1e6).toFixed(2)+' M' : fmtInt(accM);
+    cells.mpc.querySelector('.v').textContent = cyc ? (accM/cyc).toFixed(2) : '—';
+    if (cfg.key === 'v3'){
+      cells.extra.querySelector('.k').textContent = '已扫词表行';
+      cells.extra.querySelector('.v').textContent = fmtInt(Math.floor(151936*Math.min(1,cyc/cfg.totalCycles)))+' / 151,936';
+    } else {
+      cells.extra.querySelector('.k').textContent = '预览 tile / 精算行';
+      var pp = (at.idx===1)?at.within/cfg.phases[1].cycles:(at.idx>1?1:0);
+      var ep = (at.idx===3)?at.within/cfg.phases[3].cycles:(at.idx>3?1:0);
+      cells.extra.querySelector('.v').textContent = Math.floor(pp*149)+'/149 · '+fmtInt(Math.floor(ep*4109))+'/4,109';
+    }
+    var frac = cyc/cfg.totalCycles;
+    gh.setAttribute('x1', frac*1000); gh.setAttribute('x2', frac*1000);
+    ph1.style.left = (frac*100)+'%';
+    slider.value = Math.round(frac*10000);
+    timeLbl.textContent = fmtInt(cyc)+' 拍 / '+fmtMs(cyc)+' ms';
+    drawMaps(cyc);
+  }
+
+  /* 动画循环：rAF 为主；个别内嵌环境不派发 rAF，用 50ms 定时器兜底（按墙钟增量推进，双驱动不会重复计时） */
+  var state = { cycle:0, playing:false };
+  var lastAdv = null, timerId = null;
+  function step(now){
+    if (lastAdv !== null && state.playing){
+      state.cycle += (now-lastAdv)/1000 * parseFloat(selSpeed.value);
+      if (state.cycle >= cfg.totalCycles){
+        state.cycle = cfg.totalCycles; state.playing=false; btnPlay.textContent='▶ 播放';
+      }
+      refresh(state.cycle);
+    }
+    lastAdv = now;
+  }
+  function tick(ts){ step(ts || performance.now()); if (api._active) requestAnimationFrame(tick); }
+  function tickTimer(){ if (api._active) step(performance.now()); }
+  btnPlay.addEventListener('click',function(){
+    if (state.cycle >= cfg.totalCycles) state.cycle = 0;
+    state.playing = !state.playing;
+    btnPlay.textContent = state.playing ? '⏸ 暂停' : '▶ 播放';
+  });
+  btnReset.addEventListener('click',function(){ state.cycle=0; state.playing=false; btnPlay.textContent='▶ 播放'; refresh(0); });
+  slider.addEventListener('input',function(){
+    state.playing=false; btnPlay.textContent='▶ 播放';
+    state.cycle = slider.value/10000*cfg.totalCycles;
+    refresh(state.cycle);
+  });
+  stack.addEventListener('click',function(ev){
+    var r = stack.getBoundingClientRect();
+    var f = (ev.clientX-r.left)/r.width;
+    state.playing=false; btnPlay.textContent='▶ 播放';
+    state.cycle = Math.max(0,Math.min(1,f))*cfg.totalCycles;
+    refresh(state.cycle);
+  });
+
+  showDetail(cfg.phases[1]);
+  refresh(0);
+
+  var api = {
+    _active:false, cfg:cfg,
+    activate:function(on){
+      api._active = on;
+      if (on){
+        lastAdv = null;
+        requestAnimationFrame(tick);
+        clearInterval(timerId);
+        timerId = setInterval(tickTimer, 50);
+      } else {
+        clearInterval(timerId);
+        state.playing = false;
+        btnPlay.textContent = '▶ 播放';
+      }
+    },
+    onResize:function(){ drawCharts(); refresh(state.cycle); }
+  };
+  return api;
+}
+
+/* ================= 对比页 ================= */
+
+function buildCompare(){
+  var t = $('#cmpTable');
+  var rows = [
+    ['指标','v3 全词表 dense（实测）','v4 d64/Top-4096（HLS 估计）','v4 / v3'],
+    ['周期 / 拍','23,550,361','3,642,879','15.5%（6.46× 加速）'],
+    ['时延 @200MHz','117.751805 ms','18.214 ms','—'],
+    ['W 读字节','272,269,312 B（259.66 MiB）','26,893,056 B（25.65 MiB）+meta≈60KB','9.9%'],
+    ['MAC 数','136,134,656','13,446,528','9.9%'],
+    ['平均读带宽','2.313 GB/s','1.478 GB/s','—'],
+    ['平均 MAC/拍','5.78','3.69','—'],
+    ['DDR 读忙碌占比','72.3%（全程读）','46.2%（8.40 ms）','—'],
+    ['资源（LUT/FF/BRAM/DSP）','23,148 / 40,194 / 22 tile / 59','52,680 / 129,572 / 444×18K / 179','—'],
+    ['算术强度','0.50 MAC/B（=BF16 理论值）','0.50 MAC/B（预览+精算同为 BF16 流）','—'],
+    ['质量状态','8 步全 logits 逐位一致（板测）','d64/T4096 新 1000 题 99.9465%','—'],
+    ['工程状态','板测 PASS，已交付 v3/v3.1','综合完成；联合 CoSim 进行中，未上板','—']
+  ];
+  var html = '';
+  rows.forEach(function(r,i){
+    html += '<tr'+(i===0?' style="color:var(--ink);font-weight:600"':'')+'><td>'+r[0]+'</td><td class="num">'+r[1]+'</td><td class="num'+(i>0?' hl':'')+'">'+r[2]+'</td><td class="num">'+r[3]+'</td></tr>';
+  });
+  t.innerHTML = html;
+
+  var bars = $('#cmpBars');
+  var items = [
+    ['时延 ms',117.75,18.21,117.75,'#4f8ef7','#46c78a'],
+    ['读字节 MiB',259.66,25.65,259.66,'#4f8ef7','#46c78a'],
+    ['MAC 百万',136.13,13.45,136.13,'#4f8ef7','#46c78a'],
+    ['周期 百万',23.55,3.64,23.55,'#4f8ef7','#46c78a']
+  ];
+  var bh = '';
+  items.forEach(function(it){
+    bh += '<div class="row"><div class="lbl">'+it[0]+'</div><div class="track">'+
+      '<div class="fill" style="width:'+(it[1]/it[3]*100)+'%;background:'+it[4]+'"></div></div>'+
+      '<div class="val num">v3 '+it[1].toFixed(2)+'</div></div>';
+    bh += '<div class="row"><div class="lbl"></div><div class="track">'+
+      '<div class="fill" style="width:'+(it[2]/it[3]*100)+'%;background:'+it[5]+'"></div></div>'+
+      '<div class="val num">v4 '+it[2].toFixed(2)+'（'+(it[2]/it[1]*100).toFixed(1)+'%）</div></div>';
+  });
+  bars.innerHTML = bh;
+
+  function stackRow(mount, v3ms, v4phases){
+    var mx = v3ms, sh = '';
+    sh += '<div class="row"><div class="lbl">v3（实测）</div><div class="track">'+
+      '<div style="width:'+(v3ms/mx*100)+'%;height:100%;background:#4f8ef7"></div></div>'+
+      '<div class="val num">117.752 ms</div></div>';
+    var segs='';
+    v4phases.forEach(function(p){ segs += '<div class="seg" style="width:'+(p[1]/mx*100)+'%;background:'+p[2]+'" title="'+p[0]+' '+p[1].toFixed(3)+' ms"></div>'; });
+    sh += '<div class="row"><div class="lbl">v4（估计）</div><div class="track">'+segs+'</div>'+
+      '<div class="val num">18.214 ms（6.46×）</div></div>';
+    mount.innerHTML = sh;
+  }
+  stackRow($('#stackBars'), 117.752, [
+    ['通道选择',0.365,'#8b93a3'],['预览扫描',6.561,'#4f8ef7'],['radix',7.803,'#f0a635'],['候选精算',3.485,'#46c78a'],['输出',0.0002,'#6b7280']
+  ]);
+
+  /* 参数敏感性 */
+  var QUAL = {
+    '64|4096':'已有质量结论：新 1000 题整体 99.9465%（最低英文 99.8381%）PASS',
+    '128|1024':'已有质量结论：校准与新题零漏选 PASS',
+    '128|4096':'已有质量结论：新题零漏选 PASS'
+  };
+  function sens(){
+    var d = parseInt($('#selD').value,10), T = parseInt($('#selT').value,10);
+    var pvB = TILES*d*128;
+    var pvC = Math.round(1312244*pvB/1220608);
+    var K = T + 13;
+    var exC = Math.round(653494*K/4109) + 43524;
+    var exB = K*112;
+    var tot = 73077 + pvC + 1560505 + exC + 35;
+    var bytes = (pvB+exB)*16;
+    var macs = (V+PAD)*d + K*H;
+    var ms = tot/F*1000;
+    var g = $('#sensGrid');
+    function cell(k,v){ return '<div class="cell"><div class="k">'+k+'</div><div class="v num">'+v+'</div></div>'; }
+    g.innerHTML =
+      cell('候选 K（模型 T+13）', fmtInt(K)) +
+      cell('总周期', fmtInt(tot)) +
+      cell('时延 @200MHz', ms.toFixed(2)+' ms') +
+      cell('vs v3 加速（周期比）', (23550361/tot).toFixed(2)+'×') +
+      cell('主读量', fmtMiB(bytes)+' MiB') +
+      cell('MAC 总数', (macs/1e6).toFixed(2)+' M') +
+      cell('预览阶段', fmtMs(pvC)+' ms') +
+      cell('精算阶段', fmtMs(exC)+' ms');
+    stackRow($('#sensStack'), 117.752, [
+      ['通道选择',73077/F*1000,'#8b93a3'],['预览扫描',pvC/F*1000,'#4f8ef7'],
+      ['radix',1560505/F*1000,'#f0a635'],['候选精算',exC/F*1000,'#46c78a'],['输出',35/F*1000,'#6b7280']
+    ]);
+    var q = QUAL[d+'|'+T];
+    $('#qualNote').textContent = q ? '● '+q : '○ 该 (d, T) 组合尚无质量验证结论 —— 换点必须重新验证';
+    $('#qualNote').style.color = q ? '#7ed8a5' : '#e5c069';
+  }
+  $('#selD').addEventListener('change', sens);
+  $('#selT').addEventListener('change', sens);
+  sens();
+}
+
+/* ================= Nsight 式踪迹时间线 ================= */
+
+var TR = { ver:'v3', lanes:null, total:1, t0:0, t1:1, hover:null, panDrag:null, mapDrag:false, geom:null };
+var trCv = null, trTipEl = null, trReadEl = null, trDetailEl = null;
+
+function rgbaA(hex, a){
+  var n = parseInt(hex.slice(1), 16);
+  return 'rgba(' + ((n>>16)&255) + ',' + ((n>>8)&255) + ',' + (n&255) + ',' + a + ')';
+}
+function mkSpan(name, t0, t1, color, label, extra){
+  var s = { name:name, t0:t0, t1:t1, color:color, label:label };
+  if (extra) for (var k in extra) s[k] = extra[k];
+  return s;
+}
+
+function buildTrace(ver){
+  if (ver === 'v3'){
+    var T = 23550361;
+    return { total:T,
+      chain: {
+        blocks: [
+          { t0:0, t1:112, color:'#7aa2f7', label:'读 hidden' },
+          { t0:112, t1:T, color:'#4f8ef7', label:'全词表流式点积（单一大阶段）' },
+          { t0:T-1, t1:T, color:'#6b7280', label:'输出' }
+        ],
+        bounds: [
+          { t:112, label:'读hidden → 全词表', reason:'hidden 896×BF16（112 拍）读入完成后，行流水才启动' },
+          { t:T, label:'全词表 → 输出', reason:'top1/score/CRC 经 mailbox 返回' }
+        ]
+      },
+      lanes:[
+      { name:'m_axi W 读流', sub:'行式W 259.66 MiB', busy:'72.3%', spans:[
+        mkSpan('读 hidden', 0, 112, '#7aa2f7', 'hidden', {
+          beats:112, ii:'112 拍一次读入',
+          desc:'hidden 896×BF16 = 1,792 B，一次读入。',
+          hints:['可与 W 首行预取重叠，非瓶颈。'] }),
+        mkSpan('全词表 W 流式读', 112, T, '#4f8ef7', '全词表W流式读 17,016,832拍', {
+          beats:17016832, ii:'≈155 拍/行',
+          tex:{ period:155.004, active:112, unit:'单行 112 拍连读 + 行间 ~43 拍' },
+          desc:'151,936 行 × ≈155 拍/行。读拍占用 72.3%（2.313 GB/s，单 master 上限 3.2 GB/s）。',
+          hints:['纯带宽下限 = 85.08 ms；加深 outstanding / 行预取上限约 1.38×。','计算仅 5.78 MAC/拍，非瓶颈；根治手段 = 减字节（v4 路线）。'] })
+      ]},
+      { name:'点积计算', sub:'DSP 59 · 平均 5.78 MAC/拍', busy:'≈100%', spans:[
+        mkSpan('151,936 行点积流水', 112, T, '#46c78a', '行点积流水（连续）', {
+          macs:136134656, ii:'行流水连续',
+          desc:'每行 896 次 FP32 MAC，行间流水不断流。',
+          hints:['加宽乘法不改变时延（读是瓶颈）。'] })
+      ]}
+    ]};
+  }
+  var B1=73077, B2=1385321, B3=2945826, B4=3642844, T4=3642879, EX=B3+5304;
+  return { total:T4,
+    chain: {
+      blocks: [
+        { t0:0, t1:B1, color:'#8b93a3', label:'P1 通道选择' },
+        { t0:B1, t1:B2, color:'#4f8ef7', label:'P2 预览扫描' },
+        { t0:B2, t1:B3, color:'#f0a635', label:'P3 radix Top-4096' },
+        { t0:B3, t1:B4, color:'#46c78a', label:'P4 候选精算' },
+        { t0:B4, t1:T4, color:'#6b7280', label:'P5 输出' }
+      ],
+      bounds: [
+        { t:B1, label:'P1 → P2', reason:'64 个通道选定后，预览才知道要读哪些通道列（列地址依赖选择结果）' },
+        { t:B2, label:'P2 → P3', reason:'151,936 个 key 必须全部写满片上缓存，radix 才能开始整表多趟扫描' },
+        { t:B3, label:'P3 → P4', reason:'Top-4096 候选表确定后，才能预取候选 ID 并开始行式精算' },
+        { t:B4, label:'P4 → P5', reason:'policy/CRC 完成后写出 dims / token / score' }
+      ],
+      ghost: { t0:B2, len:1312244 }
+    },
+    lanes:[
+    { name:'m_axi_meta', sub:'元数据小读（归属推断）', busy:'0.2%', spans:[
+      mkSpan('meta/hidden/history 读', 0, 1523, '#8b93a3', 'meta 小读 ≈1,523拍', {
+        beats:1523, ii:'小读',
+        desc:'通道选择所需的每通道 RMS 表 + hidden + history，合计 ≈1,523 拍（占该阶段 2%）。',
+        hints:['该阶段主体是 896 通道插入排序网络（~80 拍/通道）。'] }),
+      mkSpan('候选ID/history 预取', B3, EX, '#8b93a3', '候选预取 5,304拍', {
+        beats:5304, ii:'4,114 + 1,190 拍',
+        desc:'精算开始前预取 4,109 个候选 ID 与 history。',
+        hints:['可与 radix 尾部重叠。'] })
+    ]},
+    { name:'m_axi_weights', sub:'列式W + 行式W（归属推断）', busy:'46.2%',
+      gap:{ t0:B2, t1:EX, text:'读通道空闲 7.83 ms（43.0%）' },
+      spans:[
+        mkSpan('预览 W 列读', B1, B2, '#4f8ef7', '预览W列读 1,220,608拍', {
+          beats:1220608, macs:9764864, ii:'II=1（每拍1数据拍）',
+          tex:{ period:8806.99, active:8192, unit:'tile：8,192 拍连读 + ~615 拍换tile' },
+          desc:'149 tile × 64 条选中通道列（每列 2 KiB = 128 拍）。拍占用 93.0% = 2.98 GB/s，接近单 master 上限。',
+          hints:['meta master 此阶段闲置 → 双 master 分读 tile 可 ~2×（6.56→~3.3 ms）。','与相邻步 radix 重叠（双缓冲 key 缓存）可整体隐藏对方。'] }),
+        mkSpan('精算 W 行读', EX, EX+653494, '#46c78a', '精算W行读 460,208拍', {
+          beats:460208, macs:3681664, ii:'112 拍/行读',
+          tex:{ period:159.15, active:112, unit:'单行 112 拍读 + ~47 拍间隔' },
+          desc:'4,109 行 × 1,792 B 分散 burst（破坏 DDR 行缓冲）；拍占用 70.4% = 2.11 GB/s。',
+          hints:['候选 ID 排序 + 更深 outstanding 可把占用推向 ~93%（3.49→~2.5 ms）。'] })
+      ]},
+    { name:'片上计算', sub:'选道 / 累加 / radix / 点积', busy:'≈100%', spans:[
+      mkSpan('通道选择网络', 0, B1, '#8b93a3', '通道选择 73,077拍', {
+        ii:'896 通道插入网络', desc:'按 |h[ch]|·RMS 打分选 top-64 维。',
+        hints:['可与上一步输出重叠或改并行归并。'] }),
+      mkSpan('预览累加 + key 生成', B1, B2, '#4f8ef7', '预览累加 + key 生成', {
+        macs:9764864, ii:'8 MAC/拍', desc:'边累加 64 维部分点积边生成 32bit 组合 key 写片上缓存。',
+        hints:[] }),
+      mkSpan('radix Top-4096', B2, B3, '#f0a635', 'radix 1,560,505拍（DDR 空闲）', {
+        ii:'每 key II=2',
+        tex:{ period:2, active:1, unit:'每 key 2 拍（II=2）' },
+        desc:'片上 key 缓存（151,936×32bit）多趟基数直方图 + 桶扫描；不读 W。',
+        hints:['II 2→1 省约 0.6M 拍（~3 ms）；与下一步预览重叠收益最大。'] }),
+      mkSpan('精算点积/归约', EX, EX+653494, '#46c78a', '点积/归约 525,952拍', {
+        macs:3681664, ii:'128 拍/行（7 MAC/拍）',
+        tex:{ period:159.15, active:128, unit:'每行点积 128 拍' },
+        desc:'与行读重叠执行：计算 525,952 拍 vs 读 460,208 拍，接近平衡。',
+        hints:['先提读效率，再考虑加宽乘法。'] }),
+      mkSpan('policy/写回', EX+653494, B4, '#6b7280', 'policy/写回+余量', {
+        ii:'8,244 + 顶层余量', desc:'候选 policy、CRC 与顶层胶合余量。',
+        hints:[] })
+    ]}
+  ]};
+}
+
+function trSetVer(ver){
+  var t = buildTrace(ver);
+  TR.ver = ver; TR.lanes = t.lanes; TR.total = t.total; TR.chain = t.chain;
+  TR.t0 = 0; TR.t1 = t.total; TR.hover = null; TR.panDrag = null; TR.mapDrag = false;
+  $('#trV3').classList.toggle('active', ver === 'v3');
+  $('#trV4').classList.toggle('active', ver === 'v4');
+  $('#trGap').textContent = ver === 'v4' ? '⇢ 跳到读空闲' : '⇢ 缩放到行节奏';
+  $('#trGhostWrap').style.display = ver === 'v4' ? '' : 'none';
+  if (ver !== 'v4'){ TR.ghost = false; var gc = $('#trGhost'); if (gc) gc.checked = false; }
+  trTipEl.style.display = 'none';
+  trRender();
+}
+
+function trClampView(){
+  var MINW = 200;
+  if (TR.t1 - TR.t0 < MINW) TR.t1 = TR.t0 + MINW;
+  if (TR.t1 > TR.total) { TR.t1 = TR.total; TR.t0 = Math.max(0, TR.t1 - MINW); }
+  if (TR.t0 < 0){ TR.t0 = 0; TR.t1 = Math.min(TR.total, TR.t0 + (TR.t1 - TR.t0)); }
+}
+
+function trRender(){
+  if (!trCv) return;
+  var wrap = $('#trWrap');
+  var W = wrap.clientWidth || 1000;
+  var dpr = window.devicePixelRatio || 1;
+  var lanes = TR.lanes;
+  var HDR = 190, rulerH = 30, chainH = 26, laneH = 40, gapH = 8, bwH = 62, mapH = 34;
+  var H = rulerH + chainH + lanes.length * laneH + gapH + bwH + 10 + mapH + 4;
+  trCv.width = Math.round(W * dpr); trCv.height = Math.round(H * dpr);
+  trCv.style.height = H + 'px';
+  var ctx = trCv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = '#11151b'; ctx.fillRect(0, 0, W, H);
+  var X0 = HDR, X1 = W - 10;
+  var t0 = TR.t0, t1 = TR.t1, vis = t1 - t0;
+  var pxc = (X1 - X0) / vis;
+  function X(t){ return X0 + (t - t0) * pxc; }
+  function T(x){ return t0 + (x - X0) / pxc; }
+  var laneY = rulerH + chainH;
+  var chainY = rulerH;
+  var bwY = rulerH + chainH + lanes.length * laneH + gapH;
+  var mapY = bwY + bwH + 10;
+  TR.geom = { X0:X0, X1:X1, pxc:pxc, t0:t0, t1:t1, rulerH:rulerH, chainY:chainY, chainH:chainH, laneH:laneH, laneY:laneY, bwY:bwY, mapY:mapY, mapH:mapH, W:W };
+
+  /* 泳道背景与表头 */
+  ctx.font = '11.5px system-ui';
+  lanes.forEach(function(l, i){
+    var y = laneY + i * laneH;
+    ctx.fillStyle = i % 2 ? '#12161c' : '#151a21';
+    ctx.fillRect(X0, y, X1 - X0, laneH - 4);
+    ctx.fillStyle = '#c7cdd6'; ctx.font = '600 11.5px system-ui';
+    ctx.fillText(l.name, 10, y + 14);
+    ctx.fillStyle = '#7d8691'; ctx.font = '10.5px system-ui';
+    ctx.fillText(l.sub, 10, y + 27);
+    ctx.fillStyle = '#7ed8a5';
+    ctx.fillText('忙 ' + l.busy, 10, y + 37);
+    /* 空闲区斜线标注 */
+    if (l.gap){
+      var gx0 = Math.max(X(l.gap.t0), X0), gx1 = Math.min(X(l.gap.t1), X1);
+      if (gx1 > gx0){
+        ctx.save();
+        ctx.beginPath(); ctx.rect(gx0, y, gx1 - gx0, laneH - 4); ctx.clip();
+        ctx.fillStyle = 'rgba(240,166,53,0.06)'; ctx.fillRect(gx0, y, gx1 - gx0, laneH - 4);
+        ctx.strokeStyle = 'rgba(240,166,53,0.30)'; ctx.lineWidth = 1;
+        for (var hx = gx0 - (laneH - 4); hx < gx1; hx += 7){
+          ctx.beginPath(); ctx.moveTo(hx, y + laneH - 4); ctx.lineTo(hx + laneH - 4, y); ctx.stroke();
+        }
+        ctx.restore();
+        if (gx1 - gx0 > 130 && !TR.ghost){
+          ctx.fillStyle = '#f0a635'; ctx.font = '600 11px system-ui'; ctx.textAlign = 'center';
+          ctx.fillText(l.gap.text, (gx0 + gx1) / 2, y + laneH / 2 + 1);
+          ctx.textAlign = 'left';
+        }
+      }
+    }
+  });
+
+  /* 色块 */
+  lanes.forEach(function(l, i){
+    var y = laneY + i * laneH;
+    l.spans.forEach(function(s){
+      var sx = Math.max(X(s.t0), X0), ex = Math.min(X(s.t1), X1);
+      if (ex <= sx) return;
+      var w = Math.max(ex - sx, 1);
+      var hov = TR.hover && TR.hover.span === s;
+      var bh = laneH - 12, by = y + 4;
+      ctx.fillStyle = rgbaA(s.color, 0.30);
+      ctx.fillRect(sx, by, w, bh);
+      var showTex = s.tex && s.tex.period * pxc >= 11 && (s.t1 - s.t0) / s.tex.period < 2500;
+      if (showTex){
+        ctx.fillStyle = s.color;
+        var u0 = s.t0 + Math.floor((Math.max(s.t0, t0) - s.t0) / s.tex.period) * s.tex.period;
+        for (var u = u0; u < Math.min(s.t1, t1); u += s.tex.period){
+          var ax0 = Math.max(X(u), X0), ax1 = Math.min(X(u + s.tex.active), X1);
+          if (ax1 > ax0) ctx.fillRect(ax0, by, Math.max(ax1 - ax0, 0.8), bh);
+        }
+      } else {
+        ctx.fillStyle = rgbaA(s.color, 0.92);
+        ctx.fillRect(sx, by, w, bh);
+      }
+      if (hov){
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.2;
+        ctx.strokeRect(sx + 0.5, by + 0.5, w - 1, bh - 1);
+      }
+      if (w > 64){
+        ctx.fillStyle = '#0d1117'; ctx.font = '600 10.5px system-ui';
+        var txt = s.label, maxw = w - 10;
+        while (ctx.measureText(txt).width > maxw && txt.length > 3) txt = txt.slice(0, -2);
+        if (txt !== s.label) txt += '…';
+        if (ctx.measureText(txt).width <= maxw) ctx.fillText(txt, sx + 5, by + bh / 2 + 4);
+      }
+    });
+  });
+
+  /* 阶段串行链（顶部行）：阶段块首尾相接 + 边界贯穿线 + 下一步假想 */
+  var ch = TR.chain;
+  if (ch){
+    ctx.fillStyle = '#141920'; ctx.fillRect(X0, chainY, X1 - X0, chainH);
+    ctx.strokeStyle = '#2a323c';
+    ctx.beginPath(); ctx.moveTo(X0, chainY + 0.5); ctx.lineTo(X1, chainY + 0.5); ctx.stroke();
+    ch.blocks.forEach(function(b){
+      var sx2 = Math.max(X(b.t0), X0), ex2 = Math.min(X(b.t1), X1);
+      if (ex2 <= sx2) return;
+      var w2 = Math.max(ex2 - sx2, 1.5);
+      ctx.fillStyle = rgbaA(b.color, 0.85);
+      ctx.fillRect(sx2, chainY + 4, w2, chainH - 9);
+      if (w2 > 62){
+        ctx.fillStyle = '#0d1117'; ctx.font = '600 10.5px system-ui';
+        var bt2 = b.label, mw2 = w2 - 10;
+        while (ctx.measureText(bt2).width > mw2 && bt2.length > 3) bt2 = bt2.slice(0, -2);
+        if (bt2 !== b.label) bt2 += '…';
+        ctx.fillText(bt2, sx2 + 5, chainY + chainH / 2 + 2);
+      }
+    });
+    ctx.fillStyle = '#c7cdd6'; ctx.font = '600 11px system-ui';
+    ctx.fillText('阶段链（严格串行）', 10, chainY + 12);
+    ctx.fillStyle = '#7d8691'; ctx.font = '9.5px system-ui';
+    ctx.fillText('Σ = 总时长 · 0 拍跨阶段重叠', 10, chainY + 23);
+    ch.bounds.forEach(function(b){
+      var bx = X(b.t);
+      if (bx < X0 || bx > X1) return;
+      ctx.strokeStyle = 'rgba(232,234,237,0.28)'; ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(bx, chainY + chainH - 5); ctx.lineTo(bx, bwY); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#e8eaed';
+      ctx.beginPath();
+      ctx.moveTo(bx, chainY + chainH - 10);
+      ctx.lineTo(bx + 3.5, chainY + chainH - 5.5);
+      ctx.lineTo(bx, chainY + chainH - 1);
+      ctx.lineTo(bx - 3.5, chainY + chainH - 5.5);
+      ctx.closePath(); ctx.fill();
+    });
+    if (TR.ghost && ch.ghost){
+      var gh = ch.ghost, wl = laneY + 1 * laneH;
+      var ggx0 = Math.max(X(gh.t0), X0), ggx1 = Math.min(X(gh.t0 + gh.len), X1);
+      if (ggx1 > ggx0){
+        ctx.fillStyle = 'rgba(122,162,247,0.13)';
+        ctx.fillRect(ggx0, wl + 4, ggx1 - ggx0, laneH - 12);
+        ctx.strokeStyle = '#7aa2f7'; ctx.setLineDash([5, 4]);
+        ctx.strokeRect(ggx0 + 0.5, wl + 4.5, ggx1 - ggx0 - 1, laneH - 13);
+        ctx.setLineDash([]);
+        if (ggx1 - ggx0 > 110){
+          ctx.fillStyle = '#9ecbff'; ctx.font = '600 10.5px system-ui'; ctx.textAlign = 'center';
+          ctx.fillText('下一步预览（假想：双缓冲 key 缓存后可与 radix 重叠）', (ggx0 + ggx1) / 2, wl + laneH / 2 + 2);
+          ctx.textAlign = 'left';
+        }
+        ctx.fillStyle = '#7ed8a5'; ctx.font = '600 10.5px system-ui';
+        var gt = '理想流水步长 18.21 → 10.41 ms（回收 radix ' + fmtMs(1560505) + ' ms）';
+        var gtw = ctx.measureText(gt).width;
+        if (X1 - gtw - 10 > X0 + 200) ctx.fillText(gt, X1 - gtw - 8, chainY + 12);
+      }
+    }
+  }
+
+  /* 标尺 */
+  ctx.fillStyle = '#0f1319'; ctx.fillRect(0, 0, W, rulerH);
+  ctx.strokeStyle = '#2a323c'; ctx.beginPath(); ctx.moveTo(0, rulerH - 0.5); ctx.lineTo(W, rulerH - 0.5); ctx.stroke();
+  var step = 1;
+  var steps = [1, 2, 5];
+  var target = 80 / pxc, p = Math.pow(10, Math.floor(Math.log10(target)));
+  for (var si = 0; si < steps.length; si++){ step = steps[si] * p; if (step >= target) break; }
+  if (step < 1) step = 1;
+  ctx.font = '10px system-ui';
+  for (var tk = Math.ceil(t0 / step) * step; tk <= t1; tk += step){
+    var tx = X(tk);
+    ctx.strokeStyle = '#39424d';
+    ctx.beginPath(); ctx.moveTo(tx, rulerH - 7); ctx.lineTo(tx, rulerH); ctx.stroke();
+    ctx.strokeStyle = 'rgba(42,50,60,0.5)';
+    ctx.beginPath(); ctx.moveTo(tx, laneY); ctx.lineTo(tx, bwY); ctx.stroke();
+    ctx.fillStyle = '#98a2ad'; ctx.textAlign = 'center';
+    ctx.fillText(fmtMs(tk) + ' ms', tx, rulerH - 17);
+    ctx.fillStyle = '#5f6873';
+    ctx.fillText(tk >= 1e6 ? (tk / 1e6).toFixed(2) + 'M拍' : (tk >= 1e3 ? Math.round(tk / 1e3) + 'K拍' : tk + '拍'), tx, rulerH - 6);
+    ctx.textAlign = 'left';
+  }
+
+  /* 悬停十字线 */
+  if (TR.hover){
+    var hx = X(TR.hover.t);
+    ctx.strokeStyle = 'rgba(255,107,107,0.75)';
+    ctx.beginPath(); ctx.moveTo(hx, 2); ctx.lineTo(hx, bwY); ctx.stroke();
+  }
+
+  /* 带宽条带 */
+  ctx.fillStyle = '#12161c'; ctx.fillRect(X0, bwY, X1 - X0, bwH);
+  ctx.fillStyle = '#7d8691'; ctx.font = '10.5px system-ui';
+  ctx.fillText('DDR 读带宽（GB/s，按泳道拍占用合成）', 10, bwY + 12);
+  var bwmL = 34, bwTop = bwY + 16, bwH2 = bwH - 20, bwMax = 3.6;
+  [0, 1, 2, 3].forEach(function(g){
+    var gy = bwTop + bwH2 - g / bwMax * bwH2;
+    ctx.strokeStyle = '#232a33';
+    ctx.beginPath(); ctx.moveTo(X0 + bwmL, gy); ctx.lineTo(X1, gy); ctx.stroke();
+    ctx.fillStyle = '#5f6873'; ctx.font = '9.5px system-ui'; ctx.textAlign = 'right';
+    ctx.fillText('' + g, X0 + bwmL - 4, gy + 3); ctx.textAlign = 'left';
+  });
+  var refY = bwTop + bwH2 - 3.2 / bwMax * bwH2;
+  ctx.strokeStyle = '#ff9d5c'; ctx.setLineDash([5, 4]);
+  ctx.beginPath(); ctx.moveTo(X0 + bwmL, refY); ctx.lineTo(X1, refY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  var started = false;
+  for (var bx = X0 + bwmL; bx <= X1; bx += 2){
+    var bt = T(bx), rate = 0;
+    TR.lanes.forEach(function(l){
+      l.spans.forEach(function(s){
+        if (s.beats && bt >= s.t0 && bt < s.t1) rate += s.beats / (s.t1 - s.t0);
+      });
+    });
+    var by2 = bwTop + bwH2 - Math.min(rate * 16 * F / 1e9, bwMax) / bwMax * bwH2;
+    if (!started){ ctx.moveTo(bx, by2); started = true; } else ctx.lineTo(bx, by2);
+  }
+  ctx.lineTo(X1, bwTop + bwH2); ctx.lineTo(X0 + bwmL, bwTop + bwH2); ctx.closePath();
+  ctx.fillStyle = 'rgba(79,142,247,0.25)'; ctx.fill();
+  ctx.strokeStyle = '#7fb1ff'; ctx.lineWidth = 1.4;
+  ctx.stroke();
+  ctx.lineWidth = 1;
+
+  /* 缩略图 */
+  ctx.fillStyle = '#12161c'; ctx.fillRect(X0, mapY, X1 - X0, mapH);
+  var mp = (X1 - X0) / TR.total;
+  lanes.forEach(function(l, i){
+    var my = mapY + 3 + i * ((mapH - 6) / lanes.length);
+    var mh = Math.max(3, (mapH - 6) / lanes.length - 2);
+    l.spans.forEach(function(s){
+      var a = X0 + s.t0 * mp, b = X0 + s.t1 * mp;
+      ctx.fillStyle = rgbaA(s.color, 0.85);
+      ctx.fillRect(a, my, Math.max(b - a, 0.7), mh);
+    });
+  });
+  var vw0 = X0 + t0 * mp, vw1 = X0 + t1 * mp;
+  ctx.fillStyle = 'rgba(255,255,255,0.07)';
+  ctx.fillRect(vw0, mapY, vw1 - vw0, mapH);
+  ctx.strokeStyle = '#e8eaed';
+  ctx.strokeRect(vw0 + 0.5, mapY + 0.5, vw1 - vw0 - 1, mapH - 1);
+  ctx.fillStyle = '#5f6873'; ctx.font = '10px system-ui';
+  ctx.fillText('全范围缩略图（拖动定位）', 10, mapY + mapH / 2 + 3);
+
+  if (trReadEl){
+    trReadEl.textContent = '窗口 ' + fmtInt(t0) + ' → ' + fmtInt(t1) + ' 拍（' + fmtMs(t0) + '–' + fmtMs(t1) + ' ms，×' + (TR.total / vis).toFixed(1) + '）' +
+      (TR.hover ? ' · 悬停 ' + fmtInt(TR.hover.t) + ' 拍' : '');
+  }
+}
+
+function trSpanAt(x, y){
+  var g = TR.geom;
+  if (!g || x < g.X0 || x > g.X1 || y < g.laneY || y >= g.bwY) return null;
+  var li = Math.floor((y - g.laneY) / g.laneH);
+  if (li < 0 || li >= TR.lanes.length) return null;
+  var lane = TR.lanes[li], t = g.t0 + (x - g.X0) / g.pxc;
+  var found = null;
+  lane.spans.forEach(function(s){
+    if (t >= s.t0 && t < s.t1 && (!found || (s.t1 - s.t0) < (found.span.t1 - found.span.t0))) found = { span:s, lane:lane, laneIdx:li };
+  });
+  if (!found) return null;
+  found.t = t;
+  if (found.span.tex){
+    var u = (t - found.span.t0) % found.span.tex.period;
+    found.inActive = u < found.span.tex.active;
+  }
+  return found;
+}
+
+function trTipHTML(hit){
+  var s = hit.span, lines = [];
+  lines.push('<b>' + s.name + '</b>');
+  lines.push('起始 ' + fmtInt(s.t0) + ' 拍 · 时长 ' + fmtInt(s.t1 - s.t0) + ' 拍（' + fmtMs(s.t1 - s.t0) + ' ms）');
+  if (s.beats !== undefined) lines.push('读 ' + fmtInt(s.beats) + ' 拍 = ' + fmtMiB(s.beats * 16) + ' MiB · 拍占用 ' + pct(s.beats / (s.t1 - s.t0)));
+  if (s.macs) lines.push(fmtInt(s.macs) + ' MAC');
+  if (s.ii) lines.push('节奏：' + s.ii);
+  if (s.desc) lines.push('<span style="color:#98a2ad">' + s.desc + '</span>');
+  if (s.tex && hit.inActive !== undefined) lines.push(hit.inActive
+    ? '<span style="color:#7fb1ff">▸ 纹理单元：' + s.tex.unit + '</span>'
+    : '<span style="color:#98a2ad">▸ 处于纹理间隔（' + s.tex.unit + '）</span>');
+  return lines.join('<br>');
+}
+
+function trInit(){
+  trCv = $('#trCv'); trTipEl = $('#trTip'); trReadEl = $('#trRead'); trDetailEl = $('#trDetail');
+  $('#trV3').addEventListener('click', function(){ trSetVer('v3'); });
+  $('#trV4').addEventListener('click', function(){ trSetVer('v4'); });
+  $('#trGhost').addEventListener('change', function(){ TR.ghost = this.checked; trRender(); });
+  $('#trFit').addEventListener('click', function(){ TR.t0 = 0; TR.t1 = TR.total; TR.hover = null; trRender(); });
+  $('#trGap').addEventListener('click', function(){
+    if (TR.ver === 'v4'){
+      var g0 = 1385321, g1 = 2951130, pad = (g1 - g0) * 0.12;
+      TR.t0 = Math.max(0, g0 - pad); TR.t1 = Math.min(TR.total, g1 + pad);
+    } else {
+      var t = 8000000, w2 = 155.004 * 60;
+      TR.t0 = t; TR.t1 = t + w2;
+    }
+    TR.hover = null; trClampView(); trRender();
+  });
+
+  trCv.addEventListener('wheel', function(e){
+    e.preventDefault();
+    var r = trCv.getBoundingClientRect();
+    var x = e.clientX - r.left, g = TR.geom;
+    if (!g) return;
+    var anchor = g.t0 + (Math.max(Math.min(x, g.X1), g.X0) - g.X0) / g.pxc;
+    var f = e.deltaY < 0 ? 1 / 1.3 : 1.3;
+    var span = Math.min(Math.max((TR.t1 - TR.t0) * f, 200), TR.total);
+    var frac = (anchor - TR.t0) / (TR.t1 - TR.t0);
+    TR.t0 = anchor - span * frac; TR.t1 = TR.t0 + span;
+    trClampView(); trRender();
+  }, { passive:false });
+
+  trCv.addEventListener('mousedown', function(e){
+    var r = trCv.getBoundingClientRect();
+    var x = e.clientX - r.left, y = e.clientY - r.top, g = TR.geom;
+    if (!g) return;
+    if (y >= g.mapY && y < g.mapY + g.mapH && x >= g.X0 && x <= g.X1){
+      TR.mapDrag = true;
+      var mp = (g.X1 - g.X0) / TR.total;
+      var tAt = (x - g.X0) / mp, span = TR.t1 - TR.t0;
+      TR.t0 = Math.max(0, Math.min(TR.total - span, tAt - span / 2));
+      TR.t1 = TR.t0 + span;
+      trCv.classList.add('dragging');
+      trRender();
+    } else if (y >= g.laneY && y < g.bwY){
+      TR.panDrag = { x:x, t0:TR.t0, t1:TR.t1 };
+      trCv.classList.add('dragging');
+    }
+  });
+  window.addEventListener('mousemove', function(e){
+    if (!TR.geom) return;
+    var r = trCv.getBoundingClientRect();
+    var x = e.clientX - r.left, y = e.clientY - r.top, g = TR.geom;
+    if (TR.panDrag){
+      var dt = -(x - TR.panDrag.x) / g.pxc, span = TR.panDrag.t1 - TR.panDrag.t0;
+      TR.t0 = Math.max(0, Math.min(TR.total - span, TR.panDrag.t0 + dt));
+      TR.t1 = TR.t0 + span;
+      trRender();
+      return;
+    }
+    if (TR.mapDrag){
+      var mp2 = (g.X1 - g.X0) / TR.total;
+      var tAt2 = (Math.max(Math.min(x, g.X1), g.X0) - g.X0) / mp2, span2 = TR.t1 - TR.t0;
+      TR.t0 = Math.max(0, Math.min(TR.total - span2, tAt2 - span2 / 2));
+      TR.t1 = TR.t0 + span2;
+      trRender();
+      return;
+    }
+    if (e.target !== trCv){ if (TR.hover){ TR.hover = null; trTipEl.style.display = 'none'; trRender(); } return; }
+    /* 阶段边界悬停（串行链行内的菱形标记） */
+    if (TR.chain && y >= g.chainY && y < g.chainY + g.chainH && x >= g.X0 && x <= g.X1){
+      var bt = g.t0 + (x - g.X0) / g.pxc, bHit = null;
+      TR.chain.bounds.forEach(function(b){ if (Math.abs(b.t - bt) < 7 / g.pxc) bHit = b; });
+      if (bHit){
+        TR.hover = { t: bHit.t };
+        trTipEl.innerHTML = '<b>' + bHit.label + '（阶段边界，串行交接）</b><br>' +
+          fmtInt(bHit.t) + ' 拍（' + fmtMs(bHit.t) + ' ms）<br>' +
+          '<span style="color:#98a2ad">' + bHit.reason + '</span><br>' +
+          '<span style="color:#7d8691">前一阶段结束拍 = 后一阶段开始拍：无重叠</span>';
+        trTipEl.style.display = 'block';
+        var tw0 = trTipEl.offsetWidth, th0 = trTipEl.offsetHeight;
+        var wx0 = $('#trWrap').clientWidth || 1000;
+        var px0 = x + 16; if (px0 + tw0 > wx0 - 4) px0 = x - tw0 - 14;
+        trTipEl.style.left = px0 + 'px';
+        trTipEl.style.top = Math.max(4, y + 14) + 'px';
+        trRender();
+        return;
+      }
+    }
+    var hit = trSpanAt(x, y);
+    if (hit){
+      TR.hover = { t:hit.t, span:hit.span };
+      trTipEl.innerHTML = trTipHTML(hit);
+      trTipEl.style.display = 'block';
+      var tw = trTipEl.offsetWidth, thh = trTipEl.offsetHeight;
+      var wx = $('#trWrap').clientWidth || 1000;
+      var px = x + 16; if (px + tw > wx - 4) px = x - tw - 14;
+      var py = Math.max(4, Math.min(y + 12, trCv.height / (window.devicePixelRatio || 1) - thh - 6));
+      trTipEl.style.left = px + 'px'; trTipEl.style.top = py + 'px';
+      trRender();
+    } else if (TR.hover){
+      TR.hover = null; trTipEl.style.display = 'none'; trRender();
+    }
+  });
+  window.addEventListener('mouseup', function(){
+    if (TR.panDrag || TR.mapDrag){ TR.panDrag = null; TR.mapDrag = false; trCv.classList.remove('dragging'); }
+  });
+  trCv.addEventListener('dblclick', function(e){
+    var r = trCv.getBoundingClientRect();
+    var g0 = TR.geom;
+    /* 双击阶段边界：放大到边界两侧 */
+    if (TR.chain && g0){
+      var cy0 = e.clientY - r.top, cx0 = e.clientX - r.left;
+      if (cy0 >= g0.chainY && cy0 < g0.chainY + g0.chainH && cx0 >= g0.X0 && cx0 <= g0.X1){
+        var bt0 = g0.t0 + (cx0 - g0.X0) / g0.pxc, bNear = null;
+        TR.chain.bounds.forEach(function(b){ if (Math.abs(b.t - bt0) < 12 / g0.pxc) bNear = b; });
+        if (bNear){
+          TR.t0 = Math.max(0, bNear.t - 4000); TR.t1 = Math.min(TR.total, bNear.t + 4000);
+          trClampView(); trRender();
+          return;
+        }
+      }
+    }
+    var hit = trSpanAt(e.clientX - r.left, e.clientY - r.top);
+    if (hit){
+      var span = hit.span.t1 - hit.span.t0, pad = Math.max(span * 0.12, 60);
+      TR.t0 = Math.max(0, hit.span.t0 - pad); TR.t1 = Math.min(TR.total, hit.span.t1 + pad);
+    } else {
+      var g = TR.geom, mid = TR.t0 + (TR.t1 - TR.t0) / 2, span3 = (TR.t1 - TR.t0) / 2;
+      TR.t0 = mid - span3 / 2; TR.t1 = mid + span3 / 2;
+    }
+    trClampView(); trRender();
+  });
+  trCv.addEventListener('click', function(e){
+    var r = trCv.getBoundingClientRect();
+    var hit = trSpanAt(e.clientX - r.left, e.clientY - r.top);
+    if (!hit){ trDetailEl.style.display = 'none'; return; }
+    var s = hit.span;
+    var meta = fmtInt(s.t0) + ' → ' + fmtInt(s.t1) + ' 拍 · ' + fmtMs(s.t1 - s.t0) + ' ms';
+    if (s.beats !== undefined) meta += ' · 读 ' + fmtInt(s.beats) + ' 拍 = ' + fmtMiB(s.beats * 16) + ' MiB';
+    if (s.macs) meta += ' · ' + fmtInt(s.macs) + ' MAC';
+    trDetailEl.innerHTML = '<h3>' + s.name + '</h3><div class="meta">' + meta + '</div>' +
+      (s.desc ? '<div>' + s.desc + '</div>' : '') +
+      (s.tex ? '<div class="meta">纹理：' + s.tex.unit + '</div>' : '') +
+      (s.hints && s.hints.length ? '<ul>' + s.hints.map(function(h){ return '<li>' + h + '</li>'; }).join('') + '</ul>' : '');
+    trDetailEl.style.display = 'block';
+  });
+  trSetVer('v3');
+  window.__lmTrace = { TR:TR, setVer:trSetVer };
+}
+
+
+var view3 = buildView(V3CFG, $('#view-v3'));
+var view4 = buildView(V4CFG, $('#view-v4'));
+buildCompare();
+trInit();
+
+var views = { v3:view3, v4:view4 };
+var cur = 'v3';
+view3.activate(true);
+
+$('#tabs').addEventListener('click', function(ev){
+  var b = ev.target.closest('button'); if (!b) return;
+  var v = b.getAttribute('data-v');
+  if (v === cur) return;
+  cur = v;
+  Array.prototype.forEach.call($('#tabs').children, function(x){
+    x.classList.toggle('active', x===b);
+  });
+  ['v3','v4','trace','cmp'].forEach(function(k){
+    $('#view-'+k).hidden = (k!==v);
+  });
+  Object.keys(views).forEach(function(k){ views[k].activate(k===v); });
+});
+
+var rto = null;
+window.addEventListener('resize', function(){
+  clearTimeout(rto);
+  rto = setTimeout(function(){
+    view3.onResize(); view4.onResize();
+    if (typeof trRender === 'function') trRender();
+  }, 120);
+});
+
+document.addEventListener('keydown', function(ev){
+  if (ev.code === 'Space' && (cur === 'v3' || cur === 'v4')){
+    ev.preventDefault();
+    var btn = cur==='v3' ? $('#view-v3 .controls button') : $('#view-v4 .controls button');
+    btn.click();
+  }
+});
+})();
+</script>
+</body>
+</html>

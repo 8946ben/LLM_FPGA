@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/agronomy.csv:46",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "01a829dbf5543037c2de64824f7a90b36d719152f373aee3f0c7df50d83fb335",
+  "group_sha256": "65fc69fec156e83041d9403e5ee2ba0e69f874a7206b4f55e6a5d8c7c3f5c75e",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "d65548d6a66a6d15038583a2.npz",
+  "npz_sha256": "a2d720bad23a4d9cc3d97ce9ed43e59eaa84fbcedfc2113db19fd319ab20e63f",
+  "generated_ids": [
+    88991,
+    102349,
+    20412,
+    425,
+    13,
+    220,
+    99449,
+    112515,
+    99918,
+    102029,
+    109470,
+    3407,
+    99917,
+    5122,
+    18493,
+    118553
+  ],
+  "input_tokens": 89,
+  "seconds": 1.4262405000044964,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

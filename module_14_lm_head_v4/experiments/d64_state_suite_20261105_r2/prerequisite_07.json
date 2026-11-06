@@ -1,0 +1,20 @@
+{
+  "state": "PASS_INDEPENDENT_PREPARATION_ONLY",
+  "utc": "2026-11-03T16:47:46.668952+00:00",
+  "cases": 12,
+  "full_debug_ABA_prepared": true,
+  "separate_A_production_prepared": true,
+  "weight_bytes_sha_rechecked": 545685504,
+  "manifest_sha256": "a647d5e286001267b41cdbb35061efa331fae1f6461bc51bacc18daa99221545",
+  "control_sha256": "04ddc77e1e9986b4aeaf570c47b2950b1b0b57201723d9560c07d7224b0f8f5d",
+  "not_proven": [
+    "RTL compile/run",
+    "Full persistent-DUT A/B/A",
+    "Mode/error response",
+    "Normal-response model",
+    "Timing"
+  ],
+  "eda": "NOT_RUN",
+  "board": "NOT_RUN",
+  "automatic_next_stage": false
+}

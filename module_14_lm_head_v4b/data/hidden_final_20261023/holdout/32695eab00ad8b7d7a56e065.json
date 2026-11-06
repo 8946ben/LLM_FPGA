@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/astronomy.csv:104",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "ea52a921b0374a56c02bf553a4c5972bcfa0d8606feb70937435f702342d81e4",
+  "group_sha256": "e45a6434a05b321fba02a25559b72cddf0a53d7f358089eecff24937dab14762",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "32695eab00ad8b7d7a56e065.npz",
+  "npz_sha256": "8abda7d7f4a933608f935da38ef95a0366fc1191c06914e31ad05d076f811f15",
+  "generated_ids": [
+    105073,
+    111230,
+    20412,
+    422,
+    13,
+    220,
+    18,
+    32571,
+    8903,
+    99450,
+    3837,
+    16,
+    32571,
+    9754,
+    99450,
+    3407
+  ],
+  "input_tokens": 106,
+  "seconds": 1.4282263000495732,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

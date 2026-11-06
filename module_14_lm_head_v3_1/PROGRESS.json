@@ -1,0 +1,36 @@
+{
+  "release": "lm_head v3.1",
+  "module": "module_14_lm_head_v3_1",
+  "task": "t-mvf361si-01k-ktoa",
+  "updated": "2026-10-20T21:13:05.938306+08:00",
+  "stage": "COMPLETE",
+  "pause_reason": null,
+  "resume_document": "doc/LM_HEAD_V3_1_HANDOFF_20261019.md",
+  "milestones": {
+    "M0": "done: v3 baseline hashes, AXU9EGB PL DDR4 pin table extracted from the board manual, toolchain and board connectivity checked",
+    "M1": "PASS: final hardware, matched BSP/four ELF and package hashes verified. Final TCP/CRC fixes compiled and bound.",
+    "M2": "PASS: real PL DDR memory/load/protocol/numeric/error/performance/stability acceptance, 55-record campaign.",
+    "M3": "PASS: real Vivado IP2.2 catalog/create_ip; 1047-file internal SHA, ZIP 1048 members, staging and extracted validation PASS."
+  },
+  "evidence": [
+    "build/board_v31_20261019/hls/solution1/syn/report/csynth.rpt",
+    "build/board_v31_20261019/export.log",
+    "constraints/lm_head_v31_ddr4_pins.xdc",
+    "build/board_v31_20261019/launch/create_bd.log",
+    "build/board_v31_20261019/launch/build_fail_sstl.log",
+    "reports/board_v31_20261019/hardware_audit.json",
+    "reports/board_v31_20261019/OFFLINE_PREPARATION.json",
+    "reports/board_v31_20261019/SOFTWARE_BUILD_VERIFICATION.json",
+    "reports/board_v31_20261019/package/ARTIFACTS.sha256",
+    "build/board_v31_20261019/software_build_resume.log",
+    "reports/board_v31_20261019/RESULT.md",
+    "reports/board_v31_20261019/comparison.json",
+    "reports/board_v31_20261019/FINAL_BOARD_STATE.json",
+    "../deliverables/20261020_M14_V3_1_r1/DELIVERY_VALIDATION.json"
+  ],
+  "next": "No active work. Await user direction for v4 sparsity or framework integration.",
+  "blockers": [],
+  "owner": "Codex main (user explicitly requested takeover)",
+  "delivery": "deliverables\\20261020_M14_V3_1_r1",
+  "board_state": "PASS_A53_HALTED; PL DDR weights retained until power-off"
+}

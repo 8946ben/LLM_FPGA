@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/machine_learning.csv:91",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "73677db061aa9cfa507a857188538119e12e49c6b9cb2271fec26f5751624729",
+  "group_sha256": "4b39644960e98c98316e100ff50113923db07802e00839c58f4fa6345f6d4fda",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "9897c280ba9f40863ce34096.npz",
+  "npz_sha256": "3de43d9b434dbda423e21e8400b5b32a24d65a4fb385fccaa3ddec6bb1ebd27d",
+  "generated_ids": [
+    109487,
+    32,
+    20412,
+    105045,
+    1773,
+    104913,
+    105162,
+    114060,
+    101158,
+    104210,
+    110241,
+    32664,
+    40981,
+    25511,
+    71817,
+    106958
+  ],
+  "input_tokens": 181,
+  "seconds": 1.573413799982518,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

@@ -1,0 +1,26 @@
+{
+  "created": "2026-10-23T17:12:02.714304+08:00",
+  "selection_lock_sha256": "9b0d4269b72e5d8b989b95f2c914670ebbbfe9d6152917b45b53f8f8a640c393",
+  "corpus_sha256": "7debd5ddff9d46187fcc60755df87c7557fa71cb9c6694c806912888368a0c22",
+  "reservation_manifest_sha256": "b3babd12109a63c74a36311d26115d525c4c64fc2c20075a7013900296b15c68",
+  "tokenizer_preflight_sha256": "66e32c59cae2d7f9af8cf6422ebb56cf3a348e29c00acc794a721117f5f5fb81",
+  "sources": {
+    "module_14_lm_head_v4b/scripts/run_quantization.py": "a10444d4653f97839e4e0c64b0379c10f9efbba5da1e3a9fab81307fbae1f305",
+    "module_14_lm_head_v4b/reference/quantization.py": "7d61602b958c484837103fb0ec4aa244c95d6ba5e32b974626cd947ad24360f2",
+    "module_14_lm_head_v4b/reference/exact_cuda.py": "dc3c83d16a2cb525462bca2d245ce950ffb1033d5d70826c7386670872073256",
+    "module_14_lm_head_v4/reference/quality_data.py": "27f6107a29e265d8b4d14885c743937f1898daeef8602287ede3670fe82c4444",
+    "module_14_lm_head_v4b/scripts/lock_final_selection.py": "3c0ce7ac3c8af15e32c1e0c9cfcfdad004d0a9d569986d6ec574850ba836c941",
+    "module_14_lm_head_v4b/scripts/collect_final.py": "a1d139153545bd8a72554f9c7b14bf0b52f44af8c75749dfdae28f76e6b7ca19",
+    "module_14_lm_head_v4b/scripts/evaluate_final.py": "44b1d29140a63f5cd5ae51eca03800a799e0b08ba45e7326c8d818bf2d74106b",
+    "module_14_lm_head_v4b/reference/packed_cuda.py": "5d23b246b0724c64d0ae27fb18a1d6764b65ccf367f50d5da9a4c28ed3ee53e1"
+  },
+  "final_protocol": {
+    "prompts": 1000,
+    "max_new_tokens": 16,
+    "max_input_tokens": 2048,
+    "penalty": 1.1,
+    "gates": "overall and every category decode agreement/recall >=0.999; no retune on opened group",
+    "code_source": "DS-1000 prompt only; original perturbation family collapsed; reference code never executed"
+  },
+  "final_labels_opened": false
+}

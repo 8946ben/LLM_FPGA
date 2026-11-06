@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/legal_and_moral_basis.csv:210",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "8ce9a376c81a8d99d4bf30133c00bffc21e03baebd73c782404cbf20072e6ec5",
+  "group_sha256": "f3038a319e876e06c344de91dd6cf4d9338d4b4bcc983e32d59bde8fee98f390",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "d5ecee4b5d2e33a479518354.npz",
+  "npz_sha256": "ec08a29b408622667bb2c4fe07f6da5fd9e4d239a18b2ba7f7ec24017c42dbeb",
+  "generated_ids": [
+    88991,
+    102349,
+    20412,
+    5122,
+    35,
+    13,
+    53497,
+    99,
+    90663,
+    30858,
+    21887,
+    3837,
+    100627,
+    102348,
+    100720,
+    3407
+  ],
+  "input_tokens": 108,
+  "seconds": 0.42160150001291186,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

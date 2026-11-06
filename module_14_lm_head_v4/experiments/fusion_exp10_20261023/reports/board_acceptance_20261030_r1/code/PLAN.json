@@ -1,0 +1,48 @@
+{
+  "state": "PREPARED_ONLY_NO_BOARD",
+  "case": "code",
+  "package": "D:\\program\\LLM_FPGA\\module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\reports\\board_v4_20261021\\private_package_r1",
+  "package_sha256": {
+    "ELF_LAYOUT_AUDIT.json": "a47b281c91e9570b2e74081d2b220086845fa399107026508318a57e05c13e23",
+    "HARDWARE_AUDIT.json": "c436e1342032461519e7d15c5f5e1e6d5fb7e3c8dc1ef8c2d0d8dca4eec50694",
+    "m14_v4_arena_loader.elf": "d05efb6075d68986f97ef25e65de1ffccf2747f7ba48cddecd15b4405b379dd2",
+    "m14_v4_selector_test.elf": "42d6d1045ac2643fb36ebb0b6b40d2362de8e966eb325f0e3664b2fc77bd2f9a",
+    "m14_v4_single.xsa": "4d4501cf23d8d9edf9794bec7473a4e5ce67cd4a3b1656e2d40943c15566721b",
+    "m14_v4_system_wrapper.bit": "7ffb24362b8aaaab5db90d65121e57d724301404663674882d72b4f12845fc71",
+    "PRIVATE_PROFILE.json": "c3982296117109e2137c7799353de827676bc257534cf686056a8fb717e6724f",
+    "psu_init.c": "a831e250a6eae3688cc00eae0838f39ff9f877803238c8c0c0448c2a5a7a836b",
+    "psu_init.h": "02d909e179bca316ca29199f23de57007e1f1a34449e96a9ed2f5a52db6fcb7e",
+    "psu_init.tcl": "71a8e51190ca799171c6e958d3856d270491960b716ba3c0f4a67601bb747349",
+    "QUALITY_FAIL.json": "a99ffa0adba5c4386d16b3cfdcf75dc8e0493756d2b808fe7a7a7b6059d91ffe",
+    "README.md": "32f3708085bc97bd7d554f488d84ae81b513e617b1241827041afb44fac6e910",
+    "RTL_RESULT.json": "7b5dfa42bfc0678babedfd77fa136f3345a9f86f3e9eaf85d5b003a077adbc2c",
+    "SELECTION_LOCK.json": "8d0d19442fef483c0aa309ff51fd3f1e1eb32ff2d8a5ebc8f4985207d633a8e1",
+    "SOFTWARE_BUILD.json": "1b1e382b79e86da7938686fccf8208b8a62256fc7dbbd4eb0202253dddb1654e"
+  },
+  "image": "D:\\program\\LLM_FPGA\\module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\reports\\selector_arena_code_20261021\\arena_production.bin",
+  "image_sha256": "586a5330678c0c8a46c687efbaf33cbbc2752e3086c8946720267784e83f1826",
+  "manifest": "D:\\program\\LLM_FPGA\\module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\reports\\selector_arena_code_20261021\\MANIFEST.json",
+  "manifest_sha256": "880ee45d7227b148035b216b471e646cb4bae06761cd9e9fc54ee3f0d47a2d66",
+  "arena_crc32": "6b078bfe",
+  "gem": "0xff0e0000",
+  "host": "192.168.0.190",
+  "port": 1415,
+  "timeout_s": 900,
+  "source_sha256": {
+    "D:\\program\\LLM_FPGA\\module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\standalone\\scripts\\private_board_entry.tcl": "ecf57ea1c2fc5ea0b1567122cbc2b133502138e4cbc5a30a7b950cb6c65c8159",
+    "D:\\program\\LLM_FPGA\\module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\standalone\\scripts\\private_board_common.tcl": "7bca7a4f1b1b1775edf3554bc4dc052ef40f3f254e7d5085908cb59942937f4b",
+    "D:\\program\\LLM_FPGA\\module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\standalone\\private_board.py": "88167bbc415f41cbfeee9b3a283b1216adf34a68a191dfb3645ccfd03b395581"
+  },
+  "request_sha256": "351785721529c019592bf825de3ea22c0886b7ba5f5f57c8c240dac9f30a07e0",
+  "steps": [
+    "full initialization + bound bit/XSA/PS init + loader ELF",
+    "TCP full320MiB +320 target CRCs +full target CRC +34 target READ checks",
+    "halt loader CPU + GEM halt/disable +TXGO/RX-TX readback BEFORE test ELF download",
+    "fresh128B request +3 warmup +30 timing +1000 stability, raw captures",
+    "host nonce/CRC/status/raw-tick parser; failure stops workflow"
+  ],
+  "runtime": "NOT_RUN",
+  "quality": "NOT_CERTIFIED",
+  "ttft": "NOT_MEASURED",
+  "scope": "One fixed-input M14 production campaign, not multi-step/free-generation/full LLM acceptance"
+}

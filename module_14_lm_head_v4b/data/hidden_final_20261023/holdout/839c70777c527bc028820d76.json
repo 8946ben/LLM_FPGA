@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/chinese_food_culture.csv:112",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "ea85a436a7326b17a5177a6976aaa06e24379eb9ad827ec8233caee6a360c8b7",
+  "group_sha256": "7bb2ff23e4348c6abee70f4f9ce586fa479649a8e36a10796f9f005cb7ea51cf",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "839c70777c527bc028820d76.npz",
+  "npz_sha256": "dd77af4f08e4cc6db6ee50fc52cc7f0474c73eedb5552e53e93971f8da6644e6",
+  "generated_ids": [
+    102349,
+    20412,
+    33,
+    3837,
+    101059,
+    3407,
+    101059,
+    9370,
+    102376,
+    112322,
+    15946,
+    3837,
+    100659,
+    102119,
+    36993,
+    99405
+  ],
+  "input_tokens": 76,
+  "seconds": 1.5102273999946192,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

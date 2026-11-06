@@ -1,0 +1,83 @@
+{
+  "schema": "llm_fpga_module_manifest_v2",
+  "module_id": 14,
+  "module_name": "lm_head_v2",
+  "abi_version": 2,
+  "module_revision": 1,
+  "top_function": "lm_head_v2",
+  "target_part": "xczu9eg-ffvb1156-2-i",
+  "target_clock_hz": 100000000,
+  "build_config": "0x10008011",
+  "capabilities": "0x00000182",
+  "numeric_impl": "bf16_rne_h8_interleave16_fp32_adjacent_tree_v2",
+  "parameters": {
+    "hidden_size": 896,
+    "vocab_size": 151936,
+    "h_lanes": 8,
+    "vocab_parallel": 1,
+    "acc_interleave": 16,
+    "hidden_tile": 32,
+    "weight_fifo_depth": 128,
+    "accumulator_context_fifo_bits": 256,
+    "accumulator_context_fifo_depth": 32,
+    "weight_max_burst_beats": 16,
+    "weight_read_outstanding": 16
+  },
+  "buffers": [
+    {
+      "name": "hidden",
+      "direction": "read",
+      "dtype": "BF16",
+      "layout": "ACT_TH_V2_LAST_ROW",
+      "bytes": 1792,
+      "alignment_bytes": 64,
+      "axi_bits": 128,
+      "bundle": "m_axi_hidden"
+    },
+    {
+      "name": "shared_vocab_weight",
+      "direction": "read",
+      "dtype": "BF16",
+      "layout": "VOCAB_VH_V2",
+      "bytes": 272269312,
+      "alignment_bytes": 64,
+      "axi_bits": 128,
+      "bundle": "m_axi_weight",
+      "system_connection": "HP2"
+    },
+    {
+      "name": "history_bitmap",
+      "direction": "read_optional",
+      "dtype": "U32_BITMAP",
+      "layout": "HISTORY_BITMAP_V2",
+      "bytes": 18992,
+      "alignment_bytes": 64,
+      "axi_bits": 128,
+      "bundle": "m_axi_history"
+    },
+    {
+      "name": "optional_logits",
+      "direction": "write_optional",
+      "dtype": "FP32",
+      "layout": "RAW_LOGITS_V2",
+      "bytes": 607744,
+      "alignment_bytes": 64,
+      "axi_bits": 128,
+      "bundle": "m_axi_logits"
+    }
+  ],
+  "production_invariants": {
+    "valid_rows": 1,
+    "write_logits": 0,
+    "weight_read_beats_128": 17016832,
+    "vocab_rows_done": 151936,
+    "processed_rows": 1
+  },
+  "provisional_contract": {
+    "valid_rows_exposed_by_m14": true,
+    "optional_logits": "pre-penalty FP32 raw score, four values per 128-bit beat",
+    "output_crc": "IEEE CRC32 over little-endian selected_token and selected_score_bits",
+    "tie_break": "lower token id",
+    "note": "These fields must be replaced from the generated common ABI header after architecture freeze."
+  }
+}

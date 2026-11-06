@@ -1,0 +1,11 @@
+{
+  "original_sha256": "9a4ff03c84ca6e058cd75d8a01d8f67b39e6429805e30cd54b1ecad1f59f8a01",
+  "candidate_sha256": "8f045fff71b606a995e2da542f8207cd432cf77b3c7464313a3e1d379b0f8d55",
+  "edits": [
+    [
+      "                void'(std::randomize(idx) with { idx inside {[0:ids.size-1]}; });",
+      "                begin\n                    int final_index;\n                    final_index=ids.size()-1;\n                    void'(std::randomize(idx) with {idx inside {[0:final_index]};});\n                end"
+    ]
+  ],
+  "occurrences": 2
+}

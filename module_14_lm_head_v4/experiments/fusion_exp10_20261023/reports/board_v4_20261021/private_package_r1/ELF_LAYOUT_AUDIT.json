@@ -1,0 +1,44 @@
+{
+  "state": "PASS_OFFLINE_ELF_LAYOUT",
+  "architecture": "LE AArch64 EXEC",
+  "ps_software_range": "0x00000000..0x0fffffff",
+  "mailbox": "0x51000000 outside ELF LOADs",
+  "board": "NOT_RUN",
+  "files": [
+    {
+      "file": "m14_v4_arena_loader.elf",
+      "sha256": "d05efb6075d68986f97ef25e65de1ffccf2747f7ba48cddecd15b4405b379dd2",
+      "entry": "0x0",
+      "loads": [
+        {
+          "address": "0x0",
+          "memory_bytes": 139392,
+          "file_bytes": 139336,
+          "flags": 7,
+          "alignment": 65536
+        },
+        {
+          "address": "0x200000",
+          "memory_bytes": 7418048,
+          "file_bytes": 0,
+          "flags": 6,
+          "alignment": 65536
+        }
+      ]
+    },
+    {
+      "file": "m14_v4_selector_test.elf",
+      "sha256": "42d6d1045ac2643fb36ebb0b6b40d2362de8e966eb325f0e3664b2fc77bd2f9a",
+      "entry": "0x0",
+      "loads": [
+        {
+          "address": "0x0",
+          "memory_bytes": 1127616,
+          "file_bytes": 49224,
+          "flags": 7,
+          "alignment": 65536
+        }
+      ]
+    }
+  ]
+}

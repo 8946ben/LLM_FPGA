@@ -1,0 +1,15 @@
+{
+  "state": "PASS_TOPOLOGY_ONLY",
+  "board": "NOT_RUN",
+  "bd_sha256": "4d8acf19af80a7300097493a8c71316f4b9fb792569eb179de3e227e721d399b",
+  "pin_sha256": "367f7d50dabf21dc5bffead334e14f26338fb487ffe9ead46e382c73c6bd7e15",
+  "masters": 2,
+  "address_width": 64,
+  "compute_route": "MIG_PL_DDR_ONLY",
+  "pl_ddr_base": "0x400000000",
+  "clock_target_mhz": 200,
+  "generated_ps_pll_actual_mhz": 199.998001,
+  "clock_scope": "Vivado generated configuration, not physical board measurement",
+  "signature": "0x4D345A0A private GPIO2, not public ABI/build",
+  "note": "Structural audit only; not post-route STA/CDC or board DDR calibration"
+}

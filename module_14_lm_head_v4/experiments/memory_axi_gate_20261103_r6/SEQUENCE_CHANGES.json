@@ -1,0 +1,22 @@
+{
+  "original_sha256": "9a4ff03c84ca6e058cd75d8a01d8f67b39e6429805e30cd54b1ecad1f59f8a01",
+  "candidate_sha256": "d2aa4e822a2b79f546a5a7849ab8c661b962af1bcdbaf1d4b6b28ec37d034741",
+  "edits": [
+    [
+      "                void'(std::randomize(idx) with { idx inside {[0:ids.size-1]}; });",
+      "                begin\n                    int final_index;\n                    final_index=ids.size()-1;\n                    void'(std::randomize(idx) with {idx inside {[0:final_index]};});\n                end",
+      2
+    ],
+    [
+      "            forever begin\n                int ids[$];\n                int idx;\n                int div;\n                axi_transfer axi_rtr, tmp;\n                `uvm_create_on(axi_rtr, p_sequencer.slave_rsqr);\n                wait(state.rq_from_model_num>0);",
+      "            begin : reusable_r_sequence_item\n                axi_transfer axi_rtr, tmp;\n                `uvm_create_on(axi_rtr, p_sequencer.slave_rsqr);\n                forever begin\n                int ids[$];\n                int idx;\n                int div;\n                // uvm_send returns only after driver's item_done; no response is posted.\n                axi_rtr.init();\n                axi_rtr.set_transaction_id(-1);\n                wait(state.rq_from_model_num>0);",
+      1
+    ],
+    [
+      "                `uvm_send(axi_rtr);\n            end\n            begin\n                @finish;",
+      "                `uvm_send(axi_rtr);\n                end\n            end\n            begin\n                @finish;",
+      1
+    ]
+  ],
+  "scope": "Only SLAVE R sequence item reused after item_done; monitor/AR and rq model objects remain fresh"
+}

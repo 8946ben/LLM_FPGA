@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/high_school_mathematics.csv:163",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "28a313aef63fc76c9b50f6de9908925d098da48f05e85d330678dceda4a8e6c4",
+  "group_sha256": "618f25a1d0b6cbf9185708a6f6594d9f0cd798a4cd0fab69347604df4a8f7bb2",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "3aabb72189356fd7cb022092.npz",
+  "npz_sha256": "c57b1d87bddbc3ad4673abacce35e4a349fc68b28bd6cc12fa3cf9ddb24697d1",
+  "generated_ids": [
+    101140,
+    3837,
+    97639,
+    36407,
+    101042,
+    89012,
+    22382,
+    9370,
+    16530,
+    49567,
+    28330,
+    17767,
+    760,
+    87,
+    481,
+    296
+  ],
+  "input_tokens": 115,
+  "seconds": 1.5893347999663092,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

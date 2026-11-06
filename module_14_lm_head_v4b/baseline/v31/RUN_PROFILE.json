@@ -1,0 +1,60 @@
+{
+  "format": "M14_BOARD_RUN_PROFILE_V2",
+  "release": "lm_head v3.1",
+  "build_config": "0x30c08011",
+  "capabilities": "0x00000382",
+  "ip_clock_hz": 200000000,
+  "clock_basis": "nominal PL user clock (PS PL0 200 MHz); MIG ui_clk 200 MHz",
+  "configured_pl_clock_hz": 199998001,
+  "configured_clock_note": "Vivado PS configuration model; not a frequency-counter measurement",
+  "data_memory": "PL_DDR",
+  "ps_ddr_data_fallback": false,
+  "pl_ddr": {
+    "device": "2 x Micron MT40A512M16LY (x16, single rank)",
+    "phy_width_bits": 32,
+    "capacity_bytes": 2147483648,
+    "mig_axi_data_width": 128,
+    "mig_axi_addr_width": 31,
+    "memory_clock_mhz": 800,
+    "data_rate_mtps": 1600,
+    "ui_clock_mhz": 200,
+    "reference_clock_hz": 200000000,
+    "reference_clock_pins": [
+      "AL8",
+      "AL7"
+    ],
+    "reset_pin": "AM5",
+    "reset_iostandard": "LVCMOS12",
+    "reset_drive_ma": 8
+  },
+  "address_map": {
+    "a53_window_base": "0x400000000",
+    "a53_window_bytes": "0x80000000",
+    "mig_local_bytes": "0x80000000",
+    "hls_system_base": "0x400000000",
+    "hls_address_kind": "shared_system_address",
+    "control_base": "0xA0000000",
+    "calib_gpio_base": "0xA0020000",
+    "weight_a53": "0x400100000",
+    "weight_hls": "0x400100000",
+    "weight_local": "0x00100000",
+    "hidden_a53": "0x4104A8000",
+    "hidden_hls": "0x4104A8000",
+    "hidden_local": "0x104A8000",
+    "history_a53": "0x4104A8700",
+    "history_hls": "0x4104A8700",
+    "history_local": "0x104A8700",
+    "logits_a53": "0x4104AD140",
+    "logits_hls": "0x4104AD140",
+    "logits_local": "0x104AD140"
+  },
+  "hardware_xsa_sha256": "89ea49af79a8a5dfacc88edd65f4a60b573f1b7290425787f1b24ecc4783c828",
+  "psu_init_sha256": "71a8e51190ca799171c6e958d3856d270491960b716ba3c0f4a67601bb747349",
+  "board_ip": "192.168.0.190",
+  "numeric_identity": "bf16_rne_h8_interleave16_fp32_adjacent_tree_v2",
+  "hls_source_sha256": {
+    "src/lm_head_v2.cpp": "926911392a1664c05072ac3df2c9c494e55b9d94e72776c67ee5e642d5a5ef91",
+    "include/lm_head_v2.hpp": "8eb849e0921a7ac98856a21675ef676c4febfb2feba3e99f90cd3dce5f5aa4bf"
+  },
+  "ip_component_sha256": "c42fffc031a432b30190b0a26879d0ed9b0373177f454066bff91d9c5c4a3e06"
+}

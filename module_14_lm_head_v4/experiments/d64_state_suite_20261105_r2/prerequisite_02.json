@@ -1,0 +1,13 @@
+{
+  "state": "PASS_FULL_STATE_TB_ELABORATION_SOURCE_AND_RESOURCE_REVIEW_NO_SIMULATION",
+  "utc": "2026-11-04T20:08:29.869748+00:00",
+  "compile_inputs": 107,
+  "verilog_ip_and_support_entries": 77,
+  "elapsed_s": 30.90668800380081,
+  "peak_group_gib": 2.930511474609375,
+  "source_cache_current_sha_checked": true,
+  "parent_group_lock_empty": true,
+  "scope": "Full unchanged DUT +12case bench + qualified native model + passive guards compile only. No full weight loading, DUT calls, state/mode/error/performance proof.",
+  "full_m14": "NOT_RUN",
+  "next_stage_automatic": false
+}

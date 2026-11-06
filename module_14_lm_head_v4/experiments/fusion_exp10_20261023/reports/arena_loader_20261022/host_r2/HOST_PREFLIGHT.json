@@ -1,0 +1,10 @@
+{
+  "state": "PASS_HOST_PREFLIGHT_TARGET_NOT_RUN",
+  "image_bytes": 335544320,
+  "image_sha256": "996a47f2b0ccccc334d3a205e5976bf0355bd557a537745256cae18a8da192b6",
+  "manifest_sha256": "c0467c1df1aa211c3c2f630927a213502fc0c84e9e3dac6464397f154af36473",
+  "source_regions": 9,
+  "target_read_checks_prepared": 34,
+  "hardware_access": "NONE",
+  "target_pl_ddr_readback": "NOT_RUN"
+}

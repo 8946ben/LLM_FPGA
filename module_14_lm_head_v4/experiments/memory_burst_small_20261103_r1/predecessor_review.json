@@ -1,0 +1,98 @@
+{
+  "state": "PASS_INDEPENDENT_FULL_PROJECT_SMALL_LOADER_ACCESS_DIAGNOSIS",
+  "utc": "2026-11-03T04:50:47.756692+00:00",
+  "actual_source_count": 145,
+  "unchanged_reused": 119,
+  "weights_bytes": 8388608,
+  "checksum": 1069547520,
+  "same_address_writes": 1000000,
+  "load_growth_mib": 702.14453125,
+  "full_read_growth_mib": 640.0,
+  "same_address_write_growth_mib": 76.109375,
+  "load_rss_bytes_per_payload_byte": 87.76806640625,
+  "rss_bytes_per_read_access": 80.0,
+  "rss_bytes_per_write_access": 79.806464,
+  "stages": {
+    "top_initial": {
+      "amount": 0,
+      "rss_kib": 104128
+    },
+    "reference_constructed": {
+      "amount": 0,
+      "rss_kib": 112120
+    },
+    "reference_run_enter": {
+      "amount": 0,
+      "rss_kib": 122936
+    },
+    "control_regions_ready": {
+      "amount": 0,
+      "rss_kib": 123680
+    },
+    "before_meta_load": {
+      "amount": 1289456,
+      "rss_kib": 123680
+    },
+    "after_meta_load": {
+      "amount": 1289456,
+      "rss_kib": 420536
+    },
+    "before_weights_load": {
+      "amount": 8388608,
+      "rss_kib": 420624
+    },
+    "stream_before_open": {
+      "amount": 8388608,
+      "rss_kib": 420624
+    },
+    "stream_page_created": {
+      "amount": 8388608,
+      "rss_kib": 420624
+    },
+    "stream_after_load": {
+      "amount": 8388608,
+      "rss_kib": 1139360
+    },
+    "after_weights_load": {
+      "amount": 8388608,
+      "rss_kib": 1139620
+    },
+    "small_after_full_read": {
+      "amount": 8388608,
+      "rss_kib": 1794980
+    },
+    "small_after_repeated_write": {
+      "amount": 1000000,
+      "rss_kib": 1872916
+    }
+  },
+  "resources": {
+    "elaborate": {
+      "elapsed_s": 43.19853280019015,
+      "peak_group_rss_kib": 3618296
+    },
+    "xsim": {
+      "elapsed_s": 20.84762107208371,
+      "peak_group_rss_kib": 2326020
+    }
+  },
+  "input_tv_sha256": "4b8199ef1bc5f067c50a6fb4536b963e1706dfc7a66eac316ec12d881f9ac347",
+  "evidence_sha256": {
+    "PLAN.json": "083e9fac4209d64e21e257e15ff037504ace295b6ba4fc47595ce236912d7b4e",
+    "WORKFLOW.json": "06045922e7bc93c00dec43fea9c960e8b4007f683568f8e808593f6507426556",
+    "COMPILED_SOURCES.json": "ded9e2cc866c396ffb19cb0dc94288b6d170b4278e5001f493a55f6769339d6a",
+    "memory_phases.csv": "b96184e7453075b54159601bee61042c470dc64117ab54c549f9db36376701e9",
+    "xsim.log": "c18b7513b80d6ffa4a05c400c09b625ff9c5cd2224be5ce655342a50d92617c9",
+    "xsim_resources.jsonl": "227b41a650e65767e7348aa5afee3ab95b4cb637bcbddf40c88d4625dd36ebf4"
+  },
+  "limits": [
+    "Only eight-MiB fixed-pattern input in full project; no valid M14 compute input, no clock progress, no decode or FIFO qualification",
+    "Fixed-capacity access growth is demonstrated; allocator internals or exact allocating expression not identified",
+    "All-byte and repeated-overwrite assertions execute in SV; host independently recomputes pattern SHA/checksum and phase differences",
+    "Read and write growth per access is finite-observation arithmetic, not a guaranteed asymptotic leak slope",
+    "Module/UVM and new/factory minimal controls do not isolate every full-project compilation difference"
+  ],
+  "full_m14": "NOT_RUN",
+  "board": "NOT_RUN",
+  "automatic_next_stage": false
+}

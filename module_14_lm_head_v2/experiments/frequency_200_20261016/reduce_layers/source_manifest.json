@@ -1,0 +1,15 @@
+{
+  "candidate": "reduce_layers",
+  "changes": "separate interleave reduction layer arrays",
+  "production_modified": false,
+  "board_usable": false,
+  "build_identity": "unchanged 100 MHz identity; diagnostic only",
+  "files": {
+    "src/lm_head_v2.cpp": "f3cfa500252c30e9bb80f8ac3122ea6fd48a5bc253a1fab786548ff12678c258",
+    "include/lm_head_v2.hpp": "ce054de2536157d3e69a5690c593c309b4abfd5fb69ccf836e41447d53c59e59",
+    "experiments/frequency_200_20261016/reduce_layers/src/lm_head_v2.cpp": "926911392a1664c05072ac3df2c9c494e55b9d94e72776c67ee5e642d5a5ef91",
+    "experiments/frequency_200_20261016/reduce_layers/include/lm_head_v2.hpp": "f5f55fc435b6e225514556b4bbd7fbe44757e893f1b043a48bf046075e7e5b40",
+    "experiments/frequency_200_20261016/reduce_layers/tests/lm_head_v2.hpp": "286f1d42a4924f7ae301347e6927bc434039ac0cdaa8833edab24acad7450b00",
+    "experiments/frequency_200_20261016/reduce_layers/tests/reducers.inc": "376c45760d8f40cf62e69cb003dbdeb97c617ef554924f31c10ac32886ec948d"
+  }
+}

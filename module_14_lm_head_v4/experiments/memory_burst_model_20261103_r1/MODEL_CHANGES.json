@@ -1,0 +1,26 @@
+{
+  "predecessor_sha256": "76c6059f707b35db2f9e21cb23f641c317bb154d70b4de65f5e5c5cffdedf6ef",
+  "candidate_sha256": "993382438e5a666c7364df1cf32cd9b0addf18244960a7cd9c7dd54dc8092373",
+  "edits": [
+    [
+      "    //return means the number of un-successful read\n",
+      "    // Sixteen elements, aligned to one packed slot; byte APIs remain available.\n    function bit write_packed16(logic[16*WIDTH-1:0] data, longint addrin);\n        longint relative;\n        int bank_id,slot,count;\n        relative=addrin-this.offset;\n        if(depth<16 || relative<0 || relative>depth-16 || (relative&15)!=0)return 1;\n        bank_id=relative>>20;slot=(relative&1048575)>>4;\n        if(banks[bank_id]==null)begin\n            count=depth-bank_id*1048576;if(count>1048576)count=1048576;\n            banks[bank_id]=new(count);\n        end\n        banks[bank_id].mem[slot]=data;banks[bank_id].IsWr[slot]=16'hffff;\n        return 0;\n    endfunction\n\n    function bit read_packed16(ref logic[16*WIDTH-1:0] data,longint addrin);\n        longint relative;\n        int bank_id,slot;\n        relative=addrin-this.offset;\n        if(depth<16 || relative<0 || relative>depth-16 || (relative&15)!=0)begin data='hx;return 1;end\n        bank_id=relative>>20;slot=(relative&1048575)>>4;\n        if(banks[bank_id]==null)data='hx;else data=banks[bank_id].mem[slot];\n        for(int j=0;j<16;j++)begin\n            if(banks[bank_id]==null || banks[bank_id].IsWr[slot][j]==0)begin\n                `uvm_warning(this.get_full_name, $sformatf(\"reading an unwritten address: addr:'d%0d, offset:'d%0d, depth: 'd%0d\",addrin+j,this.offset,this.depth))\n            end\n        end\n        is_rd=1;return 0;\n    endfunction\n\n    // Silent helper preserves write_elems_pipepage's original no-summary behavior.\n    function int write_elems_packed(logic[WIDTH-1:0] data[$],longint addr);\n        int i,errors;\n        longint relative;\n        logic[16*WIDTH-1:0] packed_word;\n        i=0;errors=0;\n        while(i<data.size())begin\n            relative=addr+i-this.offset;\n            if(data.size()-i>=16 && depth>=16 && relative>=0 && relative<=depth-16 && (relative&15)==0)begin\n                for(int j=0;j<16;j++)packed_word[j*WIDTH+:WIDTH]=data[i+j];\n                errors+=write_packed16(packed_word,addr+i);i+=16;\n            end else begin errors+=write_one_elem(data[i],addr+i);i++;end\n        end\n        return errors;\n    endfunction\n\n    //return means the number of un-successful read\n"
+    ],
+    [
+      "        logic[WIDTH-1:0] tmp;\n        read_elems = 0;\n        data.delete();\n        for(int i=0; i<length; i++) begin\n            read_elems += read_one_elem(tmp, addr+i);\n            data.push_back(tmp);\n        end",
+      "        logic[WIDTH-1:0] tmp;\n        logic[16*WIDTH-1:0] packed_word;\n        longint relative;\n        int i;\n        read_elems = 0;\n        data.delete();i=0;\n        while(i<length)begin\n            relative=addr+i-this.offset;\n            if(length-i>=16 && depth>=16 && relative>=0 && relative<=depth-16 && (relative&15)==0)begin\n                read_elems+=read_packed16(packed_word,addr+i);\n                for(int j=0;j<16;j++)data.push_back(packed_word[j*WIDTH+:WIDTH]);\n                i+=16;\n            end else begin\n                read_elems+=read_one_elem(tmp,addr+i);data.push_back(tmp);i++;\n            end\n        end"
+    ],
+    [
+      "        write_elems = 0;\n        for(int i=0; i<data.size; i++) begin\n            write_elems += write_one_elem(data[i], addr+i);\n        end",
+      "        write_elems = write_elems_packed(data,addr);"
+    ],
+    [
+      "            for(k=0;k<16;k=k+1)begin\n                errors=blk.write_one_elem((word128>>(k*8)) & 255,i*16+k+start_offset);\n                if(errors) `uvm_fatal(\"stream_format\",\"write outside configured input\")\n            end",
+      "            errors=blk.write_packed16(word128,i*16+start_offset);\n            if(errors) `uvm_fatal(\"stream_format\",\"write outside configured input\")"
+    ],
+    [
+      "                for(int k=0; k<data.size; k++) pages[i].write_one_elem(data[k], addr[k]-page_ofst[i]-min_offset);",
+      "                bit contiguous;\n                contiguous=(data.size()==addr.size() && data.size()>0);\n                for(int k=1;k<addr.size();k++)if(addr[k]!=addr[0]+k)contiguous=0;\n                if(contiguous)void'(pages[i].write_elems_packed(data,addr[0]-page_ofst[i]-min_offset));\n                else for(int k=0;k<data.size;k++)void'(pages[i].write_one_elem(data[k],addr[k]-page_ofst[i]-min_offset));"
+    ]
+  ]
+}

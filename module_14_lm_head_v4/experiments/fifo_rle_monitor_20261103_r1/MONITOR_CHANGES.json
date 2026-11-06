@@ -1,0 +1,35 @@
+{
+  "original_sha256": "c5365fb60d1ebe9a9a9f8cb1e2a7f4012bc623f203daa3bf85481ef1f8632489",
+  "candidate_sha256": "7ca5e013f9a5292d783d7e04d0aea9ddd061c22d0dabe2b69b014e091a0b4af1",
+  "edits": [
+    [
+      "        dump_file_agent chan_file;",
+      "        dump_file_agent chan_file;\n        integer depth_fd,block_fd;\n        longint unsigned depth_run,block_run,depth_samples,block_samples,pushes,pops,clamped_reads;\n        logic[31:0] depth_last;\n        logic[1:0] block_last;\n        bit rle_closed;"
+    ],
+    [
+      "        this.max_used_depth = 32'h0;",
+      "        this.max_used_depth = 32'h0;\n        depth_run=0;block_run=0;depth_samples=0;block_samples=0;pushes=0;pops=0;clamped_reads=0;rle_closed=0;\n        depth_fd=$fopen({file_inst.file_name,\".depth.rle\"},\"w\");\n        block_fd=$fopen({file_inst.file_name,\".block.rle\"},\"w\");\n        if(!depth_fd || !block_fd)$fatal(1,\"FIFO_RLE_OPEN_FAILED\");"
+    ],
+    [
+      "        this.file_dumper.open_file();\n        this.file_dumper.dump_2_col(rt_depth_arr,rt_block_arr);\n        this.file_dumper.finish_dump();",
+      "        if(!rle_closed)begin\n            if(depth_run)$fwrite(depth_fd,\"%0d,%0d\\n\",depth_run,depth_last);\n            if(block_run)$fwrite(block_fd,\"%0d,%0d\\n\",block_run,block_last);\n            $fclose(depth_fd);$fclose(block_fd);rle_closed=1;\n            $display(\"DF_FIFO_RLE_SUMMARY file=%s depth_samples=%0d block_samples=%0d end_depth=%0d max_depth=%0d pushes=%0d pops=%0d clamped_reads=%0d\",this.file_dumper.file_name,depth_samples,block_samples,this.rt_depth,this.max_used_depth,pushes,pops,clamped_reads);\n        end"
+    ],
+    [
+      "            this.rt_depth_arr.push_back(this.rt_depth);",
+      "            if(depth_run!=0 && depth_last!==this.rt_depth)begin $fwrite(depth_fd,\"%0d,%0d\\n\",depth_run,depth_last);depth_run=0;end\n            if(depth_run==0)depth_last=this.rt_depth;\n            depth_run++;depth_samples++;\n            if(in_intf.wr_en===1'b1)pushes++;\n            if(in_intf.rd_en===1'b1)pops++;\n            if(in_intf.rd_en===1'b1 && in_intf.wr_en!==1'b1 && this.rt_depth==0)clamped_reads++;"
+    ],
+    [
+      "                this.rt_block_arr.push_back(2'b1);",
+      "                begin\n                    if(block_run!=0 && block_last!==2'b1)begin $fwrite(block_fd,\"%0d,%0d\\n\",block_run,block_last);block_run=0;end\n                    if(block_run==0)block_last=2'b1;\n                    block_run++;block_samples++;\n                end"
+    ],
+    [
+      "                this.rt_block_arr.push_back(2'b10);",
+      "                begin\n                    if(block_run!=0 && block_last!==2'b10)begin $fwrite(block_fd,\"%0d,%0d\\n\",block_run,block_last);block_run=0;end\n                    if(block_run==0)block_last=2'b10;\n                    block_run++;block_samples++;\n                end"
+    ],
+    [
+      "                this.rt_block_arr.push_back(2'b0);",
+      "                begin\n                    if(block_run!=0 && block_last!==2'b0)begin $fwrite(block_fd,\"%0d,%0d\\n\",block_run,block_last);block_run=0;end\n                    if(block_run==0)block_last=2'b0;\n                    block_run++;block_samples++;\n                end"
+    ]
+  ],
+  "schema": "separate depth/block CSV run_length,value;original channel status unchanged;lossless expansion to original two columns"
+}

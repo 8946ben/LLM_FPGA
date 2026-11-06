@@ -1,0 +1,19 @@
+{
+  "variant": "exp10",
+  "case": "math",
+  "state": "PASS_FIXED_INPUT_TARGET_TRANSFER_AND_1033_OUTPUT_CALLS",
+  "median_ms": 32.1840218402184,
+  "p95_ms": 32.207362073620736,
+  "m14_equivalent_outputs_per_s": 31.071318711024528,
+  "candidate_count": 17106,
+  "measured": 30,
+  "warmup": 3,
+  "stability": 1000,
+  "sha256": {
+    "request.bin": "ea1f613e17ac36b91dc1d1b0a42d1b2f622d02eaf1452a159516d45115994424",
+    "header.bin": "1d9142ceb0248813114549740b14357bb9a33cf57f11942f58ff2b9245daf125",
+    "records.bin": "f852681d3cc7697ca7109ea5b935400c579311e25eb6caf1e9caafc7b1673540"
+  },
+  "timing_scope": "A53 full control_call through verified scalar return; fixed preloaded hidden/history; no IP-cycle counter/full LLM/TTFT",
+  "full_array_and_multistep_qualification": "PENDING_SEPARATE_TEST"
+}

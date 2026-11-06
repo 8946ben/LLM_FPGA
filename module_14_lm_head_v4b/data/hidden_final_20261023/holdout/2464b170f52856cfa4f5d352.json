@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/chinese_foreign_policy.csv:80",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "d51a6a911e6a06c46b5f9d98af4bf5242337e4c6da84494f7c5b7712ac1991f1",
+  "group_sha256": "880ed7a6f16310e322459cad80066461263fd7e1e548452bdc1f97ae28538f28",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "2464b170f52856cfa4f5d352.npz",
+  "npz_sha256": "b53d43736cf88700131ca37ab1d290a19907c6b078fbfb02cea9672c64fa2a48",
+  "generated_ids": [
+    17,
+    15,
+    101186,
+    21,
+    15,
+    104227,
+    3837,
+    58695,
+    18493,
+    103044,
+    17447,
+    101310,
+    104396,
+    104036,
+    33108,
+    86119
+  ],
+  "input_tokens": 109,
+  "seconds": 1.53566170000704,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/high_school_chemistry.csv:38",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "43525362689276034fb74a1f6b1bf93f8cca4e42586d59034caf52854337e2f3",
+  "group_sha256": "02e79c83006716039fdaff4ec433b24ea216d691291559690522f3227287ea0d",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "40b44f0b1e775377642a53eb.npz",
+  "npz_sha256": "b91b4f424d263925cb89e2c72d6ea6ed2d18c1187f97ac14604800094c1467a5",
+  "generated_ids": [
+    43288,
+    44793,
+    33872,
+    104429,
+    32664,
+    118505,
+    33108,
+    119423,
+    72881,
+    108894,
+    33108,
+    104317,
+    99788,
+    3407,
+    101140,
+    3837
+  ],
+  "input_tokens": 139,
+  "seconds": 1.4768176000216044,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

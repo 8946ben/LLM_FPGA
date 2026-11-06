@@ -1,0 +1,1106 @@
+--- PAGE 1 ---
+LUT-LLM: Efficient Language Model Inference
+with Memory-based Computations on FPGAs
+Zifan He ∗, Shengyu Ye †, Rui Ma †, Yang Wang† and Jason Cong ∗
+∗University of California, Los Angeles
+†Microsoft Research
+Email: zifanhe1202@g.ucla.edu,{v-yeshengyu, mrui, Yang.Wang92}@microsoft.com, cong@cs.ucla.edu
+Abstract—The rapid development of large language models
+(LLM) has greatly enhanced everyday applications. While many
+FPGA-based accelerators, with flexibility for fine-grained data
+control, exhibit superior speed and energy efficiency compared to
+GPUs, recent GPU-specific optimizations have diminished this ad-
+vantage. When limited to arithmetic-based computation, FPGAs
+often underperform GPUs due to their comparatively fewer com-
+putational resources. To address this challenge, we exploit a key
+advantage of FPGAs over GPUs: abundant distributed on-chip
+memory embedded among computational units. We believe that
+shifting LLM inference from arithmetic-based to memory-based
+computations through table lookups can improve the efficiency
+on FPGAs to compete with GPUs. However, existing methods
+are inefficient or unable to scale and deploy language models
+due to algorithm and architecture design limitations. This paper
+introduces LUT-LLM 1, the first FPGA accelerator that deploy
+1B+ language model with memory-based computation, leveraging
+vector quantization. We construct a performance model, evaluate
+multiple quantization schemes, and identify activation-weight
+vector co-quantization as the most effective approach. To support
+this scheme, LUT-LLM features (1) bandwidth-aware parallel
+centroid search to reduce decoding latency, (2) efficient 2D table
+lookups, and (3) a spatial-temporal hybrid design to reduce data
+caching for a higher throughput table lookup. We develop a
+training recipe that converts existing models to support table
+lookups with high accuracy and prototype LUT-LLM for Qwen
+3 1.7B model on the AMD V80 FPGA, reducing arithmetic
+operations by4×and achieving a1.10∼3.29×faster generation
+speed and a3.05∼6.60×higher energy efficiency than GPUs.
+I. INTRODUCTION
+The advancement of LLMs has enabled a wide range of
+applications such as conversational chatbots [1], [2], coding
+agents [3], [4], and deep research [5] that assist our daily lives.
+Recently, FPGA have been widely recognized as promising
+platforms for efficient single-batch LLM inference compared
+with GPUs [6]–[8]. This covers edge scenarios such as per-
+sonal AI assistants [9], [10], smart home devices [11], and
+interactive robotics [12]. Nevertheless, the advancements in
+GPU kernel and algorithm optimization have narrowed this
+performance gap. In particular, serving a Llama 2 7B model on
+a single NVIDIA A100 GPU obtains a2.38×throughput im-
+provement and a3.27×energy efficiency gain when FlashAt-
+tention [13], FlashDecoding [14], and quantization with GPTQ
+[15] are enabled. Under these settings, GPU inference is
+2× ∼6.37×faster with similar or better energy efficiency
+than state-of-the-art FPGA accelerators [7], [8]. These results
+1Github: https://github.com/LUT-FPGA/LUT-LLM
+Motivation 1: Growing performance
+of GPU w/ only algorithm updates
+Motivation 2: FPGA vs. GPU - Low
+Compute but High Memory
+Challenge 1: Inefficient/Impossible
+when scale to language models
+Challenge 2: Additional Complexity of
+LLMs w/ memory-based operations
+High Mem. Requirement
+(e.g., activation vector
+quantization (VQ).)
+High Comp. Cost
+(e.g., weight VQ.)
+Cannot fit on FPGA (e.g., LUT
+based Neural Accelerator w/
+weights hardwired on chip)
+compute
+cores
+memory
+x c
+bottleneck of centroid search
+inefficient table lookup
+& accumulate
+Linear
+Attention
+Norm
+SwiGLU
+complex orchestrations
+between operations
+                             Improve LLM inference efficiency on FPGA with memory
+based operations to exploit the abundant and distributed on-chip memory
+resources. 
+Promising Goal:
+Contri. 1: Performance Model & New
+Efficient Algorithm (Sec. 3)
+Contri. 2: Specialized Arch. for LLM
+w/ memory-based operations (Sec. 4)throughput
+operational intensity
+Activation-weight
+Co-VQ
+x c
+bandwidth-aware parallel centroid search
+LUTLinear
+spatial-temporal
+hybrid design
+cycles
+1
+cycles
+1
+efficient table
+lookup
+softmax
+Fig. 1. Motivations and challenges of memory-based computation for LLM
+inference on FPGA, with the corresponding solutions as the technical contri-
+butions in LUT-LLM.
+highlight the growing competitiveness of GPUs in efficient
+inference and suggest that sustaining FPGA’s advantages will
+require algorithmic and architectural innovations.
+When competing with GPUs, the major challenge is that
+FPGAs often have fewer computational resources than GPU
+[16]–[19]. This leads to slow input processing and under-
+utilized memory bandwidth when FPGAs spend more time
+on computation than on memory access. However, FPGAs
+typically provide larger amounts of distributed on-chip mem-
+ory units: the AMD V80 (7nm) [18] integrates14.9×more
+on-chip memory units with a2.5×larger capacity than the
+NVIDIA A100 (7nm) [19]. Therefore, shifting the computa-
+tional paradigm tomemory-based computationsis promis-
+ing. Prior memory-based accelerators [20]–[23] show the
+efficiency on neural networks within 10M parameters, but face
+two challenges when deploying language models (Figure 1):
+•Scaling inefficiency and infeasibility (C1): direct deploy-
+ment of existing methods that convert models for table lookups
+[20], [24], [25] can lead to inefficiency due to higher memory
+arXiv:2511.06174v2  [cs.AR]  22 Mar 2026
+
+--- PAGE 2 ---
+and computation cost compared to conventional arithmetic
+approaches, or be infeasible with limited on-chip resources.
+•Additional Complexity of LLMs (C2): prior memory-
+based neural accelerators overlook the additional complex-
+ity of LLM accelerations, where centroid search is hard to
+pipeline in decoding, lookup table access is limited by on-
+chip memory ports, and interactions between linear layers and
+other components further hinder data movement efficiency.
+In this paper, we proposeLUT-LLM, the first FPGA ac-
+celerator targeting 1B+ parameter LLMs usingmemory-based
+computation. LUT-LLM replaces conventional linear layers
+with table lookups over pre-computed dot-product results. To
+enable efficient table construction, we adoptvector quanti-
+zation[26], which maps multiple values to low-bit indices.
+This designreduces the number of operationsandshort-
+ens per-operation latency, enabling competitive performance
+compared to GPUs that often underutilize available memory
+bandwidth [8]. To addressC1, we develop a performance
+model for LLM inference with memory-based computation
+and vector quantization to understand the scaling (Section III).
+We innovatively show that vector quantizing both weights and
+activations achieves the best performance while maintaining
+comparable accuracy. From this foundation, we design the
+LUT-LLM accelerator with three features that resolveC2
+(Section IV):
+•Bandwidth-aware parallel centroid search:LUT-LLM
+finds the closest centroid of every input vector to access the
+corresponding entry in the lookup tables. Unlike a naive single
+pipeline [20] or a complete binary reduction tree architecture,
+LUT-LLM employs a hybrid architecture with multiple parallel
+pipelines and a smaller reduction tree. The parallelization size
+and pipeline depth are co-designed with the memory band-
+width to maximize throughput while hiding search latency.
+•Efficient 2D table lookup based prefix-sum:To support
+vector quantization of both activations and weights, we con-
+struct 2D lookup tables, where one dimension corresponds to
+activation centroid indices and the other to weight centroid
+indices. During inference, the tables are loaded to on-chip
+memory in parallel with the centroid search, and the corre-
+sponding table entries are dynamically retrieved and expanded
+online, along with SIMD accumulation.
+•Spatial-temporal hybrid design:LUT-LLM adopts a hy-
+brid execution strategy, following a design principle similar to
+InTAR [27] and SSR [28]. Specifically, the attention layer is
+implemented in a dataflow manner, whereas linear layers are
+executed sequentially. This design spares14%on-chip buffers
+from attention to the linear layer for more parallel accesses.
+We develop a training recipe for vector-quantized model for
+our scheme to convert and deploy Qwen 3 1.7B on LUT-LLM
+prototyped with AMD V80 FPGA. Compared with GPUs at
+the same technology node, our design achieves a1.10−3.29×
+speedup and3.05−6.60×higher energy efficiency than AMD
+MI210 and NVIDIA A100.
+II. BACKGROUND
+A. Language Model Acceleration
+Most LLM accelerators adopt the transformer architecture
+[29], which contains a series of attention blocks implemented
+in grouped-query attention (GQA) [30] and feedforward net-
+works (FFN) with residual connections [6]. Previous works
+[7], [8], [27], [31] develop customized transformer accelerators
+with arithmetic-based operations. FlightLLM and DFX [8],
+[31] sequentially execute operations with various sparsification
+and quantization techniques. Allo [7] and StreamTensor [32]
+are dataflow accelerator design frameworks that can be used
+for LLMs, and InTAR [27] proposes a spatial-temporal hybrid
+design for efficient on-chip management of LLMs.
+B. Weight Vector Quantization
+Fig. 2. Linear projection with weight vector quantization.
+Conventional quantization compresses scalars into low-bit
+representations via scaling and shifting [15], [33]–[35]. In
+contrast, vector quantization (VQ) [26], [36] encodes groups
+ofvelements as indices to representative centroids. As seen
+in Figure 2, in the preprocessing stage, the quantizer➀
+partitions the matrix into length-vvectors, clusters them into
+cw centroids forming acodebook, and➁replaces each vector
+with the index of its closest centroid. The resultingweight
+centroid index tablestores indices at a much lower bitwidth.
+For example, withv= 2, vector(1,3)is encoded as index0,
+mapped to centroid(2,3).
+For language models, VQ is applied to weight matrices to
+reduce memory cost [24], [25], [37], [38]. AnM×Dmatrix is
+divided into groups ofGvectors, each with its own codebook
+and index table (e.g.,G= 4in Figure 2). In inference,
+the device➂loads codebooks and indices, reconstructs the
+weights by centroid lookup, and➃multiplies the recovered
+matrix with activations. Compared to scalar quantization, VQ
+provides non-uniform compression [25], yielding higher rep-
+resentational power for superior accuracy at the same bitwidth.
+C. Memory-based Computation
+Memory-based computation replaces arithmetic by loading
+pre-computed outputs from memory, making it well-suited for
+
+--- PAGE 3 ---
+on-chip memory-rich platforms such as FPGAs. It reduces re-
+source usage and latency since a multiply-accumulate (MAC)
+operation (two reads, one multiply and one addition) can be
+replaced by a single memory read. This also lowers energy:
+a memory-based MAC consumes only 3.8 pJ in 7 nm,2.4×
+less than its arithmetic counterpart [39]. Moreover, memory-
+based LLMs avoid online dequantization because values are
+pre-computed in full precision. The pre-computed lookup table
+can be further quantized with low loss [20], used in our design.
+Fig. 3. Linear projection with activation VQ. Precomputed dot products
+between weight matrix and centroids are stored in the lookup tables.
+Previous works, including TLMAC [21] and NeuraLUT
+[22], consider using memory-based computations for simple
+neurons with FPGA soft logic. However, the limited resource
+makes it infeasible to scale to language models that compete
+with GPUs. For LLMs, weight quantization in these methods
+requires large storage for offline lookup tables due to the wide
+range of activations. Recent works [20], [40]–[42] therefore
+apply VQ to activations in linear layers. As illustrated in Fig-
+ure 3, the quantizer collects activation samples during training.
+To preserve accuracy, methods such as LUT-NN [40]➀learn
+codebooks withc a centroids through differentiable training
+and➁pre-compute dot products between weight vectors and
+centroids, storing them as lookup tables. For example, a weight
+vector(1,3)multiplied by centroids(6,2)and(4,5)yields
+entries12and19. During inference, the quantizer➂identifies
+the nearest centroid for each input vector,➃retrieves the
+corresponding table entry, and accumulates the results. For
+instances, input(6,3)maps to centroid(6,2)at index0,
+retrieving12. LUT-DLA [20] is a hardware-algorithm co-
+design that improves model learning and accelerator design.
+Though effective in CNNs, it still requires non-trivial large
+storage for LLMs, which limits decode and short-context
+prefill performance. In addition, its single-pipeline centroid
+search creates bottlenecks in the decode stage.
+III. ALGORITHM ANDPERFORMANCEMODELING
+In this section, we illustrate the performance model of our
+new quantization scheme to guide our hardware design in
+Section IV. Detailed derivation is omitted to save space.
+A. Performance of Vector Quantized Linear Layer
+We start with modeling the performance of the linear
+layer, which is affected by the vector quantization, and then
+extend this to the complete language model. Table I illus-
+trates the symbols utilized in the performance model. The
+equivalent quantization scheme islog(c w)/v-bit for weight
+andlog(c a)/v-bit for activation. Here, we mainly show the
+key results for different quantization strategies, and leave the
+detailed derivation in Appendix VII.
+TABLE I
+SYMBOLS USED IN PERFORMANCE MODELING OF LINEAR LAYER
+Symbol Meaning Symbol Meaning
+Used Hardware Resource Quantization Configurations
+Np On-chip memory ports GVectors per quantization group
+bp Bit-width per access vVector Length
+Nc Compute units cw Centroids per weight codebook
+Opf p32 FP32 MACs/cycle/compute unitca Centroids per activation codebook
+Opint8 INT8 MACs/cycle/compute unitD, MInput/Output weight dimensions
+COff-chip bandwidth (bytes/cycle) LActivation (Sequence) length
+Forweight vector quantization, the latency of loading
+codebook and weight centroid indices is
+Tmem = (4M Dcw/Gv+M Dlog(c w)/8v)/C(1)
+and the latency of on-chip computation is
+Tlat = M D(log(cw)
+v + 32
+Gv )
+Npbp
++ M DL
+min(NcOpf p32, Npbp
+32 )
+(2)
+When overlapping off-chip memory access with on-chip
+computations by double buffering, the overall latency is
+max(Tmem, Tlat). For example, withM= 512,D= 32,
+G= 256,c w = 16,v= 2,L= 1,C= 64, and when we
+assign 16 memory ports of 32-bit wide memory and 256 FP32
+compute units,T mem = 66andT lat = 1090, resulting in1090
+cycles for overall latency.
+Foractivation vector quantization, the latency of loading
+codebook and lookup tables is
+Tmem = (M Dca/v+ 4Dc a/v)/C(3)
+When havingSparallel centroid searches, the latency of table
+lookup perSparallel centroid search and accumulation is:
+Ttl =SM L/min(SM, N pbp/8)
++ SM L
+min(SM,(N c −Sc av/Opf p32)Opint8, Npbp/8)
+(4)
+The total latency of on-chip computation is
+Tlat = min
+S
+(Dmax(log(c a) +L−1, T tl)/S)(5)
+With the same setting as the previous example andc a = 64,
+Tmem = 8256andT lat = 512, leading to8256cycles for
+overall latency. Notice that some table-lookup-based FPGA
+accelerators [21], while quantizing weights, can be modeled
+in this formula by replacingc a/vwith2 b and divideDby
+quantization group size, wherebis the activation bitwidth.
+From the analysis in this example, we observe that either
+weight-only or activation-only VQ applied in prior works
+[25], [40] incur high computation latency or require loading
+
+--- PAGE 4 ---
+Fig. 4. Linear projection with both activation and weight vector quantization
+with 2D lookup tables.
+large tables. To resolve these issues, we extend these schemes
+toactivation-weight co-quantization, which quantizes in
+coarser-grain but still maintain comparable accuracy as shown
+in Table III. As illustrated in Figure 4, the process involves
+➀generating codebooks for weights and activations,➁pre-
+computing dot products between them to form 2D lookup
+tables,➂finding the closest centroid for each activation vector,
+and➃accessing the entry based on the activation and weight
+centroid indices for accumulation. In the figure, vector(6,3)
+is closer to(6,2)at index 0. As the first weight centroid index
+is 0, we access the lookup table entry(0,0)with value18.
+With this scheme, the latency of off-chip memory access is
+Tmem = (M D cacw
+Gv +M Dlog(c w)/8v+ 4Dc a/v)/C(6)
+and the on-chip computation latency is
+Ttl =SM L/Gmin(SM/G, N pbp/8)
++ SM L
+min(SM,(N c −Sc av/Opf p32)Opint8, Npbp/8)
+(7)
+Tlat = min
+S
+( D
+S max(log(ca) +L−1, T tl))(8)
+The same setting as previous example resultsT mem = 569,
+Tlat = 288, and the overall latency is569cycles.
+B. Analysis and Comparison
+We extend the performance model of vector-quantized linear
+layers to a complete transformer architecture following [6],
+with additional modeling for newly introduced computation
+blocks in modern LLMs (e.g., GQA, SwiGLU, etc.). Following
+prior work [41], [43]–[45], attentions and non-linear opera-
+tions require floating point for accuracy. Figure 5 depicts the
+roofline analysis of deploying the Qwen 3 1.7B model on the
+AMD V80 FPGA with a naive memory-based computation
+(Act. VQ) like [20], [41] and arithmetic-based computation
+(FP16). The quantization configuration is:c a = 64,v= 2,
+INT8 lookup tables, and FP32 codebooks. Compared with
+conventional roofline analyzes of transformer acceleration [6],
+[46] with arithmetic-based computations, we observe two
+properties of the naive memory-based computation for the vec-
+tor quantized model. First, memory-based compute can have
+Fig. 5. Normalized throughputs of the prefill and decode stage for Qwen
+3 1.7B on AMD V80 FPGA with various quantization schemes. Activation-
+weight VQ can achieve superior performance than other schemes in both
+prefill and decode. FP8/FP16 are not natively supported by DSPs on V80 and
+require online conversion to FP32 or custom compute logics [8], [31], [49].
+higher throughput than arithmetic-based compute throughput
+with a longer sequence in the prefill stage, leading to at
+most1.7×performance boost compared to arithmetic-based
+compute. This is because memory-based compute utilizes
+memory access to compute dot products, increasing the total
+available compute resources. The throughput converges to the
+compute bound as the sequence length increases, since the
+computation is dominated by attention layers. Second, naive
+memory-based computing needs to load lookup tables and
+codebooks that are16×larger than the weights of FP16.
+This results in significantlylower operational intensity and
+throughputin decode and short-context prefill. Such behavior
+is unfavorable for tasks involving short inputs or long outputs
+(e.g., short question-answering [47] and creative writing [48]).
+We then investigate other quantization schemes for a more
+efficient alternative on FPGA such as W4A8, FP8, Weight
+VQ, and Activation + Weight VQ. Figure 5 compares the
+normalized throughput of these vector quantization methods
+with conventional scalar quantization on FPGA accelerators
+[7], [27], [31], usingG= 512andc w = 16for weight VQ.
+Weight VQ is employed with either arithmetic operations used
+in most GPU implementation as illustrated in Figure 2, or
+with memory-based operations by table lookups [21]. Weight
+VQ with arithmetic operations boosts decoding throughput by
+reducing off-chip memory access, but its prefill performance
+remains constrained by costly floating-point operations, and
+decoding is further limited by on-chip memory bandwidth.
+Weight VQ with table lookups, while mitigating these is-
+sues, requires large table storage, similar to activation VQ.
+In contrast,activation-weight co-quantizationrealizes the
+highest throughput across both stages than other scalar and
+vector quantization schemes. This improvement arises from
+three factors: (1) multiple weight vectors map to the same
+centroid vector, reducing the total number of entries required
+in the lookup tables and easing the off-chip memory bandwidth
+demand; (2) co-quantization has higher data reuse of lookup
+tables than weight-only or activation-only quantization due to
+repeating access to the same centroid, lowering memory port
+requirements to sustain high parallelism; and (3) INT8 table
+lookup and accumulation reduce on-chip memory pressure
+
+--- PAGE 5 ---
+Fig. 6. The overall architecture of LUT-LLM, including a LUTLinear
+engine with global buffer, a dataflow attention engine, and special functions
+(SwiGLU, LayerNorm) with pipelined operations.
+and eliminate FP dequantization operations requried by W4A8
+scheme, ensuring high computational throughput on FPGAs.
+IV. LUT-LLM ARCHITECTURE
+A. Architecture Overview
+Based on the performance analysis, we design the LUT-
+LLM accelerator with activation-weight co-quantization ap-
+plied. Since not all operations can be executed through table
+lookup and the language model involves mixed precisions and
+computation orders, we carefully orchestrate the execution
+of operations and allocate on-chip resources to ensure its
+feasibility on the target FPGA. LUT-LLM integrates a LUT-
+Linear engine with a global on-chip buffer, a dataflow attention
+engine, and two special function units (SFUs) for non-linear
+operations (SwiGLU and LayerNorm). The LUTLinear engine
+performs all linear projections and routes the outputs. The
+dataflow attention engine employs two FP32 GEMM/GEMV
+engines to computeQK T and softmax(QK T )Vin a pipelined
+manner, with rotational embedding and softmax applied in
+between. It supports both GEMM and GEMV to sustain high
+throughput in both the prefill and decode stages within a single
+design. The SFUs handle nonlinear operations to process the
+output embeddings from the LUTLinear engine.
+The LUTLinear engine (Figure 7(b)) consists of two pri-
+mary components: bandwidth-aware parallel centroid search
+units (BPCSU) and a 2D lookup table prefix-sum engine
+(2D-PSum). BPCSU performs a nearest-neighbor search to
+identify the closest centroid for the given input vectors, while
+the 2D-PSum conducts a table lookup and accumulation to
+realize matrix multiplication. Each BPCSU is paired with a
+2D-PSum, which receives the indices of the closest centroids.
+The 2D-PSum are connected in a serial chain to cascade
+and accumulate partial sums. Multiple BPCSUs and 2D-PSum
+enable parallel processing with multiple codebooks along the
+hidden dimension. The accumulated results are stored in the
+accumulator along with the output buffer. Before distributing
+outputs to other modules, the dequantizer converts each value
+in the output buffer to FP32 with the specified per-tensor
+scaling and shifting factors.
+B. Bandwidth-aware Parallel Centroid Search
+As shown in Figure 4, during inference, the first step is
+finding the closest centroids for the incoming input vectors.
+For hardware efficiency, the distance metric that is often used
+is the Chebyshev distance [50], which calculates the distance
+between two vectors⃗ aand ⃗bbyL ∞ = max i(|ai −b i|),
+wherea i andb i are elements in⃗ aand ⃗b. To facilitate
+distance computation and comparison, previous work [20],
+[41] instantiated distance PEs (dPEs) for each centroid in
+the codebook. Since codebooks are varied across hidden
+dimensions and layers, every dPE needs to load new centroids.
+dPEs are connected in a single-chain of pipeline, where the last
+dPE in the chain produces the index of the closest centroid.
+Although having low overhead when a long sequence of input
+vectors is pipelined, this design incurs high setup latency if
+the sequence is short, e.g., in the decode stage. This latency
+is often higher than the off-chip memory access latency of
+lookup tables for LLMs. One potential alternative is to launch
+all dPEs to compute distance with all centroids in parallel,
+and apply a binary reduction tree to find the closest centroid.
+However, this significantly increases fanout and introduces
+ca−1comparators, which escalate routing difficulty, negatively
+impact timing, and consume more power on driving resources.
+In LUT-LLM, we propose the bandwidth-aware parallel
+centroid search unit (BPCSU), where we design the structure
+of data communication among dPEs to match the bandwidth
+of data loading in the 2D-PSum. We found that a complete
+reduction tree is often an overkill: we can support longer
+pipeline depth while the latency can still completely overlap
+with the off-chip memory access time. As seen in Figure 7(a),
+BPCSU arranges dPEs into multiple pipeline chains. The input
+vector is broadcast to all chains for parallel distance computa-
+tions. Each pipeline chain produces the minimum distance and
+index locally, which will be collected and compared through
+a small reduction tree. Consequently, BPCSUs can have a
+lower pipeline setup latency than data loading, with fewer
+resources instantiated for comparators than complete binary
+reduction trees. To maximize performance by overlapping
+centroid search and data loading, we have the following
+formulation: givenMas the output size,Gas the weight
+VQ group size,c w, ca are the weight and activation codebook
+sizes, andCis the memory bandwidth per BPCSU (bits/cycle),
+the length of each dPE pipeline chainlis
+arg max
+l
+( 8cacwM
+GC + log(cw) M
+C )≥32 ca
+C +l+ log( ca
+l ))(9)
+where lookup tables are in INT8 and centroids are in FP32.
+log(ca/l)is the depth of the reduction tree. We evaluate
+the maximumlthat satisfies this condition for every linear
+projection and select the minimum over them. For example,
+for configurations of Qwen 3 1.7B,l= 16forc a = 64and
+
+--- PAGE 6 ---
+Fig. 7. The LUTLinear Engine (b) performs all linear projections with bandwidth-aware parallel centroid search units (BPCSU) and 2D lookup table prefix-sum
+(2D-PSum) engines. The accumulator and dequantizer is used to aggregate and convert results to FP32. (a) BPCSU uses distance PEs (dPE) and a reduction
+tree to find the nearest centroids, with parallelism determined by the allocated memory bandwidth. (c) 2D-PSum retrieves centroid indices, gathers rows from
+the lookup tables, expands them with multiplexers, and performs SIMD addition before cascading to the next engine.
+Fig. 8. (a) Partial sum with 1D lookup tables requires more memory capacity
+to store the tables and longer latency to access data for accumulation. (b)
+Partial sum in 2D-PSum needs smaller memory and fewer memory ports to
+have high parallelism in accumulation.
+cw = 16, indicating the instantiation of a16×4array of dPEs
+with a 2-level reduction tree for each BPCSU.
+C. Efficient 2D Table lookup Based Prefix-Sum
+After retrieving the closest centroid index, LUT-LLM will
+perform table lookups and accumulations to compute matrix
+multiplications. Naive memory-based computation accesses
+1D lookup tables for every element in the output dimension.
+With a limited number of memory ports (Figure 8(a)), the
+partial sum takes multiple cycles. To execute table lookup
+efficiently, we construct 2D lookup tables for the dot-product
+outputs and perform lookups with a dedicated engine. Element
+(i, j)in each table is the dot product between centroidi
+in activation codebook and centroidjin weight codebook.
+Illustrated in Figure 8(b), given the incoming input centroid
+index received from BPCSUs, the 2D-PSum first accesses the
+row of 2D lookup tables with the corresponding index, and
+extracts to a LUT row register. Meanwhile, the centroid indices
+of the weight vectors are prefetched and stored in a register
+of length-G, whereGis the quantization group size. Then,
+the dot product result of each weight vector is retrieved and
+expanded by looking up the LUT row register using the weight
+centroid index. In the example, the engine will copy the value
+at position 1 of the LUT row register to position 0 in the
+output register for the first index in the weight centroid index
+register. Both the extraction of LUT row registers and data
+copying for expanded output registers finish in a single cycle
+with memory partitioning and pipelined 2D table lookup.
+Figure 7(c) illustrates the hardware architecture of the 2D-
+PSum. The 2D LUT buffer, which stores collections of lookup
+tables for each codebook, is instantiated utilizing a mixture of
+BRAM, URAM, and LUTRAM to balance memory resources
+on the target FPGA. Once the LUT row registers are extracted,
+their contents are forwarded to value copy multiplexers, which
+select entries according to the weight centroid index registers.
+To alleviate excessive fanout from the LUT row registers to
+the multiplexers, the registers are duplicated so that each copy
+drives only a subset of multiplexers. The expanded outputs are
+then accumulated with the results cascaded from the preceding
+2D-PSum through a SIMD adder.
+D. Spatial-Temporal Hybrid Design
+Fig. 9. (a) Dataflow execution: centroid search cannot be pipelined across
+tokens, and repeated codebook reloading induces pipeline stalls. (b) Sequential
+execution: excessive memory resources are allocated to the attention block,
+which degrades linear projection throughput. (c) Hybrid execution: enables full
+token-level pipelining while minimizing memory footprint, allowing parallel
+table lookup and preserving high projection throughput.
+To integrate the LUTLinear engine into a complete lan-
+guage model accelerator with high efficiency, it is essential to
+carefully orchestrate inter-operation communication. Conven-
+tional language model accelerators typically adopt either pure
+
+--- PAGE 7 ---
+dataflow [7], [32] or sequential [8], [31] execution strategies.
+While both exhibit strong performance for arithmetic-intensive
+operations, they are suboptimal when the LUTLinear engine
+is introduced. For example, in a linear projection followed by
+attention computations, pure dataflow execution (Figure 9(a))
+instantiates separate hardware modules for each operation and
+streams partial outputs through FIFOs. However, in the case of
+LUTLinear, generating partial outputs for streaming requires
+iterating over input vectors along the hidden dimension. This
+introduces two inefficiencies: (1) the same codebook must be
+reloaded multiple times, and (2) the centroid search cannot be
+pipelined, as the codebooks vary across the hidden dimension.
+These issues result in a significant stall latency in the linear
+layer. On the other hand, applying a purely sequential execu-
+tion strategy (Figure 9(b)) requires the accelerator to allocate
+large buffers with high memory partitioning to compute and
+store attention scores. Consequently, the available memory ca-
+pacity and port bandwidth for table lookups in LUTLinear are
+reduced, constraining the decoding and short-context prefilling
+speed since they are memory-bound.
+Inspired by previous accelerators [27], [28], we design LUT-
+LLM to employ a spatial-temporal hybrid execution strategy
+(Figure 9(c)). The LUTLinear engine executes sequentially
+across different operations, while its outputs are delivered to
+subsequent modules, i.e., attention, SwiGLU, and LayerNorm,
+via dataflow execution. The data transfer logic is coarse-
+grain reconfigured similar to [27] by execution control signal
+to the accmulator (Figure 7(b)). This approach enables the
+LUTLinear engine to iterate over input vectors along the
+sequence dimension, sustaining a perfectly pipelined centroid
+search without codebook reloads. At the same time, the mem-
+ory requirements for attention remain the same as dataflow
+execution, saving 14% on-chip resources for high-throughput
+table lookups used in LUTLinear than sequential execution.
+E. Other Design Features
+Efficient Attention for both Prefill and Decode Stages.
+Since LUT-LLM performs the prefill and decode stage on the
+same design, ensuring high efficiency for both stages simul-
+taneously can be challenging. The prefill stage can parallelize
+computations along the sequence forQ,K, andV, while the
+decode stage only has a single tokenQvector involved. In
+LUT-LLM, we parallelize computations only along the hidden
+dimension and sequence dimension forKandV. This ensures
+full utilization of every compute element in both stages.
+KV Cache Prefetch and Write-out Orchestrations.During
+the prefill stage, the KV cache is streamed to the HBM
+controller while delivering to the dataflow attention engine.
+During the decode stage, previously dumped KV cache is
+prefetched from HBM when the first linear projection is
+running. The KV embeddings of the new token will then be
+written to HBM at the end of the KV cache.
+V. EXPERIMENT
+A. Experiment Setup
+Models, Datasets, and Algorithm.Our overall scheme (fol-
+lowing the notation in Table I) is:G= 512,v= 2,c w = 16,
+ca = 64, and INT8 quantized lookup tables. Based on Qwen 3
+1.7B model [51], we first calibrate for activation quantization.
+We applied per-tensor zero-point quantization [52] on the
+lookup tables, which quantizes the FP32 lookup tablesXinto
+quantized matrixX IN T8 by
+s= (max(X)−min(X))/256, z=−min(X)/s
+XIN T8 = min(256,max(0, sX+z)) (10)
+We optimize the two-stage training scheme of LUT-DLA
+[20]. In the first stage, a fine-grained, layer-wise initialization
+of K-means is applied to obtain the activation centroids.
+This improves the overall training stability. Additionally, we
+design algorithmic optimizations for the forward and backward
+passes. In the forward pass, we construct a new lookup table
+gathering reduce kernel, which cuts memory usage with run-
+time lookup table reconstructions and accelerates the training
+process by fusing table lookups and accumulations. In the
+backward pass, we fuse the kernels that compute the gradient
+of weights and centroids. These updates allow us to train
+models beyond 1B parameters. Quantization-aware training
+is supported with the Straight-Through Estimator (STE) [53]
+with adjustable gradients. With these optimizations, the total
+training time is reduced from over 1,000 A100 GPU hours to
+approximately 10 A100 GPU hours, representing an efficiency
+improvement over LUT-DLA.
+After training for activation quantization, we reconstruct the
+weights from the trained lookup tables, then apply GPTVQ
+[25]. Then, we pre-compute the new lookup tables by com-
+puting the dot products between the vectors in activation
+codebooks and weight codebooks.
+For evaluation, we utilize the GLUE benchmark [54],
+SQuAD v2 [47], and MMLU-Pro [55] for question-answering
+dataset. Benchmarks are evaluated based on accuracy and F1
+score. We compare with SmoothQuant [35] and SpinQuant
+[56] in W8A8 to represent scalar quantization schemes.
+Metrics.We employ latency (end-to-end and decoding) and
+energy efficiency in tokens per Joule as metrics. We convert
+latency to relative speedup for better visualization.
+Target Devices and Tools.LUT-LLM is prototyped on AMD
+Alveo V80 FPGA [18]. To design the circuit, we use Xilinx
+Vitis HLS2024.2 with TAPA framework [57] and utilize
+RapidStream [58], [59] for coarse-grain floorplanning to re-
+duce routing congestion and improve timing. The design is
+implemented with Vivado 2024.2 with our customized block
+design to integrate the HLS-based RTL block and generate the
+bitstream. Resource utilizations is in Table??.
+GPU Benchmarking.We select AMD Instinct MI210 [60]
+and NVIDIA A100 [19] as representatives. Table II compares
+V80 with the GPUs. The peak TOPs for V80 is scaled based on
+the achieved frequency. We use Huggingface Transformers for
+a naive GPU baseline and vLLM [61] with GPTQ [15] INT8
+
+--- PAGE 8 ---
+TABLE II
+HARDWARECONFIGURATION OFFPGAANDGPUS
+AMD V80 AMD MI210 NVIDIA A100
+Frequency 250 MHz 1700 MHz 1065 MHz
+Max Bandwidth 819 GB/s 1.6 TB/s 2.0 TB/s
+Peak Power 190 W 300 W 300 W
+Peak INT8 TOPS 25 181 624
+Peak BF16/FP16 TOPS 5.3 181 312
+Peak FP32 TOPS 5.3 45.3 19.5
+Process Node 7 nm 6 nm 7 nm
+TABLE III
+EVALUATION ONGLUE, SQUADV2,ANDMMLU-PRO DATASETS FOR
+QWEN3 1.7BWITH DIFFERENT QUANTIZATION SCHEMES.
+Config GLUE QA
+MNLI MRPC QNLI QQP RTE SST-2 SQuADv2 MMLU-Pro
+FP16 Baseline 87.6 86.5 92.9 91.2 80.9 93.7 72.8 33.1
+RTN INT8 86.7 80.2 88.0 89.3 70.4 87.4 62.0 23.6
+SmoothQuant [35]87.0 85.3 91.7 89.6 79.1 91.2 71.3 31.7
+SpinQuant [56] 87.3 83.3 91.8 89.5 80.2 91.5 72.0 28.0
+LUT-LLM — — — — — — — —
++ Act. Quant. 87.0 84.1 91.9 90.7 78.3 91.2 70.3 31.8
++ INT8 LUT 86.9 83.8 91.7 90.8 76.9 90.7 69.8 31.3
++ Weight Quant. 86.9 82.8 90.4 89.5 76.5 90.6 69.7 30.8
+quantization as an optimized baseline for benchmarking. A100
+has GPTQ Marlin kernels [62] integrated for efficient INT8
+and INT4 inference. MI210 does not support this optimization.
+We utilize pyNVML [63] and pyrsmi to monitor GPU power.
+SoTA FPGA Accelerator Baselines.We select three represen-
+tative SoTA works, Allo [7], FlightLLM [8], and InTAR [27].
+They are arithmetic-based accelerators. Allo and InTAR apply
+the W4A8 scheme and FlightLLM utilizes 3.5-bit weights.
+FlightLLM employs aggressive sparsification and quantization
+on both weights and attention. This fundamentally alters the
+computation pattern and data loading size. Since these accel-
+erators do not natively support the latest Qwen 3 1.7B model,
+we construct a simulator for Allo and InTAR and modify the
+simulator in FlightLLM’s artifact to get their latency on V80,
+with less than a 2% gap from data in the original papers.
+B. Algorithm Performance
+With the quantization scheme of LUT-LLM, the target
+model maintains a competitive performance compared with the
+FP16 baseline and consistently outperforms standard round-
+to-nearest (RTN) quantization to INT8 for activations. Table
+III summarizes the model quality under different quantization
+schemes. Compared with SoTA scalar quantization technique,
+SpinQuant [56], LUT-LLM has only1.8%drop in geomean
+accuracy. These results highlight the effectiveness of the
+quantization scheme and tuning methods used in LUT-LLM in
+preserving model quality and efficient deployment on FPGAs.
+C. Accelerator Performance
+1) Resource Utilization:Figure 10 presents the floorplan
+of LUT-LLM on the AMD V80 FPGA. The design attains
+a clock frequency of 250 MHz. Although the utilization
+of all resource types remains at or below 50%, the CLB
+utilization reaches 80%. LUT-LLM employs 32 HBM channels
+for reading lookup tables and weight indices, along with 4
+channels for input data and 4 channels for outputs and KV
+Fig. 10. LUT-LLM implementation layout on AMD V80 FPGA, resource
+utilization, and clock frequency.
+Fig. 11. End-to-end and decode speedup of LUT-LLM and GPUs (both in
+7nm process node) with BF16, INT8, and INT4 precisions.
+cache. Each channel on the V80 provides a 256-bit interface.
+The HBM clock is aligned with the kernel frequency to
+sustain a balanced read and write throughput. Consequently,
+the effective bandwidth utilized for loading lookup tables is
+250×256×32/8/1024 = 250GB/s.
+2) Comparison with GPUs:Figure 11 reports the end-to-
+end latency and decoding speedup across all configurations.
+Leveraging quantized lookup tables, LUT-LLM achieves a
+3.29×lower geometric-mean latency than the MI210 with
+INT8 quantization. On the A100, LUT-LLM delivers a1.46×
+speedup over the FP16 baseline and1.21×over the INT8 base-
+line. Notably, even compared to A100 with INT4 quantization,
+which reduces model storage by half relative to LUT-LLM, our
+approach still attains a1.10×decoding speedup.
+The limited speedup of INT4 on GPUs compared to INT8
+can be attributed to two factors. First, vLLM employs the
+Marlin kernel for INT4 execution, which performs on-the-fly
+dequantization from INT4 to FP16 and subsequently utilizes
+FP16 tensor core instructions for multiply-accumulate oper-
+ations. This dequantization overhead and reliance on higher-
+precision compute reduce the achievable throughput compared
+to native low-precision execution. Second, effective HBM
+bandwidth utilization on GPUs degrades for smaller models at
+lower precision. We observed that with a 1.7B model in INT4,
+the A100 attains only0.6×of the bandwidth utilization than
+with INT8. We acknowledge that this diminished scaling may
+not hold for larger models [64]: when extrapolated to Qwen 3
+32B, LUT-LLM achieves1.2×speedup over A100 with INT8,
+but only0.8×when deploying the INT4 model on A100.
+
+--- PAGE 9 ---
+Fig. 12. Energy efficiency (tokens per Joule) of LUT-LLM and GPUs with
+BF16, INT8, and INT4 precision.
+Fig. 13. Speedup of LUT-LLM over InTAR, Allo, and FlightLLM.
+We then compare the energy efficiency, as shown in Figure
+12. While all GPUs benefit from quantization due to reduced
+off-chip memory traffic and specialized low-bit tensor core,
+LUT-LLM maintains a substantial advantage, achieving6.6×
+higher geomean energy efficiency than MI210. For A100,
+LUT-LLM remains3.05∼5.94×more energy efficient in
+geomean. Moreover, the efficiency gap between LUT-LLM
+and GPUs widens as output length increases, underscoring the
+scalability of LUT-LLM for long output sequences.
+3) Comparison with SoTA FPGA Accelerators:Figure 13
+compares the latency of LUT-LLM with InTAR, Allo, and
+FlightLLM. Overall, LUT-LLM is5.6×and1.9×faster
+than Allo and InTAR. The performance gain arises from
+improvements in both the prefill and decode stages. In the
+prefill stage, LUT-LLM leverages on-chip memory access as
+computation for higher peak TOPs than Allo and InTAR.
+In the decode stage, LUT-LLM performs computations more
+efficiently, fully utilizing the available memory bandwidth.
+Moreover, Allo and InTAR incur additional overhead from
+dequantization, which requires extra data loading and costly
+floating-point computations. Compared with FlightLLM, LUT-
+LLM is1.6×faster than FlightLLM end-to-end, with larger
+speedup as sequence length grows.
+VI. CONCLUSION ANDOUTLOOKS
+This work presents LUT-LLM, the first FPGA accelerator
+for 1B+ LLM inference with memory-based computation.
+We develop a performance model and demonstrate that co-
+quantization is essential for speedup. LUT-LLM achieves
+1.10∼3.29×higher speed than GPUs. LUT-LLM can be
+mapped to ASICs by replacing FPGA-specific IPs. It is also
+promising for future memory-stacked designs [65].
+ACKNOWLEDGEMENT
+This work was supported in part by PRISM, one of the
+seven centers in the JUMP 2.0 program sponsored by SRC
+and DARPA. It is also supported by CDSC industrial partners
+and the AMD 2 HACC Program.
+VII. APPENDIX: PERFORMANCEDERIVATION
+Weight Quantization.ConsiderG-vectors quantization group
+with length-vvectors andc w centroids per codebook. An
+M×Dweight matrix is quantized to4M Dc w/Gvbytes
+codebook in FP32 andM Dlog(c w)/8vbytes weight centroid
+indices, which derives the latency of loading weights from
+off-chip as equation 1. Then, the accelerator will access the
+FP32 values in the codebooks based on the weight indices
+and copy them to the registers. To expandSvalues, we
+need to accessS/vindices andS/Gvcodebooks, which
+requiresSlog(c)/v+ 32S/Gvbits access per cycle. Con-
+sequently, we can expandS=N pbp/(log(cw)/v+ 32/Gv)
+elements per cycle. Finally, the accelerator performs FP32
+MAC operations and accumulates results to output buffer. The
+maximum number of operations per cycle is determined by
+both the compute units and memory ports available, which
+ismin(N cOpf p32, Npbp/32). This concludes the latency of
+on-chip computation as shown in Equation 2.
+Activation Quantization.Consider length-vvectors withc a
+centroids per codebook. Since everyvchannels in the hidden
+dimension and each output dimension require a separate
+lookup table, anM×Dweight matrix is converted into
+M D/vtables, each containingc a INT8 entries. The activation
+codebooks consist ofDc a/vvectors in FP32. Hence, the off-
+chip memory latency is given in equation 3. Computation
+proceeds in two pipelined steps. First, the accelerator finds
+the closest centroid in the codebook for each input vector,
+requiring at leastlog(c)cycles via binary reduction. For
+Ltokens, this can be pipelined inlog(c) +L−1cycles.
+The resulting indices are streamed for table lookup, where
+each index drives up toMoutputs but is limited by the
+available memory ports. Thus, table lookups forLinputs
+takeM L/min(M, N pbp/8)cycles. In parallel, the extracted
+values are accumulated in the output buffer, constrained by
+compute and memory resources. WithSparallel centroid
+searches acrossD, at leastSc av/Opf p32 units are needed,
+since each distance computation costsv/Op f p32 and must
+be performed for all centroids. The remaining units perform
+(Nc −Sc av/Opf p32)Opint8 INT8 accumulations in parallel.
+Consequently, the latency of the table lookup perS-way search
+is as in equation 4, and the total on-chip computation latency
+follows equation 5.
+Activation-Weight Co-quantization.Consider the settings
+the same as the weight and activation quantization. The
+accelerator needs to loadM D/Gvtables withc wca entries
+each,M Dlog(c w)/8vbytes of weight indices, and4Dc a/v
+bytes of activation codebooks. We can then derive equation 6
+2J. Cong has a financial interest in AMD
+
+--- PAGE 10 ---
+and 8 by following the same analysis as weight and activation
+quantization.
+REFERENCES
+[1] S. K. Dam, C. S. Hong, Y . Qiao, and C. Zhang, “A complete survey on
+LLM-based AI chatbots,”arXiv preprint arXiv:2406.16937, 2024.
+[2] R. Oruche, S. K. Goruganthu, R. Akula, X. Cheng, A. M. Goni, B. W.
+Shibo, K. Kee, M. Zampieri, and P. Calyam, “A Survey on the Recent
+Advancements in Human-Centered Dialog Systems,”ACM Computing
+Surveys, vol. 57, no. 10, pp. 1–36, 2025.
+[3] K. Zhang, J. Li, G. Li, X. Shi, and Z. Jin, “Codeagent: Enhancing code
+generation with tool-integrated agent systems for real-world repo-level
+coding challenges,”arXiv preprint arXiv:2401.07339, 2024.
+[4] J. Li, H. Le, Y . Zhou, C. Xiong, S. Savarese, and D. Sahoo, “Codetree:
+Agent-guided tree search for code generation with large language
+models,”arXiv preprint arXiv:2411.04329, 2024.
+[5] Y . Huang, Y . Chen, H. Zhang, K. Li, M. Fang, L. Yang, X. Li, L. Shang,
+S. Xu, J. Haoet al., “Deep Research Agents: A Systematic Examination
+And Roadmap,”arXiv preprint arXiv:2506.18096, 2025.
+[6] H. Chen, J. Zhang, Y . Du, S. Xiang, Z. Yue, N. Zhang, Y . Cai,
+and Z. Zhang, “Understanding the potential of FPGA-based spatial
+acceleration for large language model inference,”ACM Transactions on
+Reconfigurable Technology and Systems, vol. 18, no. 1, pp. 1–29, 2024.
+[7] H. Chen, N. Zhang, S. Xiang, Z. Zeng, M. Dai, and Z. Zhang, “Allo: A
+programming model for composable accelerator design,”Proceedings of
+the ACM on Programming Languages, vol. 8, no. PLDI, pp. 593–620,
+2024.
+[8] S. Zeng, J. Liu, G. Dai, X. Yang, T. Fu, H. Wang, W. Ma, H. Sun,
+S. Li, Z. Huanget al., “FlightLLM: Efficient large language model
+inference with a complete mapping flow on fpgas,” inProceedings of
+the 2024 ACM/SIGDA International Symposium on Field Programmable
+Gate Arrays, 2024, pp. 223–234.
+[9] Y . Cheng, W. Liu, K. Xu, W. Hou, Y . Ouyang, C. T. Leong, W. Li,
+X. Wu, and Y . Zheng, “Autopal: Autonomous adaptation to users for
+personal ai companionship,”arXiv preprint arXiv:2406.13960, 2024.
+[10] E. Lee, “Towards Ethical Personal AI Applications: Practical Consid-
+erations for AI Assistants with Long-Term Memory,”arXiv preprint
+arXiv:2409.11192, 2024.
+[11] Qualcomm Incorporated, “Smart Home Technology Solutions -
+Qualcomm,” https://www.qualcomm.com/products/internet-of-things/
+consumer/smart-homes, 2025, accessed September 2, 2025.
+[12] A. Ayub, C. L. Nehaniv, and K. Dautenhahn, “Interactive continual
+learning architecture for long-term personalization of home service
+robots,” in2024 IEEE International Conference on Robotics and Au-
+tomation (ICRA). IEEE, 2024, pp. 11 289–11 296.
+[13] T. Dao, “Flashattention-2: Faster attention with better parallelism and
+work partitioning,”arXiv preprint arXiv:2307.08691, 2023.
+[14] K. Hong, G. Dai, J. Xu, Q. Mao, X. Li, J. Liu, K. Chen, Y . Dong, and
+Y . Wang, “Flashdecoding++: Faster large language model inference on
+GPUs,”arXiv preprint arXiv:2311.01282, 2023.
+[15] E. Frantar, S. Ashkboos, T. Hoefler, and D. Alistarh, “GPTQ: Accurate
+post-training quantization for generative pre-trained transformers,”arXiv
+preprint arXiv:2210.17323, 2022.
+[16] AMD Adaptive Computing, “AMD Alveo U280 Data Center Accel-
+erator Card Data Sheet (DS963, v1.7),” https://docs.amd.com/r/en-US/
+ds963-u280, Jun. 2023, accessed September 2, 2025.
+[17] NVIDIA Corporation, “NVIDIA V100 Tesla Tensor Core GPU
+Data Sheet,” https://images.nvidia.com/content/technologies/volta/
+pdf/volta-v100-datasheet-update-us-1165301-r5.pdf, 2020, accessed
+September 2, 2025.
+[18] AMD Adaptive Computing, “AMD Alveo V80 Data Center Acceler-
+ator Cards Data Sheet (DS1013, v1.0),” https://docs.amd.com/r/en-US/
+ds1013-v80, May 2024, accessed September 2, 2025.
+[19] NVIDIA Corporation, “NVIDIA A100 80 GB PCIe GPU Data Sheet,”
+https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/
+pdf/a100-80gb-datasheet-update-nvidia-us-1521051-r2-web.pdf, Jan.
+2021, accessed September 2, 2025.
+[20] G. Li, S. Ye, C. Chen, Y . Wang, F. Yang, T. Cao, C. Liu, M. M. S. Aly,
+and M. Yang, “LUT-DLA: Lookup Table as Efficient Extreme Low-Bit
+Deep Learning Accelerator,” in2025 IEEE International Symposium on
+High Performance Computer Architecture (HPCA). IEEE, 2025, pp.
+671–684.
+[21] D. Gerlinghoff, B. C. M. Choong, R. S. M. Goh, W.-F. Wong, and
+T. Luo, “Table-Lookup MAC: Scalable Processing of Quantised Neural
+Networks in FPGA Soft Logic,” inProceedings of the 2024 ACM/SIGDA
+International Symposium on Field Programmable Gate Arrays, 2024, pp.
+235–245.
+[22] M. Andronic and G. A. Constantinides, “NeuraLUT-Assemble:
+Hardware-aware Assembling of Sub-Neural Networks for Efficient LUT
+Inference,” in2025 IEEE 33rd Annual International Symposium on
+Field-Programmable Custom Computing Machines (FCCM). IEEE,
+2025, pp. 208–216.
+[23] Y . Miyasaka, A. Mishchenko, J. Wawrzynek, and N. J. Fraser, “Synthesis
+of LUT Networks for Random-Looking Dense Functions with Don’t
+Cares—Towards Efficient FPGA Implementation of DNN,” in2024
+IEEE 32nd Annual International Symposium on Field-Programmable
+Custom Computing Machines (FCCM). IEEE, 2024, pp. 126–132.
+[24] Y . Liu, J. Wen, Y . Wang, S. Ye, L. L. Zhang, T. Cao, C. Li, and
+M. Yang, “VPTQ: Extreme low-bit vector post-training quantization for
+large language models,”arXiv preprint arXiv:2409.17066, 2024.
+[25] M. Van Baalen, A. Kuzmin, I. Koryakovskiy, M. Nagel, P. Couperus,
+C. Bastoul, E. Mahurin, T. Blankevoort, and P. Whatmough, “GPTVQ:
+The blessing of dimensionality for llm quantization,”arXiv preprint
+arXiv:2402.15319, 2024.
+[26] R. Gray, “Vector quantization,”IEEE Assp Magazine, vol. 1, no. 2, pp.
+4–29, 1984.
+[27] Z. He, A. Truong, Y . Cao, and J. Cong, “InTAR: Inter-Task Auto-
+Reconfigurable Accelerator Design for High Data V olume Variation in
+DNNs,” in2025 IEEE 33rd Annual International Symposium on Field-
+Programmable Custom Computing Machines (FCCM). IEEE, 2025,
+pp. 123–132.
+[28] J. Zhuang, Z. Yang, S. Ji, H. Huang, A. K. Jones, J. Hu, Y . Shi,
+and P. Zhou, “SSR: Spatial sequential hybrid architecture for latency
+throughput tradeoff in transformer acceleration,” inProceedings of the
+2024 ACM/SIGDA International Symposium on Field Programmable
+Gate Arrays, 2024, pp. 55–66.
+[29] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez,
+Ł. Kaiser, and I. Polosukhin, “Attention is all you need,”Advances in
+neural information processing systems, vol. 30, 2017.
+[30] J. Ainslie, J. Lee-Thorp, M. De Jong, Y . Zemlyanskiy, F. Lebr ´on, and
+S. Sanghai, “GQA: Training generalized multi-query transformer models
+from multi-head checkpoints,”arXiv preprint arXiv:2305.13245, 2023.
+[31] S. Hong, S. Moon, J. Kim, S. Lee, M. Kim, D. Lee, and J.-Y . Kim,
+“DFX: A low-latency multi-fpga appliance for accelerating transformer-
+based text generation,” in2022 55th IEEE/ACM International Sympo-
+sium on Microarchitecture (MICRO). IEEE, 2022, pp. 616–630.
+[32] H. Ye and D. Chen, “StreamTensor: Make Tensors Stream in Dataflow
+Accelerators for LLMs,”arXiv preprint arXiv:2509.13694, 2025.
+[33] M. Nagel, R. A. Amjad, M. Van Baalen, C. Louizos, and T. Blankevoort,
+“Up or down? adaptive rounding for post-training quantization,” in
+International conference on machine learning. PMLR, 2020, pp. 7197–
+7206.
+[34] J. Lin, J. Tang, H. Tang, S. Yang, W.-M. Chen, W.-C. Wang, G. Xiao,
+X. Dang, C. Gan, and S. Han, “AWQ: Activation-aware weight quanti-
+zation for on-device llm compression and acceleration,”Proceedings of
+machine learning and systems, vol. 6, pp. 87–100, 2024.
+[35] G. Xiao, J. Lin, M. Seznec, H. Wu, J. Demouth, and S. Han,
+“Smoothquant: Accurate and efficient post-training quantization for large
+language models,” inInternational conference on machine learning.
+PMLR, 2023, pp. 38 087–38 099.
+[36] A. Abouelhamayed, A. Cui, J. Fernandez-Marques, N. Lane, and
+M. Abdelfattah, “PQA: Exploring the potential of product quantization
+in dnn hardware acceleration,”ACM Transactions on Reconfigurable
+Technology and Systems, vol. 18, no. 1, pp. 1–29, 2024.
+[37] A. Tseng, J. Chee, Q. Sun, V . Kuleshov, and C. De Sa, “Quip#:
+Even better llm quantization with hadamard incoherence and lattice
+codebooks,”arXiv preprint arXiv:2402.04396, 2024.
+[38] A. Tseng, Q. Sun, D. Hou, and C. M. De Sa, “QTIP: Quantization with
+trellises and incoherence processing,”Advances in Neural Information
+Processing Systems, vol. 37, pp. 59 597–59 620, 2024.
+[39] N. P. Jouppi, D. H. Yoon, M. Ashcraft, M. Gottscho, T. B. Jablin,
+G. Kurian, J. Laudon, S. Li, P. Ma, X. Maet al., “Ten lessons
+from three generations shaped google’s tpuv4i: Industrial product,” in
+2021 ACM/IEEE 48th Annual International Symposium on Computer
+Architecture (ISCA). IEEE, 2021, pp. 1–14.
+
+--- PAGE 11 ---
+[40] X. Tang, Y . Wang, T. Cao, L. L. Zhang, Q. Chen, D. Cai, Y . Liu, and
+M. Yang, “LUT-NN: Empower efficient neural network inference with
+centroid learning and table lookup,” inProceedings of the 29th Annual
+International Conference on Mobile Computing and Networking, 2023,
+pp. 1–15.
+[41] J. Wei, S. Cao, T. Cao, L. Ma, L. Wang, Y . Zhang, and M. Yang, “T-
+MAC: CPU renaissance via table lookup for low-bit LLM deployment
+on edge,” inProceedings of the Twentieth European Conference on
+Computer Systems, 2025, pp. 278–292.
+[42] A. Raha and V . Raghunathan, “qLUT: Input-aware quantized table
+lookup for energy-efficient approximate accelerators,”ACM Transac-
+tions on Embedded Computing Systems (TECS), vol. 16, no. 5s, pp.
+1–23, 2017.
+[43] H. Wang, S. Ma, L. Dong, S. Huang, H. Wang, L. Ma, F. Yang, R. Wang,
+Y . Wu, and F. Wei, “BitNet: Scaling 1-bit transformers for large language
+models,”arXiv preprint arXiv:2310.11453, 2023.
+[44] H. Wang, S. Ma, and F. Wei, “BitNet a4. 8: 4-bit Activations for 1-bit
+LLMs,”arXiv preprint arXiv:2411.04965, 2024.
+[45] Y . Lin, H. Tang, S. Yang, Z. Zhang, G. Xiao, C. Gan, and S. Han,
+“Qserve: W4a8kv4 quantization and system co-design for efficient llm
+serving,”arXiv preprint arXiv:2405.04532, 2024.
+[46] S. Williams, A. Waterman, and D. Patterson, “Roofline: an insightful
+visual performance model for multicore architectures,”Communications
+of the ACM, vol. 52, no. 4, pp. 65–76, 2009.
+[47] P. Rajpurkar, J. Zhang, K. Lopyrev, and P. Liang, “SQuAD:
+100,000+ questions for machine comprehension of text,”arXiv preprint
+arXiv:1606.05250, 2016.
+[48] S. J. Paech, “Eq-bench creative writing benchmark v3,” https://github.
+com/EQ-bench/creative-writing-bench, 2025.
+[49] J. Liu, S. Zeng, L. Ding, W. Soedarmadji, H. Zhou, Z. Wang, J. Li, J. Li,
+Y . Dai, K. Wenet al., “FlightVGM: Efficient video generation model
+inference with online sparsification and hybrid precision on fpgas,” in
+Proceedings of the 2025 ACM/SIGDA International Symposium on Field
+Programmable Gate Arrays, 2025, pp. 2–13.
+[50] C. D. Cantrell,Modern mathematical methods for physicists and engi-
+neers. Cambridge University Press, 2000.
+[51] A. Yang, A. Li, B. Yang, B. Zhang, B. Hui, B. Zheng, B. Yu, C. Gao,
+C. Huang, C. Lvet al., “Qwen3 technical report,”arXiv preprint
+arXiv:2505.09388, 2025.
+[52] B. Jacob, S. Kligys, B. Chen, M. Zhu, M. Tang, A. Howard, H. Adam,
+and D. Kalenichenko, “Quantization and Training of Neural Networks
+for Efficient Integer-Arithmetic-Only Inference,” inProceedings of the
+IEEE/CVF Conference on Computer Vision and Pattern Recognition
+(CVPR), 2018.
+[53] P. Yin, J. Lyu, S. Zhang, S. Osher, Y . Qi, and J. Xin, “Understanding
+straight-through estimator in training activation quantized neural nets,”
+arXiv preprint arXiv:1903.05662, 2019.
+[54] A. Wang, A. Singh, J. Michael, F. Hill, O. Levy, and S. R. Bowman,
+“GLUE: A multi-task benchmark and analysis platform for natural
+language understanding,”arXiv preprint arXiv:1804.07461, 2018.
+[55] Y . Wang, X. Ma, G. Zhang, Y . Ni, A. Chandra, S. Guo, W. Ren,
+A. Arulraj, X. He, Z. Jianget al., “MMLU-Pro: A more robust and
+challenging multi-task language understanding benchmark,”Advances
+in Neural Information Processing Systems, vol. 37, pp. 95 266–95 290,
+2024.
+[56] Z. Liu, C. Zhao, I. Fedorov, B. Soran, D. Choudhary, R. Krishnamoorthi,
+V . Chandra, Y . Tian, and T. Blankevoort, “SpinQuant: LLM quantization
+with learned rotations,”arXiv preprint arXiv:2405.16406, 2024.
+[57] L. Guo, Y . Chi, J. Lau, L. Song, X. Tian, M. Khatti, W. Qiao, J. Wang,
+E. Ustun, Z. Fanget al., “TAPA: A scalable task-parallel dataflow
+programming framework for modern fpgas with co-optimization of hls
+and physical design,”ACM Transactions on Reconfigurable Technology
+and Systems, vol. 16, no. 4, pp. 1–31, 2023.
+[58] L. Guo, P. Maidee, Y . Zhou, C. Lavin, J. Wang, Y . Chi, W. Qiao,
+A. Kaviani, Z. Zhang, and J. Cong, “RapidStream: Parallel physical
+implementation of FPGA HLS designs,” inProceedings of the 2022
+ACM/SIGDA International Symposium on Field-Programmable Gate
+Arrays, 2022, pp. 1–12.
+[59] L. Guo, Y . Chi, J. Wang, J. Lau, W. Qiao, E. Ustun, Z. Zhang,
+and J. Cong, “AutoBridge: Coupling coarse-grained floorplanning and
+pipelining for high-frequency HLS design on multi-die FPGAs,” inThe
+2021 ACM/SIGDA International Symposium on Field-Programmable
+Gate Arrays, 2021, pp. 81–92.
+[60] AMD Adaptive Computing, “AMD Instinct MI210 Accelerator
+Product Brief,” https://www.amd.com/content/dam/amd/en/documents/
+instinct-business-docs/product-briefs/instinct-mi210-brochure.pdf,
+2023, accessed September 2, 2025.
+[61] W. Kwon, Z. Li, S. Zhuang, Y . Sheng, L. Zheng, C. H. Yu, J. E. Gonza-
+lez, H. Zhang, and I. Stoica, “Efficient Memory Management for Large
+Language Model Serving with PagedAttention,” inProceedings of the
+ACM SIGOPS 29th Symposium on Operating Systems Principles, 2023,
+introduces the vLLM framework and the PagedAttention mechanism.
+[62] E. Frantar, R. L. Castro, J. Chen, T. Hoefler, and D. Alistarh, “Marlin:
+Mixed-precision auto-regressive parallel inference on large language
+models,” inProceedings of the 30th ACM SIGPLAN Annual Symposium
+on Principles and Practice of Parallel Programming, 2025, pp. 239–251.
+[63] NVIDIA Corporation, “nvidia-ml-py: Python bindings for NVIDIA
+Management Library (NVML),”
+urlhttps://pypi.org/project/nvidia-ml-py/, 2025, provides Python interface
+to monitor and manage NVIDIA GPUs via NVML.
+[64] H. Wang, X. Xiao, M. Yan, Z. Zhu, D. Han, D. Wang, W. Li, X. Ye,
+C. Hu, H. Chenet al., “A Systematic Characterization of LLM Inference
+on GPUs,”arXiv preprint arXiv:2512.01644, 2025.
+[65] K. H. Chiang, Y .-C. Ho, M.-Y . Chuang, C.-Y . Chang, Y .-F. Kao, H.-Y .
+Yang, C.-H. Huang, Y .-J. Chien, Y .-H. Wu, Y .-C. Liuet al., “Integration
+of 0.75 VV DD oxide-semiconductor 1T1C memory with advanced logic
+for an ultra-low-power low-latency cache solution,” in2025 Symposium
+on VLSI Technology and Circuits (VLSI Technology and Circuits).
+IEEE, 2025, pp. 1–3.

@@ -1,0 +1,14 @@
+{
+  "scope": "Manual bit/XSA after independent route review; no board",
+  "guards": {
+    "group_gib": 16,
+    "min_available_gib": 32,
+    "timeout_s": 1800
+  },
+  "license_sha256": "b6524ede15f7896cd4198d2e89c7f782b733083d5c4d36071c5e7e2278a6e45c",
+  "source_sha256": {
+    "build.tcl": "b3a678708346f23c4da1178dce8c8f11b84a772f70e2c87a07d3b1f447287da5",
+    "INDEPENDENT_ROUTE_REVIEW.json": "df26db0b30f882fa4b335cad84bf8e03ce82b26541fe1e04cd91638e4aa62abb",
+    "run_build.py": "69df799553e589a2a6d11f1beebe59258d216a4088a24ac6e9039569fdcd4b49"
+  }
+}

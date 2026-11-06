@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/professional_medicine.csv:20",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "89f9d1cdcfca6667f3134aa698ae7dfe89fdd101081e5f4c09be216841df55c8",
+  "group_sha256": "c3ada3a65b29b0e174de13581b91bf432ca355ab9104241d984c05b5f32bdd5e",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "122420fc4355f48a261ff2e8.npz",
+  "npz_sha256": "b54dc1e08c4b35323d01cae4a260efc8361a9bfa39179b71118b4d7fcd6ac2de",
+  "generated_ids": [
+    105279,
+    99389,
+    116154,
+    104396,
+    105024,
+    20412,
+    105753,
+    102835,
+    3837,
+    91676,
+    105753,
+    102835,
+    52129,
+    3407,
+    105753,
+    102835
+  ],
+  "input_tokens": 73,
+  "seconds": 1.4627331999945454,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

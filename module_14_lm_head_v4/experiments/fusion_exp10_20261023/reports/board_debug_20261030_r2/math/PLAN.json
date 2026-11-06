@@ -1,0 +1,15 @@
+{
+  "state": "FROZEN_FULL_ARRAY_DEBUG_CAPTURE",
+  "variant": "exp10",
+  "case": "math",
+  "k": 17106,
+  "expected_files": {
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\math.scores.bin": "a6a316fdf90ca9164bf0c2a704b1778fd4480250e5fc23cfb8cc60b911407e65",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\math.expected.bin": "8128cbb056e85aab5d8e294a55bac09c285d18cf692641f1daca55892a3e1bd0",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\math.sparse.bin": "340f05d84f41158b0b8e0dfacca11a970c478fcf9d44f75145e85d69db9584d8",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\math.result.bin": "e63e76ce092606e4a6a2f35226115128f6b336ef130c3c4d88dfe1fb66ad6e94"
+  },
+  "script_sha256": "ba5bc461dc65ceb8dd4ce0b9fccf8cac34bc0d44ee9cb4fcd852940b4d5a71e1",
+  "production_capture_sha256": "f852681d3cc7697ca7109ea5b935400c579311e25eb6caf1e9caafc7b1673540",
+  "scope": "Actual full preview, merged IDs, canonical candidate raw; fixed input; separately untimed; no board reinit or stale ticket; preceding same-case production campaign qualified"
+}

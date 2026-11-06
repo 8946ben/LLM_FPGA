@@ -1,0 +1,10 @@
+{
+  "state": "PASS_BIT_XSA_IDENTITY_ONLY_NOT_BOARD",
+  "utc": "2026-11-06T02:57:38.490531+00:00",
+  "observed_identities_absent": 15,
+  "bit_sha256": "e31fe053531256505a461eff365fa92b72844942f66a9785544c18b97e81e43b",
+  "xsa_sha256": "84091057b578442731cb0761bd381ff17381f024af97817d9103074fde942978",
+  "xsa_embedded_bit_matches": true,
+  "route_review_sha256": "df26db0b30f882fa4b335cad84bf8e03ce82b26541fe1e04cd91638e4aa62abb",
+  "board": "NOT_RUN"
+}

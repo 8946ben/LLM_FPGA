@@ -1,0 +1,32 @@
+{
+  "id": "ds1000:480",
+  "category": "code",
+  "split": "holdout",
+  "prompt_sha256": "1faf2c56f2a506e99a3105c8da0b73585533d708ac38b20178d6a884db2b2d4e",
+  "group_sha256": "fce398b6246403b2457f4f9dadebd017d34d5c96ee8783a1894c671eea81b8e5",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "d2f4f57222d6ddf7cc873afd.npz",
+  "npz_sha256": "5064b3f599e4d7e2e0168ff506aeb34a61e0bd6a139196857a71e2fa4f670363",
+  "generated_ids": [
+    1249,
+    11625,
+    419,
+    3491,
+    11,
+    498,
+    1184,
+    311,
+    29629,
+    1526,
+    1817,
+    2392,
+    304,
+    1565,
+    87,
+    63
+  ],
+  "input_tokens": 329,
+  "seconds": 1.3496563999797218,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

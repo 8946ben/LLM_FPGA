@@ -1,0 +1,24 @@
+{
+  "state": "PASS_FOUR_TARGET_PREFLIGHT_CASES_NO_STALE_TOKEN",
+  "variant": "exp10",
+  "case": "math",
+  "actual_cases": [
+    [
+      "validate_only",
+      "0"
+    ],
+    [
+      "bad_magic",
+      "1"
+    ],
+    [
+      "overlap",
+      "3"
+    ],
+    [
+      "bad_command",
+      "4"
+    ]
+  ],
+  "scope": "Preflight only, first16B of routed/merged/sparse unchanged; full-array normal correctness separately verified"
+}

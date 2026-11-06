@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>术语词典 · LLM_FPGA 项目图wiki</title>
+<link rel="stylesheet" href="assets/wiki.css">
+</head>
+<body>
+
+<header class="wiki-header">
+  <div class="bar">
+    <a class="brand" href="index.html">LLM_FPGA 项目图wiki<span>以图为核心</span></a>
+    <nav>
+      <a href="index.html">总览</a>
+      <a href="model.html">模型与权重</a>
+      <a href="trace.html">Golden Trace</a>
+      <a href="python-ref.html">Python 参考</a>
+      <a href="hls.html">HLS 内核</a>
+      <a href="protocol.html">网络协议</a>
+      <a href="fpga.html">上板部署</a>
+      <a href="dictionary.html" class="active">术语词典</a>
+      <a href="verify.html">验证闭环</a>
+      <a href="tools.html">工具链</a>
+      <a href="roadmap.html">ABI V2 路线</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<h1>术语词典：JTAG 调试目标</h1>
+<p class="lede">记录在 AXU9EGB / Zynq UltraScale+ MPSoC 调试时遇到的 JTAG 与处理系统术语。</p>
+
+<h2>先看它们的关系</h2>
+<figure class="diagram wide">
+<div class="mermaid">
+flowchart LR
+  HOST["XSCT / JTAG 调试器"] --> TAP["芯片 JTAG TAP 链"]
+  TAP --> PSTAP["PS TAP"]
+  TAP --> PMU["PMU 调试目标"]
+  TAP --> PL["PL 配置目标"]
+  PSTAP --> DAP["Debug Access Port · DAP"]
+  DAP --> AP["AXI Access Port · AXI AP"]
+  AP --> DDR["PS 地址空间 / DDR"]
+</div>
+<figcaption>JTAG 能枚举 TAP 只证明调试链路识别到了芯片；通过 DAP/AXI AP 访问 DDR 是后续的另一条访问路径。</figcaption>
+</figure>
+
+<h2>术语</h2>
+<div class="table-scroll">
+<table>
+  <tr><th>术语</th><th>是什么</th><th>在这块板上的作用</th></tr>
+  <tr><td><strong>XSCT</strong><br>Xilinx Software Command-Line Tool</td><td>Xilinx 的交互式、可脚本化命令行工具；使用 Tcl 命令控制开发板调试流程。</td><td>本项目用它连接 JTAG、列出调试目标、初始化 PS、下载程序，以及读取 DDR。它运行在电脑上，不是芯片内部硬件。</td></tr>
+  <tr><td><strong>JTAG</strong></td><td>芯片测试与调试接口标准。调试器通过它扫描芯片内部的一组 TAP。</td><td>XSCT 连接板卡、枚举目标、下载 bitstream/ELF，或访问处理器调试资源。</td></tr>
+  <tr><td><strong>TAP</strong><br>Test Access Port</td><td>JTAG 链上的测试访问端口，带有状态机和数据寄存器；芯片可以包含多个 TAP/目标。</td><td><code>PS TAP</code>、<code>PMU</code>、<code>PL</code> 是 XSCT/JTAG 能看到的不同目标。能列出它们不代表 DDR 读写已经成功。</td></tr>
+  <tr><td><strong>PS</strong><br>Processing System</td><td>ZynqMP 芯片里的处理系统，含 ARM Cortex-A53、内存控制器、外设等。</td><td>运行 standalone 软件并通过 DDR 控制器访问 PS DDR。</td></tr>
+  <tr><td><strong>PS TAP</strong></td><td>PS 一侧的 JTAG 调试入口，连接到 PS 内部调试基础设施。</td><td>经调试访问路径继续选中 A53 等目标，或尝试访问 PS 地址空间。它本身不是 A53 核，也不是 DDR。</td></tr>
+  <tr><td><strong>DAP</strong><br>Debug Access Port</td><td>ARM 调试架构中的调试访问端口，可提供一个或多个 Access Port。</td><td>JTAG 调试器通过它访问处理器调试单元；具备相应 AP 时，也可访问系统存储器映射空间。</td></tr>
+  <tr><td><strong>AXI AP</strong></td><td>DAP 中的一类访问端口，通过 AXI 总线发起系统存储器映射读写。</td><td>XSCT 读 PS DDR 时可能走此路径。<code>AXI AP transaction error</code> 表示该次总线访问失败，即便 JTAG 目标仍能枚举。</td></tr>
+  <tr><td><strong>PMU</strong><br>Platform Management Unit</td><td>ZynqMP 内负责平台管理工作的控制单元，包含专用的 MicroBlaze 处理器。</td><td>XSCT 可能把 PMU 处理器作为独立调试目标显示。它和 A53、PL 是不同目标。</td></tr>
+  <tr><td><strong>PL</strong><br>Programmable Logic</td><td>芯片里的可编程逻辑，也就是 FPGA fabric。</td><td>JTAG 可访问 PL 配置目标、下载 bitstream；这与经 PS DDR 传输大权重是不同用途。</td></tr>
+  <tr><td><strong>PSU</strong></td><td>Processing System Unit，ZynqMP 处理系统的器件/子系统标识；XSCT targets 列表中常用作 PS 管理目标名称。</td><td>项目 Tcl 脚本以 <code>name =~ "PSU"</code> 选目标来执行初始化或 DDR 读取。具体可选 target 名称以当前 XSCT 枚举结果为准。</td></tr>
+  <tr><td><strong>DDR sentinel</strong></td><td>从内存关键地址读取的少量已知数据，用作快速完整性检查。</td><td>首尾 sentinel 一致可快速发现明显的未加载/错误地址问题；完整权重还需通过全量 CRC 等校验。</td></tr>
+</table>
+</div>
+
+<h2>如何解读一次探测</h2>
+<p>如果 XSCT 能列出 <code>PS TAP / PMU / PL</code>，但读取 PS DDR 时报告
+<code>AXI AP transaction error</code>，可以确认 JTAG 链路至少识别到了芯片；不能据此判断 DDR 内容正确，也不能把问题简单归因于 PC 网卡 IP。应继续检查 PS 初始化、电源/复位状态和 AXI AP 到 DDR 的访问是否恢复。</p>
+
+<p><a href="fpga.html">返回上板部署</a> · <a href="index.html">返回项目总览</a></p>
+</main>
+
+<footer><span class="updated">新增：2026-10-10</span> · 术语按 ZynqMP / XSCT 板测语境解释</footer>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/wiki-init.js"></script>
+</body>
+</html>

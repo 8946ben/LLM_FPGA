@@ -1,0 +1,91 @@
+{
+  "name": "M14_D64_PL_DDR_576M_R1",
+  "version": 1,
+  "signature": "0x4D344401",
+  "physical_base": "0x400000000",
+  "physical_ddr_bytes": 2147483648,
+  "image_bytes": 603979776,
+  "H": 896,
+  "V": 151936,
+  "d": 64,
+  "T": 4096,
+  "B": 1024,
+  "control_base": "0xA0000000",
+  "calibration_gpio": "0xA0020000",
+  "regions": [
+    {
+      "name": "tiled_weight",
+      "offset": 0,
+      "bytes": 273416192
+    },
+    {
+      "name": "canonical_weight",
+      "offset": 273416192,
+      "bytes": 272269312
+    },
+    {
+      "name": "fixture_bank",
+      "offset": 546308096,
+      "bytes": 393216,
+      "stride": 24576
+    },
+    {
+      "name": "active_metadata",
+      "offset": 553648128,
+      "bytes": 24368
+    },
+    {
+      "name": "workspace",
+      "offset": 553672496,
+      "bytes": 1265088
+    },
+    {
+      "name": "workspace_end_guard",
+      "offset": 554937584,
+      "bytes": 16
+    },
+    {
+      "name": "snapshots",
+      "offset": 557842432,
+      "bytes": 31457280,
+      "stride": 1310720
+    },
+    {
+      "name": "input_contract",
+      "offset": 599785472,
+      "bytes": 4096
+    },
+    {
+      "name": "state_results",
+      "offset": 600834048,
+      "bytes": 1048576
+    },
+    {
+      "name": "timing_records",
+      "offset": 601882624,
+      "bytes": 1048576
+    }
+  ],
+  "snapshot_logical_bytes": 1289472,
+  "csr": {
+    "meta": 16,
+    "tiled_weight": 28,
+    "canonical_weight": 40,
+    "workspace": 52,
+    "capacity_beats": 64,
+    "debug": 72,
+    "status": 80,
+    "status_valid": 84,
+    "token": 96,
+    "token_valid": 100,
+    "score_bits": 112,
+    "score_valid": 116,
+    "candidate_count": 128,
+    "candidate_valid": 132,
+    "crc": 144,
+    "crc_valid": 148,
+    "preview_read_beats": 160,
+    "preview_valid": 168
+  },
+  "verification": "Physicalboard NOT_RUN;full12RTL incomplete byuserchoice;sourceprofileonly"
+}

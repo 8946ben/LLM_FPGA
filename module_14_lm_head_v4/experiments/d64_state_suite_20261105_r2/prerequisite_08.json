@@ -1,0 +1,116 @@
+{
+  "state": "PASS_RELEVANT_LINE_RETENTION_ON_22_ACTUAL_GATE_LOGS",
+  "scope": "Only stream ingestion preserves every line used by unchanged fatal/marker classifiers;not RTL/state suite qualification.",
+  "logs": [
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/4k/tool.log",
+      "sha256": "f1a38ce5361e4ca245bbad51c98e1ee1e2f03504b8eea92a89ad54d80cd7f006",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/alignment/tool.log",
+      "sha256": "1606182fd27feecd597c1ae8fbb6518ceb71c4400b963a8c3f2529e58899bc3b",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/ar_stability/tool.log",
+      "sha256": "265ea8f46e55eda1c9755e1e63bc3d8e8bd7f2fb5a6f06e3c59c88898269a151",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/aw_stability/tool.log",
+      "sha256": "4e8f9c3e8d4b836469870f6b38605684e0a846f548b192761edf1be699433e93",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/below/tool.log",
+      "sha256": "facb2f2378cb6d231aa719313b1502ede352a326ddd76470c9dd4ecf5b74b299",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/burst/tool.log",
+      "sha256": "1d6feab465447996198cfcaa3ae9fb0d6d30616b4ba0567419545bd2baa1119a",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/elaborate/tool.log",
+      "sha256": "d71e81f35f90c0ddaa1ea50387d90c59105ab4018fe2149fc267c4c0e6304501",
+      "retained": 0
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/end/tool.log",
+      "sha256": "696310759b21a47b5726c2b51ce01bc8d50bbeb5c22c872bdb96007a93a597c3",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/high/tool.log",
+      "sha256": "2093b381b646d493513be4a20a9df16856dc761faf4aedfc331be79b29d46cbf",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/length/tool.log",
+      "sha256": "080b4dbc299f0e9e27af1a2d9f41fa9f0d6312ba127bec28e3c66daa5fbb67eb",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/over_end/tool.log",
+      "sha256": "4b83899b5d8b362901ad807c6b9d2e89b6a354fd609e5f46bae1a32ef7e0c211",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/positive/tool.log",
+      "sha256": "fc0235fb86a752764be09411c508c8cabd10cfc395b994a82c8029805379b051",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/readonly/tool.log",
+      "sha256": "a7cb13b1948ad6faf6ada7f6687894c97470a5169add38a463da4225063e00d7",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/size/tool.log",
+      "sha256": "b46607c2392f31dc1dc75e84519d110c4dfe9bf83f1b27d5170a8c6a32711bfd",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/wlast/tool.log",
+      "sha256": "70812751b1344c1270c539b5178f780ef88e765ca805d6ba0147cd0250996266",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/w_stability/tool.log",
+      "sha256": "694c832fdf8faf128eea909db4b4636d008dee06f632658d213455016126d1e7",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/xaddr/tool.log",
+      "sha256": "68d1dab738f9ed349ef3f8e1f82eb5dd576eb6d1267fe62fa16c909680f28dc2",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/xburst/tool.log",
+      "sha256": "e1e35f92e64e809d18e957ae4a11526475b4374b007e0c943afa6e2b48955fa6",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/xid/tool.log",
+      "sha256": "38c873c73e32452d0fc96e8a2752277e47e7b0545118687670d789914a2875b2",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/xlen/tool.log",
+      "sha256": "d3ea0c144a5a7cb9e2b4ef0452c343b307bb11eacf4ddcf88e3844527f49aaec",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/xsize/tool.log",
+      "sha256": "c53a10846ad36e7f18b013c3e797f09e42d5433c3cd5c4b6082dc5d655f623f7",
+      "retained": 1
+    },
+    {
+      "path": "module_14_lm_head_v4/reports/d64_native_memory_20261103_r1/xstrobe/tool.log",
+      "sha256": "46b5c5b7852698edb0869558e9d2b9d8a7022a9f7be4d6ba644959da1a01eabf",
+      "retained": 1
+    }
+  ]
+}

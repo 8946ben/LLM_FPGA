@@ -1,0 +1,3 @@
+reset_pin=AM5
+reset_iostandard=LVCMOS12
+reset_drive=8

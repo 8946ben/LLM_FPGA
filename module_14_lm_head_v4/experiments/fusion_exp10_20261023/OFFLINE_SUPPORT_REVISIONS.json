@@ -1,0 +1,51 @@
+{
+  "state": "SUPPORT_REVISIONS_AUDITED_NUMERICAL_ENTRY_UNCHANGED",
+  "reason": [
+    "Windows260 build/BSP short paths and Vivado maxThreads2",
+    "shared canonical assets remain within actual repository root",
+    "bind Python/Tcl image signature to new C/H identity",
+    "retain host_r1 failure and use genuinely passing host_r2",
+    "Exact instantiated VLNV corrected to audited Exp10 catalog4.10; first failed BD and script preserved"
+  ],
+  "changed": {
+    "experiments/board_v4_20261021/create_bd.tcl": {
+      "initial_derivative_sha256": "2d02cb65acc207d3108327c36cca0a974eec10182465da99f29f96d517be881d",
+      "current_sha256": "8091ba3f0f9d89bdce46836d5694727596d85649cd1d1726ab7fc4839bab8524"
+    },
+    "experiments/board_v4_20261021/build.tcl": {
+      "initial_derivative_sha256": "f1ce620a54098eccf9c69f67fd337d1fbba85c13b22b06cb7a4ad6932117d396",
+      "current_sha256": "e04dcfad6d90c5edbdde7fbf9a7baf17af5c8110d3b271493cea65ac45ba8f3a"
+    },
+    "experiments/board_v4_20261021/platform.tcl": {
+      "initial_derivative_sha256": "8cb24f261e2706dc154f4cbd02fbb8687cd73d27ae86669163c979d19f34a6db",
+      "current_sha256": "e63d0df65cb2bd5be72601ceb8e1e502c7f6224f33552fe1c94a22ee5a17312a"
+    },
+    "experiments/board_v4_20261021/prepare_ps_platform.ps1": {
+      "initial_derivative_sha256": "43f150c932d2417c4b166d58be17f20ec82d37c597a9186df1c63c2525273aff",
+      "current_sha256": "e2770f92cceadf22c02a2587fb84d6f2f8874daebfdbc5c62ff18bf913fc230d"
+    },
+    "experiments/board_v4_20261021/build_ps_software.ps1": {
+      "initial_derivative_sha256": "f2ba0a7fd977b55e470df7ae420530b194620bff0344e5ddf5ad3ee910eed732",
+      "current_sha256": "7720ef81bc606c4bd404381eebcb283629ea18ee5733cda11e4171c614908a9d"
+    },
+    "standalone/selector_ps_mailbox.py": {
+      "initial_derivative_sha256": "c03a0451e8cd99358cab030be0477870009d1373df580e0698314cdf81223aad",
+      "current_sha256": "c538be4b1bec07e2419be9876a05eb28d19b7afb546c718d6f8c1a944fa1329f"
+    },
+    "standalone/upload_arena_tcp.py": {
+      "initial_derivative_sha256": "e70f72d390aa7c3d0fe7e1ba311cfb7689099062441242a14cbcb48df06d9a5b",
+      "current_sha256": "bdca6ae684c59c4b6b8c9ad04a38309df43b2c4a51139d6879ba207aec536168"
+    },
+    "standalone/scripts/private_board_common.tcl": {
+      "initial_derivative_sha256": "c84d3e503707d2cf6dcccbab10ab8c1ae7e04a3792945ffc89ff579f4cb20413",
+      "current_sha256": "7bca7a4f1b1b1775edf3554bc4dc052ef40f3f254e7d5085908cb59942937f4b"
+    },
+    "scripts/audit_selector_system.py": {
+      "current_sha256": "67217e1bfb0eb3e194cbb35f5ab6455002fecbc1770bd749a4a2502559aa6286",
+      "scope": "Audit expected BD log revision r2 only"
+    }
+  },
+  "original_support_sources_unchanged": true,
+  "numerical_sources_unchanged": true,
+  "board": "NOT_RUN"
+}

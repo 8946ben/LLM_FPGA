@@ -1,0 +1,67 @@
+{
+  "state": "PASS_STATIC_DATA_LINK_AND_JAVASCRIPT_SYNTAX_ONLY",
+  "date": "2026-10-23",
+  "timezone": "Asia/Shanghai",
+  "engineering_check_count": 17,
+  "comparison_groups": 9,
+  "explicit_variants": 75,
+  "journal_entries": 75,
+  "history_preservation": "Each publishing operation asserts its full prior entry prefix unchanged",
+  "importance_levels": {
+    "必须完成": 5,
+    "建议完成": 3,
+    "可做可不做": 1
+  },
+  "importance_scope_and_reason_present": true,
+  "cluster_sweep_unique_points": 23,
+  "lowrank_sweep_unique_points": 21,
+  "study_results_published": {
+    "cluster": {
+      "quality_points": 23,
+      "timed_points": 23
+    },
+    "lowrank": {
+      "quality_points": 21,
+      "timed_points": 21
+    }
+  },
+  "joint_study_published": {
+    "new_quality_points": 12,
+    "new_timed_points": 12,
+    "first_round_timing_not_mixed": true
+  },
+  "quality_and_speed_merged": true,
+  "redundant_card_labels_removed": true,
+  "parallel_line_charts": true,
+  "reported_gpu_values_match_result": true,
+  "fpga_values_remain_null": true,
+  "plotted_quality_values_match_frozen_result": true,
+  "category_totals_verified": true,
+  "unmeasured_comparison_values_absent": true,
+  "canonical_snapshot_equals_generated_page": true,
+  "route_snapshot_synchronized": true,
+  "javascript_syntax_blocks": 5,
+  "documents": [
+    {
+      "path": "开发日志.html",
+      "sha256": "9cc25418006b9d296cd8f339afdd3a50f8344b8172e9ac1bc4e1086004da0e7d",
+      "unique_ids": 67
+    },
+    {
+      "path": "doc/design/V4Validation.html",
+      "sha256": "b7a4bda44504f24c6b7d5a155fac5538b09141dcdfd3645adc85ee8f7f9fbc21",
+      "unique_ids": 24
+    },
+    {
+      "path": "doc/design/R4Sparse.html",
+      "sha256": "ecf27d6c89507182c87de238f4c544f6f2449c6526a71a3ff753b62643706d80",
+      "unique_ids": 54
+    }
+  ],
+  "browser_preview": "NOT_RUN: CUA policy rejects file:// observation; no alternative browser/workaround used",
+  "responsive": "CSS850px/520px breakpoints and overflow containers inspected; no visual viewport verification",
+  "scene_interaction": "Search/category controls and parallel SVG line plotting pass static inspection/JS syntax; browser interaction NOT_RUN",
+  "this_checker_gpu_rtl_board_access": "NONE",
+  "gpu_benchmark": "r2 completed separate actual GPU job;480 timed calls;16 numeric proofs",
+  "fpga": "NOT_RUN"
+}

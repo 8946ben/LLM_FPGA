@@ -1,0 +1,15 @@
+{
+  "state": "FROZEN_FULL_ARRAY_DEBUG_CAPTURE",
+  "variant": "exp10",
+  "case": "chinese",
+  "k": 17764,
+  "expected_files": {
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\chinese.scores.bin": "e5440ae74000b812170ec22b0f53b72ef3471c54a57060dab251eb1b56d30454",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\chinese.expected.bin": "2e686a50af1936329504836b5c558e8894ab363086a7c03fa64d0f1bf1cc8482",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\chinese.sparse.bin": "c68ab6ad20117387e26e4fe1707e39e4835d32c812d2937c692a44d57254cefb",
+    "module_14_lm_head_v4\\experiments\\fusion_exp10_20261023\\fixture\\chinese.result.bin": "3735e0f709fc259b0f10d78cb2b64ce18297ddefed54dc658c62a546d113cd76"
+  },
+  "script_sha256": "5eab6cfa98e57c1f2249b15cfcb91b58af53740ff6e69fe73a16e1facde975ce",
+  "production_capture_sha256": "5786c7838abcfce20b3d08c9930710255339f8213c3e297f745cddfd832b039e",
+  "scope": "Actual full preview, merged IDs, canonical candidate raw; fixed input; separately untimed; no board reinit or stale ticket; preceding same-case production campaign qualified"
+}

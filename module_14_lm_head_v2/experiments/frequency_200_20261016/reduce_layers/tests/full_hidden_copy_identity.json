@@ -1,0 +1,12 @@
+{
+  "source_sha256": "926911392a1664c05072ac3df2c9c494e55b9d94e72776c67ee5e642d5a5ef91",
+  "test_copy_sha256": "d049544c144d3361ba482d17ad2dfd7174be5071b7e402eea87ea1acf4bd4db2",
+  "only_change": "conditional HLS simulation interface depths; all arithmetic unchanged",
+  "depths": {
+    "hidden": 112,
+    "weight": 7168,
+    "history": 1,
+    "logits": 16
+  },
+  "reason": "full-hidden fixture uses vocab=64; production depth overread crashed C-TB copy_in"
+}

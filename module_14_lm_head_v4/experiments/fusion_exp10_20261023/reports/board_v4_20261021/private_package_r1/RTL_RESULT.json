@@ -1,0 +1,76 @@
+{
+  "state": "PASS_OFFICIAL_COSIM_FULL_RTL_TRACE_AND_ORIGINAL_C_POSTCHECK",
+  "outputs": {
+    "plmem": {
+      "values": 41943040,
+      "c_sha256": "1715f8e698ca3569d424c71ade3b7fcc6b52d5e5fc7dedbb4d0ab75f58943bc4",
+      "rtl_sha256": "b1ab65f22ead03c17aaed4b661692ef0d451acf6c1df1935f04674ea6c6bc699"
+    },
+    "status": {
+      "values": 2,
+      "c_sha256": "0d0c2bba1873b8f3c9e39cb705f2f0bf7a8e70ca19e84608c1e8838f8d999fe1",
+      "rtl_sha256": "8afec113b5fd118f3300a7225074ad7a8f57bde9aebc23181410856e61c4f3ef"
+    },
+    "stage": {
+      "values": 2,
+      "c_sha256": "4545ed386459c7fffa990982ba1b84d43892d227b15bac823ecc23a01e089b43",
+      "rtl_sha256": "41019be5a9abf4f12fc2afff07c71d8edace3df25bfad9a5453f869c7c7e9afa"
+    },
+    "child_status": {
+      "values": 2,
+      "c_sha256": "d4e4752a1c80106fccf375b3f4072a6f07b34b6164e07cfb06b81165e0a9497c",
+      "rtl_sha256": "ac55a7902d341274fdad9fe5642cbd4fcfba74c0c5222357c6cc3415df8b3b04"
+    },
+    "route_count": {
+      "values": 2,
+      "c_sha256": "be26f0feb61de1750b134483627bc47358d40a95cfd1df9848ba93561bd0edec",
+      "rtl_sha256": "0e4f2d78aa5dd2317c0c89322dbf06bbccef3977f8d9585e3957663bf716fb0f"
+    },
+    "candidate_count": {
+      "values": 2,
+      "c_sha256": "33cb543b6a718cf6c05c839ff11f5f5e91e49075804f0a20b46638c0bd822f54",
+      "rtl_sha256": "8b5318dd4d912371c865f5d236b4884fb90747a083baa30d16cc02644d9bf878"
+    },
+    "dense_fallback": {
+      "values": 2,
+      "c_sha256": "d4e4752a1c80106fccf375b3f4072a6f07b34b6164e07cfb06b81165e0a9497c",
+      "rtl_sha256": "ac55a7902d341274fdad9fe5642cbd4fcfba74c0c5222357c6cc3415df8b3b04"
+    },
+    "selected_token_out": {
+      "values": 2,
+      "c_sha256": "ca749418dae662d4743591677829b51aad7eca88c8041aea7565bcb565c32bca",
+      "rtl_sha256": "6974559fd82a5d22bd13ca5321a5b737f9f2d4a17e2f9291427489dc87c1f535"
+    },
+    "score": {
+      "values": 2,
+      "c_sha256": "584ff1d54a66b3df05c3261b153a4dfe30e68017725b7ee8d0859d2cef4ba075",
+      "rtl_sha256": "c32ef09fedef8a4663ddf86e1b408f7c00aedd067483d6043ddb888bfc0a820b"
+    },
+    "output_crc": {
+      "values": 2,
+      "c_sha256": "d4627fc88fc515a0a48c722746e2c6d005737496f8234a8c45f5184f4a8e3767",
+      "rtl_sha256": "1fd3c4d3913cbacf30c20bb654b8f5001bcca6c64be41f6251d67cc351ae89d5"
+    }
+  },
+  "whole_memory_values": 41943040,
+  "scalar_outputs": 18,
+  "transactions": [
+    {
+      "index": 0,
+      "cycles": 4886566,
+      "model_ms_at200MHz": 24.43283
+    },
+    {
+      "index": 1,
+      "cycles": 726,
+      "model_ms_at200MHz": 0.00363
+    }
+  ],
+  "official_log_sha256": "bf030774629e9fad77da07189703b5e5daa8aaf5b88bd4046e066694979b31b9",
+  "report_sha256": "8be9a627c9ae3360491a02f342592294b4559b1764940ae1c63c848e06787c41",
+  "transaction_report_sha256": "abc1c1c641d93b32dc6978424fa8b5bf1e1cefb03ed2ef5554e431d2461e2094",
+  "source_manifest_sha256": "dc971ed86ce6b9616bdeeac3f78341e268d08d138523f90268277b602ab63121",
+  "scope": "One real Chinese debug full-vocabulary preview, all17764 IDs/raw logits/token/score/CRC and one overlap rejection; AXI memory model, not MIG production or new-quality-population RTL replay",
+  "quality": "QUALITY_FAIL_NO_RELEASE_NO_RETUNE",
+  "board": "NOT_RUN"
+}

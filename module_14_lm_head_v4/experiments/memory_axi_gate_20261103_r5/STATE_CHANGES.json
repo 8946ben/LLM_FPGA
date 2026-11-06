@@ -1,0 +1,10 @@
+{
+  "original_sha256": "07adacf09f90239ddbd9016641393e899b56f5eb285f7b3469526397b704037b",
+  "candidate_sha256": "4c40b9f7ede7d5f38c23497964175eb9da3a98637bf985d640bc502fffb30028",
+  "edits": [
+    [
+      "            for(int j=0; j<=tr.len; j++) begin\n                if(tr.len+1-j==left_len) begin\n                    for(int i=0; i<tr.bus_bytenum; i++) begin\n                        if(addrcnt>=addrlow && addrcnt<addrlow/bytenum*bytenum+bytenum) begin\n                            tr.data.push_back(rq_from_model[id][0].data.pop_front());\n                            tr.data_delay.push_back(rq_from_model[id][0].data_delay.pop_front());\n                            tr.rresp.push_back(rq_from_model[id][0].rresp.pop_front());\n                        end else begin\n                            tr.data.push_back(8'h0);\n                        end\n                        addrcnt++;\n                    end\n                end\n                addrlow = addrlow/bytenum*bytenum+bytenum;\n                addrcnt = addrlow/tr.bus_bytenum*tr.bus_bytenum;\n            end",
+      "            begin : direct_read_beat\n                int beat_index;\n                beat_index=tr.len+1-left_len;\n                if(beat_index>0)begin\n                    addrlow=(tr.addr/bytenum+beat_index)*bytenum;\n                    addrcnt=addrlow/tr.bus_bytenum*tr.bus_bytenum;\n                end\n                if(beat_index>=0 && beat_index<=tr.len)begin\n                    for(int i=0;i<tr.bus_bytenum;i++)begin\n                        if(addrcnt>=addrlow && addrcnt<addrlow/bytenum*bytenum+bytenum)begin\n                            tr.data.push_back(rq_from_model[id][0].data.pop_front());\n                            tr.data_delay.push_back(rq_from_model[id][0].data_delay.pop_front());\n                            tr.rresp.push_back(rq_from_model[id][0].rresp.pop_front());\n                        end else tr.data.push_back(8'h0);\n                        addrcnt++;\n                    end\n                end\n            end"
+    ]
+  ]
+}

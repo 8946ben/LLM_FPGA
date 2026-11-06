@@ -1,0 +1,53 @@
+{
+  "state": "PASS",
+  "checked_at": "2026-10-20T21:13:05.938306+08:00",
+  "structure": {
+    "state": "PASS",
+    "entries": 64,
+    "historical_entries_preserved": 61,
+    "routes": 11,
+    "design_pages_synchronized": true,
+    "markdown_unchanged": true,
+    "all_evidence_links_exist": true,
+    "inline_javascript_syntax": "PASS",
+    "unexpected_network_loads": 0,
+    "visual_preview": "NOT_PERFORMED: prior browser policy blocks local file:// preview; no workaround used",
+    "no_hardware_access": true
+  },
+  "interactions": {
+    "state": "PASS",
+    "method": "offline Node VM with minimal DOM simulation; no browser launch, pixel render or network",
+    "checks": 28,
+    "passed": [
+      "all current entries render",
+      "default measured values",
+      "candidate renders four unmeasured fields",
+      "no-match search and reset",
+      "combined search/status/importance",
+      "date select and clear",
+      "cross-year calendar navigation",
+      "leap day and empty month",
+      "latest logs",
+      "related jump clears blockers and opens ancestors",
+      "route archival and current state",
+      "route stage detail and filter",
+      "empty log hides optional areas",
+      "unknown values and markup remain inert text",
+      "execution panel focus/click/Escape on synthetic fixture only",
+      "v31 performance measured after board acceptance",
+      "v31 completed route archived without running stage",
+      "design R2017 snapshot/node/keyboard/step/zoom",
+      "design R2021 snapshot/node/keyboard/step/zoom",
+      "design RNumeric snapshot/node/keyboard/step/zoom",
+      "design RJTAG snapshot/node/keyboard/step/zoom",
+      "design RTCPInitial snapshot/node/keyboard/step/zoom",
+      "design RTCP snapshot/node/keyboard/step/zoom",
+      "design RDelivery snapshot/node/keyboard/step/zoom",
+      "design R250 snapshot/node/keyboard/step/zoom",
+      "design R200 snapshot/node/keyboard/step/zoom",
+      "design R200Layers snapshot/node/keyboard/step/zoom",
+      "design R31PLDDR snapshot/node/keyboard/step/zoom"
+    ],
+    "visual_preview": "NOT_PERFORMED"
+  }
+}

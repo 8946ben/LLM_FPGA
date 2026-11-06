@@ -1,0 +1,52 @@
+[
+  {
+    "frame": 1,
+    "stage": 0,
+    "cycles": 6,
+    "weight_reads": 2,
+    "meta_reads": 2,
+    "meta_writes": 2,
+    "weight_ar_stall": 3,
+    "status": 0
+  },
+  {
+    "frame": 1,
+    "stage": -1,
+    "cycles": 8,
+    "weight_reads": 2,
+    "meta_reads": 2,
+    "meta_writes": 2,
+    "weight_ar_stall": 3,
+    "status": 0
+  },
+  {
+    "frame": 2,
+    "stage": 3,
+    "cycles": 3,
+    "weight_reads": 2,
+    "meta_reads": 0,
+    "meta_writes": 0,
+    "weight_ar_stall": 0,
+    "status": 0
+  },
+  {
+    "frame": 2,
+    "stage": -1,
+    "cycles": 5,
+    "weight_reads": 2,
+    "meta_reads": 0,
+    "meta_writes": 0,
+    "weight_ar_stall": 0,
+    "status": 0
+  },
+  {
+    "frame": 3,
+    "stage": -1,
+    "cycles": 2,
+    "weight_reads": 0,
+    "meta_reads": 0,
+    "meta_writes": 0,
+    "weight_ar_stall": 0,
+    "status": 1
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/world_religions.csv:138",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "f91180123955404fb360b1129c2186d7c5ebc5a838fba3053499103e19399141",
+  "group_sha256": "8fcf58401ff30ddfea70403a29dde5e8743642ba62135d4ded9a247705ad7e07",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "beacf730ed52eb71c33fc8c5.npz",
+  "npz_sha256": "254abf1181419ee2293007a2dee40c1f37c44822811609e2e47d51bd0264c8aa",
+  "generated_ids": [
+    105073,
+    111230,
+    20412,
+    425,
+    13,
+    10236,
+    118,
+    99,
+    103245,
+    3407,
+    111028,
+    9909,
+    94237,
+    16,
+    101186,
+    7552
+  ],
+  "input_tokens": 93,
+  "seconds": 1.5399925999809057,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

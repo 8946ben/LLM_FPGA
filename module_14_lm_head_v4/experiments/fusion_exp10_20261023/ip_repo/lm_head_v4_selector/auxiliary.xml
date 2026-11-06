@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xd:acceleratorMap xmlns:xd="http://www.xilinx.com/xidane" xd:functionName="lm_head_v4_selector" xd:componentRef="lm_head_v4_selector" xd:initiationInterval="x" xd:clockPeriod="5" xd:sequential="true" xd:hostMachine="64" xd:reset="control">
+  <xd:controlReg xd:name="control" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:type="generic_axi_lite" xd:offset="0x0"/>
+  <xd:arg xd:name="*(pl_ddr)" xd:originalName="pl_ddr" xd:direction="inout" xd:interfaceRef="m_axi_plmem" xd:busTypeRef="aximm" xd:dataWidth="128" xd:bufferDirection="inout"/>
+  <xd:arg xd:name="pl_ddr" xd:originalName="pl_ddr" xd:direction="in" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:offset="0x10" xd:dataWidth="32" xd:aximmInterfaceRef="m_axi_plmem"/>
+  <xd:arg xd:name="*(history_bitmap)" xd:originalName="history_bitmap" xd:direction="inout" xd:interfaceRef="m_axi_histmem" xd:busTypeRef="aximm" xd:dataWidth="128" xd:bufferDirection="in"/>
+  <xd:arg xd:name="history_bitmap" xd:originalName="history_bitmap" xd:direction="in" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:offset="0x1C" xd:dataWidth="32" xd:aximmInterfaceRef="m_axi_histmem"/>
+  <xd:arg xd:name="arena_bytes" xd:originalName="arena_bytes" xd:direction="in" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:offset="0x28" xd:handshakeRef="ap_none" xd:dataWidth="32"/>
+  <xd:arg xd:name="arena_bytes" xd:originalName="arena_bytes" xd:direction="in" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:offset="0x2C" xd:handshakeRef="ap_none" xd:dataWidth="32"/>
+  <xd:arg xd:name="descriptor_offset" xd:originalName="descriptor_offset" xd:direction="in" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:offset="0x34" xd:handshakeRef="ap_none" xd:dataWidth="32"/>
+  <xd:arg xd:name="descriptor_offset" xd:originalName="descriptor_offset" xd:direction="in" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:offset="0x38" xd:handshakeRef="ap_none" xd:dataWidth="32"/>
+  <xd:arg xd:name="command" xd:originalName="command" xd:direction="in" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:offset="0x40" xd:handshakeRef="ap_none" xd:dataWidth="32"/>
+  <xd:arg xd:name="*(status)" xd:originalName="status" xd:direction="out" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:offset="0x48" xd:statusOffset="0x4C" xd:handshakeRef="ap_vld" xd:dataWidth="32"/>
+  <xd:arg xd:name="*(stage)" xd:originalName="stage" xd:direction="out" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:offset="0x58" xd:statusOffset="0x5C" xd:handshakeRef="ap_vld" xd:dataWidth="32"/>
+  <xd:arg xd:name="*(child_status)" xd:originalName="child_status" xd:direction="out" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:offset="0x68" xd:statusOffset="0x6C" xd:handshakeRef="ap_vld" xd:dataWidth="32"/>
+  <xd:arg xd:name="*(route_count)" xd:originalName="route_count" xd:direction="out" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:offset="0x78" xd:statusOffset="0x7C" xd:handshakeRef="ap_vld" xd:dataWidth="32"/>
+  <xd:arg xd:name="*(candidate_count)" xd:originalName="candidate_count" xd:direction="out" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:offset="0x88" xd:statusOffset="0x8C" xd:handshakeRef="ap_vld" xd:dataWidth="32"/>
+  <xd:arg xd:name="*(dense_fallback)" xd:originalName="dense_fallback" xd:direction="out" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:offset="0x98" xd:statusOffset="0x9C" xd:handshakeRef="ap_vld" xd:dataWidth="32"/>
+  <xd:arg xd:name="*(selected_token_out)" xd:originalName="selected_token_out" xd:direction="out" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:offset="0xA8" xd:statusOffset="0xAC" xd:handshakeRef="ap_vld" xd:dataWidth="32"/>
+  <xd:arg xd:name="*(score)" xd:originalName="score" xd:direction="out" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:offset="0xB8" xd:statusOffset="0xBC" xd:handshakeRef="ap_vld" xd:dataWidth="32"/>
+  <xd:arg xd:name="*(output_crc)" xd:originalName="output_crc" xd:direction="out" xd:interfaceRef="s_axi_control" xd:busTypeRef="axilite" xd:offset="0xC8" xd:statusOffset="0xCC" xd:handshakeRef="ap_vld" xd:dataWidth="32"/>
+  <xd:latencyEstimates xd:best-case="undef" xd:worst-case="undef" xd:average-case="undef"/>
+  <xd:resourceEstimates xd:LUT="91442" xd:FF="85631" xd:BRAM="0" xd:DSP="231"/>
+</xd:acceleratorMap>

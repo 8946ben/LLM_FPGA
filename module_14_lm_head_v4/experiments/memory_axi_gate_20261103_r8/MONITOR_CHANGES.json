@@ -1,0 +1,22 @@
+{
+  "original_sha256": "b0a88df9f4d7a6c3796339b491a86f792be8a92dc7163d9fe48c4cc47fa0b0de",
+  "candidate_sha256": "ca682e3dce0c5b0e2a659867da5d8e2f151c3c3926f8637380d0e7ff23ea0651",
+  "edits": [
+    [
+      "    virtual protected task collect_aw2b_transfer();\n        axi_transfer aw2b_tr;",
+      "    virtual protected task collect_aw2b_transfer();\n        axi_transfer aw2b_tr;\n        int j,k; // One task-lifetime index pair; same original per-clock loop."
+    ],
+    [
+      "                for(int j=0; j<cfg.id_num; j++) begin\n                    for(int k=0; k<aw2b_delay[j].size; k++) aw2b_delay[j][k]++;\n                end",
+      "                for(j=0; j<cfg.id_num; j++) begin\n                    for(k=0; k<aw2b_delay[j].size; k++) aw2b_delay[j][k]++;\n                end"
+    ],
+    [
+      "    virtual protected task collect_ar2r_transfer();\n        axi_transfer ar2r_tr;",
+      "    virtual protected task collect_ar2r_transfer();\n        axi_transfer ar2r_tr;\n        int j,k; // One task-lifetime index pair; same original per-clock loop."
+    ],
+    [
+      "                for(int j=0; j<cfg.id_num; j++) begin\n                    for(int k=0; k<ar2r_delay[j].size; k++) ar2r_delay[j][k]++;\n                end",
+      "                for(j=0; j<cfg.id_num; j++) begin\n                    for(k=0; k<ar2r_delay[j].size; k++) ar2r_delay[j][k]++;\n                end"
+    ]
+  ]
+}

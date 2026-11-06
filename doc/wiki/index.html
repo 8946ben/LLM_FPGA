@@ -19,6 +19,7 @@
       <a href="hls.html">HLS 内核</a>
       <a href="protocol.html">网络协议</a>
       <a href="fpga.html">上板部署</a>
+      <a href="dictionary.html">术语词典</a>
       <a href="verify.html">验证闭环</a>
       <a href="tools.html">工具链</a>
       <a href="roadmap.html">ABI V2 路线</a>
@@ -32,113 +33,203 @@
 <p class="lede">
 Qwen2.5-0.5B-Instruct 的 FPGA 推理验证工程。目标是 correctness-first：先用 PyTorch 导出逐模块 golden 张量，
 再用 HLS 实现同一模块并逐项对拍，最后在 ALINX AXU9EGB 真实板卡上跑通 8 步 trace。
-图中节点均为仓库中真实存在的文件或模块，点击可进入对应详情页。
+图中节点均为仓库中真实存在的文件或模块。
 </p>
 
 <figure class="diagram wide">
-<div class="mermaid">
-flowchart TB
+<svg class="schematic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1120"
+     font-family="Segoe UI, Microsoft YaHei, PingFang SC, sans-serif">
+  <defs>
+    <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+            orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#546e7a"/>
+    </marker>
+  </defs>
 
-  subgraph HOST["入口层 · 上位机 / Orin"]
-    direction LR
-    H1["tools/run_module16_board_trace.py<br/>真实板卡 8-step trace 客户端"]
-    H2["tools/stage_h4_board_small_test.py<br/>4×4 受控上板用例"]
-    H3["tools/run_module16_tcp_loopback.py<br/>TCP 回环回归"]
-    H4["module16_lm_head_hls/net/<br/>cpu_client.py · lmh_protocol.py<br/>fpga_server_emulator.py"]
-    H5["orin_backend/<br/>Orin 异构推理后端"]
-  end
+  <rect width="1440" height="1120" fill="#ffffff"/>
 
-  subgraph DATA["数据与参考层 · golden 与 fixture"]
-    direction LR
-    D1["qwen25_0p5b_instruct_full_generation_trace/<br/>1 prefill + 7 decode × 24 layer<br/>7386 个 .npy"]
-    D2["qwen25_0p5b_python_reference/<br/>run_full_generate_trace.py<br/>manual_prefill_decode.py<br/>qwen2_module_reference.py"]
-    D3["tools/prepare_lm_head_hls_fixture.py<br/>→ artifacts/module16_hls_fixtures/step_00..07"]
-    D4["tools/export_lm_head_weight.py<br/>→ artifacts/model.embed_tokens.weight.fp16.npy"]
-    D5["tools/read_npy.py<br/>tools/inspect_qwen_model.py"]
-  end
+  <!-- ===== 标题 ===== -->
+  <text x="36" y="52" font-size="26" font-weight="bold" fill="#263238">LLM_FPGA 项目架构</text>
+  <text x="36" y="80" font-size="15" fill="#37474f">Qwen2.5-0.5B-Instruct FPGA 推理验证 · ALINX AXU9EGB（XCZU9EG-2FFVB1156I）· correctness-first 闭环</text>
+  <text x="36" y="102" font-size="12" fill="#90a4ae">依据仓库实际目录与文件绘制 · realFpga/DEBUG_LOG.md · doc/0924 全模块设计稿</text>
+  <line x1="36" y1="120" x2="1404" y2="120" stroke="#e0e6ea"/>
 
-  subgraph PS["PS 层 · Cortex-A53 standalone + lwIP"]
-    direction LR
-    P1["main.c · platform.c<br/>平台初始化与自检"]
-    P2["lwip_lm_head_raw_server.c<br/>LMH1 raw TCP server :19016"]
-    P3["lmh_buffers.h + lscript.ld<br/>PS DDR NOLOAD 缓冲区"]
-  end
+  <!-- ===== A 数据与参考层 ===== -->
+  <rect x="36" y="150" width="290" height="470" rx="12" fill="#f8fafc" stroke="#4a6fa5" stroke-width="1.6"/>
+  <rect x="238" y="158" width="78" height="22" rx="11" fill="#4a6fa5"/>
+  <text x="277" y="174" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">golden</text>
+  <text x="54" y="184" font-size="15" font-weight="bold" fill="#263238">数据与参考层</text>
+  <line x1="54" y1="196" x2="308" y2="196" stroke="#dbe4ec"/>
 
-  subgraph PL["PL 层 · XCZU9EG-2FFVB1156I"]
-    direction LR
-    L1["lm_head_argmax<br/>xilinx.com:hls:lm_head_argmax:1.0<br/>src/lm_head_kernel.cpp"]
-  end
+  <text x="54" y="220" font-size="12.5" font-weight="bold" fill="#4a6fa5">golden trace</text>
+  <text x="54" y="240" font-size="11.5" fill="#37474f">qwen25_0p5b_instruct_full_</text>
+  <text x="54" y="256" font-size="11.5" fill="#37474f">  generation_trace/</text>
+  <text x="54" y="276" font-size="11.5" fill="#2e7d32">1 prefill + 7 decode × 24 layer</text>
+  <text x="54" y="292" font-size="11.5" fill="#2e7d32">7,386 个 .npy · 8 step · 192 层目录</text>
+  <line x1="54" y1="308" x2="308" y2="308" stroke="#e0e6ea"/>
 
-  subgraph MEM["存储层"]
-    direction LR
-    M1["PS DDR4 4 GB · 64-bit<br/>weight 259.66 MiB · hidden 1792 B<br/>history 18992 B · logits 303872 B"]
-    M2["PL DDR4 2 GB · 32-bit<br/>KV Cache（ABI V2 规划）"]
-  end
+  <text x="54" y="332" font-size="12.5" font-weight="bold" fill="#4a6fa5">Python 参考实现</text>
+  <text x="54" y="352" font-size="11.5" fill="#37474f">run_full_generate_trace.py</text>
+  <text x="54" y="368" font-size="11.5" fill="#37474f">manual_prefill_decode.py</text>
+  <text x="54" y="384" font-size="11.5" fill="#37474f">qwen2_module_reference.py</text>
+  <line x1="54" y1="400" x2="308" y2="400" stroke="#e0e6ea"/>
 
-  subgraph BUILD["构建层 · Vivado / Vitis HLS / Vitis 2021.1"]
-    direction LR
-    B1["module16_lm_head_hls/<br/>run_csim.tcl · run_csynth.tcl · run_cosim.tcl<br/>run_export_ip.tcl"]
-    B2["realFpga/vivado/<br/>create_lm_head_axu9eg_bd.tcl<br/>build_lm_head_axu9eg.tcl"]
-    B3["realFpga/vitis/<br/>create_platform.tcl · build_net_diag.tcl<br/>program_net_diag.tcl"]
-    B4["realFpga/results/<br/>20260724_baseline<br/>20260724_stage_b_ip_export<br/>20260724_stage_c"]
-  end
+  <text x="54" y="424" font-size="12.5" font-weight="bold" fill="#4a6fa5">fixture 与权重导出</text>
+  <text x="54" y="444" font-size="11.5" fill="#37474f">tools/prepare_lm_head_hls_fixture.py</text>
+  <text x="54" y="460" font-size="11.5" fill="#37474f">tools/export_lm_head_weight.py</text>
+  <text x="54" y="480" font-size="11.5" fill="#607d8b">→ module16_hls_fixtures/step_00..07</text>
+  <text x="54" y="496" font-size="11.5" fill="#607d8b">→ model.embed_tokens.weight.fp16.npy</text>
+  <text x="54" y="512" font-size="11.5" fill="#607d8b">   272,269,440 B · FP16 · [151936, 896]</text>
+  <line x1="54" y1="530" x2="308" y2="530" stroke="#e0e6ea"/>
+  <text x="54" y="554" font-size="11" fill="#90a4ae">tools/read_npy.py · inspect_qwen_model.py</text>
+  <text x="54" y="580" font-size="11" fill="#90a4ae">任意 golden 张量可单独取出对拍</text>
 
-  D2 --> D1
-  D1 --> D3
-  D4 --> H1
-  D3 --> H1
-  D3 --> H2
-  H1 --> H4
-  H2 --> H4
-  H3 --> H4
-  H5 --> H4
+  <!-- ===== B 入口层 ===== -->
+  <rect x="372" y="150" width="290" height="470" rx="12" fill="#eaf1fb" stroke="#5c6bc0" stroke-width="1.6"/>
+  <rect x="566" y="158" width="88" height="22" rx="11" fill="#5c6bc0"/>
+  <text x="610" y="174" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">host</text>
+  <text x="390" y="184" font-size="15" font-weight="bold" fill="#263238">入口层 · 上位机 / Orin</text>
+  <line x1="390" y1="196" x2="644" y2="196" stroke="#cfd9ea"/>
 
-  H4 -- "LMH1 帧 / TCP 19016" --> P2
-  P1 --> P2
-  P2 --> P3
-  P3 -- "AXI-Lite 配置地址与启动" --> L1
+  <text x="390" y="220" font-size="12.5" font-weight="bold" fill="#3f51b5">板卡测试脚本</text>
+  <text x="390" y="240" font-size="11.5" fill="#37474f">tools/run_module16_board_trace.py</text>
+  <text x="390" y="256" font-size="11.5" fill="#607d8b">  → 真实板卡 8-step 客户端</text>
+  <text x="390" y="276" font-size="11.5" fill="#37474f">tools/stage_h4_board_small_test.py</text>
+  <text x="390" y="292" font-size="11.5" fill="#607d8b">  → 4×4 受控上板用例</text>
+  <line x1="390" y1="308" x2="644" y2="308" stroke="#cfd9ea"/>
 
-  L1 -- "m_axi 读 weight / hidden / history<br/>m_axi 写 raw_logits" --> M1
-  M2 -. "ABI V2 复用规划" .-> L1
+  <text x="390" y="332" font-size="12.5" font-weight="bold" fill="#3f51b5">LMH1 协议客户端</text>
+  <text x="390" y="352" font-size="11.5" fill="#37474f">module16_lm_head_hls/net/</text>
+  <text x="390" y="368" font-size="11.5" fill="#37474f">cpu_client.py · lmh_protocol.py</text>
+  <text x="390" y="384" font-size="11.5" fill="#37474f">fpga_server_emulator.py</text>
+  <line x1="390" y1="400" x2="644" y2="400" stroke="#cfd9ea"/>
 
-  B1 --> L1
-  B2 --> P1
-  B3 --> P2
-  B1 --> B4
-  B2 --> B4
+  <text x="390" y="424" font-size="12.5" font-weight="bold" fill="#3f51b5">其他入口</text>
+  <text x="390" y="444" font-size="11.5" fill="#37474f">tools/run_module16_tcp_loopback.py</text>
+  <text x="390" y="460" font-size="11.5" fill="#37474f">orin_backend/  Orin 异构后端</text>
+  <line x1="390" y1="530" x2="644" y2="530" stroke="#cfd9ea"/>
+  <text x="390" y="554" font-size="11" fill="#90a4ae">默认不启用 repetition penalty</text>
+  <text x="390" y="580" font-size="11" fill="#90a4ae">显式 --enable-repetition-penalty 开启</text>
 
-  click H1 "fpga.html" "上板部署"
-  click H2 "fpga.html" "上板部署"
-  click H3 "protocol.html" "LMH1 协议"
-  click H4 "protocol.html" "LMH1 协议"
-  click H5 "roadmap.html" "ABI V2 路线"
-  click D1 "trace.html" "Golden Trace"
-  click D2 "python-ref.html" "Python 参考"
-  click D3 "tools.html" "工具链"
-  click D4 "tools.html" "工具链"
-  click D5 "tools.html" "工具链"
-  click P1 "fpga.html" "上板部署"
-  click P2 "fpga.html" "上板部署"
-  click P3 "fpga.html" "上板部署"
-  click L1 "hls.html" "HLS 内核"
-  click M1 "fpga.html" "上板部署"
-  click M2 "roadmap.html" "ABI V2 路线"
-  click B1 "hls.html" "HLS 内核"
-  click B2 "fpga.html" "上板部署"
-  click B3 "fpga.html" "上板部署"
-  click B4 "verify.html" "验证闭环"
-</div>
+  <!-- ===== C PS 层 ===== -->
+  <rect x="748" y="150" width="290" height="300" rx="12" fill="#f1f8e9" stroke="#2e7d32" stroke-width="1.6"/>
+  <rect x="958" y="158" width="72" height="22" rx="11" fill="#2e7d32"/>
+  <text x="994" y="174" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">PS</text>
+  <text x="766" y="184" font-size="15" font-weight="bold" fill="#263238">PS · Cortex-A53 standalone</text>
+  <line x1="766" y1="196" x2="1020" y2="196" stroke="#c8e6c9"/>
+
+  <text x="766" y="220" font-size="12.5" font-weight="bold" fill="#1b5e20">平台初始化</text>
+  <text x="766" y="240" font-size="11.5" fill="#37474f">main.c · platform.c</text>
+  <text x="766" y="256" font-size="11.5" fill="#607d8b">  自检通过后才进入 lwIP</text>
+  <line x1="766" y1="272" x2="1020" y2="272" stroke="#c8e6c9"/>
+
+  <text x="766" y="296" font-size="12.5" font-weight="bold" fill="#1b5e20">LMH1 服务端</text>
+  <text x="766" y="316" font-size="11.5" fill="#37474f">lwip_lm_head_raw_server.c</text>
+  <text x="766" y="332" font-size="11.5" fill="#607d8b">  raw TCP :19016 · 多帧会话</text>
+  <line x1="766" y1="348" x2="1020" y2="348" stroke="#c8e6c9"/>
+
+  <text x="766" y="372" font-size="12.5" font-weight="bold" fill="#1b5e20">缓冲区与 Cache</text>
+  <text x="766" y="392" font-size="11.5" fill="#37474f">lmh_buffers.h + lscript.ld</text>
+  <text x="766" y="408" font-size="11.5" fill="#607d8b">Xil_DCacheFlushRange / Invalidate</text>
+
+  <!-- ===== D PL 层 ===== -->
+  <rect x="1094" y="150" width="310" height="300" rx="12" fill="#f1f8e9" stroke="#2e7d32" stroke-width="1.6"/>
+  <rect x="1332" y="158" width="64" height="22" rx="11" fill="#2e7d32"/>
+  <text x="1364" y="174" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">PL</text>
+  <text x="1112" y="184" font-size="15" font-weight="bold" fill="#263238">PL · XCZU9EG-2FFVB1156I</text>
+
+  <rect x="1112" y="198" width="274" height="76" rx="8" fill="#ffffff" stroke="#66bb6a" stroke-width="1.5"/>
+  <text x="1124" y="222" font-size="13.5" font-weight="bold" fill="#1b5e20">lm_head_argmax</text>
+  <text x="1124" y="242" font-size="11.5" fill="#33691e">xilinx.com:hls:lm_head_argmax:1.0</text>
+  <text x="1124" y="260" font-size="11.5" fill="#33691e">src/lm_head_kernel.cpp</text>
+
+  <text x="1112" y="300" font-size="12.5" font-weight="bold" fill="#1b5e20">接口</text>
+  <text x="1112" y="320" font-size="11.5" fill="#37474f">4 路 m_axi + AXI-Lite 控制</text>
+  <text x="1112" y="336" font-size="11.5" fill="#607d8b">hidden / weight / history / logits</text>
+  <line x1="1112" y1="352" x2="1388" y2="352" stroke="#c8e6c9"/>
+
+  <text x="1112" y="376" font-size="12.5" font-weight="bold" fill="#1b5e20">时序</text>
+  <text x="1112" y="396" font-size="11.5" fill="#37474f">100 MHz 首版 · 200 MHz 需重实现</text>
+  <text x="1112" y="412" font-size="11.5" fill="#607d8b">综合估计 3.650 ns ≈ 273.97 MHz</text>
+
+  <!-- ===== E1 PS DDR ===== -->
+  <rect x="748" y="660" width="290" height="170" rx="12" fill="#eceff4" stroke="#78909c" stroke-width="1.6"/>
+  <rect x="958" y="668" width="72" height="22" rx="11" fill="#78909c"/>
+  <text x="994" y="684" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">DDR</text>
+  <text x="766" y="694" font-size="15" font-weight="bold" fill="#263238">PS DDR4 4 GB · 64-bit</text>
+  <line x1="766" y1="706" x2="1020" y2="706" stroke="#d5dde3"/>
+  <text x="766" y="730" font-size="11.5" fill="#37474f">weight 272,269,312 B ≈ 259.66 MiB</text>
+  <text x="766" y="750" font-size="11.5" fill="#37474f">hidden 1,792 B · history 18,992 B</text>
+  <text x="766" y="770" font-size="11.5" fill="#37474f">raw logits 303,872 B（调试）</text>
+  <text x="766" y="794" font-size="11" fill="#90a4ae">起始 0x40000000 · .lmh_buffers NOLOAD</text>
+  <text x="766" y="814" font-size="11" fill="#90a4ae">不进入 ELF、启动不清零</text>
+
+  <!-- ===== E2 PL DDR ===== -->
+  <rect x="1094" y="660" width="310" height="170" rx="12" fill="#eceff4" stroke="#78909c" stroke-width="1.6"/>
+  <rect x="1332" y="668" width="64" height="22" rx="11" fill="#78909c"/>
+  <text x="1364" y="684" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">DDR</text>
+  <text x="1112" y="694" font-size="15" font-weight="bold" fill="#263238">PL DDR4 2 GB · 32-bit</text>
+  <line x1="1112" y1="706" x2="1388" y2="706" stroke="#d5dde3"/>
+  <text x="1112" y="730" font-size="11.5" fill="#37474f">当前未接入模块 16 数据面</text>
+  <text x="1112" y="750" font-size="11.5" fill="#37474f">MIG AXI 128-bit · UI 266.5 MHz</text>
+  <rect x="1112" y="766" width="274" height="42" rx="8" fill="#fff8e5" stroke="#e6c34a" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="1124" y="784" font-size="11.5" fill="#b26a00">ABI V2 规划的 KV Cache</text>
+  <text x="1124" y="800" font-size="11" fill="#8d8d8d">M09 / M10 使用</text>
+
+  <!-- ===== G 构建层 ===== -->
+  <rect x="36" y="870" width="1368" height="130" rx="12" fill="#fffde7" stroke="#fbc02d" stroke-width="1.6"/>
+  <rect x="1318" y="878" width="78" height="22" rx="11" fill="#b26a00"/>
+  <text x="1357" y="894" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">scripts</text>
+  <text x="54" y="904" font-size="15" font-weight="bold" fill="#827717">构建层 · Vivado / Vitis HLS / Vitis 2021.1</text>
+
+  <text x="54" y="932" font-size="12" font-weight="bold" fill="#827717">module16_lm_head_hls/</text>
+  <text x="54" y="952" font-size="11.5" fill="#5d4037">run_csim.tcl · run_csynth.tcl</text>
+  <text x="54" y="970" font-size="11.5" fill="#5d4037">run_cosim.tcl · run_export_ip.tcl</text>
+  <line x1="390" y1="886" x2="390" y2="990" stroke="#f0e6b0"/>
+
+  <text x="408" y="932" font-size="12" font-weight="bold" fill="#827717">realFpga/vivado/</text>
+  <text x="408" y="952" font-size="11.5" fill="#5d4037">create_lm_head_axu9eg_bd.tcl</text>
+  <text x="408" y="970" font-size="11.5" fill="#5d4037">build_lm_head_axu9eg.tcl</text>
+  <line x1="746" y1="886" x2="746" y2="990" stroke="#f0e6b0"/>
+
+  <text x="764" y="932" font-size="12" font-weight="bold" fill="#827717">realFpga/vitis/</text>
+  <text x="764" y="952" font-size="11.5" fill="#5d4037">create_platform.tcl · build_net_diag.tcl</text>
+  <text x="764" y="970" font-size="11.5" fill="#5d4037">program_net_diag.tcl · probe_jtag.tcl</text>
+  <line x1="1096" y1="886" x2="1096" y2="990" stroke="#f0e6b0"/>
+
+  <text x="1114" y="932" font-size="12" font-weight="bold" fill="#827717">realFpga/results/</text>
+  <text x="1114" y="952" font-size="11.5" fill="#5d4037">20260724_baseline</text>
+  <text x="1114" y="970" font-size="11.5" fill="#5d4037">stage_b_ip_export · stage_c</text>
+
+  <!-- ===== 连线 ===== -->
+  <line x1="326" y1="390" x2="366" y2="390" stroke="#546e7a" stroke-width="2" marker-end="url(#arw)"/>
+  <line x1="662" y1="390" x2="742" y2="390" stroke="#546e7a" stroke-width="2" marker-end="url(#arw)"/>
+  <text x="702" y="382" font-size="10.5" fill="#546e7a" text-anchor="middle">LMH1 / TCP 19016</text>
+
+  <line x1="1038" y1="300" x2="1088" y2="300" stroke="#546e7a" stroke-width="2" marker-end="url(#arw)"/>
+  <text x="1063" y="292" font-size="10.5" fill="#546e7a" text-anchor="middle">AXI-Lite</text>
+
+  <line x1="893" y1="450" x2="893" y2="654" stroke="#546e7a" stroke-width="2" marker-end="url(#arw)"/>
+  <text x="903" y="556" font-size="10.5" fill="#546e7a">m_axi 读写</text>
+
+  <line x1="1249" y1="450" x2="1249" y2="654" stroke="#546e7a" stroke-width="2"
+        marker-start="url(#arw)" marker-end="url(#arw)"/>
+  <text x="1259" y="556" font-size="10.5" fill="#546e7a">m_axi</text>
+
+  <line x1="893" y1="866" x2="893" y2="834" stroke="#b26a00" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arw)"/>
+  <line x1="1249" y1="866" x2="1249" y2="834" stroke="#b26a00" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arw)"/>
+  <text x="893" y="858" font-size="10.5" fill="#b26a00" text-anchor="middle">bit / XSA / ELF</text>
+
+  <!-- ===== 底部结论条 ===== -->
+  <rect x="36" y="1040" width="1368" height="72" rx="8" fill="#f5f5f5" stroke="#cfd8dc"/>
+  <text x="54" y="1068" font-size="12.5" font-weight="bold" fill="#37474f">模块 16 已验证：HLS C 仿真 8/8 · RTL co-sim 1/1 · TCP 回环 8/8 · 真实板卡 8-step token 8/8 且 Top-5 全对</text>
+  <text x="54" y="1094" font-size="11.5" fill="#78909c">图例：绿色 = 板卡硬件路径　蓝色 = 主机侧软件　黄色 = 构建脚本　灰色 = 存储与规划项</text>
+</svg>
 <figcaption>
 图 1　项目分层详细架构。数据自左向右流：Python 参考与 golden trace 产出 fixture 与 FP16 权重，
-经 LMH1 协议入 PS，PS 用 AXI-Lite 启动 PL 的 <code>lm_head_argmax</code>，IP 经 m_axi 直读 PS DDR 完成后回传 token。
+经 LMH1 协议入 PS，PS 用 AXI-Lite 启动 PL 的 <code>lm_head_argmax</code>，IP 经 m_axi 直读 PS DDR 后回传 token。
 </figcaption>
 </figure>
-
-<div class="legend">
-  <span><span class="swatch" style="background:#eaf3ff;border-color:#8ab4f8"></span>软件 / 主机侧</span>
-  <span><span class="swatch" style="background:#f2f4f7;border-color:#c6d0da"></span>数据与构建产物</span>
-  <span><span class="swatch" style="background:#fff8e5;border-color:#e6c34a"></span>虚线边 = 尚未实现的规划</span>
-</div>
 
 <h2>页面导航</h2>
 
@@ -146,11 +237,12 @@ flowchart TB
 <table>
   <tr><th>页面</th><th>核心图</th><th>对应源码 / 目录</th></tr>
   <tr><td><a href="model.html">模型与权重</a></td><td>Qwen2.5-0.5B 24 层 Transformer block 数据流、tied embedding 结构</td><td><code>Qwen2.5-0.5B-Instruct模型结构.md</code></td></tr>
-  <tr><td><a href="trace.html">Golden Trace</a></td><td>8 step × 24 layer 目录组织与张量形状阶梯</td><td><code>qwen25_0p5b_instruct_full_generation_trace/</code></td></tr>
+  <tr><td><a href="trace.html">Golden Trace</a></td><td>8 step × 24 layer 目录组织与层内张量顺序链</td><td><code>qwen25_0p5b_instruct_full_generation_trace/</code></td></tr>
   <tr><td><a href="python-ref.html">Python 参考</a></td><td>generate 路径与手写 prefill/decode 路径对照流程</td><td><code>qwen25_0p5b_python_reference/</code></td></tr>
   <tr><td><a href="hls.html">HLS 内核</a></td><td><code>lm_head_argmax</code> 内部循环、接口与综合性能</td><td><code>module16_lm_head_hls/</code></td></tr>
   <tr><td><a href="protocol.html">网络协议</a></td><td>LMH1 24 字节帧头、LOAD_WEIGHT / RUN_TOKEN / PING 时序</td><td><code>module16_lm_head_hls/net/</code></td></tr>
   <tr><td><a href="fpga.html">上板部署</a></td><td>板级拓扑、PS DDR 内存布局、Vivado Block Design 结构</td><td><code>realFpga/</code></td></tr>
+  <tr><td><a href="dictionary.html">术语词典</a></td><td>JTAG、PS TAP、DAP/AXI AP、PMU、PL 等板级调试词汇</td><td><code>ZynqMP / XSCT 调试</code></td></tr>
   <tr><td><a href="verify.html">验证闭环</a></td><td>从公式到真实板卡的 6 级验证阶梯与各阶段结论</td><td><code>MODULE16_LM_HEAD_VALIDATION_REPORT.md</code></td></tr>
   <tr><td><a href="tools.html">工具链</a></td><td>tools / tests / artifacts 依赖关系与调用顺序</td><td><code>tools/</code>、<code>tests/</code></td></tr>
   <tr><td><a href="roadmap.html">ABI V2 路线</a></td><td>M00–M15 全模块分层与 10-10 交付排期</td><td><code>doc/0924/</code></td></tr>
@@ -162,7 +254,7 @@ flowchart TB
 <footer>
   <span class="updated">最后更新：2026-09-28</span> ·
   生成自工作区 <code>d:/program/LLM_FPGA</code> ·
-  纯静态站点，双击本页即可离线浏览。
+  示意图风格对齐 <code>doc/LM_HEAD_HW_DIAGRAMS_20260916.html</code>
 </footer>
 
 <script src="assets/mermaid.min.js"></script>

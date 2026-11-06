@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/chinese_teacher_qualification.csv:77",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "9ee12e5e3f79fcd261fbc5eb0a7db73551c2a3e9ead64046ea34cdf3cad7abeb",
+  "group_sha256": "74e37a02de34ebe9544dbe30ed6a87de3f6d39cb65f23e249bf6ae57070bde86",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "426a2ad81c1e0d0a4b6d09f2.npz",
+  "npz_sha256": "3d91dac4be4e0f8e297ed26f1952ab70e8eb07c2203a2d6bef5d31b61fd9ff18",
+  "generated_ids": [
+    102349,
+    20412,
+    32,
+    3837,
+    91676,
+    102478,
+    100681,
+    120763,
+    47149,
+    3407,
+    104136,
+    5122,
+    30709,
+    99425,
+    26232,
+    105322
+  ],
+  "input_tokens": 130,
+  "seconds": 1.443005999957677,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

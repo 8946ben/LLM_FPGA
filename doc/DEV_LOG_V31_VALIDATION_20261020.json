@@ -1,0 +1,19 @@
+{
+  "state": "PASS",
+  "entries": 61,
+  "historical_entries_preserved": 57,
+  "routes": 11,
+  "design_pages_synchronized": true,
+  "markdown_unchanged": true,
+  "all_evidence_links_exist": true,
+  "inline_javascript_syntax": "PASS",
+  "unexpected_network_loads": 0,
+  "visual_preview": "NOT_PERFORMED: current browser URL policy rejected file:// observation; no workaround used",
+  "no_hardware_access": true,
+  "checked_at": "2026-10-20T16:54:11+08:00",
+  "interaction_checks": 28,
+  "interaction_method": "offline Node VM with minimal DOM simulation; no browser launch, pixel render or network",
+  "new_route": "R31PLDDR",
+  "board_tests": "NOT_RUN",
+  "v31_performance": "UNMEASURED"
+}

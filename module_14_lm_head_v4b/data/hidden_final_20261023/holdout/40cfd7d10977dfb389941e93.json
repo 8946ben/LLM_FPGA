@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/professional_law.csv:37",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "2ebf556d9b294dcf04b922f14b07041e4878902a2742880a410c73fce31f5425",
+  "group_sha256": "bafea800f09ddb1548dabed9f4bee32c66b1fd0c4a693c539c3286f60cb43a23",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "40cfd7d10977dfb389941e93.npz",
+  "npz_sha256": "ae5cf35abeb7248e9cc40d21efcfc8215a2b1b2245d0f403c1c73c7ff0fe6789",
+  "generated_ids": [
+    21894,
+    33872,
+    117246,
+    117543,
+    5373,
+    114943,
+    101218,
+    103236,
+    5373,
+    101218,
+    103236,
+    102105,
+    100426,
+    9370,
+    104585,
+    3407
+  ],
+  "input_tokens": 162,
+  "seconds": 0.41406440001446754,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

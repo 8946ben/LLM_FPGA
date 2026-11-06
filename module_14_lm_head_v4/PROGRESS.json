@@ -1,0 +1,483 @@
+{
+  "release": "lm_head v4",
+  "updated": "2026-10-23T14:25:51.988686+08:00",
+  "stage": "P7_FUSION_EXP10_OFFLINE_DONE_QUALITY_FAIL",
+  "scope": "Offline dynamic-vocabulary development only; no FPGA operations",
+  "milestones": {
+    "P0": "PASS: accepted v3.1 baseline, canonical weight/model hashes frozen",
+    "P1": "PASS_REUSED: v3.1 PL DDR dense accepted and sealed",
+    "P2": "R2b frozen conservative configuration fresh1000 groups /14969decode /1miss, 99.9933%, proposed recall gate PASS; original23miss failure retained",
+    "P3": "PASS_OFFLINE: candidate Csim17+13+4 and26host tests; HLS3.830ns; 200MHz internal OOC WNS+0.808/WHS+0.010. Board/full BD pending",
+    "P4": "PASS_OFFLINE: repaired-wrapper full RTL,200MHz system, matching BSP/two ELFs/internal package; fresh fixed-arithmetic independent proposed point recall gate PASS. Target/release pending",
+    "P5": "DEFERRED_BY_USER: 暂不上板，继续离线准备; no target operations"
+  },
+  "active_work": "None; selected offline experiment ended with quality failure, no new automatic study or board work",
+  "next": "保留冻结融合基线；锁点质量未通过，不发布。下一轮新方法/参数须使用新的预声明方案及未打开最终组。板卡仍不在本轮。",
+  "evidence": [
+    "BASELINE.json",
+    "reports/candidate_smoke_20261021/RESULT.json",
+    "data/public_corpus_v1/MANIFEST.json",
+    "data/hidden_pilot_v2/GPU_HEAD_VALIDATION.json",
+    "data/hidden_pilot_v2/TOKENIZER_VALIDATION.json",
+    "data/hidden_pilot_v2/calibration/MANIFEST.json",
+    "data/hidden_v1/train/MANIFEST.json",
+    "reports/CORPUS_INDEPENDENCE_VALIDATION.json",
+    "reports/HOLDOUT_TOKEN_PREFLIGHT.json",
+    "reports/selector_p2_20261021/CALIBRATION.json",
+    "reports/selector_hybrid_p2_20261021/CALIBRATION.json",
+    "reports/selector_hybrid_p2_20261021/SELECTION_LOCK.json",
+    "reports/selector_hybrid_p2_20261021/ONLINE_CALIBRATION_AUDIT.json",
+    "data/hidden_v1/holdout/MANIFEST.json",
+    "reports/selector_hybrid_p2_20261021/HOLDOUT.json",
+    "reports/P2_BUNDLE_VALIDATION.json",
+    "reports/P2_SUMMARY_20261021.md",
+    "reports/hls_tool_version_host_20261021.log",
+    "reports/HLS_NUMERIC_CORE_PROVENANCE.json",
+    "reports/conservative_r2b_20261021/SELECTION_LOCK.json",
+    "data/fresh_holdout_r2b_20261021/MANIFEST.json",
+    "reports/conservative_r2b_20261021/HOLDOUT.json",
+    "reports/hls_candidate_csim_r5_20261021.log",
+    "reports/HLS_CANDIDATE_SOURCE_MANIFEST.json",
+    "reports/LOCAL_IP_REVISION_REPAIR.json",
+    "reports/OFFLINE_STAGE_RESULT_20261021.json",
+    "reports/hls_topk_csim_r2_20261021.log",
+    "reports/topk_fixture_20261021/MANIFEST.json",
+    "reports/TOPK_STAGE_RESULT_20261021.json",
+    "reports/hls_topk_cosim_r1_20261021.log",
+    "reports/lowrank_fixture_20261021/MANIFEST.json",
+    "reports/router_fixture_20261021/MANIFEST.json",
+    "reports/PL_ARITHMETIC_CALIBRATION.json",
+    "reports/SELECTOR_ARITHMETIC_STAGE_20261021.json",
+    "reports/SELECTOR_ARITHMETIC_STAGE_20261021.md",
+    "reports/failure_router_bitstore_20261021/EVIDENCE.json",
+    "reports/hls_selector_chain_csim_r3_20261021.log",
+    "reports/hls_selector_csim_r2_20261021.log",
+    "interface/PL_DDR_LAYOUT_V4.json",
+    "reports/selector_integration_fixture_20261021/MANIFEST.json",
+    "reports/hls_selector_csynth_r2_20261021.log",
+    "reports/hls_selector_full_cosim_r1_20261021.log",
+    "reports/selector_bd_create_r1_20261021.log",
+    "reports/selector_system_build_r1_20261021.log",
+    "reports/host_tests_selector_20261021.log",
+    "reports/selector_control_test_20261021.log",
+    "reports/SELECTOR_CONTROL_REGISTER_AUDIT.json",
+    "reports/SELECTOR_PRIVATE_IP_MANIFEST.json",
+    "reports/SELECTOR_LOCAL_IP_REVISION_REPAIR.json",
+    "reports/pause_20261021/CHECKPOINT.json",
+    "reports/resume_20261021_r2/PREFLIGHT.json",
+    "reports/board_v4_20261021/topology_audit_r2.json",
+    "reports/selector_arena_chinese_20261021/MANIFEST.json",
+    "reports/SELECTOR_COSIM_NAME_REPAIR.json",
+    "reports/SELECTOR_RTL_IP_EQUIVALENCE.json",
+    "reports/resume_20261021_r2/XSIM_RESOURCE_SERIALIZATION.json",
+    "reports/board_v4_20261021/hardware_audit_r2.json",
+    "reports/XSIM_OPTIMIZATION_OPTIONS.json",
+    "reports/XSIM_OBSERVABILITY_CONTROL.json",
+    "reports/board_v4_20261021/HARDWARE_RESULT_R2.md",
+    "reports/arena_loader_20261022/host_r1/RESULT.json",
+    "reports/arena_loader_20261022/PS_TIMING_PREPARATION.json",
+    "reports/arena_loader_20261022/TARGET_SYNTAX_HISTORICAL_BSP.log",
+    "reports/arena_loader_20261022/HOST_PREFLIGHT_english.json",
+    "reports/arena_loader_20261022/HOST_PREFLIGHT_code.json",
+    "reports/arena_loader_20261022/HOST_PREFLIGHT_math.json",
+    "reports/pause_20261022/CHECKPOINT.json",
+    "reports/pause_20261022/PROCESS_CHECK.json",
+    "reports/SELECTOR_INTEGRATION_RESULT_20261021.json",
+    "reports/SELECTOR_RTL_TRACE_AUDIT.json",
+    "reports/resume_20261022/BSP_FIRST_FAILURE.json",
+    "reports/ps_software_20261022_r1/BUILD_SOURCES.json",
+    "reports/ps_software_20261022_r1/ELF_LAYOUT_AUDIT.json",
+    "reports/board_v4_20261021/private_package_r1/PRIVATE_PROFILE.json",
+    "reports/SELECTOR_COMPLETION_RECOVERY_20261022.json",
+    "reports/resume_20261022/COMPLETION_REPAIR.json",
+    "reports/resume_20261022/PRIVATE_PACKAGE_VALIDATION.json",
+    "reports/resume_20261022/ARENA_PREFLIGHT_chinese.json",
+    "reports/resume_20261022/ARENA_PREFLIGHT_english.json",
+    "reports/resume_20261022/ARENA_PREFLIGHT_code.json",
+    "reports/resume_20261022/ARENA_PREFLIGHT_math.json",
+    "reports/PERFORMANCE_ASSESSMENT_20261022.json",
+    "reports/board_preparation_20261022/HOST_CONTROL_RESULT.json",
+    "reports/board_preparation_20261022/QUALITY_RESERVATION_AUDIT.json",
+    "data/fixed_quality_20261022/MANIFEST.json",
+    "data/fixed_quality_20261022/IMPLEMENTATION_FREEZE.json",
+    "data/fixed_quality_20261022/EVALUATION_ENTRY_LOCK.json",
+    "reports/board_preparation_20261022/HOST_CONTROL_RESULT_r2.json",
+    "reports/fixed_quality_20261022/TOKENIZER_RUNTIME_PREFLIGHT.json",
+    "reports/fixed_quality_20261022/RESULT.json",
+    "reports/fixed_quality_20261022/INDEPENDENT_REVIEW.json",
+    "reports/performance_cases_20261022/QUALIFICATION.json"
+  ],
+  "v4_hardware_identity": "NOT_ASSIGNED",
+  "selector_quality": "CPU_R2B_HISTORICAL_RECALL_PASS; new arithmetic calibration-only audit PASS, not recertified holdout",
+  "fpga_sparse_performance": "NOT_RUN",
+  "upstream_direct_weights": "DEFERRED_PENDING_FRAMEWORK",
+  "owner": "Codex main",
+  "dependencies": [
+    "Actual target loading/numerics/timing/stability NOT_RUN; new exclusive board arrangement required",
+    "New arithmetic independent quality not certified; opened holdouts not reusable",
+    "Upstream direct weights deferred"
+  ],
+  "holdout_reuse": "Do not tune or certify revised configurations on this already opened holdout",
+  "runtime_processes": "No further EDA launched by completed workflow",
+  "quality_metrics": {
+    "steps": 14969,
+    "misses": 1,
+    "recall": 0.9999331952702252,
+    "by_category": {
+      "chinese": {
+        "steps": 3765,
+        "misses": 1,
+        "recall": 0.999734395750332
+      },
+      "code": {
+        "steps": 3735,
+        "misses": 0,
+        "recall": 1.0
+      },
+      "english": {
+        "steps": 3719,
+        "misses": 0,
+        "recall": 1.0
+      },
+      "math": {
+        "steps": 3750,
+        "misses": 0,
+        "recall": 1.0
+      }
+    }
+  },
+  "topk_component": {
+    "state": "TOPK_CSIM_CSYNTH_RTL_COSIM_PASS",
+    "hls_estimated_ns": 3.65,
+    "resources": {
+      "BRAM_18K": 64,
+      "DSP": 0,
+      "FF": 6597,
+      "LUT": 14706,
+      "URAM": 0
+    }
+  },
+  "arithmetic_components": {
+    "lowrank": {
+      "hls_estimated_ns": 3.65,
+      "resources": {
+        "BRAM_18K": 127,
+        "DSP": 127,
+        "FF": 34710,
+        "LUT": 30412,
+        "URAM": 0
+      },
+      "rtl_cases": [
+        {
+          "index": 0,
+          "cycles": 32482,
+          "nominal_model_ms": 0.16241
+        },
+        {
+          "index": 1,
+          "cycles": 28374,
+          "nominal_model_ms": 0.14187
+        },
+        {
+          "index": 2,
+          "cycles": 408,
+          "nominal_model_ms": 0.00204
+        }
+      ],
+      "csynth_xml": "build/lowrank_cosim_r1/hls/solution1/syn/report/lm_head_v4_lowrank_csynth.xml",
+      "csynth_xml_sha256": "d5b902bb42b7e6ff964aba4bbb4251a350d725e10acee9b43b22bd1aa3fb42a3",
+      "rtl_case_labels": [
+        "real_chinese_first256_scores",
+        "repeat_zero_rows3",
+        "hidden_nan_error_exit"
+      ]
+    },
+    "router": {
+      "hls_estimated_ns": 3.65,
+      "resources": {
+        "BRAM_18K": 107,
+        "DSP": 61,
+        "FF": 25694,
+        "LUT": 29132,
+        "URAM": 0
+      },
+      "rtl_cases": [
+        {
+          "index": 0,
+          "cycles": 370088,
+          "nominal_model_ms": 1.85044
+        },
+        {
+          "index": 1,
+          "cycles": 199111,
+          "nominal_model_ms": 0.995555
+        },
+        {
+          "index": 2,
+          "cycles": 369861,
+          "nominal_model_ms": 1.849305
+        }
+      ],
+      "csynth_xml": "build/router_cosim_r2/hls/solution1/syn/report/lm_head_v4_router_csynth.xml",
+      "csynth_xml_sha256": "7ca8dcbd63bc5d142a33f243d28a11f2420d15f6ca8a7e66fa8c478464cb362a",
+      "rtl_case_labels": [
+        "real_chinese_full_route_table",
+        "tie_four_clusters_and_specials",
+        "empty_cluster_dense_fallback"
+      ]
+    }
+  },
+  "arithmetic_stage_report": "reports/SELECTOR_ARITHMETIC_STAGE_20261021.json",
+  "integrated_selector": {
+    "state": "CSIM_CSYNTH_IP_BD_PASS_RESUMED_RTL_SYSTEM_PENDING",
+    "top": "lm_head_v4_selector",
+    "descriptor": "private M4SC V1,13regions,240B",
+    "pl_ddr_window_bytes": 335544320,
+    "axi_data_paths": "plmem+histmem both MIG only; history pointer independently checked by host",
+    "csim": {
+      "valid": 6,
+      "preflight_invalid": 24,
+      "stage_errors": 5
+    },
+    "host_tests": 32,
+    "board": "NOT_RUN",
+    "hls_estimated_ns": 3.65,
+    "resources": {
+      "BRAM_18K": 153,
+      "DSP": 247,
+      "FF": 88775,
+      "LUT": 92410
+    },
+    "control_fake_mmio_tests": 25,
+    "rtl": "PASS_OFFLINE_REPAIRED_WRAPPER_FULL_TRACE_AND_ORIGINAL_C_POSTCHECK; official wrapper failure retained",
+    "system": "PASS_OFFLINE_SYSTEM200MHZ_AUDIT",
+    "private_system_signature": "0x4D345301 (not public ABI/build)",
+    "frozen_ip_manifest": "reports/SELECTOR_PRIVATE_IP_MANIFEST.json"
+  },
+  "offline_system": {
+    "state": "PASS_OFFLINE_SYSTEM",
+    "audit": "reports/board_v4_20261021/hardware_audit_r2.json",
+    "target_mhz": 200,
+    "wns_ns": 0.652,
+    "whs_ns": 0.01,
+    "wpws_ns": 0.143,
+    "cdc_critical": 0,
+    "mig_warnings": 0,
+    "bit_xsa_match": true,
+    "board": "NOT_RUN",
+    "drc_warning_count": 816,
+    "drc_advisory_count": 211
+  },
+  "rtl_observed_progress": {
+    "window": 4,
+    "requested_through_us": 400,
+    "wall": "2026-10-21T23:56:38",
+    "interpretation": "HISTORICAL_ONLY_SUPERSEDED_BY_QUALIFIED_RTL_RESULT; no active simulator"
+  },
+  "ps_preparation": {
+    "state": "MATCHING_BSP_ELFS_AND_PRIVATE_OFFLINE_PACKAGE_READY",
+    "loader_host_report": "reports/arena_loader_20261022/host_r1/RESULT.json",
+    "timing_host_report": "reports/arena_loader_20261022/PS_TIMING_PREPARATION.json",
+    "protocol": "M4AR/v1/1415; fixed320MiB; bounded READ512B",
+    "build_script": "experiments/board_v4_20261021/build_ps_software.ps1",
+    "actual_matching_bsp": "PASS_BUILD_ONLY",
+    "elf": "PASS_BUILD_AND_LAYOUT_ONLY",
+    "target_readback": "NOT_RUN",
+    "timing": "Full token-ready call raw A53 ticks; no IP-cycle counter or LLM TTFT",
+    "arena_cases_host_preflight": [
+      "chinese",
+      "english",
+      "code",
+      "math"
+    ],
+    "timing_qualification": "8 synthetic capture tests, matching v4 BSP/ELF build and ELF layout PASS; no target timing or runtime",
+    "loading_document": "standalone/ARENA_LOADING.md",
+    "target_runtime": "NOT_RUN",
+    "matching_software_manifest": "reports/ps_software_20261022_r1/BUILD_SOURCES.json",
+    "private_package_profile": "reports/board_v4_20261021/private_package_r1/PRIVATE_PROFILE.json",
+    "independent_package_validation": "reports/resume_20261022/PRIVATE_PACKAGE_VALIDATION.json"
+  },
+  "local_offline_sequence": {
+    "state_file": "reports/OFFLINE_SEQUENCE_20261022.json",
+    "session": null,
+    "pid": null,
+    "scope": "One dependent local workflow, not recurring automation",
+    "pause_order": "Stop continuation first, then own active EDA",
+    "state": "HISTORICAL_STOPPED_DO_NOT_RESTART"
+  },
+  "integrated_rtl": {
+    "state": "PASS_OFFLINE_INTEGRATED_SELECTOR_RTL",
+    "validation_route": "Repaired generated-XSim wrapper, full memory/scalar trace comparison and original C postcheck",
+    "report": "reports/SELECTOR_INTEGRATION_RESULT_20261021.json",
+    "transactions": [
+      {
+        "index": 0,
+        "cycles": 6826306,
+        "label": "chinese_fullV_debug_complete_preview_ID_rawlogits_dense_bits",
+        "model_ms_at_200MHz": 34.13153
+      },
+      {
+        "index": 1,
+        "cycles": 726,
+        "label": "overlap_rejection_no_token",
+        "model_ms_at_200MHz": 0.00363
+      }
+    ],
+    "timing_scope": "AXI simulation memory model, debug sparse enabled; not real MIG/production/board decode/TTFT",
+    "board": "NOT_RUN"
+  },
+  "offline_board_control": {
+    "state": "PASS13_HOST_TCL_ONLY_TARGET_NOT_RUN",
+    "entry": "standalone/private_board.py",
+    "report": "reports/board_preparation_20261022/HOST_CONTROL_RESULT_r2.json",
+    "default": "Offline prepare only",
+    "gem": "BSP matched0xff0e0000",
+    "plan": "reports/board_preparation_20261022/plan_chinese_r2/PLAN.json"
+  },
+  "fresh_quality": {
+    "state": "PASS_PROPOSED_INDEPENDENT_POINT_RECALL_GATE",
+    "corpus": "data/fixed_quality_20261022/MANIFEST.json",
+    "freeze": "data/fixed_quality_20261022/IMPLEMENTATION_FREEZE.json",
+    "entry_lock": "data/fixed_quality_20261022/EVALUATION_ENTRY_LOCK.json",
+    "workflow": "reports/fixed_quality_20261022/WORKFLOW.json",
+    "groups": 1000,
+    "counts": {
+      "chinese": 400,
+      "english": 250,
+      "code": 100,
+      "math": 250
+    },
+    "runtime": "C:/Users/ben/AppData/Local/Programs/Python/Python312/python.exe",
+    "tokenizer_preflight": "reports/fixed_quality_20261022/TOKENIZER_RUNTIME_PREFLIGHT.json",
+    "result": "reports/fixed_quality_20261022/RESULT.json",
+    "review": "reports/fixed_quality_20261022/INDEPENDENT_REVIEW.json",
+    "decode_steps": 14958,
+    "exclusions": 0,
+    "misses": {
+      "route": 80,
+      "lowrank": 356,
+      "hybrid": 1
+    },
+    "candidate_decode": {
+      "mean": 29300.931407942237,
+      "median": 28183.0,
+      "p95": 41630,
+      "maximum": 56075,
+      "dense_fallback_calls": 0
+    },
+    "limitations": "Frozen GPU arithmetic coverage model, not complete new RTL replay/free generation/lossless/board acceptance; exact dedup only"
+  },
+  "performance_cases": {
+    "state": "PASS_OFFLINE_GOLDENS_IMAGES_REQUESTS_NOT_TARGET",
+    "report": "reports/performance_cases_20261022/QUALIFICATION.json",
+    "candidates": {
+      "small": 17071,
+      "median": 28184,
+      "p95": 41630,
+      "max": 56075
+    },
+    "campaign_binding": "PENDING"
+  },
+  "gpu_reference_benchmark": {
+    "state": "PASS_GPU_REFERENCE_BENCHMARK_NOT_FPGA_OR_LLM",
+    "result": "reports/gpu_method_benchmark_20261022_r2/RESULT.json",
+    "calls": 480,
+    "pairs": 16,
+    "fpga": "NOT_RUN",
+    "scope": "Resident batch1 eager fixed-arithmetic reference across4 calibration fixtures/30 rounds. Not optimized GPU production inference, quality population latency, full LLM decode or FPGA prediction."
+  },
+  "planned_cluster_hyperparameter_study": {
+    "state": "FIRST_ROUND_CALIBRATION_GPU_COMPLETE",
+    "report": "doc/design/V4Validation.html#cluster-hyperparameters",
+    "initial_distinct_configurations": 23,
+    "train_calibration_only_search": true,
+    "new_final_holdout_required": true,
+    "fpga": "NOT_AUTHORIZED"
+  },
+  "planned_lowrank_hyperparameter_study": {
+    "state": "FIRST_ROUND_AND_JOINT_CALIBRATION_GPU_COMPLETE",
+    "date": "2026-10-23",
+    "page": "../doc/design/V4Validation.html#lowrank-hyperparameters",
+    "importance": "必须完成",
+    "unique_first_round_configs": 21,
+    "rank_scan_fixed_T16384": [
+      8,
+      16,
+      32,
+      64,
+      128,
+      256,
+      512,
+      896
+    ],
+    "topT_scan_fixed_rank128": [
+      256,
+      512,
+      1024,
+      2048,
+      4096,
+      8192,
+      16384,
+      32768,
+      65536
+    ],
+    "additional_endpoints": [
+      [
+        1,
+        16384
+      ],
+      [
+        128,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        128,
+        151936
+      ],
+      [
+        896,
+        151936
+      ]
+    ],
+    "joint_search": "At most12 additional calibration-Pareto points; freeze before any new final-test labels",
+    "scope": "Documentation only; no factor construction, training, GPU/RTL/FPGA job. Existing qualified sources and packages unchanged."
+  },
+  "hyperparameter_studies": {
+    "state": "COMPLETE_FIRST_ROUND_NOT_INDEPENDENT_OR_FPGA",
+    "report": "reports/hyperparameters_20261023_r1/PROGRESS.json",
+    "pid": 12628,
+    "snapshot": "2026-10-23T01:02:26.917115+08:00",
+    "counts": {
+      "cluster": {
+        "calibration": 23,
+        "timed": 23,
+        "total": 23
+      },
+      "lowrank": {
+        "calibration": 21,
+        "timed": 21,
+        "total": 21
+      }
+    },
+    "independent_test": "NOT_RUN",
+    "board": "NOT_RUN"
+  },
+  "hyperparameter_joint_study": {
+    "state": "JOINT_COMPLETE_NOT_INDEPENDENT_OR_FPGA",
+    "report": "reports/hyperparameters_joint_20261023_r1/PROGRESS.json",
+    "new_configurations": 12,
+    "independent_test": "NOT_RUN",
+    "board": "NOT_RUN"
+  },
+  "fusion_exp10": {
+    "report": "reports/fusion_exp10_20261023_r1/PROGRESS.json",
+    "grid_points": 432,
+    "calibration_done": 432,
+    "board": "NOT_RUN"
+  },
+  "automatic_restart": false
+}

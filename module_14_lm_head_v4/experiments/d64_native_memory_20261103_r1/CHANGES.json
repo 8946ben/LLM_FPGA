@@ -1,0 +1,71 @@
+{
+  "original_path": "module_14_lm_head_v4/experiments/partial_rtl_20261024/axi_stall_memory.sv",
+  "original_sha256": "13a0937296e1f4599929a38c4e4ba86b0e139337888f62b19ec96202949c06ed",
+  "candidate_sha256": "48153808aa8c001a9174fa45d161e9a03867df0b6ba6d9f47b758cde3973db38",
+  "edits": [
+    [
+      "// Test model: one bounded read and one bounded write; legal deterministic stalls.\n// NOT a MIG, physical DDR model, or bandwidth benchmark.",
+      "// DRAFT additional simulation environment; NOT compiled or qualified yet.\n// Single-outstanding, registered, no inserted random waits. Not MIG/physical DDR.\n// Intended only AFTER the original strong-stress full-RTL gate independently passes.\n// Preserve full memory and complete DUT work; never substitute precomputed outputs."
+    ],
+    [
+      "module axi_stall_memory #(parameter [63:0] BASE=0,parameter N=1)(",
+      "module d64_native_memory #(parameter [63:0] BASE=0,parameter integer N=1,\n parameter integer STORAGE_N=N,parameter bit READ_ONLY=0)("
+    ],
+    [
+      "reg[127:0] data[0:N-1];reg[31:0] lfsr=32'h1a2b3c4d;",
+      "// Backing is the independently qualified packed/banked four-state model.\nfile_agent_pkg::mem_model#(8) storage;\nbit initialized=0;\nlocalparam logic[64:0] LOGICAL_END={1'b0,BASE}+65'd16*N;\ninitial begin\n if(N<=0 || STORAGE_N<N || 64'd16*STORAGE_N>64'd2147483647 || LOGICAL_END[64])\n  $fatal(1,\"NATIVE_MODEL_INVALID_CAPACITY\");\n storage=new(\"native_memory_storage\");storage.init(STORAGE_N*16,0);initialized=1;\nend\ninteger storage_error;\nlogic[127:0] read_word;\nreg held_r=0,held_b=0;reg[129:0] prev_r=0;reg prev_bid=0;"
+    ],
+    [
+      "wire long_pause=(tick%32768)<700;",
+      "wire idle=!ractive&&!RVALID&&!wactive&&!resp_pending&&!BVALID;"
+    ],
+    [
+      "assign ARREADY=!rst&&!ractive&&!RVALID&&lfsr[0]&&lfsr[2]&&!long_pause;",
+      "assign ARREADY=!rst&&initialized&&!ractive&&!RVALID;"
+    ],
+    [
+      "assign AWREADY=!rst&&!wactive&&!resp_pending&&!BVALID&&lfsr[3]&&!long_pause;",
+      "assign AWREADY=!rst&&initialized&&!READ_ONLY&&!wactive&&!resp_pending&&!BVALID;"
+    ],
+    [
+      "assign WREADY=!rst&&wactive&&lfsr[4]&&lfsr[7]&&!long_pause;",
+      "assign WREADY=!rst&&initialized&&!READ_ONLY&&wactive;"
+    ],
+    [
+      "begin\nif(a<BASE||a+16*({1'b0,len}+1)>BASE+16*N||a[3:0]!=0||size!=4||burst!=1||len>=128)$fatal(1,\"AXI address/size/burst %h len%0d\",a,len);",
+      "reg[64:0] ending;\nbegin\nif($isunknown({a,len,size,burst}))$fatal(1,\"NATIVE_MODEL_UNKNOWN_ADDRESS_CONTROL\");\nending={1'b0,a}+65'd16*({1'b0,len}+1);\nif(a<BASE||ending>LOGICAL_END||ending[64]||a[3:0]!=0||size!=4||burst!=1||len>=128)\n $fatal(1,\"NATIVE_MODEL_RANGE_REJECT addr=%h len=%0d\",a,len);"
+    ],
+    [
+      "RVALID<=0;BVALID<=0;ractive<=0;wactive<=0;resp_pending<=0;tick<=0;lfsr<=32'h1a2b3c4d;",
+      "RVALID<=0;BVALID<=0;ractive<=0;wactive<=0;resp_pending<=0;tick<=0;held_r<=0;held_b<=0;"
+    ],
+    [
+      "tick<=tick+1;lfsr<={lfsr[30:0],lfsr[31]^lfsr[21]^lfsr[1]^lfsr[0]};",
+      "tick<=tick+1;\nif(!initialized || storage==null)$fatal(1,\"NATIVE_MODEL_NOT_INITIALIZED\");\nif(READ_ONLY && (AWVALID===1'b1 || WVALID===1'b1))$fatal(1,\"NATIVE_MODEL_READ_ONLY_WRITE\");\nif(held_r && (!RVALID || {RDATA,RLAST,RID}!==prev_r))$fatal(1,\"NATIVE_MODEL_R_UNSTABLE\");\nif(held_b && (!BVALID || BID!==prev_bid))$fatal(1,\"NATIVE_MODEL_B_UNSTABLE\");\nheld_r<=RVALID&&!RREADY;prev_r<={RDATA,RLAST,RID};held_b<=BVALID&&!BREADY;prev_bid<=BID;"
+    ],
+    [
+      "if(ARVALID&&ARREADY)begin check_addr(ARADDR,ARLEN,ARSIZE,ARBURST);",
+      "if(ARVALID&&ARREADY)begin if($isunknown(ARID))$fatal(1,\"NATIVE_MODEL_UNKNOWN_ARID\");check_addr(ARADDR,ARLEN,ARSIZE,ARBURST);"
+    ],
+    [
+      "if(lfsr[5]&&!long_pause)begin\nidx=(ra-BASE)>>4;RDATA<=data[idx];RID<=rid_saved;RLAST<=(rn==1);RVALID<=1;ra<=ra+16;rn<=rn-1;if(rn==1)ractive<=0;\nend else rgap<=rgap+1;",
+      "begin\nstorage_error=storage.read_packed16(read_word,ra-BASE);\nif(storage_error)$fatal(1,\"NATIVE_MODEL_BACKING_READ_REJECT\");\nRDATA<=read_word;RID<=rid_saved;RLAST<=(rn==1);RVALID<=1;ra<=ra+16;rn<=rn-1;if(rn==1)ractive<=0;\nend"
+    ],
+    [
+      "if(AWVALID&&AWREADY)begin check_addr(AWADDR,AWLEN,AWSIZE,AWBURST);",
+      "if(AWVALID&&AWREADY)begin if($isunknown(AWID))$fatal(1,\"NATIVE_MODEL_UNKNOWN_AWID\");check_addr(AWADDR,AWLEN,AWSIZE,AWBURST);"
+    ],
+    [
+      "for(b=0;b<16;b=b+1)if(WSTRB[b])data[idx][b*8+:8]<=WDATA[b*8+:8];",
+      "if($isunknown(WSTRB))$fatal(1,\"NATIVE_MODEL_UNKNOWN_WSTRB\");\nif(WSTRB==16'hffff)begin\n storage_error=storage.write_packed16(WDATA,wa-BASE);\n if(storage_error)$fatal(1,\"NATIVE_MODEL_BACKING_WRITE_REJECT\");\nend else begin\n // A masked write must not mark untouched, uninitialized byte lanes as valid.\n for(b=0;b<16;b=b+1)if(WSTRB[b])begin\n  storage_error=storage.write_one_elem(WDATA[b*8+:8],wa-BASE+b);\n  if(storage_error)$fatal(1,\"NATIVE_MODEL_BACKING_MASKED_WRITE_REJECT\");\n end\nend"
+    ],
+    [
+      "delay_b<=11;",
+      "delay_b<=0;"
+    ],
+    [
+      "if(held_r && (!RVALID || {RDATA,RLAST,RID}!==prev_r))$fatal(1,\"NATIVE_MODEL_R_UNSTABLE\");\nif(held_b && (!BVALID || BID!==prev_bid))$fatal(1,\"NATIVE_MODEL_B_UNSTABLE\");",
+      "if(held_r && (RVALID!==1'b1 || {RDATA,RLAST,RID}!==prev_r))$fatal(1,\"NATIVE_MODEL_R_UNSTABLE\");\nif(held_b && (BVALID!==1'b1 || BID!==prev_bid))$fatal(1,\"NATIVE_MODEL_B_UNSTABLE\");"
+    ]
+  ]
+}

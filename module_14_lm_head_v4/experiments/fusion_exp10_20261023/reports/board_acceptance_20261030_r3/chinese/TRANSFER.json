@@ -1,0 +1,20 @@
+{
+  "state": "PASS_TARGET_ARENA_TRANSFER_NOT_BOARD_ACCEPTANCE",
+  "bytes": 335544320,
+  "host": "192.168.0.190",
+  "port": 1415,
+  "physical_base": "0x400000000",
+  "image_sha256": "996a47f2b0ccccc334d3a205e5976bf0355bd557a537745256cae18a8da192b6",
+  "manifest_sha256": "c0467c1df1aa211c3c2f630927a213502fc0c84e9e3dac6464397f154af36473",
+  "canonical_bf16_sha256": "4e96b0df6d274768cbb7e72404011853d23349999b658dc2f4dfb3c431ea223f",
+  "target_crc32": "6104fd0b",
+  "target_read_checks": 34,
+  "elapsed_seconds": 75.0250217000139,
+  "data_and_chunk_crc_seconds": 53.408070800011046,
+  "full_target_crc_seconds": 21.561316400009673,
+  "target_sentinel_seconds": 0.05564769997727126,
+  "throughput_mib_s": 4.2652436846938055,
+  "verification": "Host source/image SHA;320 target chunk CRCs; fresh full target CRC;34 actual target READ comparisons",
+  "compute_or_quality_acceptance": "NOT_PERFORMED",
+  "decode_or_ttft": "NOT_MEASURED"
+}

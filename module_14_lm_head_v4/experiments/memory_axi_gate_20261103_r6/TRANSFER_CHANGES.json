@@ -1,0 +1,10 @@
+{
+  "original_sha256": "2ecac99b5f2480e1eaf40c62655b42caf6e21bd9bade542e99f9927d89a70b45",
+  "candidate_sha256": "350df267bb19d4448c51434e9ba17284e3d29403d991c0d396d33a78f50ded7f",
+  "edits": [
+    [
+      "        this.data = {this.data, tr.data};\n        this.data_delay = {this.data_delay,tr.data_delay};\n        this.rresp = {this.rresp, tr.rresp};\n        this.strb  = {this.strb,  tr.strb };",
+      "        // Preserve self-append value semantics; avoid recopying every burst prefix.\n        if(this==tr)begin\n            this.data = {this.data, tr.data};\n            this.data_delay = {this.data_delay,tr.data_delay};\n            this.rresp = {this.rresp, tr.rresp};\n            this.strb = {this.strb,tr.strb};\n        end else begin\n            foreach(tr.data[i])this.data.push_back(tr.data[i]);\n            foreach(tr.data_delay[i])this.data_delay.push_back(tr.data_delay[i]);\n            foreach(tr.rresp[i])this.rresp.push_back(tr.rresp[i]);\n            foreach(tr.strb[i])this.strb.push_back(tr.strb[i]);\n        end"
+    ]
+  ]
+}

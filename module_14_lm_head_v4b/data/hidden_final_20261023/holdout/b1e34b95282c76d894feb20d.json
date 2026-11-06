@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/high_school_biology.csv:158",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "71fb669dc7098f9f6d257c5e4b4671621e3c92963080f014efcc75b52f8a6c70",
+  "group_sha256": "47b010442518917f3ad57e6d8e443add2ee06bbe272094b977707ab0e2f382e5",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "b1e34b95282c76d894feb20d.npz",
+  "npz_sha256": "d54f086a4a9e705655cb39a2273c921e5aa5f93ceefc4c078d94acaedc2bd744",
+  "generated_ids": [
+    21894,
+    33872,
+    117246,
+    32664,
+    102140,
+    78556,
+    100032,
+    108894,
+    33108,
+    99892,
+    99788,
+    3407,
+    101140,
+    3837,
+    97639,
+    112707
+  ],
+  "input_tokens": 143,
+  "seconds": 0.40810289996443316,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

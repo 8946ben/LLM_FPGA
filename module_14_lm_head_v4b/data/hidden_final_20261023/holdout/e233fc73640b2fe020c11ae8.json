@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/high_school_geography.csv:62",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "d7313530817b436a89c03c523f934250f790f7be9ca582e0ded2f539db60640a",
+  "group_sha256": "36e1df4f39d52c4871acd8a52efdc4e21624765d05ff4a8e6b15043b7e1bd263",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "e233fc73640b2fe020c11ae8.npz",
+  "npz_sha256": "c5140b3e274634710403325226de7d1432128eb0727d199271c58e0c25379899",
+  "generated_ids": [
+    101055,
+    107815,
+    100227,
+    119132,
+    100141,
+    108132,
+    101988,
+    9370,
+    22,
+    9754,
+    33108,
+    23,
+    9754,
+    3837,
+    100398,
+    20450
+  ],
+  "input_tokens": 87,
+  "seconds": 1.5183914999943227,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

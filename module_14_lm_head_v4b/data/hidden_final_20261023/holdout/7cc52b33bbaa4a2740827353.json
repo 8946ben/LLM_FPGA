@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/chinese_literature.csv:19",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "9b84458add4a97e381388439d193a01e64e77fb0108fba36c3063a28669b5a19",
+  "group_sha256": "9f1d5be02a9a02d60046914e378cecc137282ce026b14458dddf8fa830711745",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "7cc52b33bbaa4a2740827353.npz",
+  "npz_sha256": "048c004bd8b9528bb57a0e8a1d44ded07a563fb9382cbfa735b2ccced70ca268",
+  "generated_ids": [
+    117882,
+    100045,
+    110434,
+    58695,
+    100390,
+    106926,
+    88683,
+    99225,
+    15946,
+    31838,
+    99610,
+    9370,
+    45861,
+    99824,
+    104032,
+    26940
+  ],
+  "input_tokens": 120,
+  "seconds": 1.4892088999622501,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

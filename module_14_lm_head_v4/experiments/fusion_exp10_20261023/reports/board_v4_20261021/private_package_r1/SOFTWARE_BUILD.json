@@ -1,0 +1,40 @@
+{
+  "timing_scope": "selector_test records raw XTime around full verified-token control call; no IP hardware-cycle counter or LLM TTFT",
+  "phy_patch_sha256": "4ad6f6537c3f9c648ea84435714b282c9b82ab7e36d45eb46db94ab0865bedf5",
+  "board_acceptance": "NOT_RUN",
+  "ethernet_base": "0xff0e0000",
+  "bit_sha256": "7ffb24362b8aaaab5db90d65121e57d724301404663674882d72b4f12845fc71",
+  "hardware_xsa_sha256": "4d4501cf23d8d9edf9794bec7473a4e5ce67cd4a3b1656e2d40943c15566721b",
+  "state": "PASS_MATCHING_V4_BSP_ELF_BUILD_ONLY",
+  "bsp_sha256": {
+    "include/xparameters.h": "f1a9de9aff5d6e42c1cb2944b2040863c8647d89a29b538f34bfe431a6b9d4ad",
+    "include/xtime_l.h": "c1f7f96f1d88a0ca9d0bd0fc69eeccae98ddff88332799e54dd6542478a790c3",
+    "include/xlm_head_v4_selector_hw.h": "543331b7e8817fabcb646f24955131c89a73587b37673800c6812758cb4bf875",
+    "lib/libxil.a": "86e0c8fe74a97a6f90f33db482ec6e4d491832dcf42429ee33fade747f9ce853",
+    "lib/liblwip4.a": "634dc2376e7aca3e05eecbf4c14c7073186241dfae332bf2ce8a75c81e2ae51c"
+  },
+  "elf_sha256": {
+    "m14_v4_arena_loader.elf": "d05efb6075d68986f97ef25e65de1ffccf2747f7ba48cddecd15b4405b379dd2",
+    "m14_v4_selector_test.elf": "42d6d1045ac2643fb36ebb0b6b40d2362de8e966eb325f0e3664b2fc77bd2f9a"
+  },
+  "source_sha256": {
+    "standalone/arena_loader.ld": "e5798cf0e4e87d7ccd1342279673a8811caeeff79b29f6d020ef45b1cf2a2fd1",
+    "standalone/private_board.py": "88167bbc415f41cbfeee9b3a283b1216adf34a68a191dfb3645ccfd03b395581",
+    "standalone/selector_control.c": "a4305720bc4378837e33ffc06a7caf34c170102fdc89f22d624ed874f108b65c",
+    "standalone/selector_control.h": "c5e87cf88a279d779d6916864106c9d290081a395d7adfb6e6ba464400159a55",
+    "standalone/selector_ps_mailbox.h": "9527012f94ff7271d8399d916310d774a6215cef1042f1ea0ccda8f99791ac90",
+    "standalone/selector_ps_mailbox.py": "c538be4b1bec07e2419be9876a05eb28d19b7afb546c718d6f8c1a944fa1329f",
+    "standalone/selector_ps_main.c": "7757d350755fc92099c7811331a2bcd2fe59bef423007f299385b8341dba850e",
+    "standalone/upload_arena_tcp.py": "bdca6ae684c59c4b6b8c9ad04a38309df43b2c4a51139d6879ba207aec536168",
+    "standalone/arena_loader/arena_layout.h": "de980827baba14d1174a3cc7dc50c01391f3c0e2d1151c9c9c3a8ba686884f5f",
+    "standalone/arena_loader/loader_core.c": "c9be17bd61a75fa3fbd91e1d35830dfeaa8624041a2a552442c7801345ef2144",
+    "standalone/arena_loader/loader_core.h": "d98947dcd36ae27bb0614cc817de523124bf4c493a3d7e3b000d64bf93e7c611",
+    "standalone/arena_loader/main.c": "a2bc6dd118af372af6675dff3453a590faa56cc8c0dbca528da7ebd31abe66a5",
+    "standalone/arena_loader/platform_config.h": "e94e88388bc5a10891b50179af8ac8dc976c397677354eb0436c97ffeee3d3fd",
+    "standalone/arena_loader/platform_zynqmp.c": "d33ee377de6a2a5695d1a98367d3fb5f57864acfcea326066df5c5682a6b7bec",
+    "standalone/arena_loader/platform.h": "e5911f581ca203f98404b12da9ca910ca2f3f4cdfc4740da77dc87db8b8cc0f3"
+  },
+  "private_gpio_signature": "0x4D345A0A",
+  "loader_protocol": "M4AR/version1/port1415/full335544320B arena",
+  "target_runtime": "NOT_RUN"
+}

@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/marketing.csv:95",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "15d72d4118455b6bf07e2ad426805f05b56cbf1023743e6deb9c3e16fcb2bb58",
+  "group_sha256": "044cd7781177a71a53f79af3754a7df7d44ed0431d4e28859b9c2f223035373d",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "9ebbde63ce6c0106cc93868d.npz",
+  "npz_sha256": "4c070a714043e90dd060279ee5bf564609224f2b2af7fd6c6f83bfa2582193ed",
+  "generated_ids": [
+    100137,
+    100354,
+    104215,
+    100409,
+    105831,
+    100354,
+    3407,
+    99917,
+    5122,
+    39165,
+    102707,
+    100347,
+    100722,
+    100354,
+    13343,
+    3837
+  ],
+  "input_tokens": 108,
+  "seconds": 1.5781862000003457,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

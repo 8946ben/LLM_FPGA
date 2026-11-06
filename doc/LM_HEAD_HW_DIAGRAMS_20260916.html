@@ -1,0 +1,1311 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LM Head 硬件计算示意图（优化前 / 优化后）</title>
+<style>
+:root{--ink:#263238;--mut:#78909c;--red:#c62828;--green:#2e7d32;--line:#e0e6ea}
+*{box-sizing:border-box}
+body{margin:0;background:#f0f3f6;color:var(--ink);font-family:"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif}
+.wrap{max-width:1360px;margin:0 auto;padding:0 28px}
+.site{background:#fff;border-bottom:1px solid var(--line);padding:26px 0 18px}
+h1{margin:0 0 6px;font-size:26px}
+.sub{margin:0 0 4px;color:#455a64;font-size:15px}
+.src{margin:0;color:var(--mut);font-size:12.5px}
+.tabbar{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:10px 0;z-index:10}
+.tabbar .wrap{display:flex;gap:10px;flex-wrap:wrap}
+.tabbar button{border:1px solid #cfd8dc;background:#fff;color:#455a64;padding:9px 20px;border-radius:999px;font-size:14.5px;cursor:pointer}
+.tabbar button.active{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
+.panel{display:none;padding:4px 0 40px}
+.panel.active{display:block}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin-top:20px}
+h2{font-size:20px;margin:0 0 4px;padding-left:12px;border-left:5px solid var(--red)}
+h2.g{border-left-color:var(--green)}
+h2.n{border-left-color:#5c6bc0}
+.lead{color:#546e7a;font-size:13.5px;margin:2px 0 14px}
+.tag{display:inline-block;padding:3px 12px;border-radius:999px;font-size:12px;color:#fff;margin:0 8px 8px 0}
+.tag.r{background:var(--red)}.tag.g{background:var(--green)}.tag.a{background:#b26a00}.tag.b{background:#5c6bc0}.tag.gr{background:#78909c}
+figure{margin:0}
+figure svg{width:100%;height:auto;display:block}
+figcaption{color:var(--mut);font-size:12px;margin-top:8px;text-align:center}
+.points{margin:14px 0 0;padding-left:0;list-style:none}
+.points li{position:relative;padding-left:20px;margin:8px 0;font-size:14px;color:#37474f;line-height:1.6}
+.points li::before{content:"";position:absolute;left:2px;top:9px;width:8px;height:8px;border-radius:2px;background:#90a4ae}
+.points.red li::before{background:var(--red)}
+.points.green li::before{background:var(--green)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{background:#f0f3f5;text-align:left;padding:10px 12px;border-bottom:2px solid #d7dee2;font-size:13.5px;color:#455a64}
+td{padding:10px 12px;border-bottom:1px solid #e8ecef;vertical-align:top}
+tr.hl td{background:#e8f5e9}
+td.dim{color:var(--red);font-weight:600}
+td.good{color:var(--green);font-weight:700}
+.note{color:var(--mut);font-size:12.5px;margin-top:10px}
+footer{padding:14px 0 44px;color:var(--mut);font-size:12.5px}
+code{background:#eef2f5;border-radius:4px;padding:1px 6px;font-family:Consolas,monospace;font-size:13px}
+.fl-tools{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:6px 0 10px;font-size:13px;color:#455a64}
+.fl-group{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
+.fl-tools button{border:1px solid #cfd8dc;background:#fff;border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer;color:#37474f}
+.fl-tools button:hover{border-color:#90a4ae}
+.fl-tools button:disabled{opacity:.45;cursor:default}
+.fl-mode.active{background:#263238;border-color:#263238;color:#fff;font-weight:600}
+.fl-tools select{border:1px solid #cfd8dc;border-radius:8px;padding:6px 8px;font-size:13px;color:#37474f;background:#fff}
+.fl-stats{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.chip{background:#f0f3f6;border:1px solid #e0e6ea;border-radius:999px;padding:4px 12px;font-size:12.5px;color:#546e7a}
+.chip b{color:#263238;font-family:Consolas,monospace;font-size:12.5px}
+.fl-grid{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:14px}
+@media (max-width:1100px){.fl-grid{grid-template-columns:1fr}}
+.fl-box{border:1px solid #e0e6ea;border-radius:10px;background:#fbfdfe;padding:12px 14px}
+.fl-t{font-weight:700;font-size:13.5px;color:#263238;margin-bottom:6px}
+.fl-sub{font-size:11.5px;color:#78909c;margin:8px 0 4px}
+.cells{display:flex;flex-wrap:wrap;gap:2px}
+.fcell{width:13px;height:13px;border-radius:3px;background:#edf0f3;border:1px solid #dfe4e8}
+.fcell.big{width:26px;height:22px}
+.partial .fcell{width:17px;height:13px}
+#fl-partial{display:grid;grid-template-columns:repeat(16,17px);gap:2px;justify-content:start}
+.done{background:#c8e6c9!important;border-color:#a5d6a7!important}
+.hl-o{background:#ffb74d!important;border-color:#ef6c00!important}
+.hl-g{background:#81c784!important;border-color:#2e7d32!important}
+.hl-r{background:#e57373!important;border-color:#c62828!important}
+.hl-b{background:#90caf9!important;border-color:#1e88e5!important}
+.fl-acc{font-family:Consolas,monospace;font-size:13px;background:#fff5f3;border:1px dashed #c62828;border-radius:8px;padding:8px 10px;color:#b71c1c;margin-bottom:4px}
+.fl-arg{font-family:Consolas,monospace;font-size:12.5px;color:#37474f;background:#f7f9fa;border:1px solid #e0e6ea;border-radius:8px;padding:6px 10px;margin-top:4px}
+.fl-caption{margin-top:12px;font-size:13.5px;line-height:1.7;color:#37474f;background:#f4f7f9;border-left:4px solid #5c6bc0;border-radius:0 8px 8px 0;padding:10px 14px;min-height:44px}
+.fl-legend{margin-top:10px;font-size:12px;color:#78909c;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.lg{display:inline-flex;align-items:center;gap:5px}
+.lg .c{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid #d0d7dc}
+.fl-red{color:#5e35b1;font-weight:700}
+.fx-path{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:#37474f;background:#f7f9fa;border:1px solid #e0e6ea;border-radius:8px;padding:8px 12px;margin:6px 0}
+.fx-bad{border-color:#ef9a9a;background:#fff5f3}
+.fx-good{border-color:#a5d6a7;background:#f1f8e9}
+.fx-stage{background:#fff;border:1px solid #b0bec5;border-radius:6px;padding:4px 10px;font-weight:600;color:#263238}
+.fx-arrow{color:#546e7a;font-weight:700}
+.fx-note{font-size:11.5px;color:#78909c}
+.fifo-bar{padding:4px;border:1px solid #cfd8dc;border-radius:8px;background:#fbfdfe}
+.fifo-bar.full{border-color:#e57373;background:#fff5f3}
+.fx-cell{width:22px;height:20px;border-radius:3px;background:#edf0f3;border:1px solid #dfe4e8;flex:0 0 auto}
+.fx-cell.tk0{background:#c8e6c9;border-color:#a5d6a7}
+.fx-cell.tk1{background:#b3e5fc;border-color:#81d4fa}
+.fx-cell.head{outline:2px solid #1e88e5;outline-offset:-1px}
+.fx-cell.wptr{border:2px dashed #ef6c00}
+.fx-state{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700;color:#fff}
+.fx-run{background:#2e7d32}.fx-wait{background:#ef6c00}.fx-stall{background:#c62828}
+.fx-ctx{border-collapse:collapse;font-size:11px;margin-top:6px}
+.fx-ctx td,.fx-ctx th{border:1px solid #cfd8dc;padding:2px 6px;text-align:center}</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <h1>LM Head 硬件计算示意图</h1>
+    <p class="sub">优化前（历史基线） vs 优化后（P2 目标架构） · Qwen2.5-0.5B Module 16 · AXU9EG</p>
+    <p class="src">依据 doc/LM_HEAD_PERFORMANCE_ANALYSIS_20260916.md（§1–§6）绘制，仅基于该文档 · 2026-09-16 · 图中时间为模型下限 / 工程目标，非实测</p>
+  </div>
+</header>
+
+<nav class="tabbar">
+  <div class="wrap">
+    <button id="btn-before" class="active" onclick="show('panel-before','btn-before')">① 优化前 · 历史基线（≈10.979 s）</button>
+    <button id="btn-after" onclick="show('panel-after','btn-after')">② 优化后 · P2 目标架构（0.170 s）</button>
+    <button id="btn-cmp" onclick="show('panel-cmp','btn-cmp')">③ 结构对照与说明</button>
+    <button id="btn-calc" onclick="show('panel-calc','btn-calc')">④ 计算量与拍数分析</button>
+    <button id="btn-flow" onclick="show('panel-flow','btn-flow')">⑤ 执行过程（交互演示）</button>
+    <button id="btn-bus" onclick="show('panel-bus','btn-bus')">⑥ 总线与端口连线</button>
+    <button id="btn-fifo" onclick="show('panel-fifo','btn-fifo')">⑦ FIFO 解耦原理（交互演示）</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ============ 面板 1：优化前 ============ -->
+  <section id="panel-before" class="panel active">
+    <div class="card">
+      <h2>优化前：单累加器 + 顺序行循环（历史基线）</h2>
+      <p class="lead">综合最大 1,097,890,446 拍 ≈ 10.979 s @ 100 MHz；实测 run_seconds 11.090 s。红色虚线 = 三大瓶颈。</p>
+      <p class="tags">
+        <span class="tag r">II=8（achieved）</span>
+        <span class="tag r">12.5 MMAC/s 上限</span>
+        <span class="tag a">DSP 仅 5 / 2520</span>
+        <span class="tag gr">vocab_loop 顺序执行</span>
+      </p>
+      <figure>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 910" font-family="Segoe UI, Microsoft YaHei, PingFang SC, sans-serif" style="width:100%;height:auto;display:block">
+        <defs>
+          <marker id="arrB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#546e7a"/>
+          </marker>
+        </defs>
+        <rect width="1280" height="910" fill="#ffffff"/>
+        <text x="40" y="44" font-size="26" font-weight="bold" fill="#263238">LM Head 优化前硬件计算示意（历史基线）</text>
+        <text x="40" y="72" font-size="15" fill="#37474f">Qwen2.5-0.5B Module 16 · AXU9EG PL0 @ 100 MHz · 综合最大 1,097,890,446 拍 ≈ 10.979 s；实测 run_seconds 11.090 s</text>
+        <text x="40" y="94" font-size="12" fill="#78909c">依据 doc/LM_HEAD_PERFORMANCE_ANALYSIS_20260916.md（§1–§5）绘制，仅基于该文档</text>
+        <rect x="40" y="140" width="250" height="400" rx="10" fill="#eceff4" stroke="#78909c" stroke-width="1.5"/>
+        <text x="165" y="170" font-size="16" font-weight="bold" text-anchor="middle" fill="#263238">PS DDR</text>
+        <line x1="60" y1="182" x2="270" y2="182" stroke="#b0bec5"/>
+        <text x="60" y="206" font-size="12.5" fill="#37474f">权重 W [151,936 × 896] FP16</text>
+        <text x="60" y="226" font-size="12.5" fill="#37474f">272,269,312 B ≈ 259.66 MiB</text>
+        <text x="60" y="252" font-size="12.5" fill="#37474f">hidden [896] FP16 = 1,792 B</text>
+        <text x="60" y="272" font-size="12.5" fill="#37474f">history bitmap 18,992 B</text>
+        <text x="60" y="292" font-size="12.5" fill="#37474f">raw logits 303,872 B（调试回传）</text>
+        <line x1="60" y1="312" x2="270" y2="312" stroke="#b0bec5" stroke-dasharray="4 3"/>
+        <text x="60" y="336" font-size="12" fill="#546e7a">权重上传 = 一次性冷启动</text>
+        <text x="60" y="354" font-size="12" fill="#546e7a">（历史 ≈ 7.692 s，--load-weight）</text>
+        <text x="60" y="382" font-size="12" fill="#546e7a">每次 token hidden 变化，</text>
+        <text x="60" y="400" font-size="12" fill="#546e7a">权重仍需全量重扫一遍</text>
+        <text x="60" y="516" font-size="11" fill="#78909c">远大于片上容量，不能整体放入 BRAM</text>
+        <line x1="290" y1="228" x2="460" y2="228" stroke="#546e7a" stroke-width="2" marker-end="url(#arrB)"/>
+        <text x="302" y="204" font-size="11" font-weight="bold" fill="#37474f">HP0 128-bit</text>
+        <text x="302" y="220" font-size="11" fill="#37474f">@100 MHz 峰值 1.6 GB/s</text>
+        <text x="302" y="252" font-size="11" fill="#ef6c00">4 个 gmem bundle</text>
+        <text x="302" y="268" font-size="11" fill="#ef6c00">汇入同一 HP0，</text>
+        <text x="302" y="284" font-size="11" fill="#ef6c00">并非 4 条独立通道</text>
+        <rect x="460" y="130" width="580" height="650" rx="12" fill="#f8fafc" stroke="#4a6fa5" stroke-width="1.5"/>
+        <text x="480" y="160" font-size="16" font-weight="bold" fill="#263238">HLS 内核 lm_head_argmax（现状调度）</text>
+        <rect x="880" y="142" width="140" height="26" rx="6" fill="#c62828"/>
+        <text x="950" y="160" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#ffffff">DSP 仅 5 / 2520</text>
+        <rect x="480" y="185" width="520" height="86" rx="8" fill="#ffffff" stroke="#90a4ae" stroke-width="1.5"/>
+        <rect x="480" y="185" width="6" height="86" fill="#ef6c00"/>
+        <text x="500" y="211" font-size="13.5" font-weight="bold" fill="#263238">权重通路：AXI-C gmem（32-bit 外部 / FP16 内部）</text>
+        <text x="500" y="232" font-size="12" font-weight="bold" fill="#ef6c00">外部 DATA_WIDTH=32 → 按单个 FP16（USER_DW=16）逐元素取数</text>
+        <text x="500" y="252" font-size="12" fill="#546e7a">已有 burst（16-bit 变长 ≤256 · outstanding=16），实际事务待总线测量</text>
+        <rect x="480" y="291" width="250" height="66" rx="8" fill="#fff5f3" stroke="#c62828" stroke-width="1.8" stroke-dasharray="6 4"/>
+        <text x="496" y="315" font-size="13" font-weight="bold" fill="#263238">片上缓存 hidden_cache</text>
+        <text x="496" y="335" font-size="12" fill="#c62828">单端口 BRAM：每拍仅 1 次读</text>
+        <rect x="630" y="282" width="86" height="20" rx="6" fill="#c62828"/>
+        <text x="673" y="296" font-size="11" font-weight="bold" text-anchor="middle" fill="#ffffff">瓶颈 ③</text>
+        <rect x="750" y="291" width="250" height="66" rx="8" fill="#ffffff" stroke="#90a4ae" stroke-width="1.5"/>
+        <text x="766" y="315" font-size="13" font-weight="bold" fill="#263238">每迭代读取 2 个 FP16</text>
+        <text x="766" y="335" font-size="12" fill="#546e7a">hidden[i] 与 w[row][i] 各 1 项</text>
+        <rect x="480" y="377" width="520" height="140" rx="8" fill="#fff5f3" stroke="#c62828" stroke-width="2" stroke-dasharray="6 4"/>
+        <text x="500" y="403" font-size="14" font-weight="bold" fill="#263238">点积循环 dot_product —— 每行 896 项</text>
+        <text x="500" y="427" font-size="12.5" font-family="Consolas, monospace" fill="#37474f">acc += (float)hidden[i] * (float)w[row][i];  // 读改写同一 acc</text>
+        <text x="500" y="451" font-size="12" fill="#546e7a">循环携带依赖（HLS 200-880）→ target II=1，achieved II=8，迭代延迟 18 拍</text>
+        <text x="500" y="475" font-size="12.5" font-weight="bold" fill="#c62828">每 8 拍才完成 1 次 MAC：12.5 MMAC/s 吞吐上限</text>
+        <text x="500" y="497" font-size="11.5" fill="#8d6e63">仅加 PIPELINE II=1 不能消除真实依赖；禁止用假 DEPENDENCE 掩盖</text>
+        <rect x="880" y="368" width="86" height="20" rx="6" fill="#c62828"/>
+        <text x="923" y="382" font-size="11" font-weight="bold" text-anchor="middle" fill="#ffffff">瓶颈 ①</text>
+        <rect x="480" y="537" width="520" height="104" rx="8" fill="#fff5f3" stroke="#c62828" stroke-width="2" stroke-dasharray="6 4"/>
+        <text x="500" y="563" font-size="14" font-weight="bold" fill="#263238">外层 vocab_loop —— 151,936 行顺序执行</text>
+        <text x="500" y="585" font-size="12" fill="#546e7a">未流水：无多词元点积并行；每行 ≈ 7,226 拍</text>
+        <text x="500" y="607" font-size="12.5" font-weight="bold" fill="#c62828">II=8 × 顺序行循环 → 最大 1,097,890,446 拍 ≈ 10.979 s</text>
+        <text x="500" y="627" font-size="11.5" fill="#8d6e63">每次调用全量重扫 259.66 MiB 权重</text>
+        <rect x="880" y="528" width="86" height="20" rx="6" fill="#c62828"/>
+        <text x="923" y="542" font-size="11" font-weight="bold" text-anchor="middle" fill="#ffffff">瓶颈 ②</text>
+        <rect x="480" y="661" width="520" height="88" rx="8" fill="#ffffff" stroke="#90a4ae" stroke-width="1.5"/>
+        <text x="500" y="687" font-size="13.5" font-weight="bold" fill="#263238">行尾处理</text>
+        <text x="500" y="708" font-size="12" fill="#37474f">FP32 acc → FP16 raw logit →（可选 penalty）→ argmax → token / score</text>
+        <text x="500" y="728" font-size="12" fill="#78909c">调试模式：回传完整 raw logits（303,872 B）</text>
+        <line x1="740" y1="271" x2="740" y2="377" stroke="#546e7a" stroke-width="2" marker-end="url(#arrB)"/>
+        <line x1="605" y1="357" x2="605" y2="377" stroke="#546e7a" stroke-width="2" marker-end="url(#arrB)"/>
+        <line x1="875" y1="357" x2="875" y2="377" stroke="#546e7a" stroke-width="2" marker-end="url(#arrB)"/>
+        <line x1="740" y1="517" x2="740" y2="537" stroke="#546e7a" stroke-width="2" marker-end="url(#arrB)"/>
+        <line x1="740" y1="641" x2="740" y2="661" stroke="#546e7a" stroke-width="2" marker-end="url(#arrB)"/>
+        <polyline points="480,600 425,600 425,240 480,240" fill="none" stroke="#ef6c00" stroke-width="2" stroke-dasharray="7 4" marker-end="url(#arrB)"/>
+        <text transform="rotate(-90 413 420)" x="413" y="420" font-size="11" font-weight="bold" text-anchor="middle" fill="#ef6c00">逐行循环 × 151,936</text>
+        <line x1="1040" y1="480" x2="1080" y2="480" stroke="#546e7a" stroke-width="2" marker-end="url(#arrB)"/>
+        <rect x="1080" y="420" width="170" height="140" rx="10" fill="#eceff4" stroke="#78909c" stroke-width="1.5"/>
+        <text x="1165" y="450" font-size="13.5" font-weight="bold" text-anchor="middle" fill="#263238">PS / lwIP → 主机</text>
+        <text x="1165" y="474" font-size="12" text-anchor="middle" fill="#37474f">token + score</text>
+        <text x="1165" y="494" font-size="12" text-anchor="middle" fill="#37474f">raw logits（调试）</text>
+        <text x="1165" y="520" font-size="11" text-anchor="middle" fill="#78909c">板端 hw_us 串口输出</text>
+        <text x="1165" y="538" font-size="11" text-anchor="middle" fill="#78909c">未回传至响应字段</text>
+        <rect x="40" y="815" width="1200" height="66" rx="8" fill="#f5f5f5" stroke="#cfd8dc"/>
+        <text x="60" y="842" font-size="13" font-weight="bold" fill="#37474f">实测有效吞吐 ≈ 12.28 MMAC/s（0.02455 GFLOP/s · 权重 24.55 MB/s）—— 与单累加器 II=8 理论值 12.5 MMAC/s @ 100 MHz 吻合</text>
+        <text x="60" y="866" font-size="12" fill="#78909c">红色虚线框 = 三大瓶颈：① FP32 累加器循环依赖（II=8）　② vocab_loop 顺序执行　③ 单端口缓存 / 32-bit 逐元素权重通路</text>
+      </svg>
+      <figcaption>图 1 · LM Head 优化前硬件计算示意（对应 LM_HEAD_HW_DIAGRAM_BEFORE_20260916.svg）</figcaption>
+      </figure>
+      <ul class="points red">
+        <li>权重 <strong>151,936 × 896 FP16</strong>（272,269,312 B ≈ 259.66 MiB）常驻 DDR，每次 token 仍需全量重扫；权重上传为一次性冷启动（历史 ≈ 7.692 s，--load-weight）。</li>
+        <li><strong>4 个 gmem bundle 汇入同一 HP0</strong>（128-bit @ 100 MHz，峰值 1.6 GB/s），并非 4 条独立 DDR 通道。</li>
+        <li>点积循环依赖<strong>单个 FP32 累加器</strong>（HLS 200-880）：target II=1、achieved II=8 → 每 8 拍才 1 次 MAC，12.5 MMAC/s 上限，与实测 ≈ 12.28 MMAC/s 吻合。</li>
+        <li><strong>vocab_loop 顺序执行、未流水</strong>：≈ 7,226 拍/行 × 151,936 行 → 综合最大 1,097,890,446 拍 ≈ 10.979 s；实测 run_seconds 11.090 s。</li>
+        <li>hidden_cache 为单端口 BRAM；权重通路外部 32-bit、按单个 FP16 逐元素取数（已有 burst，实际事务待总线测量）；DSP 仅用 5 / 2520，反映并行度低。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ 面板 2：优化后 ============ -->
+  <section id="panel-after" class="panel">
+    <div class="card">
+      <h2 class="g">优化后：128-bit 读 + 8 lanes + 交错累加 + 数据流（P2 目标架构）</h2>
+      <p class="lead">理想计算下限 0.170 s @ 100 MHz（工程目标 0.3 ~ 0.6 s）；P3 提频 200 MHz 后理想 0.085 s（需实现时序与带宽验证）。</p>
+      <p class="tags">
+        <span class="tag g">U=8 lanes</span>
+        <span class="tag g">K=16 交错累加</span>
+        <span class="tag g">word 循环 II=1</span>
+        <span class="tag a">乒乓 tile 双缓冲</span>
+        <span class="tag b">DATAFLOW 重叠</span>
+      </p>
+      <figure>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1080" font-family="Segoe UI, Microsoft YaHei, PingFang SC, sans-serif" style="width:100%;height:auto;display:block">
+        <defs>
+          <marker id="arrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#546e7a"/>
+          </marker>
+        </defs>
+        <rect width="1280" height="1080" fill="#ffffff"/>
+        <text x="30" y="44" font-size="26" font-weight="bold" fill="#1b5e20">LM Head 优化后硬件计算示意（P2 目标架构）</text>
+        <text x="30" y="72" font-size="15" fill="#33691e">128-bit 连续读 + 8 lanes 乘加 + 16 路交错累加 + 数据流重叠 · U=8 / K=16 / word 循环 II=1 @ 100 MHz</text>
+        <text x="30" y="94" font-size="12" fill="#78909c">依据 doc/LM_HEAD_PERFORMANCE_ANALYSIS_20260916.md（§5 P1–P3、§6）绘制；图中时间为模型下限 / 工程目标，非实测</text>
+        <rect x="30" y="150" width="210" height="150" rx="10" fill="#eceff4" stroke="#78909c" stroke-width="1.5"/>
+        <text x="135" y="176" font-size="15" font-weight="bold" text-anchor="middle" fill="#263238">PS DDR</text>
+        <text x="45" y="202" font-size="11.5" fill="#37474f">W 151,936×896 FP16</text>
+        <text x="45" y="220" font-size="11.5" fill="#37474f">259.66 MiB（常驻、复用）</text>
+        <text x="45" y="244" font-size="11.5" fill="#37474f">hidden 1,792 B / history 18,992 B</text>
+        <text x="45" y="262" font-size="11.5" fill="#37474f">raw logits 303,872 B（调试）</text>
+        <text x="45" y="286" font-size="10.5" fill="#78909c">仅 hidden / history 每 token 更新</text>
+        <rect x="280" y="185" width="130" height="80" rx="8" fill="#ffffff" stroke="#78909c" stroke-width="1.5"/>
+        <text x="345" y="212" font-size="13" font-weight="bold" text-anchor="middle" fill="#263238">HP0 128-bit</text>
+        <text x="345" y="232" font-size="11.5" text-anchor="middle" fill="#37474f">@100 MHz</text>
+        <text x="345" y="250" font-size="11.5" text-anchor="middle" fill="#37474f">峰值 1.6 GB/s</text>
+        <line x1="240" y1="225" x2="280" y2="225" stroke="#546e7a" stroke-width="2" marker-end="url(#arrA)"/>
+        <line x1="410" y1="225" x2="450" y2="225" stroke="#546e7a" stroke-width="2" marker-end="url(#arrA)"/>
+        <rect x="450" y="150" width="240" height="150" rx="10" fill="#f1f8e9" stroke="#2e7d32" stroke-width="1.8"/>
+        <text x="465" y="176" font-size="14" font-weight="bold" fill="#1b5e20">A · 顺序 burst reader</text>
+        <text x="465" y="200" font-size="11.5" fill="#33691e">每拍读 1×128-bit word = 8×FP16</text>
+        <text x="465" y="218" font-size="11.5" fill="#33691e">16-bit slice 按位 bit-cast 为 half</text>
+        <text x="465" y="242" font-size="11.5" fill="#33691e">burst len=16 · outstanding=16 起步</text>
+        <text x="465" y="260" font-size="11.5" fill="#33691e">＞16 拍 burst 会被 HP 拆分</text>
+        <text x="465" y="280" font-size="10.5" fill="#78909c">以实测有效 GB/s 为准</text>
+        <rect x="730" y="150" width="250" height="150" rx="10" fill="#fff8e1" stroke="#f9a825" stroke-width="1.8"/>
+        <text x="745" y="176" font-size="14" font-weight="bold" fill="#b26a00">乒乓 tile 双缓冲</text>
+        <text x="745" y="200" font-size="11.5" fill="#795548">tile = 32 行 × 1,792 B = 57,344 B</text>
+        <text x="745" y="218" font-size="11.5" fill="#795548">双缓冲合计 ≈ 112 KiB，合理分 bank</text>
+        <text x="745" y="242" font-size="11.5" fill="#795548">读块 / 算块 重叠（DATAFLOW）</text>
+        <text x="745" y="260" font-size="11.5" fill="#795548">行末归约与下一行点积重叠</text>
+        <text x="745" y="282" font-size="10.5" fill="#8d8d8d">避免“读完整块→算完整块”串行</text>
+        <line x1="855" y1="300" x2="855" y2="400" stroke="#546e7a" stroke-width="2" marker-end="url(#arrA)"/>
+        <text x="865" y="352" font-size="11" font-weight="bold" fill="#2e7d32">每拍 1 word 流式供数</text>
+        <polyline points="135,300 135,440 420,440" fill="none" stroke="#2e7d32" stroke-width="2" marker-end="url(#arrA)"/>
+        <text x="150" y="326" font-size="11" font-weight="bold" fill="#2e7d32">hidden 1,792 B / 行</text>
+        <text x="150" y="342" font-size="11" fill="#2e7d32">cyclic 分区 ×8 → 8 banks</text>
+        <rect x="30" y="460" width="350" height="120" rx="10" fill="#fafafa" stroke="#9e9e9e" stroke-width="1.5"/>
+        <text x="45" y="486" font-size="13.5" font-weight="bold" fill="#424242">P1 · 先行验证版（可选中间步）</text>
+        <text x="45" y="508" font-size="11.5" fill="#616161">单 lane + partial[16] 交错累加，II=8 → II=1</text>
+        <text x="45" y="526" font-size="11.5" fill="#616161">仅消除累加依赖，不动数据通路</text>
+        <text x="45" y="548" font-size="11.5" font-weight="bold" fill="#2e7d32">理想下限 1.361 s；验收目标 1.5 ~ 2 s/次</text>
+        <rect x="30" y="600" width="350" height="150" rx="10" fill="#fffde7" stroke="#fbc02d" stroke-width="1.5"/>
+        <text x="45" y="624" font-size="13.5" font-weight="bold" fill="#827717">数值一致性验收（§6）</text>
+        <text x="45" y="646" font-size="11.5" fill="#5d4037">交错累加 / 归约树改变 FP32 求和顺序，</text>
+        <text x="45" y="664" font-size="11.5" fill="#5d4037">不保证与旧实现逐位一致，必须对拍：</text>
+        <text x="45" y="682" font-size="11.5" fill="#5d4037">raw logits 误差 / Top-5 / token / score</text>
+        <text x="45" y="700" font-size="11.5" fill="#5d4037">FP16 平局保留较小 token ID</text>
+        <text x="45" y="718" font-size="11.5" fill="#5d4037">（如 step7 的 100013 与 100048 同分）</text>
+        <text x="45" y="738" font-size="10.5" fill="#8d8d8d">co-sim 覆盖 U=8/K=16、跨 tile、连续调用</text>
+        <rect x="30" y="770" width="350" height="60" rx="10" fill="#e8eaf6" stroke="#5c6bc0" stroke-width="1.5"/>
+        <text x="45" y="792" font-size="13" font-weight="bold" fill="#283593">P3 · 提频（结构稳定后）</text>
+        <text x="45" y="812" font-size="11.5" fill="#3949ab">150/200 MHz：改系统时钟并验证实现时序 → 理想 0.085 s</text>
+        <rect x="420" y="400" width="520" height="290" rx="12" fill="#f1f8e9" stroke="#2e7d32" stroke-width="2"/>
+        <text x="440" y="428" font-size="15" font-weight="bold" fill="#1b5e20">B · 8 lanes 乘加 + FP32 交错累加（核心）</text>
+        <rect x="790" y="412" width="130" height="22" rx="6" fill="#2e7d32"/>
+        <text x="855" y="427" font-size="11" font-weight="bold" text-anchor="middle" fill="#ffffff">word 循环 II=1</text>
+        <rect x="445" y="446" width="200" height="54" rx="8" fill="#ffffff" stroke="#66bb6a" stroke-width="1.5"/>
+        <text x="545" y="467" font-size="11.5" font-weight="bold" text-anchor="middle" fill="#1b5e20">128-bit word → 8×FP16</text>
+        <text x="545" y="486" font-size="11" text-anchor="middle" fill="#33691e">各 16-bit slice 按位解释为 half</text>
+        <rect x="675" y="446" width="240" height="54" rx="8" fill="#ffffff" stroke="#66bb6a" stroke-width="1.5"/>
+        <text x="795" y="467" font-size="11.5" font-weight="bold" text-anchor="middle" fill="#1b5e20">hidden 缓存 8 banks</text>
+        <text x="795" y="486" font-size="11" text-anchor="middle" fill="#33691e">cyclic partition=8 · 每拍供 8 half</text>
+        <line x1="545" y1="500" x2="545" y2="514" stroke="#66bb6a" stroke-width="2"/>
+        <line x1="795" y1="500" x2="795" y2="514" stroke="#66bb6a" stroke-width="2"/>
+        <line x1="445" y1="514" x2="903" y2="514" stroke="#66bb6a" stroke-width="2"/>
+        <line x1="471" y1="514" x2="471" y2="530" stroke="#66bb6a" stroke-width="1.5"/>
+        <line x1="529" y1="514" x2="529" y2="530" stroke="#66bb6a" stroke-width="1.5"/>
+        <line x1="587" y1="514" x2="587" y2="530" stroke="#66bb6a" stroke-width="1.5"/>
+        <line x1="645" y1="514" x2="645" y2="530" stroke="#66bb6a" stroke-width="1.5"/>
+        <line x1="703" y1="514" x2="703" y2="530" stroke="#66bb6a" stroke-width="1.5"/>
+        <line x1="761" y1="514" x2="761" y2="530" stroke="#66bb6a" stroke-width="1.5"/>
+        <line x1="819" y1="514" x2="819" y2="530" stroke="#66bb6a" stroke-width="1.5"/>
+        <line x1="877" y1="514" x2="877" y2="530" stroke="#66bb6a" stroke-width="1.5"/>
+        <rect x="445" y="530" width="52" height="44" rx="6" fill="#ffffff" stroke="#66bb6a" stroke-width="1.5"/>
+        <text x="471" y="549" font-size="12" font-weight="bold" text-anchor="middle" fill="#1b5e20">L0</text>
+        <text x="471" y="566" font-size="10" text-anchor="middle" fill="#33691e">FP16 ×</text>
+        <rect x="503" y="530" width="52" height="44" rx="6" fill="#ffffff" stroke="#66bb6a" stroke-width="1.5"/>
+        <text x="529" y="549" font-size="12" font-weight="bold" text-anchor="middle" fill="#1b5e20">L1</text>
+        <text x="529" y="566" font-size="10" text-anchor="middle" fill="#33691e">FP16 ×</text>
+        <rect x="561" y="530" width="52" height="44" rx="6" fill="#ffffff" stroke="#66bb6a" stroke-width="1.5"/>
+        <text x="587" y="549" font-size="12" font-weight="bold" text-anchor="middle" fill="#1b5e20">L2</text>
+        <text x="587" y="566" font-size="10" text-anchor="middle" fill="#33691e">FP16 ×</text>
+        <rect x="619" y="530" width="52" height="44" rx="6" fill="#ffffff" stroke="#66bb6a" stroke-width="1.5"/>
+        <text x="645" y="549" font-size="12" font-weight="bold" text-anchor="middle" fill="#1b5e20">L3</text>
+        <text x="645" y="566" font-size="10" text-anchor="middle" fill="#33691e">FP16 ×</text>
+        <rect x="677" y="530" width="52" height="44" rx="6" fill="#ffffff" stroke="#66bb6a" stroke-width="1.5"/>
+        <text x="703" y="549" font-size="12" font-weight="bold" text-anchor="middle" fill="#1b5e20">L4</text>
+        <text x="703" y="566" font-size="10" text-anchor="middle" fill="#33691e">FP16 ×</text>
+        <rect x="735" y="530" width="52" height="44" rx="6" fill="#ffffff" stroke="#66bb6a" stroke-width="1.5"/>
+        <text x="761" y="549" font-size="12" font-weight="bold" text-anchor="middle" fill="#1b5e20">L5</text>
+        <text x="761" y="566" font-size="10" text-anchor="middle" fill="#33691e">FP16 ×</text>
+        <rect x="793" y="530" width="52" height="44" rx="6" fill="#ffffff" stroke="#66bb6a" stroke-width="1.5"/>
+        <text x="819" y="549" font-size="12" font-weight="bold" text-anchor="middle" fill="#1b5e20">L6</text>
+        <text x="819" y="566" font-size="10" text-anchor="middle" fill="#33691e">FP16 ×</text>
+        <rect x="851" y="530" width="52" height="44" rx="6" fill="#ffffff" stroke="#66bb6a" stroke-width="1.5"/>
+        <text x="877" y="549" font-size="12" font-weight="bold" text-anchor="middle" fill="#1b5e20">L7</text>
+        <text x="877" y="566" font-size="10" text-anchor="middle" fill="#33691e">FP16 ×</text>
+        <line x1="471" y1="574" x2="471" y2="596" stroke="#546e7a" stroke-width="1.5" marker-end="url(#arrA)"/>
+        <line x1="529" y1="574" x2="529" y2="596" stroke="#546e7a" stroke-width="1.5" marker-end="url(#arrA)"/>
+        <line x1="587" y1="574" x2="587" y2="596" stroke="#546e7a" stroke-width="1.5" marker-end="url(#arrA)"/>
+        <line x1="645" y1="574" x2="645" y2="596" stroke="#546e7a" stroke-width="1.5" marker-end="url(#arrA)"/>
+        <line x1="703" y1="574" x2="703" y2="596" stroke="#546e7a" stroke-width="1.5" marker-end="url(#arrA)"/>
+        <line x1="761" y1="574" x2="761" y2="596" stroke="#546e7a" stroke-width="1.5" marker-end="url(#arrA)"/>
+        <line x1="819" y1="574" x2="819" y2="596" stroke="#546e7a" stroke-width="1.5" marker-end="url(#arrA)"/>
+        <line x1="877" y1="574" x2="877" y2="596" stroke="#546e7a" stroke-width="1.5" marker-end="url(#arrA)"/>
+        <rect x="445" y="596" width="460" height="56" rx="8" fill="#ffffff" stroke="#66bb6a" stroke-width="1.5"/>
+        <text x="675" y="617" font-size="12" font-weight="bold" text-anchor="middle" fill="#1b5e20">partial[8][16] FP32 交错累加（完全分区）</text>
+        <text x="675" y="637" font-size="10.5" text-anchor="middle" fill="#33691e">lane j 写 partial[j][i mod 16]：同一单元间隔 16 拍 ≥ 反馈延迟 → II=1</text>
+        <text x="440" y="676" font-size="10.5" fill="#33691e">每行 896 half = 112 word · 每拍 lane j = word 第 j 个 half × bank j 的 hidden · 行末合并 128 个 FP32 partial</text>
+        <rect x="980" y="400" width="270" height="130" rx="10" fill="#f1f8e9" stroke="#2e7d32" stroke-width="1.8"/>
+        <text x="995" y="426" font-size="14" font-weight="bold" fill="#1b5e20">C · 流水归约树</text>
+        <text x="995" y="450" font-size="11.5" fill="#33691e">128 个 FP32 partial → 1 个和</text>
+        <text x="995" y="468" font-size="11.5" fill="#33691e">→ 转 FP16 raw logit</text>
+        <text x="995" y="492" font-size="11.5" fill="#33691e">双组 partial / 流水归约树：</text>
+        <text x="995" y="510" font-size="11.5" fill="#33691e">归约与下一行点积重叠</text>
+        <line x1="940" y1="465" x2="980" y2="465" stroke="#546e7a" stroke-width="2" marker-end="url(#arrA)"/>
+        <rect x="980" y="560" width="270" height="120" rx="10" fill="#f1f8e9" stroke="#2e7d32" stroke-width="1.8"/>
+        <text x="995" y="586" font-size="14" font-weight="bold" fill="#1b5e20">D · policy / argmax</text>
+        <text x="995" y="610" font-size="11.5" fill="#33691e">（可选）penalty 处理</text>
+        <text x="995" y="628" font-size="11.5" fill="#33691e">argmax：平局保留较小 token ID</text>
+        <text x="995" y="652" font-size="11.5" fill="#33691e">生产仅输出 token / score；</text>
+        <text x="995" y="668" font-size="11.5" fill="#33691e">调试时写回 raw logits → DDR</text>
+        <line x1="1115" y1="530" x2="1115" y2="560" stroke="#546e7a" stroke-width="2" marker-end="url(#arrA)"/>
+        <rect x="980" y="710" width="270" height="100" rx="10" fill="#eceff4" stroke="#78909c" stroke-width="1.5"/>
+        <text x="1115" y="738" font-size="13.5" font-weight="bold" text-anchor="middle" fill="#263238">PS / 千兆网 → 主机</text>
+        <text x="1115" y="762" font-size="11.5" text-anchor="middle" fill="#37474f">token + score</text>
+        <text x="1115" y="782" font-size="10.5" text-anchor="middle" fill="#78909c">raw logits 仅调试回传</text>
+        <line x1="1115" y1="680" x2="1115" y2="710" stroke="#546e7a" stroke-width="2" marker-end="url(#arrA)"/>
+        <rect x="30" y="850" width="1220" height="186" rx="8" fill="#fafafa" stroke="#b0bec5"/>
+        <rect x="32" y="948" width="1216" height="26" fill="#e8f5e9"/>
+        <text x="45" y="876" font-size="12.5" font-weight="bold" fill="#37474f">阶段</text>
+        <text x="175" y="876" font-size="12.5" font-weight="bold" fill="#37474f">关键结构</text>
+        <text x="705" y="876" font-size="12.5" font-weight="bold" fill="#37474f">时钟</text>
+        <text x="830" y="876" font-size="12.5" font-weight="bold" fill="#37474f">理想计算下限</text>
+        <text x="1005" y="876" font-size="12.5" font-weight="bold" fill="#37474f">完整调用目标</text>
+        <line x1="30" y1="886" x2="1250" y2="886" stroke="#cfd8dc"/>
+        <line x1="165" y1="850" x2="165" y2="1036" stroke="#eceff1"/>
+        <line x1="695" y1="850" x2="695" y2="1036" stroke="#eceff1"/>
+        <line x1="820" y1="850" x2="820" y2="1036" stroke="#eceff1"/>
+        <line x1="995" y1="850" x2="995" y2="1036" stroke="#eceff1"/>
+        <text x="45" y="910" font-size="12" fill="#37474f">历史基线（优化前）</text>
+        <text x="175" y="910" font-size="12" fill="#37474f">单 lane · 单 FP32 累加器 · II=8 · vocab_loop 顺序执行</text>
+        <text x="705" y="910" font-size="12" fill="#37474f">100 MHz</text>
+        <text x="830" y="910" font-size="12" fill="#c62828">≈ 10.979 s（综合）</text>
+        <text x="1005" y="910" font-size="12" fill="#37474f">实测 RTT 11.090 s</text>
+        <text x="45" y="936" font-size="12" fill="#37474f">P1</text>
+        <text x="175" y="936" font-size="12" fill="#37474f">单 lane + K=16 交错累加 · II=1</text>
+        <text x="705" y="936" font-size="12" fill="#37474f">100 MHz</text>
+        <text x="830" y="936" font-size="12" fill="#37474f">1.361 s</text>
+        <text x="1005" y="936" font-size="12" fill="#37474f">1.5 ~ 2 s</text>
+        <text x="45" y="962" font-size="12" font-weight="bold" fill="#1b5e20">P2（本图）</text>
+        <text x="175" y="962" font-size="12" fill="#1b5e20">128-bit 读 + 8 lanes + K=16 + DATAFLOW 重叠</text>
+        <text x="705" y="962" font-size="12" fill="#37474f">100 MHz</text>
+        <text x="830" y="962" font-size="12" font-weight="bold" fill="#1b5e20">0.170 s</text>
+        <text x="1005" y="962" font-size="12" fill="#37474f">0.3 ~ 0.6 s</text>
+        <text x="45" y="988" font-size="12" fill="#37474f">P3</text>
+        <text x="175" y="988" font-size="12" fill="#37474f">P2 结构提频（需实现时序 / 带宽确认）</text>
+        <text x="705" y="988" font-size="12" fill="#37474f">200 MHz</text>
+        <text x="830" y="988" font-size="12" fill="#37474f">0.085 s</text>
+        <text x="1005" y="988" font-size="12" fill="#37474f">0.15 ~ 0.30 s</text>
+        <text x="45" y="1022" font-size="10.5" fill="#78909c">均为模型下限 / 工程目标，非新实测；受同频单个 HP0 带宽下限约束（如有效 0.8 GB/s 时仅读权重即 ≥ 340 ms）。</text>
+      </svg>
+      <figcaption>图 2 · LM Head 优化后硬件计算示意（对应 LM_HEAD_HW_DIAGRAM_AFTER_20260916.svg）</figcaption>
+      </figure>
+      <ul class="points green">
+        <li><strong>数据流四阶段重叠</strong>：A 顺序 burst reader（每拍 1×128-bit word = 8×FP16，按位 bit-cast）→ 乒乓 tile 双缓冲（32 行 ≈ 112 KiB）→ B 8 lanes 乘加 + partial[8][16] 交错累加 → C 流水归约树 → D penalty / argmax。</li>
+        <li><strong>依赖消除</strong>：lane j 只写 partial[j][i mod 16]，同一单元间隔 16 拍 ≥ 反馈延迟 → word 循环 II=1（每行 896 half = 112 word）。</li>
+        <li><strong>hidden 缓存 cyclic 分区 ×8</strong>（8 banks），每拍供 8 个 half 与权重对齐；行末 128 个 partial 流水归并，与下一行点积重叠。</li>
+        <li><strong>burst len=16 / outstanding=16 起步</strong>（HP 会拆分 &gt;16 拍 burst），以实测有效 GB/s 为准；理想下限 0.170 s @ 100 MHz。</li>
+        <li><strong>数值一致性是验收条件</strong>：交错累加 / 归约树改变 FP32 求和顺序，必须与基线对拍；FP16 平局保留较小 token ID（如 step7 的 100013 与 100048 同分）。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ 面板 3：对照与说明 ============ -->
+  <section id="panel-cmp" class="panel">
+    <div class="card">
+      <h2 class="n">结构对照</h2>
+      <table>
+        <tr><th style="width:16%">维度</th><th>优化前（历史基线）</th><th>优化后（P2）</th></tr>
+        <tr><td>点积内层</td><td>单 FP32 累加器，II=8</td><td class="good">8 lanes × partial[8][16] 交错累加，II=1</td></tr>
+        <tr><td>权重通路</td><td>32-bit 外部端口逐元素取 FP16</td><td class="good">128-bit 连续 burst，每拍 8×FP16（bit-cast）</td></tr>
+        <tr><td>hidden 缓存</td><td>单端口 BRAM</td><td class="good">8 banks（cyclic partition=8）</td></tr>
+        <tr><td>阶段组织</td><td>读 / 算 / 行尾顺序串行</td><td class="good">reader / MAC / 归约 / policy 数据流重叠</td></tr>
+        <tr><td>理想时间下限</td><td class="dim">≈ 10.979 s @ 100 MHz</td><td class="good">0.170 s @ 100 MHz；0.085 s @ 200 MHz（P3）</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2 class="n">阶段目标汇总（引自分析文档 §8）</h2>
+      <table>
+        <tr><th>阶段</th><th>关键结构</th><th>时钟</th><th>理想计算下限</th><th>完整调用目标</th></tr>
+        <tr><td>历史基线</td><td>单 lane · 单累加器 · II=8 · 顺序行循环</td><td>100 MHz</td><td class="dim">≈ 10.979 s（综合）</td><td>实测 RTT 11.090 s</td></tr>
+        <tr><td>P1</td><td>单 lane + K=16 交错累加 · II=1</td><td>100 MHz</td><td>1.361 s</td><td>1.5 ~ 2 s</td></tr>
+        <tr class="hl"><td><strong>P2（本页图 2）</strong></td><td>128-bit 读 + 8 lanes + K=16 + DATAFLOW</td><td>100 MHz</td><td class="good">0.170 s</td><td>0.3 ~ 0.6 s</td></tr>
+        <tr><td>P3</td><td>P2 结构提频（需实现时序 / 带宽确认）</td><td>200 MHz</td><td>0.085 s</td><td>0.15 ~ 0.30 s</td></tr>
+      </table>
+      <p class="note">均为模型下限 / 工程目标，非新实测；受同频单个 HP0 带宽下限约束（如有效 0.8 GB/s 时仅读权重即 ≥ 340 ms）。</p>
+    </div>
+
+    <div class="card">
+      <h2 class="n">说明与限制</h2>
+      <ul class="points">
+        <li>图中数值引自 <code>LM_HEAD_PERFORMANCE_ANALYSIS_20260916.md</code>，均为模型下限或工程目标，不是新的实测结果。</li>
+        <li>优化后结构尚未综合验证（文档中 P1 代码为概念示意）；实施前需按文档 §5/§6 完成综合、co-sim 与板上对拍。</li>
+        <li>达到目标后仍需与主机原生 LM Head、整条生成链路比较；模块快了不自动代表异构推理快于 Orin/GPU。</li>
+      </ul>
+      <p class="note">相关文件：<code>LM_HEAD_HW_DIAGRAM_BEFORE_20260916.svg</code> · <code>LM_HEAD_HW_DIAGRAM_AFTER_20260916.svg</code> · <code>LM_HEAD_HW_DIAGRAMS_20260916.md</code> · 本页 <code>LM_HEAD_HW_DIAGRAMS_20260916.html</code>（自包含，可离线打开）</p>
+    </div>
+  </section>
+
+  <!-- ============ 面板 4：计算量与拍数分析 ============ -->
+  <section id="panel-calc" class="panel">
+    <div class="card">
+      <h2 class="n">理论计算量（每次 RUN_TOKEN，与实现方式无关）</h2>
+      <p class="lead">工作：logits = W @ hidden，W [151,936 × 896] FP16，hidden [896]（文档 §3）。</p>
+      <table>
+        <tr><th style="width:28%">项目</th><th style="width:28%">次数</th><th>说明</th></tr>
+        <tr><td>乘法（FP16×FP16 → FP32）</td><td><strong>136,134,656 次</strong></td><td>151,936 行 × 896 项/行（文档 §3：点积项数 136,134,656 MAC）</td></tr>
+        <tr><td>加法（累加，一乘一加口径）</td><td><strong>136,134,656 次</strong></td><td>严格必需为每行 895 次 → 135,982,720 次（推算）</td></tr>
+        <tr><td>合计浮点量</td><td>≈ 272.27 MFLOP</td><td>文档口径：按一乘一加计</td></tr>
+        <tr><td>类型转换</td><td>权重 ≥136,134,656 次；logits 151,936 次</td><td>FP16→FP32 每次 MAC；FP32→FP16 每行 1 次；hidden 转换次数与缓存设计相关（基线每 MAC 1 次）</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2 class="n">与实现相关的附加加法（行末归并，推算）</h2>
+      <table>
+        <tr><th style="width:18%">方案</th><th style="width:34%">归并结构</th><th style="width:24%">每行附加加法</th><th>全词表累计 / 影响</th></tr>
+        <tr><td>基线</td><td>单累加器逐项累加</td><td>0</td><td>无归并，但 II=8（瓶颈本身）</td></tr>
+        <tr><td>P1</td><td>partial[16] → 1</td><td>15 次/行</td><td>2,279,040 次；若串行 +≈0.023 s @100 MHz，可接受</td></tr>
+        <tr><td>P2 / P3</td><td>partial[8][16]（128 个）→ 1</td><td>127 次/行</td><td>19,295,872 次；若每行串行归并 +≈0.193 s @100 MHz → 必须流水归约树 / 双组 partial 与下一行点积重叠（文档 §5 P2 明确要求）</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2 class="n">访存量（每次 RUN_TOKEN）</h2>
+      <table>
+        <tr><th style="width:22%">层级</th><th style="width:36%">访问</th><th>量值与说明</th></tr>
+        <tr><td rowspan="3">DDR 读</td><td>权重 W（逐元素逻辑读）</td><td><strong>272,269,312 B ≈ 259.66 MiB</strong>（= 136,134,656 × 2 B），所有方案相同；权重常驻可跨 token 复用，但每次 hidden 不同仍需全量重扫（文档 §3）</td></tr>
+        <tr><td>hidden</td><td>1,792 B</td></tr>
+        <tr><td>history bitmap</td><td>18,992 B</td></tr>
+        <tr><td>DDR 写</td><td>raw logits（调试模式）</td><td>303,872 B；生产模式仅 token / score</td></tr>
+        <tr><td rowspan="2">片上</td><td>hidden_cache 元素读</td><td><strong>136,134,656 次</strong>（每 MAC 1 次）：基线 / P1 单端口每拍 1 次读；P2 分 8 bank 每拍 8 次（112 拍/行内完成）。若直接 UNROLL=8 而不分 bank，端口将成为新瓶颈（文档 §4.3）</td></tr>
+        <tr><td>P2 权重 tile</td><td>DDR → BRAM 16 B/拍写入 + BRAM → MAC 16 B/拍读出（乒乓双缓冲，32 行 tile）</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2 class="n">权重供给拍数下限（= 272,269,312 B ÷ 每拍有效字节数，推算）</h2>
+      <table>
+        <tr><th style="width:40%">通路有效宽度</th><th style="width:20%">所需拍数</th><th style="width:20%">时间 @100 MHz</th><th>等效带宽 / 依据</th></tr>
+        <tr><td>2 B/拍（16-bit 元素消耗速率，基线 / P1）</td><td>136,134,656</td><td>1.361 s</td><td>0.2 GB/s（文档 §3 带宽表）</td></tr>
+        <tr><td>4 B/拍（32-bit 权重 AXI 端口，理论）</td><td>68,067,328</td><td>0.681 s</td><td>0.4 GB/s；现端口 DATA_WIDTH=32</td></tr>
+        <tr class="hl"><td>16 B/拍（128-bit HP0 @ 100 MHz）</td><td>17,016,832</td><td class="good">0.170 s</td><td>1.6 GB/s 峰值 —— 恰与 P2 计算拍数相同（见下）</td></tr>
+        <tr><td>16 B/拍（128-bit HP0 @ 200 MHz）</td><td>8,508,416</td><td>0.085 s</td><td>3.2 GB/s 峰值（P3）</td></tr>
+      </table>
+      <p class="note">实效受 DDR 仲裁、burst、backpressure 影响：文档给出有效 0.8 GB/s 时仅读权重即 340 ms；HP 会拆分 &gt;16 拍 burst，burst 起点 len=16 / outstanding=16，以实测 GB/s 为准。</p>
+    </div>
+
+    <div class="card">
+      <h2 class="n">各实现方式拍数对照（cycle 数）</h2>
+      <table>
+        <tr><th style="width:12%">方案</th><th style="width:24%">结构</th><th style="width:12%">乘加并行度</th><th style="width:18%">每行点积拍数</th><th style="width:16%">总拍数</th><th style="width:10%">时间</th><th>吞吐</th></tr>
+        <tr><td>基线</td><td>单累加器，achieved II=8</td><td>1</td><td>896 × 8 = 7,168（行开销 ≈ +58，推算）</td><td><strong>1,097,890,446</strong>（综合最大，文档）</td><td class="dim">10.979 s</td><td>12.5 MMAC/s（文档）</td></tr>
+        <tr><td>P1</td><td>单 lane + partial[16]，II=1</td><td>1</td><td>896（+ 归并 15）</td><td>136,134,656 + ≈2,279,040</td><td>1.361 s（理想下限）</td><td>100 MMAC/s</td></tr>
+        <tr class="hl"><td>P2</td><td>8 lanes + partial[8][16]，word 循环 II=1</td><td>8</td><td>112（= 896 ÷ 8）</td><td><strong>17,016,832</strong></td><td class="good">0.170 s</td><td>800 MMAC/s</td></tr>
+        <tr><td>P3</td><td>P2 结构 @ 200 MHz</td><td>8</td><td>112</td><td><strong>8,508,416</strong></td><td class="good">0.085 s</td><td>1,600 MMAC/s</td></tr>
+      </table>
+      <p class="note">总拍数（I=1 时）= 乘法次数 ÷ 乘加并行度；基线 I=8。工程目标（文档 §8）：P1 1.5 ~ 2 s、P2 0.3 ~ 0.6 s、P3 0.15 ~ 0.30 s —— 高于理想下限，因带宽实效、行开销与未重叠部分。</p>
+    </div>
+
+    <div class="card">
+      <h2 class="n">公式与一致性校验</h2>
+      <p class="lead">文档 §3 的模型：</p>
+      <p style="font-family:Consolas,monospace;font-size:13.5px;background:#f4f7f9;border:1px solid #e0e6ea;border-radius:8px;padding:12px 16px;line-height:1.9;margin:0 0 14px">
+        Tcompute ≥ 136,134,656 × I / (U × f)<br />
+        Tmemory　≥ 272,269,312 / BW<sub>有效</sub><br />
+        Tkernel　≥ max(Tcompute, Tmemory) + 尚未被重叠隐藏的开销
+      </p>
+      <ul class="points">
+        <li><strong>基线一致性</strong>：136,134,656 × 8 ÷ 100 MHz = 10.891 s，与综合最大 10.979 s 相差 ≈ 8.81M 拍 ≈ 58 拍/行（行级 / 边界开销，推算）→ II=8 是主因的判断成立。</li>
+        <li><strong>P2 双下限重合</strong>：计算 17,016,832 拍 = 272,269,312 B ÷ 16 B/拍 —— 100 MHz 下计算与 HP0 理论带宽同时压线，因此必须读算重叠（DATAFLOW），且实效带宽决定成败（0.8 GB/s → 340 ms）。</li>
+        <li><strong>P3</strong>：8,508,416 拍 @ 200 MHz；若有效带宽 1.5 ~ 2.5 GB/s，读权重 109 ~ 182 ms（文档 §5 P3），需实现时序同时达标。</li>
+      </ul>
+      <p class="note">口径说明：标注“文档”的数字直接引自 LM_HEAD_PERFORMANCE_ANALYSIS_20260916.md；标注“推算”的为由文档数字做算术推导的量级参考，不代表实测。</p>
+    </div>
+  </section>
+
+  <!-- ============ 面板 5：执行过程交互演示 ============ -->
+  <section id="panel-flow" class="panel">
+      <div class="card">
+      <h2 class="n">执行过程交互演示（基线 vs P2，按片上结构逐步）</h2>
+      <p class="lead">基线每行 = 流水线填充 18 拍（Depth=18）+ 稳态 II=8 提交 896 次 MAC（7,168 拍）+ 行尾 40 拍（5 个子步，推算分解），合计 7,226 拍/行；外加 hidden 装载序言 ≈910 拍。P2 每行 112 word 拍，行末 128 个 partial 的归约（≈23 拍，推算）与下一行重叠。数据为确定性演示值；「直达结束」按解析式结算：基线 1,097,890,446 拍 ≈10.979 s，P2 17,016,832 拍 ≈0.170 s。</p>
+      <div class="fl-tools">
+        <span class="fl-group">模式
+          <button id="fl-mbase" class="fl-mode active">基线 · 单累加器 II=8</button>
+          <button id="fl-mp2" class="fl-mode">P2 · 8 lanes II=1</button>
+        </span>
+        <span class="fl-group">
+          <button id="fl-play">▶ 播放</button>
+          <button id="fl-pause" disabled="disabled">⏸ 暂停</button>
+          <button id="fl-step">单步 +1 拍</button>
+          <button id="fl-nrow">⏭ 完成本行</button>
+          <button id="fl-end">⏩ 直达结束</button>
+          <button id="fl-reset">↺ 重置</button>
+        </span>
+        <span class="fl-group">速度
+          <select id="fl-speed">
+            <option value="s1">慢速 ×1 拍/帧</option>
+            <option value="s2" selected="selected">中速 ×16</option>
+            <option value="s3">快速 ×256</option>
+            <option value="s4">极速 ×4096</option>
+            <option value="s5">疾速 ×65536</option>
+          </select>
+        </span>
+      </div>
+      <div class="fl-stats">
+        <span class="chip">拍 <b id="fl-cyc">0</b></span>
+        <span class="chip">≈时间 <b id="fl-time">0.0000 s</b></span>
+        <span class="chip">行（已完成） <b id="fl-row">0 / 151,936</b></span>
+        <span class="chip">位置 <b id="fl-item">装载</b></span>
+        <span class="chip">MAC <b id="fl-macs">0</b></span>
+        <span class="chip">权重读 <b id="fl-bytes">0.000 MiB</b></span>
+        <span class="chip">其他流量 <b id="fl-oth">0 B</b></span>
+        <span class="chip">有效吞吐 <b id="fl-thr">–</b></span>
+        <span class="chip">argmax（演示） <b id="fl-arg">–</b></span>
+      </div>
+      <div class="fl-grid">
+        <div class="fl-box">
+          <div class="fl-t">PS DDR</div>
+          <div class="fl-sub">权重 W 行进度（151,936 行，每 token 全量重扫）</div>
+          <div class="cells" id="fl-wbar"></div>
+          <div class="fl-sub">当前行 896 项 = 112 word × 8 FP16（橙 = 正在读取）</div>
+          <div class="cells" id="fl-wrow"></div>
+          <div class="fl-sub">hidden [896]（每 token 仅装载一次）</div>
+          <div class="cells" id="fl-hid"></div>
+        </div>
+        <div class="fl-box">
+          <div class="fl-t">片上</div>
+          <div class="fl-sub">hidden_cache bank（基线：单端口 1 bank；P2：cyclic ×8）</div>
+          <div class="cells" id="fl-bank"></div>
+          <div id="fl-corebase">
+            <div class="fl-sub">计算核心（基线）</div>
+            <div class="fl-acc">acc += hidden[i] × w[row][i] = <b id="fl-accv">0.000</b></div>
+            <div class="fl-sub">流水线 Depth=18（无 DATAFLOW → 每行重新填充，蓝）</div>
+            <div class="cells" id="fl-pipe"></div>
+            <div class="fl-sub">稳态 II=8 时隙：8 拍提交 1 次 MAC（acc 反馈链，红）</div>
+            <div class="cells" id="fl-slot"></div>
+            <div class="fl-sub">行尾 40 拍 · 5 子步：FP16 转换 → bitmap → penalty → argmax → logits 写回</div>
+            <div class="cells" id="fl-epi"></div>
+            <div class="fl-sub">权重预取 FIFO 水位（示意：供给 ≫ 消耗，常满 → 取数不是瓶颈）</div>
+            <div class="cells" id="fl-fifo"></div>
+          </div>
+          <div id="fl-corep2" style="display:none">
+            <div class="fl-sub">8 lanes（每拍 1×128-bit word → 8 MAC，word II=1）</div>
+            <div class="cells" id="fl-lane"></div>
+            <div class="fl-sub">乒乓 tile（32 行/缓冲）：读 <b id="fl-pp">A</b> · 预取 <b id="fl-ppf">B</b>（tile 装载被双缓冲隐藏）</div>
+            <div class="fl-sub">partial[8][16] 完全分区（高亮列 = word mod 16）<span id="fl-red" class="fl-red" style="display:none"> · ◈ 上一行 128 partial 归约中：8×16 并行 ≈16 拍 + 树 ≈7 拍（推算），与下一行重叠</span></div>
+            <div id="fl-partial" class="cells partial"></div>
+          </div>
+        </div>
+        <div class="fl-box">
+          <div class="fl-t">输出</div>
+          <div class="fl-sub">logits 写回进度（303,872 B 缓冲；调试回传，生产仅 token/score）</div>
+          <div class="cells" id="fl-lbar"></div>
+          <div class="fl-sub">argmax（平局保留较小 token ID）</div>
+          <div class="fl-arg">当前最大 logit ≈ <b id="fl-maxv">–</b>　@ 行 <b id="fl-maxrow">–</b></div>
+        </div>
+      </div>
+      <div class="fl-caption" id="fl-cap">点击「▶ 播放」或「单步」开始。</div>
+      <div class="fl-legend">
+        <span class="lg"><i class="c hl-o"></i>DDR 权重流</span>
+        <span class="lg"><i class="c hl-g"></i>BRAM hidden 读</span>
+        <span class="lg"><i class="c hl-r"></i>累加 / 依赖提交 / 归约</span>
+        <span class="lg"><i class="c hl-b"></i>流水线填充</span>
+        <span class="lg"><i class="c done"></i>已完成</span>
+        <span class="lg">拍数口径：基线 7,226 拍/行（填充 18 + 稳态 7,168 + 行尾 40）；P2 112 拍/行（归约 ≈23 拍与下一行重叠，推算）</span>
+      </div>
+      <script>
+//<![CDATA[
+      (function () {
+        var ROWS = 151936, COLS = 896, WORDS = 112;
+        var FILL = 18, STEADY = 7168, EPI = 40, INNER_B = FILL + STEADY, ROW_B = 7226, PROLOGUE = 910;
+        var WORDS_P2 = 112, RED = 23, TILE = 32;
+        var HL = ["hl-o", "hl-g", "hl-r", "hl-b"];
+        var speeds = { s1: [1, 160], s2: [16, 80], s3: [256, 45], s4: [4096, 30], s5: [65536, 25] };
+        var mode = "base", st = null, timer = null, running = false;
+        function $(id) { return document.getElementById(id); }
+        function fmt(n) { return (n < 0 ? "-" : "") + String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+        function mk(host, n, big) {
+          var a = [];
+          for (var k = 0; k !== n; k++) {
+            var d = document.createElement("div");
+            d.className = "fcell" + (big ? " big" : "");
+            host.appendChild(d); a.push(d);
+          }
+          return a;
+        }
+        function unhl(arr) {
+          for (var k = 0; k !== arr.length; k++)
+            for (var j = 0; j !== HL.length; j++) arr[k].classList.remove(HL[j]);
+        }
+        function hl(arr, idx, cls) { if (idx >= 0 && idx < arr.length) arr[idx].classList.add(cls); }
+        function fill(arr, n) {
+          for (var k = 0; k !== arr.length; k++) {
+            if (k < n) arr[k].classList.add("done"); else arr[k].classList.remove("done");
+          }
+        }
+        function hVal(i) { return ((i * 73) % 19 - 9) / 7; }
+        function wVal(row, i) { return (((row * 13 + i) * 91) % 23 - 11) / 11; }
+        function demoLogit(row) {
+          var x = (row * 2654435761) >>> 0;
+          x = (x ^ (x >>> 13)) >>> 0;
+          x = (x * 1274126177) >>> 0;
+          return ((x >>> 8) % 4000) / 100 - 20;
+        }
+        function updateArgmax(r) {
+          var v = demoLogit(r);
+          if (v > st.maxv) { st.maxv = v; st.maxrow = r; }
+        }
+        var cells = {};
+        function build() {
+          cells.wbar = mk($("fl-wbar"), 128);
+          cells.wrow = mk($("fl-wrow"), WORDS);
+          cells.hid = mk($("fl-hid"), WORDS);
+          cells.bank = mk($("fl-bank"), 8);
+          cells.slot = mk($("fl-slot"), 8, true);
+          cells.lane = mk($("fl-lane"), 8, true);
+          cells.partial = mk($("fl-partial"), 128);
+          cells.lbar = mk($("fl-lbar"), 128);
+          cells.pipe = mk($("fl-pipe"), FILL);
+          cells.epi = mk($("fl-epi"), 5, true);
+          cells.fifo = mk($("fl-fifo"), 8);
+        }
+        function fresh() {
+          return {
+            row: 0, loc: (mode === "base" ? -PROLOGUE : 0),
+            phase: (mode === "base" ? "load" : "inner"),
+            macs: 0, bytes: 0, oth: 0, logits: 0, acc: 0, hid: false,
+            maxv: -1e30, maxrow: -1, red: 0, i: 0, slot: 0, step: 0
+          };
+        }
+        function basePhase(loc) {
+          if (loc < 0) return "load";
+          if (loc < FILL) return "fill";
+          if (loc < INNER_B) return "inner";
+          return "epi";
+        }
+        function one() {
+          if (st.phase === "done") return;
+          if (mode === "base") {
+            st.loc++;
+            if (st.loc === 0 && !st.hid) { st.oth += 1792; st.hid = true; st.phase = "fill"; return; }
+            if (st.loc < 0) return;
+            st.phase = basePhase(st.loc);
+            if (st.phase === "fill") return;
+            if (st.phase === "inner") {
+              var j = st.loc - FILL;
+              st.i = j >> 3; st.slot = j & 7;
+              if (st.slot === 7) {
+                st.macs++; st.bytes += 2;
+                st.acc += hVal(st.i) * wVal(st.row, st.i);
+              }
+              return;
+            }
+            var e = st.loc - INNER_B;
+            st.step = (e / 8) | 0;
+            if (e % 8 === 7) {
+              if (st.step === 3) updateArgmax(st.row);
+              if (st.step === 4) { st.logits++; st.oth += 2; }
+            }
+            if (st.loc >= ROW_B) {
+              st.row++; st.acc = 0;
+              if (st.row >= ROWS) { st.phase = "done"; st.loc = 0; }
+              else st.loc = 0;
+            }
+          } else {
+            st.macs += 8; st.bytes += 16;
+            if (st.loc === 0 && !st.hid) { st.oth += 1792; st.hid = true; }
+            st.loc++;
+            if (st.red > 0) st.red--;
+            if (st.loc >= WORDS_P2) {
+              updateArgmax(st.row);
+              st.logits++; st.oth += 2;
+              st.red = RED; st.row++; st.loc = 0;
+              if (st.row >= ROWS) { st.phase = "done"; st.red = 0; }
+            }
+          }
+        }
+        function ffRow() {
+          if (st.phase === "done") return;
+          if (mode === "base") {
+            if (st.loc < 0) { st.loc = 0; st.oth += 1792; }
+            if (st.loc < FILL) st.loc = FILL;
+            if (st.loc < INNER_B) {
+              var j = st.loc - FILL, first = j >> 3;
+              for (var i2 = first; i2 !== COLS; i2++) {
+                st.macs++; st.bytes += 2;
+                st.acc += hVal(i2) * wVal(st.row, i2);
+              }
+              st.loc = INNER_B;
+            }
+            var e = st.loc - INNER_B, step = (e / 8) | 0;
+            if (step <= 3) updateArgmax(st.row);
+            if (step < 4) { st.logits++; st.oth += 2; }
+            st.row++; st.acc = 0;
+            if (st.row >= ROWS) { st.phase = "done"; st.loc = 0; }
+            else st.loc = 0;
+          } else {
+            var rem = WORDS_P2 - st.loc;
+            st.macs += 8 * rem; st.bytes += 16 * rem;
+            if (!st.hid) { st.oth += 1792; st.hid = true; }
+            updateArgmax(st.row);
+            st.logits++; st.oth += 2;
+            st.red = RED; st.row++; st.loc = 0;
+            if (st.row >= ROWS) { st.phase = "done"; st.red = 0; }
+          }
+        }
+        function jumpEnd() {
+          ffRow();
+          if (st.phase !== "done") {
+            for (var r = st.row; r !== ROWS; r++) {
+              st.macs += (mode === "base" ? COLS : WORDS_P2 * 8);
+              st.bytes += (mode === "base" ? COLS * 2 : WORDS_P2 * 16);
+              st.logits++; st.oth += 2;
+              updateArgmax(r);
+            }
+            st.row = ROWS; st.loc = 0; st.acc = 0; st.phase = "done"; st.red = 0;
+          }
+        }
+        function cycles() {
+          if (mode === "base") return PROLOGUE + st.row * ROW_B + st.loc;
+          return st.row * WORDS_P2 + st.loc;
+        }
+        function caption() {
+          if (st.phase === "done") {
+            return mode === "base"
+              ? "【完成】910 + 151,936 × 7,226 = 1,097,890,446 拍 ≈ 10.979 s @ 100 MHz —— 与文档综合最大一致。MAC 136,134,656；权重读 272,269,312 B；其他流量（hidden + logits）305,664 B。每个 logit 都要等 acc 反馈链走 8 拍，且行间互不重叠。"
+              : "【完成】151,936 × 112 = 17,016,832 拍 ≈ 0.170 s @ 100 MHz（= 136,134,656 MAC ÷ 8 lanes ÷ 100 MHz = 272,269,312 B ÷ 16 B/拍，计算与带宽同时压线）。理想下限口径：hidden 装载（896 拍）与首行填充的 µs 级开销未计入。";
+          }
+          if (mode === "base") {
+            if (st.phase === "load")
+              return "【装载】hidden 896 × 2 B 按 II=1 拷入片上 hidden_cache（896 拍）+ 首尾 ≈14 拍 ≈ 910 拍，+1,792 B 总线流量（绿，逐拍填充）。权重常驻 DDR：不重传、但要重扫。";
+            if (st.phase === "fill")
+              return "【第 " + fmt(st.row) + " 行 · 流水线填充 " + (st.loc + 1) + " / 18】18 级流水（Depth=18）逐拍灌入，本行尚无 MAC 提交。无 DATAFLOW → 每行都重新填充，这 18 拍是行开销 58 拍的一部分。";
+            if (st.phase === "inner")
+              return "【第 " + fmt(st.row) + " 行 · i = " + st.i + " / 896 · 时隙 " + (st.slot + 1) + " / 8】BRAM 读 hidden_cache[i]（绿）+ DDR burst 流取 w[row][i]（橙，预取 FIFO 常满 → 取数不是瓶颈），acc += h×w 的写读反馈链使 achieved II=8：8 拍提交 1 次 MAC（红）。";
+            var names = ["FP32→FP16 转换", "history bitmap 查询", "penalty 计算", "argmax 比较 / 更新", "logits 写回事务（AW/W/B，+2 B）"];
+            return "【第 " + fmt(st.row) + " 行 · 行尾子步 " + (st.step + 1) + " / 5 · " + names[st.step] + "】行尾 40 拍（推算：5 子步 × 8 拍）不与下一行重叠；加上填充 18 拍 = 行开销 ≈58 拍。";
+          }
+          if (st.red > 0 && st.row > 0)
+            return "【重叠】第 " + fmt(st.row - 1) + " 行的 128 个 partial 正在归约：每 lane 16 次累加（8 个加法器并行 ≈16 拍）+ 8→1 归约树 ≈7 拍 ≈ 23 拍（推算），与第 " + fmt(st.row) + " 行点积同时进行（双组 partial）→ 不占额外拍。";
+          return "【第 " + fmt(st.row) + " 行 · word " + (st.loc + 1) + " / 112】每拍 1×128-bit word（8×FP16）从 HP0 突发流入乒乓 tile（橙），8 个 lane 并行：lane j = word 第 j 个 half × bank j 的 hidden（绿）→ partial[j][" + (st.loc % 16) + "]（红列）。每拍 8 MAC / 16 B。";
+        }
+        function render() {
+          var cyc = cycles();
+          fill(cells.wbar, Math.floor(Math.min(st.row, ROWS) / ROWS * 128));
+          unhl(cells.wbar); if (st.phase !== "done") hl(cells.wbar, Math.floor(Math.min(st.row, ROWS - 1) / ROWS * 128), "hl-o");
+          var ei = (mode === "base") ? Math.min(st.i, COLS - 1) : Math.min(st.loc, WORDS - 1);
+          var committedCells = (mode === "base")
+            ? Math.floor(Math.max(0, Math.min(st.loc - FILL, STEADY)) / 8)
+            : Math.min(st.loc, WORDS);
+          fill(cells.wrow, committedCells);
+          unhl(cells.wrow); if (st.phase === "inner") hl(cells.wrow, ei, "hl-o");
+          fill(cells.hid, committedCells);
+          unhl(cells.hid); if (st.phase === "inner") hl(cells.hid, ei, "hl-g");
+          unhl(cells.bank);
+          if (mode === "base") hl(cells.bank, 0, "hl-g");
+          else for (var b = 0; b !== 8; b++) hl(cells.bank, b, "hl-g");
+          unhl(cells.slot);
+          if (mode === "base" && st.phase === "inner") hl(cells.slot, st.slot, "hl-r");
+          unhl(cells.lane);
+          if (mode === "p2" && st.phase !== "done") for (var l = 0; l !== 8; l++) hl(cells.lane, l, "hl-o");
+          unhl(cells.partial);
+          if (mode === "p2" && st.phase !== "done" && st.loc > 0) {
+            var pcol = ((st.loc + WORDS_P2 - 1) % 16);
+            for (var rr = 0; rr !== 8; rr++) cells.partial[rr * 16 + pcol].classList.add("hl-r");
+          }
+          fill(cells.lbar, Math.floor(st.logits / ROWS * 128));
+          unhl(cells.pipe); fill(cells.pipe, 0);
+          unhl(cells.epi); fill(cells.epi, 0);
+          unhl(cells.fifo); fill(cells.fifo, 0);
+          if (mode === "base" && st.phase !== "done" && st.loc >= 0) {
+            if (st.loc < FILL) { fill(cells.pipe, st.loc + 1); hl(cells.pipe, st.loc, "hl-b"); }
+            else fill(cells.pipe, FILL);
+            if (st.phase === "epi") {
+              var e = st.loc - INNER_B, stp = (e / 8) | 0;
+              fill(cells.epi, stp + 1); hl(cells.epi, stp, "hl-o");
+            }
+            var lvl = (st.phase === "inner") ? (st.slot === 0 ? 6 : 7) : 8;
+            fill(cells.fifo, lvl);
+          }
+          var readBuf = (Math.floor(st.row / TILE) % 2 === 0) ? "A" : "B";
+          $("fl-pp").textContent = readBuf;
+          $("fl-ppf").textContent = (readBuf === "A") ? "B" : "A";
+          $("fl-cyc").textContent = fmt(cyc);
+          $("fl-time").textContent = (cyc / 1e8).toFixed(4) + " s";
+          $("fl-row").textContent = fmt(Math.min(st.row, ROWS)) + " / " + fmt(ROWS);
+          $("fl-item").textContent =
+            st.phase === "done" ? "完成" :
+            st.phase === "load" ? "装载 / 序言" :
+            (mode === "base"
+              ? (st.phase === "fill" ? "填充 " + (st.loc + 1) + " / 18"
+                : st.phase === "epi" ? "行尾子步 " + (st.step + 1) + " / 5"
+                : "i=" + st.i + " / 896 · 时隙 " + (st.slot + 1) + "/8")
+              : "word " + (st.loc + 1) + " / 112");
+          $("fl-macs").textContent = fmt(st.macs);
+          $("fl-bytes").textContent = (st.bytes / 1048576).toFixed(3) + " MiB";
+          $("fl-oth").textContent = fmt(st.oth) + " B";
+          $("fl-thr").textContent = cyc > 0 ? (st.macs / cyc * 100).toFixed(1) + " MMAC/s" : "–";
+          $("fl-arg").textContent = st.maxrow >= 0
+            ? "logit≈" + st.maxv.toFixed(2) + " @ 行 " + fmt(st.maxrow) : "–";
+          $("fl-maxv").textContent = st.maxrow >= 0 ? st.maxv.toFixed(2) : "–";
+          $("fl-maxrow").textContent = st.maxrow >= 0 ? fmt(st.maxrow) : "–";
+          $("fl-accv").textContent = st.acc.toFixed(3);
+          $("fl-red").style.display = (mode === "p2" && st.red > 0) ? "inline" : "none";
+          $("fl-cap").textContent = caption();
+        }
+        function setRun(on) {
+          running = on;
+          if (timer) { clearInterval(timer); timer = null; }
+          if (on) {
+            var sp = speeds[$("fl-speed").value];
+            timer = setInterval(function () { step(sp[0]); }, sp[1]);
+          }
+          $("fl-play").disabled = on;
+          $("fl-pause").disabled = !on;
+        }
+        function step(n) {
+          for (var k = 0; k !== n; k++) { if (st.phase === "done") break; one(); }
+          render();
+        }
+        function setMode(m) {
+          mode = m;
+          $("fl-mbase").className = "fl-mode" + (m === "base" ? " active" : "");
+          $("fl-mp2").className = "fl-mode" + (m === "p2" ? " active" : "");
+          $("fl-corebase").style.display = (m === "base") ? "" : "none";
+          $("fl-corep2").style.display = (m === "p2") ? "" : "none";
+          setRun(false);
+          st = fresh();
+          render();
+        }
+        $("fl-play").addEventListener("click", function () { if (st.phase !== "done") setRun(true); });
+        $("fl-pause").addEventListener("click", function () { setRun(false); });
+        $("fl-step").addEventListener("click", function () { setRun(false); step(1); });
+        $("fl-nrow").addEventListener("click", function () { setRun(false); ffRow(); render(); });
+        $("fl-end").addEventListener("click", function () { setRun(false); jumpEnd(); render(); });
+        $("fl-reset").addEventListener("click", function () { setRun(false); st = fresh(); render(); });
+        $("fl-speed").addEventListener("change", function () { if (running) { setRun(false); setRun(true); } });
+        $("fl-mbase").addEventListener("click", function () { setMode("base"); });
+        $("fl-mp2").addEventListener("click", function () { setMode("p2"); });
+        build();
+        st = fresh();
+        render();
+      })();
+//]]>
+      </script>
+    </div>
+  </section>
+
+  <!-- ============ 面板 6：总线与端口连线 ============ -->
+  <section id="panel-bus" class="panel">
+    <div class="card">
+      <h2 class="n">总线与端口连线：控制面 AXI4-Lite + 数据面 AXI4（HP0）</h2>
+      <p class="lead">连线与端口号摘自 realFpga/vivado/create_lm_head_axu9eg_bd.tcl（L49–171）；内核侧接口见 lm_head_kernel.cpp（L40–62）。箭头方向 = 主设备发起（请求）方向；读数据沿原路反向返回。</p>
+      <figure>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 810" font-family="Segoe UI, Microsoft YaHei, PingFang SC, sans-serif" style="width:100%;height:auto;display:block">
+        <defs>
+          <marker id="arrC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#546e7a"/>
+          </marker>
+          <marker id="arrR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#c62828"/>
+          </marker>
+        </defs>
+        <rect width="1280" height="810" fill="#ffffff"/>
+        <text x="30" y="40" font-size="26" font-weight="bold" fill="#263238">系统总线与端口连线（PS / PL 视角）</text>
+        <text x="30" y="68" font-size="15" fill="#37474f">控制面 AXI4-Lite（M_AXI_HPM0_FPD）+ 数据面 AXI4（S_AXI_HP0_FPD · 128-bit @100 MHz）</text>
+        <text x="30" y="90" font-size="12" fill="#78909c">依据 realFpga/vivado/create_lm_head_axu9eg_bd.tcl（L49–171）与 module16_lm_head_hls/src/lm_head_kernel.cpp（L40–62）绘制</text>
+
+        <!-- PS 外框 -->
+        <rect x="30" y="140" width="440" height="540" rx="12" fill="#eceff4" stroke="#78909c" stroke-width="1.5"/>
+        <text x="45" y="170" font-size="15" font-weight="bold" fill="#263238">PS（硬硅）· zynq_ultra_ps_e</text>
+        <rect x="60" y="186" width="190" height="70" rx="8" fill="#ffffff" stroke="#90a4ae" stroke-width="1.5"/>
+        <text x="155" y="216" font-size="13.5" font-weight="bold" text-anchor="middle" fill="#263238">Cortex-A53</text>
+        <text x="155" y="238" font-size="11.5" text-anchor="middle" fill="#78909c">lwIP 服务器 / 驱动</text>
+        <rect x="60" y="310" width="190" height="56" rx="8" fill="#ffffff" stroke="#90a4ae" stroke-width="1.5"/>
+        <text x="155" y="344" font-size="13" font-weight="bold" text-anchor="middle" fill="#263238">PS 互连</text>
+        <rect x="60" y="430" width="190" height="56" rx="8" fill="#ffffff" stroke="#90a4ae" stroke-width="1.5"/>
+        <text x="155" y="464" font-size="13" font-weight="bold" text-anchor="middle" fill="#263238">DDR 控制器 DDRC</text>
+        <rect x="60" y="530" width="190" height="118" rx="8" fill="#ffffff" stroke="#78909c" stroke-width="1.5"/>
+        <text x="75" y="558" font-size="13.5" font-weight="bold" fill="#263238">DDR4</text>
+        <text x="75" y="582" font-size="11.5" fill="#37474f">W 259.66 MiB（权重）</text>
+        <text x="75" y="602" font-size="11.5" fill="#37474f">hidden 1,792 B</text>
+        <text x="75" y="622" font-size="11.5" fill="#37474f">history 18,992 B</text>
+        <text x="75" y="642" font-size="11.5" fill="#37474f">raw logits 303,872 B</text>
+
+        <!-- PS 端口 -->
+        <rect x="440" y="196" width="130" height="48" rx="6" fill="#e8eaf6" stroke="#5c6bc0" stroke-width="1.5"/>
+        <text x="505" y="214" font-size="11" font-weight="bold" text-anchor="middle" fill="#283593">M_AXI_HPM0_FPD</text>
+        <text x="505" y="232" font-size="10.5" text-anchor="middle" fill="#3949ab">AXI4-Lite · PS→PL</text>
+        <rect x="440" y="400" width="130" height="84" rx="6" fill="#fff5f3" stroke="#c62828" stroke-width="2"/>
+        <text x="505" y="420" font-size="11.5" font-weight="bold" text-anchor="middle" fill="#c62828">S_AXI_HP0_FPD</text>
+        <text x="505" y="438" font-size="10.5" text-anchor="middle" fill="#37474f">AXI4 从 · 128-bit</text>
+        <text x="505" y="456" font-size="10.5" font-weight="bold" text-anchor="middle" fill="#c62828">峰值 1.6 GB/s</text>
+        <text x="505" y="472" font-size="10" text-anchor="middle" fill="#ef6c00">拆分 &gt;16 拍 burst</text>
+
+        <!-- PS/PL 边界 -->
+        <line x1="730" y1="150" x2="730" y2="700" stroke="#b0bec5" stroke-width="1.5" stroke-dasharray="8 6"/>
+        <text transform="rotate(-90 718 430)" x="718" y="430" font-size="11" text-anchor="middle" fill="#90a4ae">PS / PL 硬边界</text>
+
+        <!-- PL 外框 -->
+        <rect x="770" y="140" width="480" height="560" rx="12" fill="#f8fafc" stroke="#4a6fa5" stroke-width="1.5"/>
+        <text x="785" y="170" font-size="15" font-weight="bold" fill="#263238">PL（可编程逻辑）</text>
+        <rect x="800" y="192" width="160" height="56" rx="8" fill="#ffffff" stroke="#90a4ae" stroke-width="1.5"/>
+        <text x="880" y="216" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#263238">SmartConnect</text>
+        <text x="880" y="234" font-size="10.5" text-anchor="middle" fill="#78909c">axi_smc_ctrl</text>
+        <rect x="800" y="430" width="160" height="120" rx="8" fill="#ffffff" stroke="#90a4ae" stroke-width="1.5"/>
+        <text x="880" y="458" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#263238">SmartConnect</text>
+        <text x="880" y="476" font-size="10.5" text-anchor="middle" fill="#78909c">axi_smc_mem</text>
+        <text x="880" y="500" font-size="11" font-weight="bold" text-anchor="middle" fill="#c62828">4→1 仲裁</text>
+        <text x="880" y="524" font-size="10.5" text-anchor="middle" fill="#78909c">位宽 32→128 转换</text>
+
+        <!-- 内核 -->
+        <rect x="1010" y="230" width="220" height="400" rx="12" fill="#f8fafc" stroke="#4a6fa5" stroke-width="1.5"/>
+        <text x="1120" y="258" font-size="14" font-weight="bold" text-anchor="middle" fill="#263238">lm_head_argmax</text>
+        <rect x="1002" y="280" width="16" height="12" fill="#c5cae9"/>
+        <text x="1028" y="290" font-size="11" fill="#37474f">s_axi_control（AXI4-Lite 从）</text>
+        <rect x="1002" y="330" width="16" height="12" fill="#b0bec5"/>
+        <text x="1028" y="340" font-size="11" fill="#37474f">m_axi_gmem_hidden（主）</text>
+        <rect x="1002" y="370" width="16" height="12" fill="#ef5350"/>
+        <text x="1028" y="380" font-size="11" font-weight="bold" fill="#c62828">m_axi_gmem_weight（主）</text>
+        <text x="1028" y="396" font-size="10" fill="#c62828">272,269,312 B / token ← 主流量</text>
+        <rect x="1002" y="410" width="16" height="12" fill="#b0bec5"/>
+        <text x="1028" y="420" font-size="11" fill="#37474f">m_axi_gmem_history（主）</text>
+        <rect x="1002" y="450" width="16" height="12" fill="#b0bec5"/>
+        <text x="1028" y="460" font-size="11" fill="#37474f">m_axi_gmem_logits（主）</text>
+        <text x="1028" y="476" font-size="10" fill="#78909c">调试写回（write_logits 可关）</text>
+        <text x="1028" y="608" font-size="10.5" fill="#78909c">ap_clk ← PL0 100 MHz</text>
+
+        <!-- 控制面箭头 -->
+        <line x1="240" y1="220" x2="440" y2="220" stroke="#546e7a" stroke-width="2" marker-end="url(#arrC)"/>
+        <text x="340" y="208" font-size="11" font-weight="bold" text-anchor="middle" fill="#5c6bc0">AXI4-Lite</text>
+        <line x1="570" y1="220" x2="800" y2="220" stroke="#546e7a" stroke-width="2" marker-end="url(#arrC)"/>
+        <text x="685" y="208" font-size="11" font-weight="bold" text-anchor="middle" fill="#5c6bc0">AXI4-Lite</text>
+        <polyline points="960,220 981,220 981,286 1002,286" fill="none" stroke="#546e7a" stroke-width="2" marker-end="url(#arrC)"/>
+        <text transform="rotate(-90 993 253)" x="993" y="253" font-size="10" text-anchor="middle" fill="#5c6bc0">参数 / ap_start / ap_done</text>
+
+        <!-- 数据面箭头 -->
+        <polyline points="1002,336 975,336 975,445 960,445" fill="none" stroke="#546e7a" stroke-width="1.5" marker-end="url(#arrC)"/>
+        <polyline points="1002,376 978,376 978,470 960,470" fill="none" stroke="#c62828" stroke-width="2.5" marker-end="url(#arrR)"/>
+        <polyline points="1002,416 981,416 981,495 960,495" fill="none" stroke="#546e7a" stroke-width="1.5" marker-end="url(#arrC)"/>
+        <polyline points="1002,456 984,456 984,520 960,520" fill="none" stroke="#546e7a" stroke-width="1.5" marker-end="url(#arrC)"/>
+        <polyline points="800,490 660,490 660,442 570,442" fill="none" stroke="#c62828" stroke-width="2.5" marker-end="url(#arrR)"/>
+        <text x="672" y="470" font-size="11" font-weight="bold" fill="#c62828">AXI4 · burst ≤256 拍</text>
+        <text x="660" y="512" font-size="10.5" fill="#c62828">outstanding=16 · 汇聚争用</text>
+        <polyline points="440,442 300,442 300,338 250,338" fill="none" stroke="#546e7a" stroke-width="2" marker-end="url(#arrC)"/>
+        <text x="305" y="420" font-size="10.5" fill="#546e7a">请求：AR / AW / W / B →</text>
+        <text x="305" y="436" font-size="10.5" fill="#78909c">读数据 R ←（反向返回）</text>
+        <line x1="150" y1="366" x2="150" y2="430" stroke="#546e7a" stroke-width="2" marker-end="url(#arrC)"/>
+        <line x1="150" y1="486" x2="150" y2="530" stroke="#546e7a" stroke-width="2" marker-end="url(#arrC)"/>
+
+        <!-- 时钟说明 -->
+        <text x="785" y="656" font-size="11" fill="#455a64">时钟域：PL0_REF_CTRL 100 MHz（DPLL，Tcl L49）→</text>
+        <text x="785" y="674" font-size="11" fill="#455a64">ap_clk / SmartConnect aclk / saxihp0_fpd_aclk；P3 提频需整链核对（§5 P3）</text>
+
+        <!-- 底部时序 -->
+        <rect x="30" y="716" width="1220" height="80" rx="8" fill="#f5f5f5" stroke="#cfd8dc"/>
+        <text x="50" y="740" font-size="12.5" font-weight="bold" fill="#37474f">RUN_TOKEN 总线时序：① AXI4-Lite 写参数 + ap_start → ② AXI4 burst 经 HP0 读权重 / hidden / history，行尾写 logits → ③ 轮询 ap_done → 读 token / score</text>
+        <text x="50" y="764" font-size="12" fill="#78909c">MMIO 启动 / 轮询开销包含在板端 hw_us 计时内（§2）；权重束为绝对主流量（272,269,312 B/token），其余三束均为小数据量</text>
+        <text x="50" y="786" font-size="12" fill="#78909c">4 个 m_axi 汇入同一 HP0 → 带宽按总和竞争（§4.2）；P4 可扩展第二 HP 口，但不与 PS 互连 / DDR 控制器共享上限线性叠加</text>
+      </svg>
+      <figcaption>图 3 · 系统总线与端口连线（PS/PL 视角）</figcaption>
+      </figure>
+      <ul class="points">
+        <li><strong>两条路径职责分离</strong>：参数 / 启动 / 轮询走 AXI4-Lite（轻量、无 burst、寄存器级）；批量数据走 AXI4（burst 突发）。</li>
+        <li><strong>HP0 非一致性</strong>：PL 与 A53 cache 不自动一致——权重常驻不变时无需每 token flush，hidden / logits 方向需软件维护一致性（§4.5）。</li>
+        <li><strong>HP 口流量整形</strong>：会拆分 &gt;16 拍的 burst，内核发出的长 burst 到 HP0 侧变成更多小事务（§9，AMD wiki）。</li>
+        <li><strong>4 个 m_axi 在 SmartConnect 汇聚为一个 HP0</strong>：带宽按总和竞争，weight 束是绝对主导；位宽 32→128 在此转换。</li>
+        <li><strong>时钟链</strong>：PL0_REF_CTRL（100 MHz，DPLL）→ ap_clk / SmartConnect aclk / saxihp0_fpd_aclk；P3 提频必须整链同步核对。</li>
+        <li><strong>P4 扩展路线</strong>：将部分权重流量分到第二个 HP 口（如 HP1）开第二扇门，但 PS 互连与 DDR 控制器仍共享，不保证线性加速。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2 class="n">端口清单</h2>
+      <table>
+        <tr><th style="width:24%">端口</th><th style="width:12%">位置</th><th style="width:12%">方向</th><th style="width:16%">类型</th><th>作用</th></tr>
+        <tr><td>M_AXI_HPM0_FPD</td><td>PS</td><td>PS→PL</td><td>AXI4-Lite 主</td><td>访问内核寄存器堆：写 11 个参数 + ap_start，轮询 ap_done，读 selected_token / selected_score</td></tr>
+        <tr><td>s_axi_control</td><td>PL·内核</td><td>从</td><td>AXI4-Lite</td><td>上行的寄存器堆（cpp L51–62 的 s_axilite 声明生成；P2 改接口须核对 offset，§5）</td></tr>
+        <tr><td>m_axi_gmem_hidden</td><td>PL·内核</td><td>PL→PS</td><td>AXI4 主</td><td>hidden 装载：1,792 B / token</td></tr>
+        <tr><td><strong>m_axi_gmem_weight</strong></td><td>PL·内核</td><td>PL→PS</td><td>AXI4 主</td><td><strong>权重流式读：272,269,312 B / token</strong>；burst ≤256 拍 · outstanding=16</td></tr>
+        <tr><td>m_axi_gmem_history</td><td>PL·内核</td><td>PL→PS</td><td>AXI4 主</td><td>history bitmap 读：18,992 B（penalty 查询）</td></tr>
+        <tr><td>m_axi_gmem_logits</td><td>PL·内核</td><td>PL→PS</td><td>AXI4 主</td><td>raw logits 写回：303,872 B（write_logits 开关控制，调试用）</td></tr>
+        <tr><td><strong>S_AXI_HP0_FPD</strong></td><td>PS</td><td>PL→PS</td><td>AXI4 从 · 128-bit</td><td>唯一 DDR 收口：峰值 1.6 GB/s @100 MHz / 3.2 @200 MHz；含 FIFO 与流量整形（拆 &gt;16 拍 burst）</td></tr>
+      </table>
+      <p class="note">四束数据在 axi_smc_mem（SmartConnect）完成 4→1 仲裁与位宽转换后共用 HP0——因此“4 个 bundle”不等于 4 条独立通道（§4.2）。</p>
+    </div>
+  </section>
+
+  <section id="panel-fifo" class="panel">
+    <div class="card">
+      <h2 class="n">FIFO 解耦原理：切断时序依赖 / 吞吐依赖（交互演示）</h2>
+      <p class="lead">配置按问答给出：H=896，8 lanes，112 word/token，ACC_INTERLEAVE=16，context FIFO 256-bit × 32（= 2 个 token）。箭头/格子为原理演示；对话原文写 BF16，本项目权重为 FP16（同为 16-bit，8×16=128-bit 结论一致）。</p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px">
+        <div class="fl-box">
+          <div class="fl-t">① 物理时序解耦 —— 切断的是组合路径，不是逻辑依赖</div>
+          <div class="fx-path fx-bad"><span class="fx-stage">点积加法器</span><span class="fx-arrow">━━ 同一拍内：乘法 → FP32 累加 → 传递 → 归约加法 ━━▶</span><span class="fx-stage">归约加法器</span><span class="fx-note">路径长 → 建立时间难收敛 → 频率上不去</span></div>
+          <div class="fx-path fx-good"><span class="fx-stage">点积阶段</span><span class="fx-arrow">──▶ 写 FIFO（周期 N）</span><span class="fx-stage">BRAM / 寄存器 / FIFO 控制</span><span class="fx-arrow">读 FIFO（周期 N+k）──▶</span><span class="fx-stage">归约阶段</span><span class="fx-note">两段各自满足自己的建立时间，可分别优化</span></div>
+          <p class="fl-sub">切断的是“直接组合路径 + 同周期完成要求”。逻辑依赖仍在：归约必须等点积结果；FIFO 的 empty / full 仍构成控制依赖——空则消费者等待，满则生产者暂停。</p>
+        </div>
+        <div class="fl-box">
+          <div class="fl-t">② 吞吐解耦 —— 只吸收短时波动，不改长期瓶颈</div>
+          <p class="fl-sub">FIFO 可吸收：DDR 返回延迟 · AXI burst 边界停顿 · FP32 加法 / 归约树流水延迟 · 控制状态机间歇 · 双方启动时间差。但若归约长期更慢，FIFO 终将填满并反压暂停点积，因此：</p>
+          <div class="fl-acc" style="text-align:center">稳态吞吐 = min( 点积吞吐，归约吞吐，访存吞吐 )</div>
+          <p class="fl-sub">下面的模拟器可验证：把归约调慢 → FIFO 逐渐填满 → 点积被反压 → 总吞吐收敛到归约速率；打开 DDR 抖动 → FIFO 吸收停顿，慢归约场景下吞吐完全不变。</p>
+        </div>
+        <div class="fl-box">
+          <div class="fl-t">③ 三层机制各管一段</div>
+          <table class="fx-ctx" style="width:100%">
+            <tr><th>机制</th><th>解决什么</th></tr>
+            <tr><td>partial[8][16] 交错槽</td><td>点积<b>内部</b> FP32 累加反馈依赖（word i → slot i mod 16，回灌间隔 16 ≥ 加法延迟 → II=1）</td></tr>
+            <tr><td>weight_fifo</td><td>访存阶段 ↔ 计算阶段之间的速率抖动（缓存权重 beat）</td></tr>
+            <tr><td>context_fifo</td><td>点积阶段 ↔ 归约阶段之间的阶段间解耦（缓存 partial-sum slice）</td></tr>
+          </table>
+          <p class="fl-sub">FIFO 不消除真实数据依赖，也不让长期较慢的阶段自动变快；它把严格的同周期依赖变成带缓存、跨周期、可反压的流水连接。</p>
+        </div>
+      </div>
+
+      <div class="fl-tools">
+        <span class="fl-group">
+          <button id="fx-play">▶ 播放</button>
+          <button id="fx-pause" disabled="disabled">⏸ 暂停</button>
+          <button id="fx-step">单步 +1 拍</button>
+          <button id="fx-ff">快进 ×100 拍</button>
+          <button id="fx-reset">↺ 重置</button>
+        </span>
+        <span class="fl-group">速度
+          <select id="fx-speed">
+            <option value="s1">慢速 ×1 拍/帧</option>
+            <option value="s2" selected="selected">中速 ×16</option>
+            <option value="s3">快速 ×100</option>
+            <option value="s4">极速 ×500</option>
+          </select>
+        </span>
+        <span class="fl-group">归约速度
+          <select id="fx-cons">
+            <option value="fast" selected="selected">快（16 弹出 + 7 拍树 ≈ 23 拍/token）</option>
+            <option value="slow">慢（150 拍/token，长期瓶颈）</option>
+          </select>
+        </span>
+        <span class="fl-group"><label><input type="checkbox" id="fx-jit" /> DDR / burst 抖动（每 token 停 16 拍）</label></span>
+      </div>
+      <div class="fl-stats">
+        <span class="chip">拍 <b id="fx-cyc">0</b></span>
+        <span class="chip">产出 token <b id="fx-prod">0</b></span>
+        <span class="chip">已归约 token <b id="fx-redn">0</b></span>
+        <span class="chip">FIFO 水位 <b id="fx-lvl">0 / 32</b></span>
+        <span class="chip">点积阶段 <b id="fx-pstate" class="fx-state fx-run">计算 word</b></span>
+        <span class="chip">归约阶段 <b id="fx-cstate" class="fx-state fx-wait">等待（FIFO 空）</b></span>
+        <span class="chip">产出吞吐 <b id="fx-tp">–</b></span>
+        <span class="chip">归约吞吐 <b id="fx-tc">–</b></span>
+      </div>
+      <div class="fl-box">
+        <div class="fl-t">context_fifo（256-bit × 32，1 格 = 1 个 context slice = 8 lane × FP32）</div>
+        <div class="fl-sub">绿/蓝 = 偶/奇 token 的 16 个 slice；蓝框 = 归约阶段正在消费的 token 头部；虚线橙框 = 下一个写入位置；竖线 = token 边界参考（16 格处）</div>
+        <div class="fifo-bar" id="fx-fifowrap">
+          <div class="cells" id="fx-fifo" style="display:flex;gap:2px;flex-wrap:nowrap"></div>
+        </div>
+        <div class="fl-grid" style="margin-top:10px">
+          <div class="fl-box">
+            <div class="fl-t">点积阶段（生产者）</div>
+            <div class="fl-sub" id="fx-ptok">token 0 · word 0 / 112</div>
+            <div class="fl-sub">每 token：112 word × 1 拍（II=1）→ 推送 16 个 context slice（16 拍，演示模型不与计算重叠）</div>
+          </div>
+          <div class="fl-box">
+            <div class="fl-t">归约阶段（消费者）</div>
+            <div class="fl-sub" id="fx-ctok">–</div>
+            <div class="fl-sub">每 token：弹出 16 slice（1 拍/个）→ sum_lane[j] = Σ partial[j][k]（8 路并行 16 拍）→ logit = Σ sum_lane（树 ≈7 拍）</div>
+          </div>
+        </div>
+      </div>
+      <div class="fl-caption" id="fx-cap">点击「▶ 播放」或「单步」开始：先看 FIFO 如何让两个阶段互不等待，再切“慢归约”看反压。</div>
+      <script>
+//<![CDATA[
+      (function () {
+        var FIFOCAP = 32, SLICES = 16, WORDS = 112, TREE = 7;
+        var PERIOD = { fast: 0, slow: 150 };
+        var JCYC = 16, JAT = 56;
+        var speeds = { s1: [1, 120], s2: [16, 70], s3: [100, 40], s4: [500, 30] };
+        var sim = null, timer = null, running = false;
+        function $(id) { return document.getElementById(id); }
+        function fmt(n) { return String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+        function build() {
+          var host = $("fx-fifo"); host.innerHTML = "";
+          for (var k = 0; k !== FIFOCAP; k++) {
+            var d = document.createElement("div");
+            d.className = "fx-cell";
+            if (k === 15) d.style.marginRight = "10px";
+            host.appendChild(d);
+          }
+        }
+        function buildCtx() {
+          var t = $("fx-ctx"); if (!t) return;
+          var html = "<tr><th>slot</th>";
+          for (var l = 0; l !== 8; l++) html += "<th>lane " + l + "</th>";
+          html += "</tr>";
+          for (var k2 = 0; k2 !== SLICES; k2++) {
+            html += "<tr><th>ctx[" + k2 + "]</th>";
+            for (var l2 = 0; l2 !== 8; l2++) html += "<td>p" + l2 + "[" + k2 + "]</td>";
+            html += "</tr>";
+          }
+          t.innerHTML = html;
+        }
+        function fresh() {
+          return {
+            cyc: 0, prodTok: 0, word: 0, pushTok: 0, pushLeft: 0, stall: 0, jitDone: false,
+            fifo: [], consTok: -1, slicesLeft: 0, treeLeft: 0, cNextStart: 0,
+            produced: 0, reduced: 0,
+            pState: "计算 word", cState: "等待（FIFO 空）"
+          };
+        }
+        function step1() {
+          var s = sim;
+          if (s.pushLeft > 0) {
+            if (s.fifo.length < FIFOCAP) {
+              s.fifo.push(s.pushTok); s.pushLeft--;
+              if (s.pushLeft === 0) { s.produced++; s.prodTok++; s.word = 0; s.jitDone = false; s.pState = "计算 word"; }
+              else s.pState = "推送 context slice";
+            } else { s.pState = "暂停（FIFO 满）"; s.pushLeft = SLICES; }
+          } else if (s.stall > 0) {
+            s.stall--; s.pState = "停顿（DDR / burst 抖动）";
+          } else if ($("fx-jit").checked && !s.jitDone && s.word === JAT) {
+            s.stall = JCYC - 1; s.jitDone = true; s.pState = "停顿（DDR / burst 抖动）";
+          } else {
+            s.word++; s.pState = "计算 word " + s.word + " / " + WORDS;
+            if (s.word >= WORDS) { s.pushTok = s.prodTok; s.pushLeft = SLICES; s.pState = "推送 context slice"; }
+          }
+          if (s.treeLeft > 0) {
+            s.treeLeft--;
+            if (s.treeLeft === 0) { s.reduced++; s.cState = "空闲（等待下一 token）"; }
+          } else if (s.slicesLeft > 0) {
+            if (s.fifo.length > 0) { s.consTok = s.fifo[0]; s.fifo.shift(); s.slicesLeft--; s.cState = "弹出 context slice"; }
+            else s.cState = "等待（FIFO 空：依赖未消失）";
+            if (s.slicesLeft === 0) { s.treeLeft = TREE; s.cState = "归约树（" + TREE + " 拍）"; }
+          } else {
+            var period = PERIOD[$("fx-cons").value];
+            if (s.fifo.length >= SLICES && s.cyc >= s.cNextStart) {
+              s.slicesLeft = SLICES; s.consTok = s.fifo[0];
+              s.cNextStart = s.cyc + period + 1;
+              s.cState = "弹出 context slice";
+            } else if (s.fifo.length < SLICES) s.cState = "等待（FIFO 空：依赖未消失）";
+            else s.cState = "空闲（归约周期未到）";
+          }
+          s.cyc++;
+        }
+        function caption() {
+          if (sim.fifo.length >= FIFOCAP && sim.pState.indexOf("暂停") === 0)
+            return "【反压】FIFO 满（32/32）：点积阶段被迫暂停 —— 稳态吞吐 = min(点积，归约，访存)，当前长期瓶颈 = 归约阶段。FIFO 只能隐藏短时波动，不能改变长期瓶颈。";
+          if (sim.fifo.length === 0 && sim.cState.indexOf("等待") === 0)
+            return "【空等】FIFO 为空：归约阶段必须等待点积结果 —— 数据依赖没有消失，FIFO 只是把“同拍配合”改成“带缓存的跨周期配合”。";
+          if (sim.pState.indexOf("停顿") === 0 && sim.fifo.length > 0)
+            return "【吸收】点积阶段因 DDR / burst 抖动停顿，FIFO 中已缓存的 context 让归约阶段继续运行 —— 短时波动被吸收" + ($("fx-cons").value === "slow" ? "（归较慢时抖动完全不改变总吞吐）" : "（注意：点积本身是瓶颈时，损失的拍仍会降低吞吐）") + "。";
+          return "【流水】两个阶段按各自节奏运行：FIFO 非空未满时互不牵制。稳态吞吐 = min(点积，归约，访存)，FIFO 的作用是把必须同拍配合改成带缓存、跨周期、可反压的连接。";
+        }
+        function render() {
+          var host = $("fx-fifo"), kids = host.children;
+          for (var k = 0; k !== FIFOCAP; k++) {
+            var c = kids[k];
+            c.className = "fx-cell";
+            if (k < sim.fifo.length) {
+              c.classList.add((sim.fifo[k] % 2 === 0) ? "tk0" : "tk1");
+              if (k === 0 && sim.slicesLeft > 0) c.classList.add("head");
+            } else if (k === sim.fifo.length && sim.pushLeft > 0) c.classList.add("wptr");
+          }
+          $("fx-fifowrap").className = "fifo-bar" + (sim.fifo.length >= FIFOCAP ? " full" : "");
+          $("fx-cyc").textContent = fmt(sim.cyc);
+          $("fx-prod").textContent = fmt(sim.produced);
+          $("fx-redn").textContent = fmt(sim.reduced);
+          $("fx-lvl").textContent = sim.fifo.length + " / 32";
+          var ps = $("fx-pstate");
+          ps.textContent = sim.pState;
+          ps.className = "fx-state " + (sim.pState.indexOf("暂停") === 0 ? "fx-stall" : (sim.pState.indexOf("停顿") === 0 ? "fx-wait" : "fx-run"));
+          var cs = $("fx-cstate");
+          cs.textContent = sim.cState;
+          cs.className = "fx-state " + (sim.cState.indexOf("等待") === 0 ? "fx-wait" : "fx-run");
+          $("fx-tp").textContent = sim.cyc > 0 ? (sim.produced / sim.cyc * 1000).toFixed(1) + " token / 千拍" : "–";
+          $("fx-tc").textContent = sim.cyc > 0 ? (sim.reduced / sim.cyc * 1000).toFixed(1) + " token / 千拍" : "–";
+          $("fx-ptok").textContent = "token " + sim.prodTok + " · word " + sim.word + " / 112";
+          $("fx-ctok").textContent = sim.consTok >= 0
+            ? "token " + sim.consTok + (sim.slicesLeft > 0 ? " · 剩 " + sim.slicesLeft + " slice" : (sim.treeLeft > 0 ? " · 归约树中" : ""))
+            : "–";
+          $("fx-cap").textContent = caption();
+        }
+        function setRun(on) {
+          running = on;
+          if (timer) { clearInterval(timer); timer = null; }
+          if (on) {
+            var sp = speeds[$("fx-speed").value];
+            timer = setInterval(function () { stepn(sp[0]); }, sp[1]);
+          }
+          $("fx-play").disabled = on;
+          $("fx-pause").disabled = !on;
+        }
+        function stepn(n) {
+          for (var k = 0; k !== n; k++) step1();
+          render();
+        }
+        $("fx-play").addEventListener("click", function () { setRun(true); });
+        $("fx-pause").addEventListener("click", function () { setRun(false); });
+        $("fx-step").addEventListener("click", function () { setRun(false); stepn(1); });
+        $("fx-ff").addEventListener("click", function () { setRun(false); stepn(100); });
+        $("fx-reset").addEventListener("click", function () { setRun(false); sim = fresh(); render(); });
+        $("fx-speed").addEventListener("change", function () { if (running) { setRun(false); setRun(true); } });
+        build();
+        if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", buildCtx); else buildCtx();
+        sim = fresh();
+        render();
+      })();
+//]]>
+      </script>
+    </div>
+
+    <div class="card">
+      <h2 class="n">上下文组织与两级 FIFO</h2>
+      <div class="fl-grid">
+        <div class="fl-box">
+          <div class="fl-t">一个 token 的 16 个 context slice（256-bit / 个）</div>
+          <div class="fl-sub">点积完成 112 word 后，每个 lane 留下 16 个 partial；硬件把同一 slot 的 8 个 lane 打包成一个 slice 写入 FIFO</div>
+          <table class="fx-ctx" id="fx-ctx"></table>
+          <div class="fl-sub">FIFO 宽度 = 8 × FP32 = 256 bit；每 token 写 16 个 slice；深度 32 → 32 / 16 = 2 个 token 的缓冲</div>
+        </div>
+        <div class="fl-box">
+          <div class="fl-t">两级 FIFO 各管一段</div>
+          <div class="fx-path"><span class="fx-stage">DDR / AXI</span><span class="fx-arrow">──▶</span><span class="fx-stage">weight_fifo</span><span class="fx-arrow">──▶</span><span class="fx-stage">点积阶段（partial[8][16]，II=1）</span><span class="fx-arrow">──▶</span><span class="fx-stage">context_fifo 256×32</span><span class="fx-arrow">──▶</span><span class="fx-stage">归约阶段（8 路求和 + 树）</span><span class="fx-arrow">──▶</span><span class="fx-stage">FP16 logit</span></div>
+          <ul class="points">
+            <li>weight_fifo：隐藏 DDR / AXI 权重读取延迟，解耦访存与计算；</li>
+            <li>context_fifo：解耦点积与归约，深度 32 ≈ 缓存 2 个完整 token 的上下文，即使归约短暂停顿点积也不必立刻停止；</li>
+            <li>partial[8][16]：解决点积内部的 FP32 加法反馈依赖（II=1 的来源）。</li>
+          </ul>
+          <p class="fl-sub">归约阶段读出一个 token 的 16 个 slice 后：sum_lane[j] = partial[j][0] + … + partial[j][15]（8 路并行），再 logit = sum_lane[0] + … + sum_lane[7]。FIFO 中保存的是部分和，不是最终 logit。</p>
+        </div>
+      </div>
+      <p class="note">口径注记：本页参数（ACC_INTERLEAVE=16、context FIFO 256-bit×32、weight_fifo / context_fifo 两级划分）来自问答给出的配置，作为架构原理演示；对话原文中的 BF16 对应本项目 FP16（位宽相同）。文档 §5 P2 所述“双组 partial、归约与下一行重叠”即该解耦机制的目标效果；具体 FIFO 深度/宽度以实际 RTL 为准。</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">仅基于 doc/LM_HEAD_PERFORMANCE_ANALYSIS_20260916.md 绘制 · 未参考 doc 目录其他文件 · 2026-09-16</div>
+</footer>
+
+<script>
+function show(pid, bid) {
+  document.querySelectorAll(".panel").forEach(function (p) { p.classList.remove("active"); });
+  document.querySelectorAll(".tabbar button").forEach(function (b) { b.classList.remove("active"); });
+  document.getElementById(pid).classList.add("active");
+  document.getElementById(bid).classList.add("active");
+  window.scrollTo({ top: 0 });
+}
+</script>
+</body>
+</html>

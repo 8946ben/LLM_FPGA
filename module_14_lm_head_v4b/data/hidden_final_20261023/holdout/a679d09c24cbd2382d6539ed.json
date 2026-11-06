@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/professional_accounting.csv:133",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "1a7a216c979bc95a22a8a28bb17ee982483d4f37e97a75b07237a10bcd4f89d9",
+  "group_sha256": "f8aa072a7a8ad7c44a08f46e2ebc49a50d0785a95ea1e28a8a39af0cd4a3d299",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "a679d09c24cbd2382d6539ed.npz",
+  "npz_sha256": "f589a9afdcf173b00a1313d8c530fefd5099a4432daf9be435a3fc6f9041d39b",
+  "generated_ids": [
+    53153,
+    100622,
+    104141,
+    59743,
+    80101,
+    104282,
+    9370,
+    109487,
+    20412,
+    5122,
+    105966,
+    110655,
+    3407,
+    104136,
+    104506,
+    48443
+  ],
+  "input_tokens": 85,
+  "seconds": 1.5206628000014462,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

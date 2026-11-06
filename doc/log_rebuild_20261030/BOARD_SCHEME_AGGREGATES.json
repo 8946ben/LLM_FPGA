@@ -1,0 +1,149 @@
+{
+  "state": "DERIVED_FROM_240_SAVED_RAW_MEASUREMENTS_NO_NEW_TESTS",
+  "methods": [
+    {
+      "scheme_id": "hybrid128",
+      "name": "L2聚类128中心＋rank128低秩预筛＋BF16候选精算",
+      "formula": "120 / sum((end_ticks-start_ticks)/counter_hz), only kind=1 measurement records",
+      "class_weights": {
+        "chinese": 0.25,
+        "english": 0.25,
+        "code": 0.25,
+        "math": 0.25
+      },
+      "measurements": 120,
+      "rate": 20.869801937755444,
+      "mean_ms": 47.91612316123161,
+      "pooled_median_ms": 46.44116941169411,
+      "pooled_p95_ms": 54.960729607296074,
+      "per_case": {
+        "chinese": {
+          "measurements": 30,
+          "sum_seconds": 1.341950949509495,
+          "mean_ms": 44.73169831698317
+        },
+        "english": {
+          "measurements": 30,
+          "sum_seconds": 1.6486883868838689,
+          "mean_ms": 54.95627956279563
+        },
+        "code": {
+          "measurements": 30,
+          "sum_seconds": 1.4443915039150392,
+          "mean_ms": 48.14638346383464
+        },
+        "math": {
+          "measurements": 30,
+          "sum_seconds": 1.3149039390393904,
+          "mean_ms": 43.83013130131301
+        }
+      },
+      "sources": [
+        {
+          "case": "chinese",
+          "path": "module_14_lm_head_v4/reports/board_acceptance_20261030_r3/chinese",
+          "header_sha256": "831f76c77c2239e8f9b352605b4e582a89284385091f0e36bf1f23235b5388d6",
+          "records_sha256": "a1fd3542c3d821478a3649a98d4d7a307d31f8e29589a61e41b4bcc44c157c73",
+          "counter_hz": 33333000,
+          "measurements": 30
+        },
+        {
+          "case": "english",
+          "path": "module_14_lm_head_v4/reports/board_acceptance_20261030_r3/english",
+          "header_sha256": "ff49c1c058c0ccdea96130e4bb2cca565d06e39a09e3397d598b8313b85544de",
+          "records_sha256": "265c8a9f3d50d3584e8b47c216e6e7364c138d53a6ffa00169cb8616e9a86144",
+          "counter_hz": 33333000,
+          "measurements": 30
+        },
+        {
+          "case": "code",
+          "path": "module_14_lm_head_v4/reports/board_acceptance_20261030_r3/code",
+          "header_sha256": "967dfb04ca7fad8179ca2726b89cb9b247475c2a29c846ae54a1bf02310840dc",
+          "records_sha256": "ef61f41646504610648d83e3b95f59153e9f40b2a28b690308057d99c08060d0",
+          "counter_hz": 33333000,
+          "measurements": 30
+        },
+        {
+          "case": "math",
+          "path": "module_14_lm_head_v4/reports/board_acceptance_20261030_r3/math",
+          "header_sha256": "3ed3fa4f779e0f0ddbe04717d6fe5e98b83806e6bb480f71bfaada51fd44d355",
+          "records_sha256": "3d775b2cecc99f7f091f6a84c6e61a2950c80e81eeefad0778bed8e073fa7fcb",
+          "counter_hz": 33333000,
+          "measurements": 30
+        }
+      ]
+    },
+    {
+      "scheme_id": "hybrid256",
+      "name": "L2聚类256中心＋rank64低秩预筛＋BF16候选精算",
+      "formula": "120 / sum((end_ticks-start_ticks)/counter_hz), only kind=1 measurement records",
+      "class_weights": {
+        "chinese": 0.25,
+        "english": 0.25,
+        "code": 0.25,
+        "math": 0.25
+      },
+      "measurements": 120,
+      "rate": 27.436506710072937,
+      "mean_ms": 36.44778872788728,
+      "pooled_median_ms": 34.10527105271052,
+      "pooled_p95_ms": 45.41952419524195,
+      "per_case": {
+        "chinese": {
+          "measurements": 30,
+          "sum_seconds": 0.9901310413104131,
+          "mean_ms": 33.00436804368044
+        },
+        "english": {
+          "measurements": 30,
+          "sum_seconds": 1.362140251402514,
+          "mean_ms": 45.40467504675047
+        },
+        "code": {
+          "measurements": 30,
+          "sum_seconds": 1.0558366183661836,
+          "mean_ms": 35.194553945539454
+        },
+        "math": {
+          "measurements": 30,
+          "sum_seconds": 0.9656267362673626,
+          "mean_ms": 32.187557875578754
+        }
+      },
+      "sources": [
+        {
+          "case": "chinese",
+          "path": "module_14_lm_head_v4/experiments/fusion_exp10_20261023/reports/board_acceptance_20261030_r3/chinese",
+          "header_sha256": "db7076f18bd291f029dd7e3f544f4d43e7c1beb4b6fb1c0da6be918cf2bce339",
+          "records_sha256": "5786c7838abcfce20b3d08c9930710255339f8213c3e297f745cddfd832b039e",
+          "counter_hz": 33333000,
+          "measurements": 30
+        },
+        {
+          "case": "english",
+          "path": "module_14_lm_head_v4/experiments/fusion_exp10_20261023/reports/board_acceptance_20261030_r3/english",
+          "header_sha256": "d1305d94faa0bd7192d27b6da35bc85e497b83da979f26d91214d62eacac9e58",
+          "records_sha256": "b860234b21c1ed904fe6e912846bdcc712b15dc4038448b9f6b453591f6e47b9",
+          "counter_hz": 33333000,
+          "measurements": 30
+        },
+        {
+          "case": "code",
+          "path": "module_14_lm_head_v4/experiments/fusion_exp10_20261023/reports/board_acceptance_20261030_r3/code",
+          "header_sha256": "fdc26748c5251618c6621454b5382a272ebac8bc16f0e2f2fbdc46daea8aa00b",
+          "records_sha256": "e950861bdd80be3091c60d5c25a660b36839251c97b42c948aae4ebaa9e559cd",
+          "counter_hz": 33333000,
+          "measurements": 30
+        },
+        {
+          "case": "math",
+          "path": "module_14_lm_head_v4/experiments/fusion_exp10_20261023/reports/board_acceptance_20261030_r3/math",
+          "header_sha256": "1d9142ceb0248813114549740b14357bb9a33cf57f11942f58ff2b9245daf125",
+          "records_sha256": "f852681d3cc7697ca7109ea5b935400c579311e25eb6caf1e9caafc7b1673540",
+          "counter_hz": 33333000,
+          "measurements": 30
+        }
+      ]
+    }
+  ]
+}

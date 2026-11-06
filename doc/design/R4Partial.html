@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>路线设计</title>
+<style>
+:root{--bg:#f4f6fa;--ink:#1b2c42;--muted:#596a7e;--line:#dce3ec;--blue:#215fd0}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.75 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1280px;margin:auto;padding:28px;min-width:0}a{color:var(--blue)}h1{font-size:30px;line-height:1.4;margin:12px 0}h2{font-size:20px;margin:0 0 12px}h3{margin:0}p{overflow-wrap:anywhere}button{font:inherit;cursor:pointer;border:1px solid #bccce0;border-radius:7px;background:#fff;color:#295487;padding:6px 12px}button:focus-visible,a:focus-visible,[data-node]:focus-visible{outline:3px solid #4c8ae3;outline-offset:3px}.panel{min-width:0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin:16px 0}.muted{color:var(--muted);font-size:13px}.tag{display:inline-block;background:#edf3fc;border-radius:5px;padding:3px 9px;font-size:12px}.layout>*{min-width:0}.layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px}.diagram-scroll{overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fafcff}.diagram-scroll svg{display:block;width:100%;min-width:650px}.toolbar,.steps{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.steps button[aria-pressed=true]{background:#e5efff;border-color:#4984d6}.node rect{fill:#f0f5ff;stroke:#8eaacf;stroke-width:1.5}.node.selected rect{fill:#e0edff;stroke:#215fd0;stroke-width:3}.node.muted{opacity:.3}.node.step-active rect{fill:#e7f5ee;stroke:#428a70}.node{cursor:pointer}.node-label{font:600 15px/1.45 system-ui,"Microsoft YaHei",sans-serif;padding:12px;overflow:hidden;height:100%;overflow-wrap:anywhere}.node-label small{display:block;font-size:11px;font-weight:400;color:#5e7087;margin-top:5px}.edge{stroke:#8da4c3;stroke-width:2;fill:none}.stage-strip{display:flex;overflow:auto;gap:8px;padding:4px 0}.stage-item{flex:1 0 130px;padding:10px;border:1px solid var(--line);border-radius:7px;font-size:12px}.stage-item b,.stage-item span{display:block}.active{background:#e7efff;border-color:#215fd0}.verified{background:#e9f6ef}.waiting{background:#fff4de}.failed{background:#ffedf0}.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}li{overflow-wrap:anywhere}.proof a{display:inline-block;margin:0 14px 7px 0}.node-detail{white-space:pre-wrap;overflow-wrap:anywhere}.proposal{border-left:4px solid #c49a45;padding-left:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere}summary{cursor:pointer;color:var(--blue)}@media(max-width:800px){main{padding:16px}.layout,.cards{grid-template-columns:1fr}.panel{padding:15px}h1{font-size:25px}.diagram-scroll svg{min-width:700px}}[hidden]{display:none!important}
+</style></head><body><main>
+<a id="back" href="#">返回开发日志路线图</a><div class="muted" id="snapshot"></div>
+<h1 id="title"></h1><span id="scope" class="tag"></span><p id="goal"></p>
+<p id="boundary" class="proposal"></p>
+<section class="panel"><h2>验证进度</h2><div id="stages" class="stage-strip"></div><p id="outcome"></p><p id="next" class="muted"></p></section>
+<section class="panel"><h2>设计原理与数据流</h2><p id="overview"></p>
+ <div class="toolbar"><button id="zoom-in" type="button">放大</button><button id="zoom-fit" type="button">适合窗口</button><button id="reset" type="button">重置步骤</button></div>
+ <div class="layout"><div><div class="diagram-scroll" tabindex="0" aria-label="设计结构，可横向滚动"><svg id="diagram" role="group" aria-label="设计模块，点击或聚焦查看说明"></svg></div><div id="steps" class="steps"></div><p id="step-description" class="muted"></p></div><aside class="panel"><h3 id="node-title">模块说明</h3><p id="node-detail" class="node-detail"></p></aside></div>
+</section>
+<div class="cards"><section class="panel"><h2>实现边界与接口</h2><ul id="contracts"></ul></section><section class="panel"><h2>资源、性能与取舍</h2><ul id="tradeoffs"></ul></section></div>
+<section class="panel"><h2>实现与证据</h2><div id="evidence" class="proof"></div><p class="muted">图展示逻辑设计；验证结论以对应阶段和证据为准。离线页面不查询任务状态。</p></section>
+</main><script id="design-data" type="application/json">{
+  "route": {
+    "id": "R4Partial",
+    "title": "动态部分通道 d64 / Top4096",
+    "parent": "R4Sparse",
+    "lifecycle": "stopped",
+    "currentStage": "evaluation",
+    "scope": "d64 / T4096 / B1024 / 双W",
+    "goal": "降低预筛扫描与候选精算成本",
+    "outcome": "HLS与选择器/前5块通过；完整RTL保护停止，未上板。",
+    "next": "按任务总览决定后续；当前无执行。",
+    "cells": {
+      "contract": {
+        "state": "verified",
+        "note": "独立质量整体99.9465%",
+        "detail": "独立质量整体99.9465%",
+        "evidence": [
+          {
+            "label": "d64保护停止快照",
+            "href": "module_14_lm_head_v4/reports/full_bank_cosim_20261026_r1/RESULT.md"
+          },
+          {
+            "label": "前5块独立RTL数组复核",
+            "href": "module_14_lm_head_v4/reports/sim_memory_bank_20261026_r1/PREVIEW_REVIEW.json"
+          },
+          {
+            "label": "512MiB别名因果复现",
+            "href": "module_14_lm_head_v4/reports/partial_rtl_20261026_diagnosis_r1/ROOT_CAUSE_REVIEW.json"
+          }
+        ]
+      },
+      "implementation": {
+        "state": "verified",
+        "note": "原型11有效调用通过",
+        "detail": "原型11有效调用通过",
+        "evidence": [
+          {
+            "label": "d64保护停止快照",
+            "href": "module_14_lm_head_v4/reports/full_bank_cosim_20261026_r1/RESULT.md"
+          },
+          {
+            "label": "前5块独立RTL数组复核",
+            "href": "module_14_lm_head_v4/reports/sim_memory_bank_20261026_r1/PREVIEW_REVIEW.json"
+          },
+          {
+            "label": "512MiB别名因果复现",
+            "href": "module_14_lm_head_v4/reports/partial_rtl_20261026_diagnosis_r1/ROOT_CAUSE_REVIEW.json"
+          }
+        ]
+      },
+      "hls": {
+        "state": "verified",
+        "note": "HLS估计3.650ns",
+        "detail": "HLS估计3.650ns",
+        "evidence": [
+          {
+            "label": "d64保护停止快照",
+            "href": "module_14_lm_head_v4/reports/full_bank_cosim_20261026_r1/RESULT.md"
+          },
+          {
+            "label": "前5块独立RTL数组复核",
+            "href": "module_14_lm_head_v4/reports/sim_memory_bank_20261026_r1/PREVIEW_REVIEW.json"
+          },
+          {
+            "label": "512MiB别名因果复现",
+            "href": "module_14_lm_head_v4/reports/partial_rtl_20261026_diagnosis_r1/ROOT_CAUSE_REVIEW.json"
+          }
+        ]
+      },
+      "rtl": {
+        "state": "failed",
+        "note": "完整事务0/1，保护停止",
+        "detail": "完整事务0/1，保护停止",
+        "evidence": [
+          {
+            "label": "d64保护停止快照",
+            "href": "module_14_lm_head_v4/reports/full_bank_cosim_20261026_r1/RESULT.md"
+          },
+          {
+            "label": "前5块独立RTL数组复核",
+            "href": "module_14_lm_head_v4/reports/sim_memory_bank_20261026_r1/PREVIEW_REVIEW.json"
+          },
+          {
+            "label": "512MiB别名因果复现",
+            "href": "module_14_lm_head_v4/reports/partial_rtl_20261026_diagnosis_r1/ROOT_CAUSE_REVIEW.json"
+          }
+        ],
+        "execution": {
+          "snapshot_at": "2026-10-30T18:55:39+08:00",
+          "location": "STHL",
+          "host": "nvidia-Super-Server",
+          "tool": "Vitis_HLS / XSim 2022.2",
+          "cpu": "停止时占用未记录",
+          "memory_limit": "入口需200GiB可用；运行余量8GiB为保护门槛，不是实际RSS",
+          "current_task": "已退出：stop/time/resource guard: xsim",
+          "progress": "完整事务0/1；7返回文件0B",
+          "completed": "通道选择、ID写回及前5块分段资格；完整预览无返回",
+          "elapsed": "约17小时35分；48小时上限",
+          "scope": "完整单输入未取得数值与FIFO资格",
+          "next": "先定位触发项及仿真内存增长，不自动重跑",
+          "source": "module_14_lm_head_v4/reports/full_bank_cosim_20261026_r1/FULL_WORKFLOW.json"
+        }
+      },
+      "physical": {
+        "state": "planned",
+        "note": "新系统未实现",
+        "detail": "新系统未实现",
+        "evidence": [
+          {
+            "label": "d64保护停止快照",
+            "href": "module_14_lm_head_v4/reports/full_bank_cosim_20261026_r1/RESULT.md"
+          },
+          {
+            "label": "前5块独立RTL数组复核",
+            "href": "module_14_lm_head_v4/reports/sim_memory_bank_20261026_r1/PREVIEW_REVIEW.json"
+          },
+          {
+            "label": "512MiB别名因果复现",
+            "href": "module_14_lm_head_v4/reports/partial_rtl_20261026_diagnosis_r1/ROOT_CAUSE_REVIEW.json"
+          }
+        ]
+      },
+      "board": {
+        "state": "planned",
+        "note": "未上板",
+        "detail": "未上板",
+        "evidence": [
+          {
+            "label": "d64保护停止快照",
+            "href": "module_14_lm_head_v4/reports/full_bank_cosim_20261026_r1/RESULT.md"
+          },
+          {
+            "label": "前5块独立RTL数组复核",
+            "href": "module_14_lm_head_v4/reports/sim_memory_bank_20261026_r1/PREVIEW_REVIEW.json"
+          },
+          {
+            "label": "512MiB别名因果复现",
+            "href": "module_14_lm_head_v4/reports/partial_rtl_20261026_diagnosis_r1/ROOT_CAUSE_REVIEW.json"
+          }
+        ]
+      },
+      "evaluation": {
+        "state": "planned",
+        "note": "实板未测",
+        "detail": "实板未测",
+        "evidence": [
+          {
+            "label": "d64保护停止快照",
+            "href": "module_14_lm_head_v4/reports/full_bank_cosim_20261026_r1/RESULT.md"
+          },
+          {
+            "label": "前5块独立RTL数组复核",
+            "href": "module_14_lm_head_v4/reports/sim_memory_bank_20261026_r1/PREVIEW_REVIEW.json"
+          },
+          {
+            "label": "512MiB别名因果复现",
+            "href": "module_14_lm_head_v4/reports/partial_rtl_20261026_diagnosis_r1/ROOT_CAUSE_REVIEW.json"
+          }
+        ]
+      }
+    },
+    "evidence": [
+      {
+        "label": "d64保护停止快照",
+        "href": "module_14_lm_head_v4/reports/full_bank_cosim_20261026_r1/RESULT.md"
+      },
+      {
+        "label": "前5块独立RTL数组复核",
+        "href": "module_14_lm_head_v4/reports/sim_memory_bank_20261026_r1/PREVIEW_REVIEW.json"
+      },
+      {
+        "label": "512MiB别名因果复现",
+        "href": "module_14_lm_head_v4/reports/partial_rtl_20261026_diagnosis_r1/ROOT_CAUSE_REVIEW.json"
+      }
+    ],
+    "task_refs": [
+      {
+        "id": "T04",
+        "label": "T04 d64完整RTL资源问题定位"
+      }
+    ],
+    "design_page": "doc/design/R4Partial.html"
+  },
+  "design": {
+    "overview": "按动态通道选择做d64全词表近似预览，再稳定Top4096，最终canonical候选精算；保留两份权重布局。",
+    "status_note": "未取得完整RTL资格，不继承其他v4镜像板测结果。",
+    "nodes": [
+      {
+        "id": "n0",
+        "row": 0,
+        "col": 0,
+        "title": "通道选择",
+        "caption": "d=64",
+        "detail": "由当前hidden与冻结统计量选择通道。"
+      },
+      {
+        "id": "n1",
+        "row": 0,
+        "col": 1,
+        "title": "分块预览W",
+        "caption": "B1024 / 额外副本",
+        "detail": "原通道顺序FP32流式归约。"
+      },
+      {
+        "id": "n2",
+        "row": 0,
+        "col": 2,
+        "title": "Radix Top-T",
+        "caption": "T=4096",
+        "detail": "稳定key排序并入特殊ID。"
+      },
+      {
+        "id": "n3",
+        "row": 1,
+        "col": 0,
+        "title": "canonical精算",
+        "caption": "原BF16 W",
+        "detail": "候选行精算语义不变。"
+      },
+      {
+        "id": "n4",
+        "row": 1,
+        "col": 1,
+        "title": "仿真存储",
+        "caption": "分bank模型",
+        "detail": "修复512MiB别名；前5块通过。"
+      },
+      {
+        "id": "n5",
+        "row": 1,
+        "col": 2,
+        "title": "完整RTL门槛",
+        "caption": "保护停止",
+        "detail": "17小时35分停止，7返回文件0B，无完整资格。"
+      }
+    ],
+    "edges": [
+      {
+        "source": "n0",
+        "target": "n1",
+        "label": "数据/控制依赖"
+      },
+      {
+        "source": "n1",
+        "target": "n2",
+        "label": "数据/控制依赖"
+      },
+      {
+        "source": "n2",
+        "target": "n3",
+        "label": "数据/控制依赖"
+      },
+      {
+        "source": "n3",
+        "target": "n4",
+        "label": "数据/控制依赖"
+      },
+      {
+        "source": "n4",
+        "target": "n5",
+        "label": "数据/控制依赖"
+      }
+    ],
+    "steps": [
+      {
+        "title": "通道选择",
+        "nodes": [
+          "n0"
+        ],
+        "description": "由当前hidden与冻结统计量选择通道。"
+      },
+      {
+        "title": "分块预览W",
+        "nodes": [
+          "n1"
+        ],
+        "description": "原通道顺序FP32流式归约。"
+      },
+      {
+        "title": "Radix Top-T",
+        "nodes": [
+          "n2"
+        ],
+        "description": "稳定key排序并入特殊ID。"
+      },
+      {
+        "title": "canonical精算",
+        "nodes": [
+          "n3"
+        ],
+        "description": "候选行精算语义不变。"
+      },
+      {
+        "title": "仿真存储",
+        "nodes": [
+          "n4"
+        ],
+        "description": "修复512MiB别名；前5块通过。"
+      },
+      {
+        "title": "完整RTL门槛",
+        "nodes": [
+          "n5"
+        ],
+        "description": "17小时35分停止，7返回文件0B，无完整资格。"
+      }
+    ],
+    "contracts": [
+      "未取得完整RTL资格，不继承其他v4镜像板测结果。"
+    ],
+    "tradeoffs": [
+      "减少候选/预筛工作量与质量风险分别评估；GPU参考、HLS估计、实板性能分别记录。"
+    ],
+    "evidence": [
+      {
+        "label": "d64保护停止快照",
+        "href": "module_14_lm_head_v4/reports/full_bank_cosim_20261026_r1/RESULT.md"
+      },
+      {
+        "label": "前5块独立RTL数组复核",
+        "href": "module_14_lm_head_v4/reports/sim_memory_bank_20261026_r1/PREVIEW_REVIEW.json"
+      },
+      {
+        "label": "512MiB别名因果复现",
+        "href": "module_14_lm_head_v4/reports/partial_rtl_20261026_diagnosis_r1/ROOT_CAUSE_REVIEW.json"
+      }
+    ]
+  },
+  "stages": [
+    {
+      "id": "contract",
+      "title": "原理 / 数值合同",
+      "description": "核对接口、运算顺序与可比性边界"
+    },
+    {
+      "id": "implementation",
+      "title": "实现 / 离线检查",
+      "description": "源码实现、驱动、协议和主机回归"
+    },
+    {
+      "id": "hls",
+      "title": "HLS 综合",
+      "description": "生产尺寸资源、时钟估算与 II"
+    },
+    {
+      "id": "rtl",
+      "title": "RTL 仿真",
+      "description": "工具生成 Verilog 及 C post-check"
+    },
+    {
+      "id": "physical",
+      "title": "BD / 布局布线",
+      "description": "单模块互连、地址、真实 post-route、bit/XSA"
+    },
+    {
+      "id": "board",
+      "title": "实板正确性",
+      "description": "资产身份、DDR 校验、严格数值与错误路径"
+    },
+    {
+      "id": "evaluation",
+      "title": "性能评估",
+      "description": "独立样本、计时边界、稳定性与采用范围"
+    }
+  ],
+  "back": "../../开发日志.html#route-R4Partial",
+  "updated": "2026-10-30T21:42:01+08:00"
+}</script><script>
+'use strict';
+(()=>{
+const data=JSON.parse(document.getElementById('design-data').textContent),r=data.route,d=data.design,$=id=>document.getElementById(id),ns='http://www.w3.org/2000/svg';
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safe=v=>{const s=String(v||'').trim();return s&&!/[\u0000-\u001f\u007f]/.test(s)&&!s.startsWith('//')&&(!/^[a-z][a-z0-9+.-]*:/i.test(s)||/^(https?:|file:)/i.test(s))?s:'';};
+const states={verified:'✓ 已验证',active:'● 进行中',waiting:'⏸ 等待条件',planned:'○ 未开始',failed:'× 未通过',na:'— 不适用',unknown:'? 未确认'};
+$('back').href=safe(data.back)||'#';$('title').textContent=r.id+' · '+r.title;document.title=r.title+' · 路线设计';$('scope').textContent=r.scope;$('goal').textContent=r.goal;
+$('snapshot').textContent='路线快照 '+data.updated;$('boundary').textContent=d.status_note||'验证范围见下方阶段；未完成的阶段仍待验证。';
+$('outcome').textContent=r.outcome;$('next').textContent='下一步：'+(r.next||'未记录');$('overview').textContent=d.overview||'设计说明尚待补充';
+$('stages').innerHTML=data.stages.map(s=>`<div class="stage-item ${esc(r.cells[s.id].state)}"><b>${esc(s.title)}</b><span>${esc(states[r.cells[s.id].state])}</span>${esc(r.cells[s.id].note)}</div>`).join('');
+for(const id of ['contracts','tradeoffs'])$(''+id).innerHTML=(d[id]||[]).map(s=>`<li>${esc(s)}</li>`).join('')||'<li>尚未记录</li>';
+const relative=h=>/^(?:[a-z][a-z0-9+.-]*:|\/|#)/i.test(h)?h:'../../'+h;
+$('evidence').innerHTML=[...(r.evidence||[]),...(d.evidence||[])].filter(e=>safe(e.href)).map(e=>`<a href="${esc(relative(e.href))}">${esc(e.label)}</a>`).join('')||'尚无附件证据';
+const svg=$('diagram'),nodes=new Map(d.nodes.map(n=>[n.id,n]));
+const width=(Math.max(...d.nodes.map(n=>n.col))+1)*260+20,height=(Math.max(...d.nodes.map(n=>n.row))+1)*160+20;
+svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
+function el(tag,attrs={}){const e=document.createElementNS(ns,tag);for(const [k,v]of Object.entries(attrs))e.setAttribute(k,v);return e;}
+for(const edge of d.edges||[]){const a=nodes.get(edge.source),b=nodes.get(edge.target),vertical=a.col===b.col,forward=vertical?b.row>a.row:b.col>a.col;
+const x1=a.col*260+(vertical?125:forward?230:20),y1=a.row*160+(vertical?(forward?120:20):70),x2=b.col*260+(vertical?125:forward?20:230),y2=b.row*160+(vertical?(forward?20:120):70);
+const path=vertical?`M${x1} ${y1} L${x2} ${y2}`:`M${x1} ${y1} C${(x1+x2)/2} ${y1},${(x1+x2)/2} ${y2},${x2} ${y2}`;
+const line=el('path',{d:path,class:'edge'});svg.append(line);const title=el('title');title.textContent=edge.label||'';line.append(title);
+const arrow=el('path',{d:vertical?`M${x2-5} ${y2+(forward?-7:7)} L${x2} ${y2} L${x2+5} ${y2+(forward?-7:7)}`:`M${x2+(forward?-7:7)} ${y2-5} L${x2} ${y2} L${x2+(forward?-7:7)} ${y2+5}`,class:'edge'});svg.append(arrow);}
+for(const n of d.nodes){const x=n.col*260+20,y=n.row*160+20,g=el('g',{class:'node',tabindex:'0',role:'button','data-node':n.id,'aria-label':n.title});g.append(el('rect',{x,y,width:210,height:100,rx:9}));
+const fo=el('foreignObject',{x,y,width:210,height:100}),box=document.createElementNS('http://www.w3.org/1999/xhtml','div');box.setAttribute('class','node-label');box.textContent=n.title;const small=document.createElementNS('http://www.w3.org/1999/xhtml','small');small.textContent=n.caption||'';box.append(small);fo.append(box);g.append(fo);svg.append(g);}
+function select(id){const n=nodes.get(id);if(!n)return;svg.querySelectorAll('[data-node]').forEach(g=>g.classList.toggle('selected',g.dataset.node===id));$('node-title').textContent=n.title;$('node-detail').textContent=n.detail||n.caption||'未记录';}
+svg.addEventListener('click',e=>{const g=e.target.closest('[data-node]');if(g)select(g.dataset.node);});
+svg.addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){const g=e.target.closest('[data-node]');if(g){e.preventDefault();select(g.dataset.node);}}});
+$('steps').innerHTML=(d.steps||[]).map((s,i)=>`<button type="button" data-step="${i}" aria-pressed="false">${esc(s.title)}</button>`).join('');
+$('steps').addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(!b)return;const s=d.steps[Number(b.dataset.step)];$('steps').querySelectorAll('button').forEach(v=>v.setAttribute('aria-pressed',String(v===b)));svg.querySelectorAll('[data-node]').forEach(g=>{g.classList.toggle('muted',!s.nodes.includes(g.dataset.node));g.classList.toggle('step-active',s.nodes.includes(g.dataset.node));});$('step-description').textContent=s.description||'';select(s.nodes[0]);});
+$('reset').addEventListener('click',()=>{svg.querySelectorAll('[data-node]').forEach(g=>g.classList.remove('muted','step-active'));$('steps').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed','false'));$('step-description').textContent='';});
+let zoom=1;$('zoom-in').addEventListener('click',()=>{zoom=Math.min(2,zoom+.2);svg.style.width=zoom*100+'%';});$('zoom-fit').addEventListener('click',()=>{zoom=1;svg.style.width='100%';svg.style.minWidth='0';});select(d.nodes[0].id);
+})();
+</script></body></html>

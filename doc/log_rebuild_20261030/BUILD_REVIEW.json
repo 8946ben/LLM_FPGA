@@ -1,0 +1,35 @@
+{
+  "state": "REBUILT_PRESERVING_ALL_HISTORICAL_ENTRIES",
+  "backup": {
+    "file": "D:\\program\\LLM_FPGA\\bak\\开发日志_20261030_205950.html",
+    "sha256": "e3a9f97e6decd1242b34540731d93bc9bc85e9ce958da8ea8b62ab7657b8cd5a"
+  },
+  "old_entries": 79,
+  "new_entries": 90,
+  "old_ids_preserved": true,
+  "unknown_top_fields_preserved": true,
+  "renderer": "C:\\Users\\ben\\.codex\\skills\\dev-log\\scripts\\render_log.py",
+  "renderer_sha256": "d7315749864361ceb6cb3a080a30f34d3645064216eacd972bc3de113032dd8f",
+  "skill_sha256": "b42223058067383ddef53941a1adec45f155177794fb490382bab40dcd50b532",
+  "generated_files": [
+    "D:\\program\\LLM_FPGA\\doc\\design\\R2017.html",
+    "D:\\program\\LLM_FPGA\\doc\\design\\R2021.html",
+    "D:\\program\\LLM_FPGA\\doc\\design\\RNumeric.html",
+    "D:\\program\\LLM_FPGA\\doc\\design\\RJTAG.html",
+    "D:\\program\\LLM_FPGA\\doc\\design\\RTCPInitial.html",
+    "D:\\program\\LLM_FPGA\\doc\\design\\RTCP.html",
+    "D:\\program\\LLM_FPGA\\doc\\design\\RDelivery.html",
+    "D:\\program\\LLM_FPGA\\doc\\design\\R250.html",
+    "D:\\program\\LLM_FPGA\\doc\\design\\R200.html",
+    "D:\\program\\LLM_FPGA\\doc\\design\\R200Layers.html",
+    "D:\\program\\LLM_FPGA\\doc\\design\\R31PLDDR.html",
+    "D:\\program\\LLM_FPGA\\doc\\design\\R4Sparse.html",
+    "D:\\program\\LLM_FPGA\\doc\\design\\R4Exp10.html",
+    "D:\\program\\LLM_FPGA\\doc\\design\\R4Partial.html",
+    "D:\\program\\LLM_FPGA\\doc\\design\\R4GPUStudy.html",
+    "D:\\program\\LLM_FPGA\\doc\\design\\R4bQuant.html",
+    "D:\\program\\LLM_FPGA\\开发日志.html"
+  ],
+  "board_or_server_operations": "NONE",
+  "visual": "NOT_RUN_FILE_URL_SECURITY_POLICY"
+}

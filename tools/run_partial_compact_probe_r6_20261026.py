@@ -1,0 +1,12 @@
+from pathlib import Path
+ROOT=Path('/home/zhangben/gpuFpgaLLM_experiments/lm_head_v4_partial_20261024_r1')
+entry=(ROOT/'run_partial_signal_probe_20261026.py').read_text()
+entry=entry.replace("R.mkdir(exist_ok=True)","R=R/'r6'\nR.mkdir(exist_ok=True)")
+entry=entry.replace('p64_signal_probe_20261026_r1','p64_signal_probe_20261026_r5')
+entry=entry.replace('lm_head_v4_partial_proto -tclbatch signal_probe.tcl','partial_probe_debug_r2 -tclbatch signal_probe.tcl')
+entry=entry.replace('log_vcd [get_objects $top/*CLK*]','')
+entry=entry.replace('log_vcd [get_objects $top/*clk*]','log_vcd [get_objects $top/ap_clk]')
+entry=entry.replace('add_condition -name stop_after_first_preview','add_condition -radix unsigned -name stop_after_first_preview')
+entry=entry.replace('run 5 ms', 'add_condition -radix unsigned -name range_guard -notrace {/apatb_lm_head_v4_partial_proto_top/weights_ARVALID == 1} {set addr [get_value -radix unsigned /apatb_lm_head_v4_partial_proto_top/weights_ARADDR]; if {$addr >= 12845056} {puts "PROBE_RANGE_GUARD_FAILURE"; stop}}\nrun 5 ms')
+entry=entry.replace("'DIAGNOSTIC_RETURNED' if rc==0", "'DIAGNOSTIC_RETURNED' if rc==0 and 'PROBE_FIRST_PREVIEW_REACHED' in (R/'probe.log').read_text() and 'PROBE_RANGE_GUARD_FAILURE' not in (R/'probe.log').read_text()")
+exec(compile(entry,str(ROOT/'run_partial_compact_probe_r6_20261026.py'),'exec'))

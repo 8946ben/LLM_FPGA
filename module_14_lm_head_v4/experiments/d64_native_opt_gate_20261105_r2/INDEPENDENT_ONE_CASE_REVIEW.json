@@ -1,0 +1,91 @@
+{
+  "state": "PASS_ONE_RETURNED_NORMAL_MODEL_CASE_ONLY_SUITE_INCOMPLETE_TIMEOUT",
+  "utc": "2026-11-05T06:20:12.306371+00:00",
+  "terminal_reason": "PHASE_TIMEOUT",
+  "complete_cases": 1,
+  "required_cases": 12,
+  "case0_arrays": {
+    "scope": "ALL_DEFINED_DEBUG_ARRAYS_AND_SCALARS_BIT_EXACT",
+    "case": 0,
+    "k": 4109,
+    "assembled_sha256": "191f7387458028dd5a2564d538f80d1e5301d00dd88aa7da14a9a7afa2075a69"
+  },
+  "case0_control": {
+    "scope": "REGISTER_TRACE_REPLAY_ONLY",
+    "calls": 1,
+    "poll_counts": [
+      57705
+    ]
+  },
+  "case0_address_requests": 93563,
+  "case0_address_counts": [
+    342,
+    42863,
+    78034,
+    79068,
+    15187,
+    1680816,
+    5651
+  ],
+  "case0_metrics": {
+    "case": 0,
+    "label": "A0_debug",
+    "debug": 1,
+    "status": 0,
+    "token": 20412,
+    "score": 1105086332,
+    "K": 4109,
+    "crc": 476316903,
+    "ip_cycles": 3866131,
+    "control_call_cycles": 3866175,
+    "meta_reads": 42863,
+    "meta_writes": 79068,
+    "weight_reads": 1680816,
+    "canonical_requests": 5651,
+    "raw_write_beats": 2055,
+    "total_starts": 1
+  },
+  "case0_normal_model_ip_ms": 19.330655,
+  "case0_image_file_write_interval_s": 18478.466454029083,
+  "file_time_scope": "Last-write timestamp of before image to last-write timestamp of after image,includes control setup and after dump;not exact DUT start/done host duration.",
+  "resources": {
+    "samples": 33321,
+    "peak_group_gib": 4.873924255371094,
+    "min_available_gib": 242.30884170532227,
+    "stop_elapsed_s": 21600.17930616392
+  },
+  "log_facts": {
+    "bytes": 94547375,
+    "lines": 320578,
+    "sha256": "e65d5bd75e163ac9f4466ab679b937bdb7372e2e49785e050687744071c08e32",
+    "error_count": 0,
+    "error_examples": [],
+    "sentinel_pass_count": 0,
+    "range_guard_count": 0,
+    "range_guard_rows": [],
+    "fifo_summary_count": 0,
+    "fifo_summary_rows": [],
+    "dsp_warning_count": 160251,
+    "dsp_warning_examples": [
+      "Warning: OPMODE Input Warning : The OPMODE 0110X0X with CARRYINSEL  000 to DSP48E1 instance is invalid."
+    ],
+    "normalized_warning_lines_sha256": "3c9ffd687da8a2ba91c81e16d364bc63a8c920750f8ea2c81bf465a6a0711179",
+    "warning_scope": "All warning lines counted/hashed in order; at most8 distinct examples retained. Numeric effect is decided only by bitwise outputs."
+  },
+  "receipt_sha256": "2de36c9bb71dc922b999dd188a9b25662f6d2789b890e9e7e819ea7ee0c6fcbe",
+  "proof_sha256": "f025b4e2d9ec54129dd17f4cfc2df0ed077944d45299925a608c349d84ef8410",
+  "limits": [
+    "Only case0 complete full debug arrays and control/address trace independently accepted",
+    "Frame1 control/address tails truncated by guard;preserved raw bytes,not validated or silently repaired",
+    "address_summary.csv is0bytes,not a complete-suite trace summary",
+    "A-B-A,production,zero/ties,errors/recovery and12case acceptance remain incomplete",
+    "DSP warning outputs bit-exact only for this actual case;no all-input harmlessness claim",
+    "Normal registered model cycle timing is not physical FPGA/MIG/decode measurement"
+  ],
+  "board": "NOT_RUN",
+  "automatic_retry": false,
+  "helper_sha256": {
+    "review_d64_state_payload_20261104.py": "f5ade3603ca21bfd6704dbe31524eecbacb1689e17da08d9da535719cbb2e1f9",
+    "scan_xsim_evidence_20261104.py": "ea73e1480658ee9ccf5f63392f3396dba4f2267b811e6aab4ab382add8ae9da3"
+  }
+}

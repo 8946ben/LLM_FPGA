@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/philosophy.csv:83",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "9a32758531b34dd6d958d050ddc2776ce949db8e760f5c850da20265648ac7a7",
+  "group_sha256": "20b87ba7160dc9ea84b3d519e842923160ada2379c56551b518edcfb970a8323",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "1992d63fc2b4e9db2170cb23.npz",
+  "npz_sha256": "14b4c5bb6a5691399c5b3e97a37663175ba2509cc2c4ee32a546058d3c25bb59",
+  "generated_ids": [
+    105384,
+    20412,
+    101911,
+    32108,
+    33108,
+    72448,
+    105302,
+    118889,
+    3837,
+    99652,
+    105435,
+    103971,
+    102670,
+    100240,
+    5373,
+    100162
+  ],
+  "input_tokens": 91,
+  "seconds": 1.5108131999731995,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}

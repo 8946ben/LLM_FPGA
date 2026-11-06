@@ -1,0 +1,113 @@
+{
+  "state": "EXP10_PRIVATE_OFFLINE_LAYOUT_NOT_RELEASED",
+  "physical_base": "0x400000000",
+  "arena_bytes": 335544320,
+  "physical_ddr_total_bytes": 2147483648,
+  "descriptor_offset": 1048576,
+  "descriptor_bytes": 240,
+  "alignment": 64,
+  "regions": [
+    {
+      "name": "weight",
+      "offset": 1048832,
+      "capacity": 272269312,
+      "address": 17180918016,
+      "physical_address": "0x400100100"
+    },
+    {
+      "name": "hidden",
+      "offset": 273318208,
+      "capacity": 1792,
+      "address": 17453187392,
+      "physical_address": "0x4104a8140"
+    },
+    {
+      "name": "history",
+      "offset": 273320064,
+      "capacity": 18992,
+      "address": 17453189248,
+      "physical_address": "0x4104a8880"
+    },
+    {
+      "name": "a",
+      "offset": 273339136,
+      "capacity": 19447808,
+      "address": 17453208320,
+      "physical_address": "0x4104ad300"
+    },
+    {
+      "name": "bt",
+      "offset": 292787008,
+      "capacity": 114688,
+      "address": 17472656192,
+      "physical_address": "0x411739340"
+    },
+    {
+      "name": "centers",
+      "offset": 292901760,
+      "capacity": 458752,
+      "address": 17472770944,
+      "physical_address": "0x411755380"
+    },
+    {
+      "name": "norms",
+      "offset": 293360576,
+      "capacity": 1024,
+      "address": 17473229760,
+      "physical_address": "0x4117c53c0"
+    },
+    {
+      "name": "ranked",
+      "offset": 293361664,
+      "capacity": 8388608,
+      "address": 17473230848,
+      "physical_address": "0x4117c5800"
+    },
+    {
+      "name": "counts",
+      "offset": 301750336,
+      "capacity": 1024,
+      "address": 17481619520,
+      "physical_address": "0x411fc5840"
+    },
+    {
+      "name": "preview",
+      "offset": 301751424,
+      "capacity": 607744,
+      "address": 17481620608,
+      "physical_address": "0x411fc5c80"
+    },
+    {
+      "name": "routed",
+      "offset": 302359232,
+      "capacity": 607760,
+      "address": 17482228416,
+      "physical_address": "0x41205a2c0"
+    },
+    {
+      "name": "merged",
+      "offset": 302967104,
+      "capacity": 607760,
+      "address": 17482836288,
+      "physical_address": "0x4120ee940"
+    },
+    {
+      "name": "sparse",
+      "offset": 303574976,
+      "capacity": 1215488,
+      "address": 17483444160,
+      "physical_address": "0x412182fc0"
+    }
+  ],
+  "allocated_end": 304790528,
+  "descriptor_version": 2,
+  "parameters": {
+    "C": 256,
+    "R": 4,
+    "L": 8192,
+    "r": 64,
+    "T": 16384
+  },
+  "config_tag": "0x8507826e",
+  "signature": "0x4D345A0A"
+}

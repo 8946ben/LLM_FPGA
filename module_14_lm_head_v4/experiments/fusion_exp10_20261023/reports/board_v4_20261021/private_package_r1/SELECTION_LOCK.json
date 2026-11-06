@@ -1,0 +1,149 @@
+{
+  "state": "LOCKED_BEFORE_NEW_FINAL_LABELS",
+  "chosen": "C256_R4_L8192_r64_T16384",
+  "parameters": {
+    "C": 256,
+    "R": 4,
+    "L": 8192,
+    "r": 64,
+    "T": 16384
+  },
+  "objective": "Minimum actual mean logical step read bytes among qualified shortlist; GPU Eager speed reported separately, not FPGA predictor. Ties by P95 K then lexicographic ID. No outcome-dependent expansion.",
+  "calibration_sha256": "4c7af702d4de10df4caf8562d6035a4ada4139d45aba2f4237b6780ab00ac9ea",
+  "shortlist_sha256": "873933682ec9f1ce78978ee054f339639d1cfca020783c2f1999b7961e4ae3e7",
+  "gpu_sha256": "b0520051fdf3d50427cd48e5b837e6f681eda30223aef4ae8bd2616d7b492e71",
+  "source_sha256": "7b3ecda9ac169e59edd5c1583202bc9dccf16cac587877f911d3e347b5173885",
+  "factor_manifest_sha256": "e75a27a7a713830c52a3f3f9eb527fb38ef7640d7a1619804936faa74b907cd9",
+  "selected_metrics": {
+    "id": "C256_R4_L8192_r64_T16384",
+    "parameters": {
+      "C": 256,
+      "R": 4,
+      "L": 8192,
+      "r": 64,
+      "T": 16384
+    },
+    "quality": {
+      "all": {
+        "steps": 5095,
+        "misses": 0,
+        "recall": 1.0,
+        "by_category": {
+          "chinese": {
+            "steps": 1280,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "code": {
+            "steps": 1280,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "english": {
+            "steps": 1255,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "math": {
+            "steps": 1280,
+            "misses": 0,
+            "recall": 1.0
+          }
+        }
+      },
+      "decode": {
+        "steps": 4775,
+        "misses": 0,
+        "recall": 1.0,
+        "by_category": {
+          "chinese": {
+            "steps": 1200,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "code": {
+            "steps": 1200,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "english": {
+            "steps": 1175,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "math": {
+            "steps": 1200,
+            "misses": 0,
+            "recall": 1.0
+          }
+        }
+      },
+      "prefill": {
+        "steps": 320,
+        "misses": 0,
+        "recall": 1.0,
+        "by_category": {
+          "chinese": {
+            "steps": 80,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "code": {
+            "steps": 80,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "english": {
+            "steps": 80,
+            "misses": 0,
+            "recall": 1.0
+          },
+          "math": {
+            "steps": 80,
+            "misses": 0,
+            "recall": 1.0
+          }
+        }
+      },
+      "decode_prompt_bootstrap_interval95": [
+        1.0,
+        1.0
+      ],
+      "complete_prompt_decode_match": {
+        "prompts": 320,
+        "all_steps_match_prompts": 320,
+        "rate": 1.0,
+        "wilson_interval95": [
+          0.9881378411686904,
+          1
+        ]
+      },
+      "uncertainty_note": "Prompt bootstrap describes this sample; with zero misses it degenerates to [1,1] and is not a zero-risk certificate. Wilson interval is for whole-prompt exact-match events assuming independent prompt groups; semantic/template correlation and pretraining contamination remain unmeasured.",
+      "prompt_groups": 320
+    },
+    "proposed_point_gate": true,
+    "selection_qualified": true,
+    "candidate_decode": {
+      "mean": 23001.587015706806,
+      "median": 22415.0,
+      "p95": 30482,
+      "max": 38084,
+      "min": 16792
+    },
+    "overlap_decode": {
+      "mean": 4389.493403141361,
+      "median": 4297.0,
+      "p95": 6638,
+      "max": 7861,
+      "min": 1061
+    },
+    "route_only_decode_misses": 18,
+    "lowrank_only_decode_misses": 193,
+    "both_missed_decode": 0,
+    "logical_mean_decode_bytes": 61312644.663455494,
+    "estimated_arena_bytes": 304791248,
+    "fallback_decode": 0,
+    "arrays": "coverage/C256_R4_L8192_r64_T16384.npz",
+    "sha256": "be9e3d141abef5de3070cb0d19062688198f2ec2743c25ad14466fb9c796155a"
+  }
+}

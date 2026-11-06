@@ -1,0 +1,29 @@
+{
+  "repository": "https://github.com/xlang-ai/DS-1000",
+  "revision": "b39aab71da6d23ef8d3cac59a7c5f834516ab334",
+  "files": [
+    {
+      "path": "data/ds1000.jsonl.gz",
+      "local": "ds1000.jsonl.gz",
+      "url": "https://raw.githubusercontent.com/xlang-ai/DS-1000/b39aab71da6d23ef8d3cac59a7c5f834516ab334/data/ds1000.jsonl.gz",
+      "bytes": 418089,
+      "sha256": "e8c6daa9d7223976bce0296644f3933f78d7f47830669ff05cd61da62c6ba9b3"
+    },
+    {
+      "path": "README.md",
+      "local": "README.md",
+      "url": "https://raw.githubusercontent.com/xlang-ai/DS-1000/b39aab71da6d23ef8d3cac59a7c5f834516ab334/README.md",
+      "bytes": 7231,
+      "sha256": "d4a2aa98c7d0f8c7103e4bc4db641f0a15f772ee579332e036b6813700bfb806"
+    },
+    {
+      "path": "LICENSE",
+      "local": "LICENSE",
+      "url": "https://raw.githubusercontent.com/xlang-ai/DS-1000/b39aab71da6d23ef8d3cac59a7c5f834516ab334/LICENSE",
+      "bytes": 20139,
+      "sha256": "2003829cf643d61b00a76088dd31bb11b8029546f24c56b39fd492adb9281483"
+    }
+  ],
+  "scope": "Public source, prompt-only reservation. code_context/reference_code never run or supplied as prompt.",
+  "license": "CC-BY-SA-4.0 per pinned author LICENSE; local research source retained with attribution"
+}

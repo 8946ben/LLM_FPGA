@@ -1,0 +1,32 @@
+{
+  "id": "cmmlu:CMMLU-d6e7b716d8ac694f38969a6c0407437d1fded799/data/test/professional_psychology.csv:17",
+  "category": "chinese",
+  "split": "holdout",
+  "prompt_sha256": "3b888da49c5fdb0a6761496bc948b3f65076f1f30c7ced60d67de3d75de8cc5c",
+  "group_sha256": "ad4f497940bf3b0003e8826217773ab49aba1fa532f7e11cd044c7a0d762482a",
+  "steps": 16,
+  "decode_steps": 15,
+  "npz": "88ffd458e5c9fe4b2005d7f6.npz",
+  "npz_sha256": "ad590b26b0211e06e14e8ba17d8a0c2fa4aadc588243cdf566e02cf72caecf6a",
+  "generated_ids": [
+    109487,
+    32,
+    5122,
+    100821,
+    99316,
+    28726,
+    99353,
+    271,
+    100821,
+    99316,
+    28726,
+    99353,
+    101158,
+    104916,
+    28726,
+    99353
+  ],
+  "input_tokens": 99,
+  "seconds": 1.4296364999609068,
+  "scope": "Canonical dense trajectory on fresh text; no task solution execution or board"
+}
